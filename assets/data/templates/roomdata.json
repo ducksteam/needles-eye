@@ -1,0 +1,16 @@
+{
+  "name": "",
+  "type": "",
+  "spawn": false,
+  "modelpath": "",
+  "texturepath": "",
+  "width": 1,
+  "height": 1,
+  "objects": [
+    {
+      "name": "pot",
+      "position": [0, 0, 0],
+      "scale": [1, 1, 1]
+    }
+  ]
+}

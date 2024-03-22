@@ -1,0 +1,16 @@
+{
+  "name": "longroom",
+  "type": "hallway",
+  "spawn": false,
+  "modelpath": "models/rooms/longroom.g3dj",
+  "texturepath": "",
+  "width": 1,
+  "height": 2,
+  "objects": [
+    {
+      "name": "pot",
+      "position": [0, 0, 0],
+      "scale": [1, 1, 1]
+    }
+  ]
+}
