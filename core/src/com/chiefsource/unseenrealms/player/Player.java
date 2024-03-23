@@ -1,6 +1,5 @@
-package com.chiefsource.unseenrealms;
+package com.chiefsource.unseenrealms.player;
 
-import com.badlogic.gdx.graphics.g3d.utils.CameraInputController;
 import com.badlogic.gdx.math.Vector3;
 
 public class Player {

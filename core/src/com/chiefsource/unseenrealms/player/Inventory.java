@@ -1,4 +1,4 @@
-package com.chiefsource.unseenrealms;
+package com.chiefsource.unseenrealms.player;
 
 import java.util.ArrayList;
 

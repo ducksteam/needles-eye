@@ -1,4 +1,4 @@
-package com.chiefsource.unseenrealms;
+package com.chiefsource.unseenrealms.player;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g3d.Model;
