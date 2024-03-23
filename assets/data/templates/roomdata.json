@@ -1,16 +1,115 @@
 {
-  "name": "",
-  "type": "",
-  "spawn": false,
-  "modelpath": "",
-  "texturepath": "",
-  "width": 1,
-  "height": 1,
-  "objects": [
-    {
-      "name": "pot",
-      "position": [0, 0, 0],
-      "scale": [1, 1, 1]
+  "type": "object",
+  "default": {},
+  "required": [
+    "name",
+    "type",
+    "spawn",
+    "modelpath",
+    "texturepath",
+    "width",
+    "height",
+    "objects",
+    "doors"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "type": {
+      "type": "string",
+      "default": "small"
+    },
+    "spawn": {
+      "type": "boolean",
+      "default": true
+    },
+    "modelpath": {
+      "type": "string"
+    },
+    "texturepath": {
+      "type": "string"
+    },
+    "width": {
+      "type": "integer",
+        "default": 1
+    },
+    "height": {
+      "type": "integer",
+        "default": 1
+    },
+    "objects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "position",
+          "scale"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "position": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "default": [0, 0, 0]
+          },
+          "scale": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "default": [1, 1, 1]
+          }
+        }
+      }
+    },
+    "doors": {
+      "type": "object",
+      "required": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "properties": {
+        "0": {
+          "type": "boolean",
+            "default": true
+        },
+        "1": {
+          "type": "boolean",
+            "default": true
+        },
+        "2": {
+          "type": "boolean",
+            "default": true
+        },
+        "3": {
+          "type": "boolean",
+            "default": true
+        },
+        "4": {
+          "type": "boolean",
+            "default": false
+        },
+        "5": {
+          "type": "boolean",
+            "default": false
+        },
+        "6": {
+          "type": "boolean",
+            "default": false
+        }
+      }
     }
-  ]
+  }
 }
