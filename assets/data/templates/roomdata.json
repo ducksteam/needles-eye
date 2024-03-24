@@ -5,8 +5,8 @@
     "name",
     "type",
     "spawn",
-    "modelpath",
-    "texturepath",
+    "modelPath",
+    "texturePath",
     "width",
     "height",
     "objects",
@@ -19,16 +19,17 @@
     },
     "type": {
       "type": "string",
-      "default": "small"
+      "default": "small",
+      "enum": ["small", "hallway", "battle", "boss", "treasure"]
     },
     "spawn": {
       "type": "boolean",
       "default": true
     },
-    "modelpath": {
+    "modelPath": {
       "type": "string"
     },
-    "texturepath": {
+    "texturePath": {
       "type": "string"
     },
     "width": {
@@ -75,10 +76,7 @@
         "0",
         "1",
         "2",
-        "3",
-        "4",
-        "5",
-        "6"
+        "3"
       ],
       "properties": {
         "0": {

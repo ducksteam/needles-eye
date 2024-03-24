@@ -2,8 +2,8 @@
   "name": "longroom",
   "type": "hallway",
   "spawn": false,
-  "modelpath": "models/rooms/longroom.g3dj",
-  "texturepath": "",
+  "modelPath": "models/rooms/longroom.g3dj",
+  "texturePath": "",
   "width": 1,
   "height": 2,
   "objects": [
@@ -12,5 +12,14 @@
       "position": [0, 0, 0],
       "scale": [1, 1, 1]
     }
-  ]
+  ],
+  "doors": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": false,
+    "4": true,
+    "5": true,
+    "6": true
+  }
 }

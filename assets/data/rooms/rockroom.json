@@ -2,8 +2,8 @@
   "name": "rockroom",
   "type": "small",
   "spawn": true,
-  "modelpath": "models/rooms/rockroom.g3dj",
-  "texturepath": "",
+  "modelPath": "models/rooms/rockroom.g3dj",
+  "texturePath": "",
   "width": 1,
   "height": 1,
   "objects": [
@@ -12,5 +12,11 @@
       "position": [0, 0, 0],
       "scale": [1, 1, 1]
     }
-  ]
+  ],
+  "doors": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true
+  }
 }
