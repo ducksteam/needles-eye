@@ -1,0 +1,26 @@
+{
+  "type": "object",
+  "default": {},
+  "required": [
+    "name",
+    "modelPath",
+    "texturePath",
+    "destructible"
+  ],
+  "properties": {
+    "name": {
+      "type": "string",
+      "default": ""
+    },
+    "modelPath": {
+      "type": "string"
+    },
+    "texturePath": {
+      "type": "string"
+    },
+    "destructible": {
+      "type": "boolean",
+      "default": false
+    }
+  }
+}

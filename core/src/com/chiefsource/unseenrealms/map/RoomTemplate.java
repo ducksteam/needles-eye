@@ -20,7 +20,7 @@ public class RoomTemplate {
                 ", modelPath='" + modelPath + '\'' +
                 ", texturePath='" + texturePath + '\'' +
                 ", name='" + name + '\'' +
-                ", objects=" + objects +
+                ", decos=" + decos +
                 '}';
     }
 
@@ -66,7 +66,7 @@ public class RoomTemplate {
     private String modelPath;
     private String texturePath;
     private String name;
-    private ArrayList<ObjectInstance> objects;
+    private ArrayList<DecoInstance> decos;
 
     public static RoomTemplate loadRoomTemplate(File file) {
         Gson gson = new Gson();
@@ -79,6 +79,7 @@ public class RoomTemplate {
             e.printStackTrace();
             return null;
         }
+
         RoomTemplate rt = new RoomTemplate();
         rt.setType(RoomType.fromString((String) map.get("type")));
         rt.setWidth(((Double) map.get("width")).intValue());
@@ -87,7 +88,7 @@ public class RoomTemplate {
         rt.setModelPath((String) map.get("modelPath"));
         rt.setTexturePath((String) map.get("texturePath"));
         rt.setName((String) map.get("name"));
-        // Objects will be weird i have a feeling
+        // Decos will be weird i have a feeling
         return rt;
     }
 
@@ -147,11 +148,11 @@ public class RoomTemplate {
         this.name = name;
     }
 
-    public ArrayList<ObjectInstance> getObjects() {
-        return objects;
+    public ArrayList<DecoInstance> getDecos() {
+        return decos;
     }
 
-    public void setObjects(ArrayList<ObjectInstance> objects) {
-        this.objects = objects;
+    public void setDecos(ArrayList<DecoInstance> decos) {
+        this.decos = decos;
     }
 }

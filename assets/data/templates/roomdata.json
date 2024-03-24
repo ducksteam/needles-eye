@@ -9,7 +9,7 @@
     "texturePath",
     "width",
     "height",
-    "objects",
+    "decos",
     "doors"
   ],
   "properties": {
@@ -40,7 +40,7 @@
       "type": "integer",
         "default": 1
     },
-    "objects": {
+    "decos": {
       "type": "array",
       "items": {
         "type": "object",

@@ -4,11 +4,11 @@ import com.badlogic.gdx.Gdx;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 public class MapManager {
     private ArrayList<RoomTemplate> templates;
+    private ArrayList<DecoInstance> decos;
     private ArrayList<Level> levels;
     private int levelIndex;
 
