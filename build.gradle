@@ -63,6 +63,7 @@ project(":core") {
 
 
     dependencies {
+        implementation ('com.google.code.gson:gson:2.10.1')
         api "com.github.mgsx-dev.gdx-gltf:gltf:$gltfVersion"
         api "com.badlogicgames.gdx:gdx:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-bullet:$gdxVersion"
