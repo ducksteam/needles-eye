@@ -6,7 +6,7 @@
   "texturePath": "",
   "width": 1,
   "height": 1,
-  "objects": [
+  "decos": [
     {
       "name": "pot",
       "position": [0, 0, 0],
