@@ -2,14 +2,15 @@ package com.chiefsource.unseenrealms.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class MapManager {
-    private ArrayList<RoomTemplate> templates;
-    private ArrayList<DecoInstance> decos;
+    public static ArrayList<RoomTemplate> roomTemplates;
+    public static ArrayList<DecoTemplate> decoTemplates;
     private ArrayList<Level> levels;
     private int levelIndex; // number of levels generated
 
@@ -18,11 +19,27 @@ public class MapManager {
 
     // paths
     public final String ROOM_TEMPLATE_PATH = "data/rooms/";
+    public final String DECO_TEMPLATE_PATH = "data/decos/";
 
     public MapManager() {
-        templates = new ArrayList<>();
+        roomTemplates = new ArrayList<>();
+        decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
         levelIndex = 1;
+
+        // load deco templates
+        File decoDir = new File(DECO_TEMPLATE_PATH);
+        if (!decoDir.exists()) { // check if the deco template directory exists
+            Gdx.app.error("MapManager", "Deco template directory not found: " + DECO_TEMPLATE_PATH);
+            return;
+        }
+        for (File file : Objects.requireNonNull(decoDir.listFiles())) { // load all deco templates
+            if (file.getName().endsWith(".json")) { // only load json files
+                decoTemplates.add(DecoTemplate.loadDecoTemplate(file)); // load the deco template
+            }
+            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": \n" + decoTemplates.getLast().toString());
+        }
+        Gdx.app.debug("MapManager", "Loaded " + decoTemplates.size() + " deco templates");
 
         // load room templates
         File roomDir = new File(ROOM_TEMPLATE_PATH);
@@ -31,13 +48,12 @@ public class MapManager {
             return;
         }
         for (File file : Objects.requireNonNull(roomDir.listFiles())) { // load all room templates
-            Gdx.app.debug("MapManager", "Loading room template: " + file.getName());
             if (file.getName().endsWith(".json")) { // only load json files
-                templates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
+                roomTemplates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
             }
-            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": \n" + templates.getLast().toString());
+            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": \n" + roomTemplates.getLast().toString());
         }
-        Gdx.app.debug("MapManager", "Loaded " + templates.size() + " room templates");
+        Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
         generateLevel(); // generate the first level
     }
@@ -82,7 +98,7 @@ public class MapManager {
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
 
         int door = (int) Math.floor(Math.random() * doorCount);
-        while (doorCount == 7 && door == 3) door = (int) Math.floor(Math.random() * doorCount); // but door 3 isn't used in hallways
+        while ((doorCount == 7 && door == 3) || !room.getRoom().getDoors().get(door)) door = (int) Math.floor(Math.random() * doorCount); // but door 3 isn't used in hallways and doors can be disabled
 
         /*   6
          *   _
@@ -104,9 +120,16 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + door);
         };
 
-        offset.rotateDeg(room.getRot()); // rotate offset to match room rotation
-        Vector2 pos = nonMutatingVectorAdd(room.getPos(), offset); // add offset to room position
-        Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
+        Vector2 rot = switch (room.getRot()) { // room rotation
+            case 0 -> new Vector2(1, 1);
+            case 90 -> new Vector2(1, -1);
+            case 180 -> new Vector2(-1, -1);
+            case 270 -> new Vector2(-1, 1);
+            default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
+        };
+
+        Vector2 pos = nonMutatingVectorAdd(room.getPos(), offset.scl(rot)); // add offset to room position (why is vector multiplication scl not mul)
+        //Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
@@ -127,7 +150,7 @@ public class MapManager {
      * @return a random room template
      */
     private RoomTemplate getRandomRoomTemplate(RoomTemplate.RoomType type){
-        RoomTemplate template = getRandomElement(templates);
+        RoomTemplate template = getRandomElement(roomTemplates);
         if (template.getType() == type || type == null) { // if the template is the correct type
             return template;
         } else { // if the template is the wrong type, try again
@@ -166,5 +189,8 @@ public class MapManager {
         return new Vector2(a.x + b.x, a.y + b.y);
     }
 
+    public static Vector3 vector3FromArray(ArrayList<Double> array) {
+        return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
+    }
 
 }
