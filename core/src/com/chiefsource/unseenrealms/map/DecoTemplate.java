@@ -1,6 +1,10 @@
 package com.chiefsource.unseenrealms.map;
 
+import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
+
+import java.io.File;
+import java.io.FileReader;
 
 public class DecoTemplate {
     private String name;
@@ -8,13 +12,13 @@ public class DecoTemplate {
     private String texturePath;
     private boolean destructible;
 
-    public static DecoTemplate loadDecoTemplate(String path) {
+    public static DecoTemplate loadDecoTemplate(File file) {
         Gson gson = new Gson();
 
         try {
-            return gson.fromJson(path, DecoTemplate.class);
+            return gson.fromJson(new FileReader(file), DecoTemplate.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            Gdx.app.error("DecoTemplate", "Error loading deco template: " + file.getName(), e);
             return null;
         }
 
@@ -50,5 +54,15 @@ public class DecoTemplate {
 
     public void setDestructible(boolean destructible) {
         this.destructible = destructible;
+    }
+
+    @Override
+    public String toString() {
+        return "DecoTemplate{" +
+                "name='" + name + '\'' +
+                ", modelPath='" + modelPath + '\'' +
+                ", texturePath='" + texturePath + '\'' +
+                ", destructible=" + destructible +
+                '}';
     }
 }

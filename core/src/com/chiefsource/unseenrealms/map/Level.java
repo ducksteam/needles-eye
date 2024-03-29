@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * One floor of the dungeon
  */
 public class Level {
-    private ArrayList<RoomInstance> rooms;
+    private final ArrayList<RoomInstance> rooms;
     private final int levelNo;
 
     public Level(int levelNo) {
@@ -17,7 +17,7 @@ public class Level {
     }
 
     /**
-     * Add a room to the level
+     * Add a room to the level, & an additional placeholder room if it's a hallway
      * @param room the room to add
      */
     public void addRoom(RoomInstance room) {

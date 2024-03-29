@@ -2,11 +2,13 @@ package com.chiefsource.unseenrealms.map;
 
 import com.badlogic.gdx.Gdx;
 import com.google.gson.Gson;
+import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 public class RoomTemplate {
@@ -70,7 +72,7 @@ public class RoomTemplate {
     private String texturePath;
     private String name;
     private ArrayList<DecoInstance> decos;
-    private Map<Integer, Boolean> doors;
+    private HashMap<Integer, Boolean> doors;
 
     public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, String texturePath) {
         this.type = roomType;
@@ -93,7 +95,7 @@ public class RoomTemplate {
         try {
             map = gson.fromJson(new FileReader(file), Map.class); // read the file to a map
         } catch (FileNotFoundException e) { // file not found
-            Gdx.app.error("RoomTemplate", "File not found: " + file.getName());
+            Gdx.app.error("RoomTemplate", "File not found: " + file.getName(), e);
             return null;
         }
         RoomTemplate rt = new RoomTemplate(); // Create empty room template & read values from map
@@ -105,9 +107,31 @@ public class RoomTemplate {
         rt.setTexturePath((String) map.get("texturePath"));
         rt.setName((String) map.get("name"));
 
-        //TODO: enabled doors & decos
-        Gdx.app.debug("doors", map.get("doors").toString());
-        // Decos will be weird i have a feeling
+        // Read doors
+        @SuppressWarnings("unchecked") LinkedTreeMap<String, Object> doors = (LinkedTreeMap<String, Object>) map.get("doors");
+        rt.setDoors(new HashMap<>() {}); // Create empty doors map
+        for (Map.Entry<String, Object> entry : doors.entrySet()) { // Read doors from GSON map
+            rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
+        }
+
+        // Read decos
+        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> decos = (ArrayList<LinkedTreeMap<String, Object>>) map.get("decos");
+        rt.setDecos(new ArrayList<>());
+
+        for(LinkedTreeMap<String, Object> entry : decos) { // Read decos from GSON map
+            DecoInstance deco = new DecoInstance(); // Create empty deco instance
+            for(Map.Entry<String, Object> e : entry.entrySet()) { // For each deco in the JSON array
+                switch (e.getKey()) { // Read values from GSON map
+                    case "name" -> deco.setTemplate(MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null));
+                    case "position" -> //noinspection unchecked
+                        deco.setPos(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
+                    case "scale" -> //noinspection unchecked
+                        deco.setScale(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
+                }
+            }
+            rt.getDecos().add(deco);
+        }
+
         return rt;
     }
 
@@ -175,11 +199,11 @@ public class RoomTemplate {
         this.decos = decos;
     }
 
-    public Map<Integer, Boolean> getDoors() {
+    public HashMap<Integer, Boolean> getDoors() {
         return doors;
     }
 
-    public void setDoors(Map<Integer, Boolean> doors) {
+    public void setDoors(HashMap<Integer, Boolean> doors) {
         this.doors = doors;
     }
 
