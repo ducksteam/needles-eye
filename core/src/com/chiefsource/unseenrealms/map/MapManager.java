@@ -69,14 +69,20 @@ public class MapManager {
 
         for (int i = 0; i < levelIndex * 5; i++){ // add a random number of rooms, increasing with each level
             RoomTemplate.RoomType nextType = RoomTemplate.RoomType.getRandomRoomType(); // get a random room type
-            RoomTemplate nextTemplate = getRandomRoomTemplate(nextType); // get a random room template of that type
-
-            Vector2 nextPos = generateRoomPos(nextTemplate, level.getRooms()); // generate a valid position for the room
-            int rot = (int) Math.floor(Math.random() * 4) * 90; // random rotation
-
-            RoomInstance nextRoom = new RoomInstance(nextTemplate, nextPos, rot); // create the room
-            level.addRoom(nextRoom);
+            generateRoom(level, nextType); // generate a room of that type
         }
+
+        // generate treasure rooms
+        float treasureRand = (float) Math.random() * ((float) levelIndex + 2f / 3); // the chance of a treasure room increases with each level
+        float treasureGuaranteed = (float) Math.floor(treasureRand); // the number of guaranteed treasure rooms, increases every 3 levels
+        for (int i = 0; i < treasureGuaranteed; i++){
+            generateRoom(level, RoomTemplate.RoomType.TREASURE);
+        }
+        if(Math.random() < treasureRand - treasureGuaranteed){ // chance of an extra treasure room
+            generateRoom(level, RoomTemplate.RoomType.TREASURE);
+        }
+
+        generateRoom(level, RoomTemplate.RoomType.BOSS); // generate a boss room
 
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
@@ -86,8 +92,19 @@ public class MapManager {
     }
 
     /**
+     * Generate a room & add it to the level
+     * @param level the level to generate the room in
+     */
+    private void generateRoom(Level level, RoomTemplate.RoomType type) {
+        RoomTemplate template = getRandomRoomTemplate(type);
+        Vector2 pos = generateRoomPos(template, level.getRooms());
+        int rot = (int) Math.floor(Math.random() * 4) * 90;
+        RoomInstance room = new RoomInstance(template, pos, rot);
+        level.addRoom(room);
+    }
+
+    /**
      * Generates a valid position for a room.
-     * Does not consider any alternative rotations, or if the selected border has a door disabled
      * @param template the room to generate a position for
      * @param rooms the rooms already placed in the level
      * @return a valid position for the room
