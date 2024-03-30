@@ -8,7 +8,7 @@ public class Inventory {
     int rocks;
 
     public Inventory() {
-        upgrades = new ArrayList<Upgrade>();
+        upgrades = new ArrayList<>();
         ropes = 3;
         rocks = 5;
     }

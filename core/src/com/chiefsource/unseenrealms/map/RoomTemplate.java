@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,8 +93,8 @@ public class RoomTemplate {
         Map<?, ?> map;
         try {
             map = gson.fromJson(new FileReader(file), Map.class); // read the file to a map
-        } catch (FileNotFoundException e) { // file not found
-            Gdx.app.error("RoomTemplate", "File not found: " + file.getName(), e);
+        } catch (Exception e) { // file not found
+            Gdx.app.error("RoomTemplate", "Error loading room template: " + file.getName(), e);
             return null;
         }
         RoomTemplate rt = new RoomTemplate(); // Create empty room template & read values from map
