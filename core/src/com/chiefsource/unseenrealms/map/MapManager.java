@@ -17,9 +17,9 @@ public class MapManager {
     // placeholder room for hallways
     public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null);
 
-    // paths
-    public final String ROOM_TEMPLATE_PATH = "data/rooms/";
-    public final String DECO_TEMPLATE_PATH = "data/decos/";
+    // paths (these could be wrong, maybe change to just data/rooms/?)
+    public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
+    public final String DECO_TEMPLATE_PATH = "assets/data/decos/";
 
     public MapManager() {
         roomTemplates = new ArrayList<>();
@@ -145,7 +145,7 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
-        Vector2 pos = nonMutatingVectorAdd(room.getPos(), offset.scl(rot)); // add offset to room position (why is vector multiplication scl not mul)
+        Vector2 pos = nonMutatingVectorAdd(room.getPos(), offset.scl(rot)); // add offset to room position
         //Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
