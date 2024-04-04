@@ -25,7 +25,7 @@ public class MapManager {
         roomTemplates = new ArrayList<>();
         decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
-        levelIndex = 6;
+        levelIndex = 1;
 
         // load deco templates
         File decoDir = new File(DECO_TEMPLATE_PATH);

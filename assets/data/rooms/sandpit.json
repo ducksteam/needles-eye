@@ -1,0 +1,25 @@
+{
+  "name": "sandpit",
+  "type": "hallway",
+  "spawn": false,
+  "modelPath": "models/rooms/sandpit.g3db",
+  "texturePath": "",
+  "width": 1,
+  "height": 2,
+  "decos": [
+    {
+      "name": "pot",
+      "position": [0, 0, 0],
+      "scale": [1, 1, 1]
+    }
+  ],
+  "doors": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": false,
+    "4": true,
+    "5": true,
+    "6": true
+  }
+}

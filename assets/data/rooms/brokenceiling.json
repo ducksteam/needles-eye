@@ -1,0 +1,16 @@
+{
+  "name": "brokenceiling",
+  "type": "small",
+  "spawn": true,
+  "modelPath": "models/rooms/brokenceiling.g3db",
+  "texturePath": "",
+  "width": 1,
+  "height": 1,
+  "decos": [],
+  "doors": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true
+  }
+}

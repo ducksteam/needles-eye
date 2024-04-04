@@ -2,7 +2,7 @@
   "name": "slantedcorridor",
   "type": "small",
   "spawn": true,
-  "modelPath": "models/rooms/slantedcorridor.g3dj",
+  "modelPath": "models/rooms/slantedcorridor.g3db",
   "texturePath": "",
   "width": 1,
   "height": 1,

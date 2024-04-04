@@ -42,9 +42,9 @@ public class Main extends ApplicationAdapter {
 		camera.update();
 
 
-		assMan.load("models/enemies/worm.g3dj", Model.class);
+		assMan.load("models/rooms/brokenceiling.g3db", Model.class);
 		assMan.finishLoading();
-		modelInstances.add(new ModelInstance((Model) assMan.get("models/enemies/worm.g3dj")));
+		modelInstances.add(new ModelInstance((Model) assMan.get("models/rooms/brokenceiling.g3db")));
 	}
 
 	@Override

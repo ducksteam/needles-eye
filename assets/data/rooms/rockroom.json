@@ -2,7 +2,7 @@
   "name": "rockroom",
   "type": "small",
   "spawn": true,
-  "modelPath": "models/rooms/rockroom.g3dj",
+  "modelPath": "models/rooms/rockroom.g3db",
   "texturePath": "",
   "width": 1,
   "height": 1,
