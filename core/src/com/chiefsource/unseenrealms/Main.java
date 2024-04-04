@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.chiefsource.unseenrealms.map.MapManager;
+import com.chiefsource.unseenrealms.player.Player;
 
 import java.util.ArrayList;
 
@@ -23,6 +24,7 @@ public class Main extends ApplicationAdapter {
 	MapManager mapMan;
 	Environment environment;
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
+	Player player;
 	
 	@Override
 	public void create () {
@@ -36,8 +38,7 @@ public class Main extends ApplicationAdapter {
 
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
-		camera.position.set(5.0F,5.0F,5.0F);
-		camera.lookAt(new Vector3(0,0,0));
+
 		camera.update();
 
 
@@ -50,6 +51,9 @@ public class Main extends ApplicationAdapter {
 	public void render () {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		camera.position.set(player.getPos()).add(0,0,5);
+
+		camera.lookAt(new Vector3(0,0,0));
 
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
