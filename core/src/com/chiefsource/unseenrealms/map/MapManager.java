@@ -25,7 +25,7 @@ public class MapManager {
         roomTemplates = new ArrayList<>();
         decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
-        levelIndex = 1;
+        levelIndex = 6;
 
         // load deco templates
         File decoDir = new File(DECO_TEMPLATE_PATH);
@@ -73,7 +73,7 @@ public class MapManager {
         }
 
         // generate treasure rooms
-        float treasureRand = (float) Math.random() * ((float) levelIndex + 2f / 3); // the chance of a treasure room increases with each level
+        float treasureRand = (levelIndex + 2f) / 3; // the chance of a treasure room increases with each level
         float treasureGuaranteed = (float) Math.floor(treasureRand); // the number of guaranteed treasure rooms, increases every 3 levels
         for (int i = 0; i < treasureGuaranteed; i++){
             generateRoom(level, RoomTemplate.RoomType.TREASURE);
