@@ -30,6 +30,8 @@ public class Main extends ApplicationAdapter {
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		player = new Player(new Vector3(0,0,0));
+
 		environment = new Environment();
 		batch = new ModelBatch();
 		camera = new PerspectiveCamera(80, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
