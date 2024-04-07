@@ -4,10 +4,11 @@ import com.badlogic.gdx.math.Vector3;
 
 public class Entity {
 
-    private String modelAddress;
+    //TODO: Add numeric IDs for each object
+    public static String id;
+    public static String modelAddress;
     private Vector3 position;
-    public Entity(String modelAddress,Vector3 position){
-        this.modelAddress=modelAddress;
+    public Entity(Vector3 position){
         this.position=position;
     }
 
