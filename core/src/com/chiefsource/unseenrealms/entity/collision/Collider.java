@@ -34,15 +34,20 @@ public class Collider {
             if (tmax < 0 && !aRay.infinite) return false;
 
             // if tmin > tmax, ray doesn't intersect box
-            if (tmin > tmax) return false;
-
-            return true;
+            return tmin < tmax;
+        } else if (a instanceof ColliderBox aBox && b instanceof ColliderRay bRay) {
+            return collidesWith(bRay, aBox);
         } else if (a instanceof ColliderRay aRay && b instanceof ColliderSphere bSphere) {
             Vector3 originDist = aRay.origin.cpy().sub(bSphere.centre);
             float _b = aRay.direction.dot(aRay.direction);
             float _c = originDist.dot(originDist) - bSphere.radius * bSphere.radius;
-            float _h = _b*_b - _c;
+            float _h = _b * _b - _c;
             return _h >= 0;
+        } else if (a instanceof ColliderSphere aSphere && b instanceof ColliderRay bRay) {
+            return collidesWith(bRay, aSphere);
+        } else if (a instanceof ColliderRay aRay && b instanceof ColliderRay bRay) {
+            Vector3 cross = aRay.direction.cpy().crs(bRay.direction);
+            return cross.len() > 0;
         } else {
             throw new IllegalArgumentException("Unknown collision types");
         }

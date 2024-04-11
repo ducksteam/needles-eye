@@ -1,6 +1,7 @@
 package com.chiefsource.unseenrealms.entity;
 
 import com.badlogic.gdx.math.Vector3;
+import com.chiefsource.unseenrealms.entity.collision.IHasCollision;
 
 public class Entity {
 
@@ -8,6 +9,7 @@ public class Entity {
     public static String id;
     public static String modelAddress;
     private Vector3 position;
+    public IHasCollision collider;
     public Entity(Vector3 position){
         this.position=position;
     }
