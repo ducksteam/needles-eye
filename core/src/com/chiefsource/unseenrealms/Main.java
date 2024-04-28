@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -32,6 +33,8 @@ public class Main extends ApplicationAdapter {
 	public static Player player;
 	public static boolean menu;
 
+	Thread loaderThread = new Thread(this::loadAssets);
+
 	public boolean loading;
 	
 	@Override
@@ -50,24 +53,35 @@ public class Main extends ApplicationAdapter {
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		camera.update();
+		assMan.finishLoading();
 
+		loaderThread.run();
+		loading = true;
+        Gdx.input.setInputProcessor(input);
+    }
+
+	private void loadAssets(){
 		enemies.forEach((EnemyEntity enemy)->{
 			assMan.load(enemy.getModelAddress(),Model.class);
 			assMan.finishLoadingAsset(enemy.getModelAddress());
 			modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 		});
-
-		Gdx.input.setInputProcessor(input);
-
-		assMan.finishLoading();
-
-		loading = true;
+		finishLoading();
+	}
+	private void finishLoading(){
+		ScreenUtils.clear(0.0F,0.0F,0.0F,0.0F);
+		Gdx.app.debug("Loader thread", "Loading finished");
 	}
 
 	@Override
 	public void render () {
 		if(loading){
+			SpriteBatch batch1 = new SpriteBatch();
 			ScreenUtils.clear(0.4F,0.9F,0.1F,1F);
+			Gdx.app.debug("Loader thread", "Loading active");
+			batch1.begin();
+			batch1.draw(new Texture("assets/logo_temp.png"),Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,Gdx.graphics.getHeight()/2,Gdx.graphics.getWidth()/2);
+			loading = loaderThread.isAlive();
 			return;
 		}
 		Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
@@ -76,7 +90,6 @@ public class Main extends ApplicationAdapter {
 		camera.position.set(player.getPos()).add(0,0,5);
 
 		camera.lookAt(new Vector3(0,0,0));
-
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
 		batch.end();

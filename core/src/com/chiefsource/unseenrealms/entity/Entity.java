@@ -8,6 +8,7 @@ public class Entity {
     //TODO: Add numeric IDs for each object
     public static String id;
     public static String modelAddress;
+    public Boolean isRenderable;
     private Vector3 position;
     public IHasCollision collider;
     public Entity(Vector3 position){
