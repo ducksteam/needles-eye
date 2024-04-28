@@ -1,20 +1,69 @@
 package com.chiefsource.unseenrealms.player;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.math.Vector3;
+import com.chiefsource.unseenrealms.Main;
 
 public class PlayerInput implements InputProcessor, ControllerListener {
     @Override
     public boolean keyDown(int i) {
-        return false;
+        Vector3 rot = Main.player.getRot();
+        Main.player.getVel().set(Vector3.Zero);
+        return switch (i) {
+            case Input.Keys.UP -> {
+                Main.player.getVel().add(new Vector3((float) Math.sin(rot.y), 0, (float) Math.cos(rot.y)));
+                yield true;
+            }
+            case Input.Keys.DOWN -> {
+                Main.player.getVel().add(new Vector3((float) -Math.sin(rot.y), 0, (float) -Math.cos(rot.y)));
+                yield true;
+            }
+            case Input.Keys.LEFT -> {
+                Main.player.getVel().add(new Vector3((float) Math.sin(rot.y + Math.PI / 2), 0, (float) Math.cos(rot.y + Math.PI / 2)));
+                yield true;
+            }
+            case Input.Keys.RIGHT -> {
+                Main.player.getVel().add(new Vector3((float) Math.sin(rot.y - Math.PI / 2), 0, (float) Math.cos(rot.y - Math.PI / 2)));
+                yield true;
+            }
+            case Input.Keys.SPACE -> {
+                if (Main.player.getVel().y == 0) Main.player.getVel().y = 5;
+                yield true;
+            }
+            case Input.Keys.ESCAPE -> {
+                Main.menu = !Main.menu;
+                yield true;
+            }
+            default -> false;
+        };
     }
 
     @Override
     public boolean keyUp(int i) {
-        return false;
+        Vector3 rot = Main.player.getRot();
+        return switch (i) {
+            case Input.Keys.UP -> {
+                Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y), 0, (float) Math.cos(rot.y)));
+                yield true;
+            }
+            case Input.Keys.DOWN -> {
+                Main.player.getVel().sub(new Vector3((float) -Math.sin(rot.y), 0, (float) -Math.cos(rot.y)));
+                yield true;
+            }
+            case Input.Keys.LEFT -> {
+                Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y + Math.PI / 2), 0, (float) Math.cos(rot.y + Math.PI / 2)));
+                yield true;
+            }
+            case Input.Keys.RIGHT -> {
+                Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y - Math.PI / 2), 0, (float) Math.cos(rot.y - Math.PI / 2)));
+                yield true;
+            }
+            default -> false;
+        };
     }
-
     @Override
     public boolean keyTyped(char c) {
         return false;

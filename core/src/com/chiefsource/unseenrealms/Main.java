@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.chiefsource.unseenrealms.entity.enemies.EnemyEntity;
 import com.chiefsource.unseenrealms.map.MapManager;
 import com.chiefsource.unseenrealms.player.Player;
+import com.chiefsource.unseenrealms.player.PlayerInput;
 
 import java.util.ArrayList;
 
@@ -26,8 +27,10 @@ public class Main extends ApplicationAdapter {
 	MapManager mapMan;
 	Environment environment;
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
-	ArrayList<EnemyEntity> enemies = new ArrayList<EnemyEntity>();
-	Player player;
+	ArrayList<EnemyEntity> enemies = new ArrayList<>();
+	PlayerInput input = new PlayerInput();
+	public static Player player;
+	public static boolean menu;
 
 	public boolean loading;
 	
@@ -54,6 +57,8 @@ public class Main extends ApplicationAdapter {
 			modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 		});
 
+		Gdx.input.setInputProcessor(input);
+
 		assMan.finishLoading();
 
 		loading = true;
@@ -65,6 +70,7 @@ public class Main extends ApplicationAdapter {
 			ScreenUtils.clear(0.4F,0.9F,0.1F,1F);
 			return;
 		}
+		Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		camera.position.set(player.getPos()).add(0,0,5);

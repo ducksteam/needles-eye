@@ -7,7 +7,7 @@ public class Player {
     int maxHealth;
     Vector3 pos;
     Vector3 vel;
-    Vector3 rot;
+    Vector3 rot; // rads
     Inventory inv;
 
     public Player(Vector3 pos) {
@@ -57,5 +57,13 @@ public class Player {
 
     public void setInv(Inventory inv) {
         this.inv = inv;
+    }
+
+    public Vector3 getRot() {
+        return rot;
+    }
+
+    public void setRot(Vector3 rot) {
+        this.rot = rot;
     }
 }
