@@ -12,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.chiefsource.unseenrealms.entity.enemies.EnemyEntity;
@@ -55,6 +56,13 @@ public class Main extends ApplicationAdapter {
 		camera.update();
 		assMan.finishLoading();
 
+		enemies.add(new EnemyEntity(new Vector3(0,0,0)) {
+			@Override
+			public String getModelAddress() {
+				return "models/enemies/worm.g3dj";
+			}
+		});
+
 		loaderThread.run();
 		loading = true;
         Gdx.input.setInputProcessor(input);
@@ -69,32 +77,41 @@ public class Main extends ApplicationAdapter {
 		finishLoading();
 	}
 	private void finishLoading(){
-		ScreenUtils.clear(0.0F,0.0F,0.0F,0.0F);
 		Gdx.app.debug("Loader thread", "Loading finished");
+	}
+
+	private void renderLoadingFrame(){
+		SpriteBatch batch1 = new SpriteBatch();
+		batch1.begin();
+		batch1.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch1.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+		batch1.end();
+
 	}
 
 	@Override
 	public void render () {
 		if(loading){
-			SpriteBatch batch1 = new SpriteBatch();
-			ScreenUtils.clear(0.4F,0.9F,0.1F,1F);
 			Gdx.app.debug("Loader thread", "Loading active");
-			batch1.begin();
-			batch1.draw(new Texture("assets/logo_temp.png"),Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2,Gdx.graphics.getHeight()/2,Gdx.graphics.getWidth()/2);
 			loading = loaderThread.isAlive();
+			renderLoadingFrame();
 			return;
 		}
 		Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
+
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+		player.setPos(player.getPos().add(player.getVel()));
 		camera.position.set(player.getPos()).add(0,0,5);
+
 
 		camera.lookAt(new Vector3(0,0,0));
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
 		batch.end();
 
-		//camera.update();
+		camera.update();
 	}
 	
 	@Override
