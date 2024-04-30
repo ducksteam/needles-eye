@@ -21,6 +21,24 @@ public class Inventory {
         return upgrades;
     }
 
+    public void runDamageUpgrades(){
+        for (Upgrade upgrade : upgrades) {
+            upgrade.onDamage();
+        }
+    }
+
+    public void runAttackUpgrades(){
+        for (Upgrade upgrade : upgrades) {
+            upgrade.onAttack();
+        }
+    }
+
+    public void runThrowUpgrades(){
+        for (Upgrade upgrade : upgrades) {
+            upgrade.onThrow();
+        }
+    }
+
     public void addRope() {
         ropes++;
     }
