@@ -1,8 +1,12 @@
 package com.chiefsource.unseenrealms.player;
 
 import com.badlogic.gdx.math.Vector3;
+import com.chiefsource.unseenrealms.entity.collision.ColliderBox;
+import com.chiefsource.unseenrealms.entity.collision.IHasCollision;
 
 public class Player {
+    public IHasCollision collider;
+
     float speed = 10f;
     int health;
     int maxHealth;
@@ -16,6 +20,7 @@ public class Player {
         vel = new Vector3(0,0,0);
         rot = new Vector3(0,0,0);
         inv = new Inventory();
+        collider = new ColliderBox(pos, new Vector3(-0.5f, -1, -0.5f), new Vector3(0.5f, 1, 0.5f));
         health = 6;
         maxHealth = 6;
     }

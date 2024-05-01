@@ -11,6 +11,7 @@ public class Entity {
     public Boolean isRenderable;
     private Vector3 position;
     public IHasCollision collider;
+
     public Entity(Vector3 position){
         this.position=position;
     }

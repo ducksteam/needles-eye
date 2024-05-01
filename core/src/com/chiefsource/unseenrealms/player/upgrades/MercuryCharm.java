@@ -1,7 +1,6 @@
 package com.chiefsource.unseenrealms.player.upgrades;
 
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.chiefsource.unseenrealms.Main;
 import com.chiefsource.unseenrealms.player.Upgrade;
 
@@ -13,8 +12,8 @@ public class MercuryCharm extends Upgrade {
     final float dodgeChance = 0.2f;
     final float speedIncrease = 1.1f;
 
-    public MercuryCharm(String name, String description, Texture icon, Model model) {
-        super("Mercury", "Speed up, dodge up", icon, model);
+    public MercuryCharm(String name, String description, Texture icon, String modelAddress) {
+        super("Mercury", "Speed up, dodge up", icon, modelAddress);
     }
 
     @Override
