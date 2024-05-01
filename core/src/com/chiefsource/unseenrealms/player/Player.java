@@ -3,6 +3,7 @@ package com.chiefsource.unseenrealms.player;
 import com.badlogic.gdx.math.Vector3;
 
 public class Player {
+    float speed = 10f;
     int health;
     int maxHealth;
     Vector3 pos;
@@ -27,12 +28,18 @@ public class Player {
         this.health = health;
     }
 
+    public void damage(int damage) {
+        inv.runDamageUpgrades(damage);
+        health -= damage;
+    }
+
     public int getMaxHealth() {
         return maxHealth;
     }
 
-    public void setMaxHealth(int maxHealth) {
+    public void setMaxHealth(int maxHealth, boolean heal) {
         this.maxHealth = maxHealth;
+        if (heal) this.health += maxHealth;
     }
 
     public Vector3 getPos() {
@@ -65,5 +72,13 @@ public class Player {
 
     public void setRot(Vector3 rot) {
         this.rot = rot;
+    }
+
+    public float getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(float speed) {
+        this.speed = speed;
     }
 }

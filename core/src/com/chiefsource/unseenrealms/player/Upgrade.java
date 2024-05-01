@@ -29,7 +29,7 @@ public abstract class Upgrade {
 
     }
 
-    public void onDamage(){
+    public void onDamage(int damage){
 
     }
 }

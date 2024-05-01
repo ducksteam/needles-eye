@@ -17,13 +17,13 @@ public class Inventory {
         upgrades.add(upgrade);
     }
 
-    public ArrayList<Upgrade> getUpgrade(){
+    public ArrayList<Upgrade> getUpgrades(){
         return upgrades;
     }
 
-    public void runDamageUpgrades(){
+    public void runDamageUpgrades(int damage){
         for (Upgrade upgrade : upgrades) {
-            upgrade.onDamage();
+            upgrade.onDamage(damage);
         }
     }
 
