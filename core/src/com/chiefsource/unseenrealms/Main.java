@@ -4,10 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -46,7 +43,7 @@ public class Main extends ApplicationAdapter {
 
 		environment = new Environment();
 		batch = new ModelBatch();
-		camera = new PerspectiveCamera(80, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		assMan = new AssetManager();
 		mapMan = new MapManager();
 
@@ -65,7 +62,10 @@ public class Main extends ApplicationAdapter {
 
 		loaderThread.run();
 		loading = true;
-        Gdx.input.setInputProcessor(input);
+
+        Gdx.input.setInputProcessor(input); // Switch to main game input
+		Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2); // Lock cursor position
+		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None); // Hide cursor
     }
 
 	private void loadAssets(){
@@ -106,7 +106,7 @@ public class Main extends ApplicationAdapter {
 		camera.position.set(player.getPos()).add(0,0,5);
 
 
-		camera.lookAt(new Vector3(0,0,0));
+		//camera.lookAt(new Vector3(0,0,0));
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
 		batch.end();
