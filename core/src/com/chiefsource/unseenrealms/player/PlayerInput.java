@@ -13,19 +13,19 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         Vector3 rot = Main.player.getRot();
         Main.player.getVel().set(Vector3.Zero);
         return switch (i) {
-            case Input.Keys.UP -> {
+            case Input.Keys.DOWN -> {
                 Main.player.getVel().add(new Vector3((float) Math.sin(rot.y), 0, (float) Math.cos(rot.y)));
                 yield true;
             }
-            case Input.Keys.DOWN -> {
+            case Input.Keys.UP -> {
                 Main.player.getVel().add(new Vector3((float) -Math.sin(rot.y), 0, (float) -Math.cos(rot.y)));
                 yield true;
             }
-            case Input.Keys.LEFT -> {
+            case Input.Keys.RIGHT -> {
                 Main.player.getVel().add(new Vector3((float) Math.sin(rot.y + Math.PI / 2), 0, (float) Math.cos(rot.y + Math.PI / 2)));
                 yield true;
             }
-            case Input.Keys.RIGHT -> {
+            case Input.Keys.LEFT -> {
                 Main.player.getVel().add(new Vector3((float) Math.sin(rot.y - Math.PI / 2), 0, (float) Math.cos(rot.y - Math.PI / 2)));
                 yield true;
             }
@@ -34,6 +34,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
                 yield true;
             }
             case Input.Keys.ESCAPE -> {
+                // TODO: Update to use new gamestate
                 Main.menu = !Main.menu;
                 yield true;
             }
@@ -45,19 +46,19 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     public boolean keyUp(int i) {
         Vector3 rot = Main.player.getRot();
         return switch (i) {
-            case Input.Keys.UP -> {
+            case Input.Keys.DOWN -> {
                 Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y), 0, (float) Math.cos(rot.y)));
                 yield true;
             }
-            case Input.Keys.DOWN -> {
+            case Input.Keys.UP -> {
                 Main.player.getVel().sub(new Vector3((float) -Math.sin(rot.y), 0, (float) -Math.cos(rot.y)));
                 yield true;
             }
-            case Input.Keys.LEFT -> {
+            case Input.Keys.RIGHT -> {
                 Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y + Math.PI / 2), 0, (float) Math.cos(rot.y + Math.PI / 2)));
                 yield true;
             }
-            case Input.Keys.RIGHT -> {
+            case Input.Keys.LEFT -> {
                 Main.player.getVel().sub(new Vector3((float) Math.sin(rot.y - Math.PI / 2), 0, (float) Math.cos(rot.y - Math.PI / 2)));
                 yield true;
             }
