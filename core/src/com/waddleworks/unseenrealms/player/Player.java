@@ -18,7 +18,7 @@ public class Player {
     public Player(Vector3 pos) {
         this.pos = pos;
         vel = new Vector3(0,0,0);
-        rot = new Vector3(0,0,0);
+        rot = new Vector3(1,0,0);
         inv = new Inventory();
         collider = new ColliderBox(pos, new Vector3(-0.5f, -1, -0.5f), new Vector3(0.5f, 1, 0.5f));
         health = 6;

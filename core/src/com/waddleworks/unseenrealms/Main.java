@@ -23,7 +23,7 @@ import java.util.ArrayList;
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;
 	AssetManager assMan;
-	PerspectiveCamera camera;
+	public static PerspectiveCamera camera;
 	MapManager mapMan;
 	Environment environment;
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
@@ -116,14 +116,14 @@ public class Main extends ApplicationAdapter {
 		if(gameState.getId()==0){
 
 		}
-		Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
+		if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		player.setPos(player.getPos().add(player.getVel()));
 		camera.position.set(player.getPos()).add(0,0,5);
-
+		camera.direction.set(player.getRot());
 
 		//camera.lookAt(new Vector3(0,0,0));
 		batch.begin(camera);

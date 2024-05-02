@@ -1,5 +1,6 @@
 package com.waddleworks.unseenrealms.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
@@ -86,13 +87,28 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     }
 
     @Override
-    public boolean touchDragged(int i, int i1, int i2) {
+    public boolean touchDragged(int mouseX, int mouseY, int pointer) {
         return false;
     }
 
     @Override
-    public boolean mouseMoved(int i, int i1) {
-        return false;
+    public boolean mouseMoved(int mouseX, int mouseY) {
+        mouseX -= Gdx.graphics.getWidth()/2;
+        mouseY -= Gdx.graphics.getHeight()/2;
+        if (Main.menu) return false;
+
+        if (mouseX != 0 && mouseY != 0) Gdx.app.debug("Mouse", "Moved" + mouseX + " " + mouseY);
+
+        Vector3 rot = Main.player.getRot();
+
+        rot.rotate(Vector3.Y, -mouseX); // rotate the player based on mouse movement
+        rot.rotate(rot.cpy().crs(Vector3.Y), -mouseY);
+
+        Main.player.setRot(rot);
+
+        Gdx.input.setCursorPosition(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2);
+        Main.camera.update();
+        return true;
     }
 
     @Override
