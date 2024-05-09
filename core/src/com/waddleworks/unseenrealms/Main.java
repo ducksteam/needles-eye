@@ -13,9 +13,7 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.scenes.scene2d.Event;
-import com.badlogic.gdx.scenes.scene2d.EventListener;
-import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -71,14 +69,21 @@ public class Main extends ApplicationAdapter {
 		player = new Player(new Vector3(0,0,0));
 
 		neonSkin = new Skin(Gdx.files.internal("skin/neon-ui.json"));
-
-		TextButton startButton = new TextButton("Start", neonSkin,"default");
 		mainMenu = new Stage();
-		startButton.addListener(new EventListener() {
+		batch2d = new SpriteBatch();
+		TextButton startButton = new TextButton("Start", neonSkin,"default");
+		startButton.setPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
+		startButton.setSize(Gdx.graphics.getWidth()/5,Gdx.graphics.getHeight()/10);
+		startButton.setColor(0.9F,0.342F,0.52F,1);
+		startButton.addListener(new InputListener(){
 			@Override
-			public boolean handle(Event event) {
+			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
+			}
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				gameState = GameState.LOADING;
-				return false;
+				Gdx.input.setInputProcessor(input);
+				return true;
 			}
 		});
 		mainMenu.addActor(startButton);
@@ -102,10 +107,10 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
-		loaderThread.run();
+		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
+		Gdx.input.setInputProcessor(mainMenu);
 		//gameState = GameState.LOADING;
-        Gdx.input.setInputProcessor(input);
     }
 
 	private void loadAssets(){
@@ -129,7 +134,7 @@ public class Main extends ApplicationAdapter {
 	}
 
 	private void renderMainMenuFrame(){
-		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClearColor(0, 1, 0.7f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		mainMenu.act();
 		mainMenu.draw();
@@ -137,19 +142,18 @@ public class Main extends ApplicationAdapter {
 
 	@Override
 	public void render () {
+		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 		if(gameState.getId()==2){
 			gameState = (loaderThread.isAlive())? GameState.LOADING:GameState.IN_GAME;
 			renderLoadingFrame();
 			return;
 		}
 		if(gameState.getId()==0){
-
+				renderMainMenuFrame();
 			return;
 		}
 		if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		player.setPos(player.getPos().add(player.getVel()));
 		camera.position.set(player.getPos()).add(0,0,5);
