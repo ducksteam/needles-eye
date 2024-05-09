@@ -7,12 +7,17 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Event;
+import com.badlogic.gdx.scenes.scene2d.EventListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.waddleworks.unseenrealms.entity.enemies.EnemyEntity;
 import com.waddleworks.unseenrealms.map.MapManager;
 import com.waddleworks.unseenrealms.player.Player;
@@ -22,6 +27,8 @@ import java.util.ArrayList;
 
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;
+	Stage mainMenu;
+	SpriteBatch batch2d;
 	AssetManager assMan;
 	public static PerspectiveCamera camera;
 	MapManager mapMan;
@@ -31,6 +38,7 @@ public class Main extends ApplicationAdapter {
 	PlayerInput input = new PlayerInput();
 	public static Player player;
 	public static boolean menu;
+	Skin neonSkin = new Skin(Gdx.files.internal("skin/neon-ui.json"));
 
 	Thread loaderThread = new Thread(this::loadAssets);
 
@@ -61,7 +69,18 @@ public class Main extends ApplicationAdapter {
 
 		player = new Player(new Vector3(0,0,0));
 
+		Button startButton = new TextButton("Start", neonSkin);
+		startButton.addListener(new EventListener() {
+			@Override
+			public boolean handle(Event event) {
+				gameState = GameState.LOADING;
+				return false;
+			}
+		});
+		mainMenu.addActor(startButton);
+
 		environment = new Environment();
+		mainMenu = new Stage();
 		batch = new ModelBatch();
 		camera = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		assMan = new AssetManager();
@@ -81,7 +100,8 @@ public class Main extends ApplicationAdapter {
 		});
 
 		loaderThread.run();
-		gameState = GameState.LOADING;
+		gameState = GameState.MAIN_MENU;
+		//gameState = GameState.LOADING;
         Gdx.input.setInputProcessor(input);
     }
 
@@ -98,12 +118,18 @@ public class Main extends ApplicationAdapter {
 	}
 
 	private void renderLoadingFrame(){
-		SpriteBatch batch1 = new SpriteBatch();
-		batch1.begin();
-		batch1.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		batch1.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
-		batch1.end();
+		batch2d.begin();
+		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch2d.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+		batch2d.end();
+		batch2d.dispose();
+	}
 
+	private void renderMainMenuFrame(){
+		Gdx.gl.glClearColor(1, 1, 1, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		mainMenu.act();
+		mainMenu.draw();
 	}
 
 	@Override
@@ -115,6 +141,7 @@ public class Main extends ApplicationAdapter {
 		}
 		if(gameState.getId()==0){
 
+			return;
 		}
 		if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 
