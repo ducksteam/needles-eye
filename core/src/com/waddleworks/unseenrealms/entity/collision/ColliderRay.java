@@ -10,10 +10,10 @@ public class ColliderRay implements IHasCollision {
     public ColliderRay(Vector3 origin, Vector3 direction) {
         this.origin = origin;
         this.direction = direction;
-        if (origin != null) {
+        if (origin == null) {
             throw new IllegalArgumentException("Origin cannot be null");
         }
-        if (direction != null) {
+        if (direction == null) {
             throw new IllegalArgumentException("Direction cannot be null");
         }
         this.infinite = false;
