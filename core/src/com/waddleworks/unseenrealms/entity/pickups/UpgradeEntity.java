@@ -12,8 +12,9 @@ public class UpgradeEntity extends Entity {
 
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
         super(position);
+        this.upgrade= upgrade;
         this.collider = new ColliderBox(position, new Vector3(-0.5f, -0.5f,-0.5f), new Vector3(-0.5f, -0.5f,-0.5f));
-        this.setModelAddress(upgrade.getModelAddress());
+        //this.setModelAddress(upgrade.getModelAddress());
     }
 
     public void update(float delta) {
@@ -21,5 +22,10 @@ public class UpgradeEntity extends Entity {
             Main.player.getInv().addUpgrade(this.upgrade);
             //TODO: Destroy entity
         }
+    }
+
+    @Override
+    public String getModelAddress() {
+        return upgrade.getModelAddress();
     }
 }
