@@ -6,4 +6,9 @@ public class WormEnemy extends EnemyEntity{
     public WormEnemy(String modelAddress, Vector3 position) {
         super(position);
     }
+
+    @Override
+    public String getModelAddress() {
+        return "models/worm.g3db";
+    }
 }
