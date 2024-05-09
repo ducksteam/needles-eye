@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -38,7 +39,7 @@ public class Main extends ApplicationAdapter {
 	PlayerInput input = new PlayerInput();
 	public static Player player;
 	public static boolean menu;
-	Skin neonSkin = new Skin(Gdx.files.internal("skin/neon-ui.json"));
+	Skin neonSkin;
 
 	Thread loaderThread = new Thread(this::loadAssets);
 
@@ -69,7 +70,10 @@ public class Main extends ApplicationAdapter {
 
 		player = new Player(new Vector3(0,0,0));
 
-		Button startButton = new TextButton("Start", neonSkin);
+		neonSkin = new Skin(Gdx.files.internal("skin/neon-ui.json"));
+
+		TextButton startButton = new TextButton("Start", neonSkin,"default");
+		mainMenu = new Stage();
 		startButton.addListener(new EventListener() {
 			@Override
 			public boolean handle(Event event) {
@@ -80,7 +84,6 @@ public class Main extends ApplicationAdapter {
 		mainMenu.addActor(startButton);
 
 		environment = new Environment();
-		mainMenu = new Stage();
 		batch = new ModelBatch();
 		camera = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		assMan = new AssetManager();
