@@ -28,6 +28,7 @@ public class Main extends ApplicationAdapter {
 	Stage mainMenu;
 	SpriteBatch batch2d;
 	AssetManager assMan;
+	public static Config config;
 	public static PerspectiveCamera camera;
 	MapManager mapMan;
 	Environment environment;
@@ -92,6 +93,7 @@ public class Main extends ApplicationAdapter {
 		camera = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		assMan = new AssetManager();
 		mapMan = new MapManager();
+		config = new Config();
 
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));

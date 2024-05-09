@@ -5,19 +5,32 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.math.Vector3;
+import com.waddleworks.unseenrealms.Config;
+import com.waddleworks.unseenrealms.Main;
 
 import java.util.HashMap;
 
 import static com.waddleworks.unseenrealms.Main.camera;
+import static com.waddleworks.unseenrealms.Main.player;
 
 public class PlayerInput implements InputProcessor, ControllerListener {
-
 
     private static HashMap<Integer, Boolean> keys = new HashMap<>();
     private static boolean skipNextMouseMoved = false;
     private int degreesPerPixel;
 
     protected final Vector3 tmp = new Vector3();
+
+    public void update() {
+        update(Gdx.graphics.getDeltaTime());
+    }
+
+    public void update(float dT) {
+        player.setVel(Vector3.Zero);
+        if(keys.containsKey(Config.keys.get("forward"))){
+            player.getVel().add(player.getRot());
+        }
+    }
 
     @Override
     public boolean keyDown(int i) {
@@ -93,13 +106,5 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     @Override
     public boolean axisMoved(Controller controller, int i, float v) {
         return false;
-    }
-
-    public void update() {
-        update(Gdx.graphics.getDeltaTime());
-    }
-
-    public void update(float dT) {
-        //if(keys.containsKey())
     }
 }
