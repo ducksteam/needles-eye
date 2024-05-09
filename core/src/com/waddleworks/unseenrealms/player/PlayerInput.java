@@ -101,8 +101,9 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
         Vector3 rot = Main.player.getRot();
 
-        rot.rotate(Vector3.Y, -mouseX); // rotate the player based on mouse movement
-        rot.rotate(rot.cpy().crs(Vector3.Y), -mouseY);
+        rot.y += -mouseX * 100f;
+        rot.x += (float) Math.sin(-mouseY * 100f);
+        rot.z += (float) Math.cos(-mouseY * 100f);
 
         Main.player.setRot(rot);
 
