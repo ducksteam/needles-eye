@@ -9,7 +9,7 @@ public class Config {
     public static int rotationSpeed = 1;
     public static int moveSpeed = 1;
 
-    public Config() {
+    static {
         keys.put("forward", Input.Keys.W);
         keys.put("back", Input.Keys.S);
         keys.put("left", Input.Keys.A);
