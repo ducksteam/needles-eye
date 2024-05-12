@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.ducksteam.unseenrealms.entity.enemies.EnemyEntity;
@@ -22,6 +23,11 @@ import com.ducksteam.unseenrealms.player.PlayerInput;
 
 import java.util.ArrayList;
 
+/**
+ * The main class of the game
+ * @author thechiefpotatopeeler
+ * @author skySourced
+ * */
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;
 	Stage mainMenu;
@@ -44,6 +50,9 @@ public class Main extends ApplicationAdapter {
 
 	GameState gameState;
 
+	/**
+	 * The enum for managing the game state
+	 * */
 	public enum GameState{
 		MAIN_MENU(0),
 		IN_GAME(1),
@@ -52,15 +61,24 @@ public class Main extends ApplicationAdapter {
 		DEAD_MENU(4);
 
 		int id;
+		/**
+		 * @param id assigns numeric id to state
+		 * */
 		GameState(int id){
 			this.id=id;
 		}
 
+		/**
+		 * @return the id of the current state
+		 * */
 		int getId(){
 			return this.id;
 		}
 	}
-	
+
+	/**
+	 * Establishes game at start of runtime
+	 * */
 	@Override
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
@@ -74,6 +92,8 @@ public class Main extends ApplicationAdapter {
 		startButton.setPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
 		startButton.setSize(Gdx.graphics.getWidth()/5,Gdx.graphics.getHeight()/10);
 		startButton.setColor(0.9F,0.342F,0.52F,1);
+		Image background = new Image(new Texture("loading_background.png"));
+		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		startButton.addListener(new InputListener(){
 			@Override
 			public void touchUp (InputEvent event, float x, float y, int pointer, int button) {
@@ -85,6 +105,7 @@ public class Main extends ApplicationAdapter {
 				return true;
 			}
 		});
+		mainMenu.addActor(background);
 		mainMenu.addActor(startButton);
 
 		environment = new Environment();
@@ -114,6 +135,7 @@ public class Main extends ApplicationAdapter {
 		//gameState = GameState.LOADING;
     }
 
+
 	private void loadAssets(){
 		enemies.forEach((EnemyEntity enemy)->{
 			assMan.load(enemy.getModelAddress(),Model.class);
@@ -135,7 +157,6 @@ public class Main extends ApplicationAdapter {
 	}
 
 	private void renderMainMenuFrame(){
-		//Gdx.gl.glClearColor(0, 1, 0.7f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		mainMenu.act();
 		mainMenu.draw();
