@@ -101,6 +101,7 @@ public class Main extends ApplicationAdapter {
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				gameState = GameState.LOADING;
+				loaderThread.run();
 				Gdx.input.setInputProcessor(input);
 				return true;
 			}
@@ -119,7 +120,7 @@ public class Main extends ApplicationAdapter {
 
 		camera.near = 0.1f;
 
-		camera.update();
+		//camera.update();
 		assMan.finishLoading();
 
 		enemies.add(new EnemyEntity(new Vector3(0,0,0)) {
@@ -135,19 +136,20 @@ public class Main extends ApplicationAdapter {
 		//gameState = GameState.LOADING;
     }
 
-
+	/**
+	 * Method for loader thread to load assets
+	 * */
 	private void loadAssets(){
 		enemies.forEach((EnemyEntity enemy)->{
 			assMan.load(enemy.getModelAddress(),Model.class);
 			assMan.finishLoadingAsset(enemy.getModelAddress());
 			modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 		});
-		finishLoading();
-	}
-	private void finishLoading(){
 		Gdx.app.debug("Loader thread", "Loading finished");
 	}
-
+	/**
+	 * Renders the loading screen while the assets are loading
+	 * */
 	private void renderLoadingFrame(){
 		batch2d.begin();
 		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -156,12 +158,18 @@ public class Main extends ApplicationAdapter {
 		batch2d.dispose();
 	}
 
+	/**
+	 * Renders the main menu
+	 * */
 	private void renderMainMenuFrame(){
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		mainMenu.act();
 		mainMenu.draw();
 	}
 
+	/**
+	 *
+	 * */
 	@Override
 	public void render () {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
