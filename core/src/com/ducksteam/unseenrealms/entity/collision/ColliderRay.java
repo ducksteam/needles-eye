@@ -2,6 +2,10 @@ package com.ducksteam.unseenrealms.entity.collision;
 
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * Collider for a ray
+ * @author SkySourced
+ */
 public class ColliderRay implements IHasCollision {
     public Vector3 origin;
     public Vector3 direction;

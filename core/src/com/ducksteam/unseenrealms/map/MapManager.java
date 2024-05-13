@@ -8,6 +8,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
+/**
+ * A util class for managing the map generation process
+ * @author SkySourced
+ */
 public class MapManager {
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;

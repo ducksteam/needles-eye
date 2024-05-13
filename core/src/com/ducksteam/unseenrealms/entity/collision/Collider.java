@@ -1,5 +1,9 @@
 package com.ducksteam.unseenrealms.entity.collision;
 
+/**
+ * Utility class for collisions
+ * @author SkySourced
+ */
 public class Collider {
     public static boolean collidesWith(IHasCollision a, IHasCollision b) {
         if (a instanceof ColliderSphere aSphere && b instanceof ColliderSphere bSphere) { // Sphere-Sphere collision

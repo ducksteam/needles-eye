@@ -10,6 +10,10 @@ import com.ducksteam.unseenrealms.Config;
 
 import java.util.HashMap;
 
+/**
+ * Handles player input
+ * @author SkySourced
+ */
 public class PlayerInput implements InputProcessor, ControllerListener {
 
     // The keys that are currently pressed

@@ -2,6 +2,10 @@ package com.ducksteam.unseenrealms.map;
 
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * Represents an instance of a decoration in the world
+ * @author SkySourced
+ */
 public class DecoInstance {
 
     private DecoTemplate template;

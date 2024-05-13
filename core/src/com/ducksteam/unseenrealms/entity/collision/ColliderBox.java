@@ -2,6 +2,10 @@ package com.ducksteam.unseenrealms.entity.collision;
 
 import com.badlogic.gdx.math.Vector3;
 
+/**
+ * Collider for an axis aligned bounding box (AABB)
+ * @author SkySourced
+ */
 public class ColliderBox implements IHasCollision {
     public Vector3 min;
     public Vector3 max;

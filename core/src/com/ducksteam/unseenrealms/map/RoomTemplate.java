@@ -10,6 +10,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Represents a template for a room in the world
+ * @Author SkySourced
+ */
 public class RoomTemplate {
 
     public enum RoomType {

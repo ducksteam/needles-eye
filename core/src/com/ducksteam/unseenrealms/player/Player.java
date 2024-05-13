@@ -4,6 +4,10 @@ import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.entity.collision.ColliderBox;
 import com.ducksteam.unseenrealms.entity.collision.IHasCollision;
 
+/**
+ * Represents the player in the game
+ * @author SkySourced
+ */
 public class Player {
     public IHasCollision collider;
 

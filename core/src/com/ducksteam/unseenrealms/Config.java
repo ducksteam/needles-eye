@@ -4,6 +4,10 @@ import com.badlogic.gdx.Input;
 
 import java.util.HashMap;
 
+/**
+ * Configuration class for the game
+ * @author SkySourced
+ */
 public class Config {
     public static HashMap<String, Integer> keys = new HashMap<>();
     public static int rotationSpeed = 1;

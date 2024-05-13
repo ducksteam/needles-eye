@@ -6,6 +6,10 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.io.FileReader;
 
+/**
+ * Represents a template for a decoration in the world
+ * @author SkySourced
+ */
 public class DecoTemplate {
     private String name;
     private String modelPath;

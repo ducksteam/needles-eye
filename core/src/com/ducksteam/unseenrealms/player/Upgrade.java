@@ -2,6 +2,10 @@ package com.ducksteam.unseenrealms.player;
 
 import com.badlogic.gdx.graphics.Texture;
 
+/**
+ * Represents an upgrade that the player can pick up
+ * @author SkySourced
+ */
 public abstract class Upgrade {
     String name;
     String description;

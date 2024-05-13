@@ -3,10 +3,11 @@ package com.ducksteam.unseenrealms.map;
 import com.badlogic.gdx.math.Vector2;
 
 /**
- * A room in a level
+ * Represents an instance of a room in the world
+ * @author SkySourced
  */
 
-public class RoomInstance extends RoomTemplate {
+public class RoomInstance {
     RoomTemplate room;
     Vector2 pos;
     int rot;

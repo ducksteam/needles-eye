@@ -26,7 +26,7 @@ import java.util.ArrayList;
 /**
  * The main class of the game
  * @author thechiefpotatopeeler
- * @author skySourced
+ * @author SkySourced
  * */
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;

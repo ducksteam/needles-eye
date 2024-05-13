@@ -2,6 +2,10 @@ package com.ducksteam.unseenrealms.player;
 
 import java.util.ArrayList;
 
+/**
+ * Represents the player's inventory
+ * @author SkySourced
+ */
 public class Inventory {
     ArrayList<Upgrade> upgrades;
     int ropes;

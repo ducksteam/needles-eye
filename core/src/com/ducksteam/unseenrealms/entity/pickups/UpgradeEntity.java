@@ -7,6 +7,10 @@ import com.ducksteam.unseenrealms.entity.collision.ColliderBox;
 import com.ducksteam.unseenrealms.entity.Entity;
 import com.ducksteam.unseenrealms.player.Upgrade;
 
+/**
+ * Entity for an upgrade pickup
+ * @author SkySourced
+ */
 public class UpgradeEntity extends Entity {
     Upgrade upgrade;
 

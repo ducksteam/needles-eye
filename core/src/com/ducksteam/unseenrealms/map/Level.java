@@ -5,7 +5,8 @@ import com.badlogic.gdx.Gdx;
 import java.util.ArrayList;
 
 /**
- * One floor of the dungeon
+ * Represents a floor of the dungeon
+ * @author SkySourced
  */
 public class Level {
     private final ArrayList<RoomInstance> rooms;
@@ -23,7 +24,7 @@ public class Level {
     public void addRoom(RoomInstance room) {
         rooms.add(room);
         Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getPos());
-        if (room.getType() == RoomTemplate.RoomType.HALLWAY) {
+        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) {
             rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getPos().add(0, 1).rotateDeg(room.getRot())));
             Gdx.app.debug("MapManager", "Added hallway placeholder at " + room.getPos().add(0, 1).rotateDeg(room.getRot()));
         }
