@@ -54,6 +54,16 @@ public class Collider {
                     + aRay.direction.y * (bRay.origin.x - aRay.origin.x))
                     / (bRay.direction.y * aRay.direction.x - aRay.direction.y * bRay.direction.x);
             return !(Float.isNaN(k1) || Float.isInfinite(k1));
+        } else if (a instanceof ColliderGroup aGroup){
+            for (IHasCollision collider : aGroup.colliders) {
+                boolean collides = collider.collidesWith(b);
+                if (collides) return true;
+            }
+        } else if (b instanceof ColliderGroup bGroup) {
+            for (IHasCollision collider : bGroup.colliders) {
+                boolean collides = collider.collidesWith(b);
+                if (collides) return true;
+            }
         } else {
             throw new IllegalArgumentException("Unknown collision types");
         }
