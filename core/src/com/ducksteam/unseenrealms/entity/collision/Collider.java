@@ -64,6 +64,7 @@ public class Collider {
                 boolean collides = collider.collidesWith(b);
                 if (collides) return true;
             }
+            // TODO: create plane/quad/tri collider
         } else {
             throw new IllegalArgumentException("Unknown collision types");
         }
