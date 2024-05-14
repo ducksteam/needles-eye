@@ -10,7 +10,7 @@ public class ColliderSphere implements IHasCollision {
     public float radius;
     public Vector3 centre;
 
-    public ColliderSphere(float radius, Vector3 centre) {
+    public ColliderSphere(Vector3 centre, float radius) {
         this.radius = radius;
         this.centre = centre;
     }

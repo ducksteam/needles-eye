@@ -12,9 +12,9 @@ public class CollisionTest {
         ColliderBox box1 = new ColliderBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 1, 1));
         ColliderBox box2 = new ColliderBox(new Vector3(-1, -2, -1.5f), Vector3.Zero);
         ColliderBox boxFar = new ColliderBox(new Vector3(15, 15, 15), new Vector3(16, 16, 16));
-        ColliderSphere sphere1 = new ColliderSphere(1, Vector3.Zero);
-        ColliderSphere sphere2 = new ColliderSphere(2, new Vector3(1.5f, 1.5f, 1.5f));
-        ColliderSphere sphereFar = new ColliderSphere(0.1f, new Vector3(80, 80, 80));
+        ColliderSphere sphere1 = new ColliderSphere(Vector3.Zero, 1);
+        ColliderSphere sphere2 = new ColliderSphere( new Vector3(1.5f, 1.5f, 1.5f), 2);
+        ColliderSphere sphereFar = new ColliderSphere(new Vector3(80, 80, 80), 0.1f);
         ColliderRay ray1 = new ColliderRay(new Vector3(2, 2, 2), new Vector3((float) Math.PI/4, (float) Math.PI/4, 0));
 
         assertTrue(box1.collidesWith(box2));
