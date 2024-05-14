@@ -10,7 +10,8 @@
     "width",
     "height",
     "decos",
-    "doors"
+    "doors",
+    "collision"
   ],
   "properties": {
     "name": {
@@ -39,6 +40,37 @@
     "height": {
       "type": "integer",
         "default": 1
+    },
+    "collision": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "type",
+          "position1"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["box", "sphere", "ray", "plane"]
+          },
+          "position1": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "position2": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "radius": {
+            "type": "number"
+          }
+        }
+      }
     },
     "decos": {
       "type": "array",

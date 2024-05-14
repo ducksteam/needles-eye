@@ -1,6 +1,10 @@
 package com.ducksteam.unseenrealms.map;
 
 import com.badlogic.gdx.Gdx;
+import com.ducksteam.unseenrealms.entity.collision.ColliderBox;
+import com.ducksteam.unseenrealms.entity.collision.ColliderGroup;
+import com.ducksteam.unseenrealms.entity.collision.ColliderRay;
+import com.ducksteam.unseenrealms.entity.collision.ColliderSphere;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -71,6 +75,7 @@ public class RoomTemplate {
     private int width;
     private int height;
     private boolean spawn;
+    private ColliderGroup collider;
     private String modelPath;
     private String texturePath;
     private String name;
@@ -133,6 +138,38 @@ public class RoomTemplate {
                 }
             }
             rt.getDecos().add(deco);
+        }
+
+        // Read mesh
+        rt.collider = new ColliderGroup();
+        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
+        for(LinkedTreeMap<String, Object> entry : mesh) { // Read collision objects from GSON map
+            switch ((String) entry.get("type")){
+                case "box" -> {
+                    ArrayList<Double> pos1 = (ArrayList<Double>) entry.get("position1");
+                    ArrayList<Double> pos2 = (ArrayList<Double>) entry.get("position2");
+                    rt.collider.addCollider(new ColliderBox(
+                            MapManager.vector3FromArray(pos1),
+                            MapManager.vector3FromArray(pos2)
+                    ));
+                }
+                case "sphere" -> {
+                    ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
+                    Double radius = (Double) entry.get("radius");
+                    rt.collider.addCollider(new ColliderSphere(
+                            MapManager.vector3FromArray(pos),
+                            radius.floatValue()
+                    ));
+                }
+                case "ray" -> {
+                    ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
+                    ArrayList<Double> dir = (ArrayList<Double>) entry.get("position2");
+                    rt.collider.addCollider(new ColliderRay(
+                            MapManager.vector3FromArray(pos),
+                            MapManager.vector3FromArray(dir)
+                    ));
+                }
+            }
         }
 
         return rt;
