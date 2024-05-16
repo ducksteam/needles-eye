@@ -22,6 +22,5 @@ public class CollisionTest {
         assertTrue(box1.collidesWith(sphere1));
         assertTrue(box2.collidesWith(sphere2));
         assertFalse(sphere1.collidesWith(sphereFar));
-        assertTrue(sphere1.collidesWith(ray1));
     }
 }

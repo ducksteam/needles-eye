@@ -55,7 +55,10 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         Main.player.getRot().rotate(Main.camera.up, deltaX);
         tmp.set(Main.camera.direction).crs(Main.camera.up).nor();
         Main.player.getRot().rotate(tmp, deltaY);
-        Gdx.app.debug("PlayerInput", "Player rotation: " + Main.player.getRot());
+
+        Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+
+        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Player rotation: " + Main.player.getRot());
         return true;
     }
 

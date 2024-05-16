@@ -4,6 +4,7 @@ import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -89,8 +90,8 @@ public class Main extends ApplicationAdapter {
 		mainMenu = new Stage();
 		batch2d = new SpriteBatch();
 		TextButton startButton = new TextButton("Start", neonSkin,"default");
-		startButton.setPosition(Gdx.graphics.getWidth()/2,Gdx.graphics.getHeight()/2);
-		startButton.setSize(Gdx.graphics.getWidth()/5,Gdx.graphics.getHeight()/10);
+		startButton.setPosition((float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+		startButton.setSize((float) Gdx.graphics.getWidth() /5, (float) Gdx.graphics.getHeight() /10);
 		startButton.setColor(0.9F,0.342F,0.52F,1);
 		Image background = new Image(new Texture("loading_background.png"));
 		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -100,9 +101,12 @@ public class Main extends ApplicationAdapter {
 			}
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+
 				gameState = GameState.LOADING;
 				loaderThread.run();
 				Gdx.input.setInputProcessor(input);
+
 				return true;
 			}
 		});
@@ -111,7 +115,7 @@ public class Main extends ApplicationAdapter {
 
 		environment = new Environment();
 		batch = new ModelBatch();
-		camera = new PerspectiveCamera(50, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera = new PerspectiveCamera(80, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		assMan = new AssetManager();
 		mapMan = new MapManager();
 
@@ -183,10 +187,13 @@ public class Main extends ApplicationAdapter {
 			renderMainMenuFrame();
 			return;
 		}
-		if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-		input.update();
-		player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
+		//input.update();
+
+		//player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+
 		camera.position.set(player.getPos()).add(0,0,5);
+
 		//camera.direction.set(player.getRot());
 		camera.lookAt(0f, 0f, 0f);
 
