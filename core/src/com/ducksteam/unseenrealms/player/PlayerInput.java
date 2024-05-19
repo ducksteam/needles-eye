@@ -28,7 +28,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         Gdx.app.debug("keys", keys.toString());
         Main.player.getVel().set((Vector3.Zero));
 
-        Vector3 moveVec = Main.player.getRot().scl(Config.moveSpeed);
+        Vector3 moveVec = Main.player.getRot().cpy().scl(Config.moveSpeed);
         moveVec.y = 0;
 
         if(keys.containsKey(Config.keys.get("forward")) && keys.get(Config.keys.get("forward"))){

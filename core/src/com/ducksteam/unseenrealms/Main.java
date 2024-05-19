@@ -188,14 +188,14 @@ public class Main extends ApplicationAdapter {
 			return;
 		}
 		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-		//input.update();
+		input.update();
 
-		//player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+		player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
 
 		camera.position.set(player.getPos()).add(0,0,5);
 
-		//camera.direction.set(player.getRot());
-		camera.lookAt(0f, 0f, 0f);
+		camera.direction.set(player.getRot());
+		//camera.lookAt(0f, 0f, 0f);
 
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
