@@ -17,8 +17,10 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.ducksteam.unseenrealms.entity.RoomObject;
 import com.ducksteam.unseenrealms.entity.enemies.EnemyEntity;
 import com.ducksteam.unseenrealms.map.MapManager;
+import com.ducksteam.unseenrealms.map.RoomInstance;
 import com.ducksteam.unseenrealms.player.Player;
 import com.ducksteam.unseenrealms.player.PlayerInput;
 
@@ -40,6 +42,7 @@ public class Main extends ApplicationAdapter {
 	Environment environment;
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
+	ArrayList<RoomObject> rooms = new ArrayList<>();
 	PlayerInput input = new PlayerInput();
 	public static Player player;
 	public static boolean menu;
@@ -134,6 +137,7 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
+
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
 		Gdx.input.setInputProcessor(mainMenu);
@@ -148,6 +152,11 @@ public class Main extends ApplicationAdapter {
 			assMan.load(enemy.getModelAddress(),Model.class);
 			assMan.finishLoadingAsset(enemy.getModelAddress());
 			modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
+		});
+		rooms.forEach((RoomObject room)->{
+			assMan.load(room.getModelAddress(),Model.class);
+			assMan.finishLoadingAsset(room.getModelAddress());
+			modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 		});
 		Gdx.app.debug("Loader thread", "Loading finished");
 	}
@@ -188,14 +197,13 @@ public class Main extends ApplicationAdapter {
 			return;
 		}
 		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-		//input.update();
+		input.update();
 
-		//player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+		player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
 
 		camera.position.set(player.getPos()).add(0,0,5);
 
-		//camera.direction.set(player.getRot());
-		camera.lookAt(0f, 0f, 0f);
+		camera.direction.set(player.getRot());
 
 		batch.begin(camera);
 		batch.render(modelInstances,environment);

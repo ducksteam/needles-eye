@@ -10,7 +10,7 @@ import java.util.HashMap;
  */
 public class Config {
     public static HashMap<String, Integer> keys = new HashMap<>();
-    public static int rotationSpeed = 1;
+    public static float rotationSpeed = 0.6F;
     public static int moveSpeed = 1;
 
     static {
