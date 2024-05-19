@@ -137,7 +137,6 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
-
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
 		Gdx.input.setInputProcessor(mainMenu);
@@ -204,7 +203,7 @@ public class Main extends ApplicationAdapter {
 		camera.position.set(player.getPos()).add(0,0,5);
 
 		camera.direction.set(player.getRot());
-
+		//camera.lookAt(0f, 0f, 0f);
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
 		batch.end();
