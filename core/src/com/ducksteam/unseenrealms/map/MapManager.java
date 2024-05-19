@@ -115,6 +115,7 @@ public class MapManager {
      */
     private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms) {
         RoomInstance room = getRandomElement(rooms); // get a random room to attach to
+        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return generateRoomPos(template, rooms); // if the room is a placeholder, try again
 
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
 

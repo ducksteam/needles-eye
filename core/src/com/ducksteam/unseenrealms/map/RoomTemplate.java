@@ -10,6 +10,7 @@ import com.google.gson.internal.LinkedTreeMap;
 
 import java.io.File;
 import java.io.FileReader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -91,6 +92,8 @@ public class RoomTemplate {
         this.texturePath = texturePath;
     }
 
+
+
     public RoomTemplate() {}
 
     /** Load a room template from a file
@@ -120,6 +123,7 @@ public class RoomTemplate {
         rt.setDoors(new HashMap<>() {}); // Create empty doors map
         for (Map.Entry<String, Object> entry : doors.entrySet()) { // Read doors from GSON map
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
+            Gdx.app.debug(rt.getName(), "Door " + entry.getKey() + " is " + entry.getValue());
         }
 
         // Read decos
@@ -142,35 +146,39 @@ public class RoomTemplate {
 
         // Read mesh
         rt.collider = new ColliderGroup();
-        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
-        for(LinkedTreeMap<String, Object> entry : mesh) { // Read collision objects from GSON map
-            switch ((String) entry.get("type")){
-                case "box" -> {
-                    ArrayList<Double> pos1 = (ArrayList<Double>) entry.get("position1");
-                    ArrayList<Double> pos2 = (ArrayList<Double>) entry.get("position2");
-                    rt.collider.addCollider(new ColliderBox(
-                            MapManager.vector3FromArray(pos1),
-                            MapManager.vector3FromArray(pos2)
-                    ));
-                }
-                case "sphere" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
-                    Double radius = (Double) entry.get("radius");
-                    rt.collider.addCollider(new ColliderSphere(
-                            MapManager.vector3FromArray(pos),
-                            radius.floatValue()
-                    ));
-                }
-                case "ray" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
-                    ArrayList<Double> dir = (ArrayList<Double>) entry.get("position2");
-                    rt.collider.addCollider(new ColliderRay(
-                            MapManager.vector3FromArray(pos),
-                            MapManager.vector3FromArray(dir)
-                    ));
-                }
-            }
-        }
+        Gdx.app.debug("typeof", map.get("collision").getClass().toString());
+        Gdx.app.debug("collision", map.get("collision").toString());
+        //noinspection unchecked
+        ArrayList<Object> mesh = (ArrayList<Object>) map.get("collision");
+        //@SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
+        //for(LinkedTreeMap<String, Object> entry : mesh) { // Read collision objects from GSON map
+        //    switch ((String) entry.get("type")){
+        //        case "box" -> {
+        //            ArrayList<Double> pos1 = (ArrayList<Double>) entry.get("position1");
+        //            ArrayList<Double> pos2 = (ArrayList<Double>) entry.get("position2");
+        //            rt.collider.addCollider(new ColliderBox(
+        //                    MapManager.vector3FromArray(pos1),
+        //                    MapManager.vector3FromArray(pos2)
+        //            ));
+        //        }
+        //        case "sphere" -> {
+        //            ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
+        //            Double radius = (Double) entry.get("radius");
+        //            rt.collider.addCollider(new ColliderSphere(
+        //                    MapManager.vector3FromArray(pos),
+        //                    radius.floatValue()
+        //            ));
+        //        }
+        //        case "ray" -> {
+        //            ArrayList<Double> pos = (ArrayList<Double>) entry.get("position1");
+        //            ArrayList<Double> dir = (ArrayList<Double>) entry.get("position2");
+        //            rt.collider.addCollider(new ColliderRay(
+        //                    MapManager.vector3FromArray(pos),
+        //                    MapManager.vector3FromArray(dir)
+        //            ));
+        //        }
+        //    }
+        //}
 
         return rt;
     }
