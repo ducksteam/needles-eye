@@ -70,10 +70,16 @@ public class MapManager {
 
         RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector2(0, 0)); // build a base hallway
         level.addRoom(room);
+        int battleRoomCount = 0;
 
         for (int i = 0; i < levelIndex * 5; i++){ // add a random number of rooms, increasing with each level
             RoomTemplate.RoomType nextType = RoomTemplate.RoomType.getRandomRoomType(); // get a random room type
-            generateRoom(level, nextType); // generate a room of that type
+            if (nextType == RoomTemplate.RoomType.BATTLE) { // limit the number of battle rooms
+                battleRoomCount++;
+                if (battleRoomCount > levelIndex) generateRoom(level, nextType);
+            } else {
+                generateRoom(level, nextType);
+            }
         }
 
         // generate treasure rooms
