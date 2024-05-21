@@ -109,3 +109,6 @@ Thumbs.db
 
 # Sprite files
 *.aseprite
+
+# Textures (these large images will be transported manually, not sent over github)
+*/textures/
