@@ -15,12 +15,13 @@ public class CollisionTest {
         ColliderSphere sphere1 = new ColliderSphere(Vector3.Zero, 1);
         ColliderSphere sphere2 = new ColliderSphere( new Vector3(1.5f, 1.5f, 1.5f), 2);
         ColliderSphere sphereFar = new ColliderSphere(new Vector3(80, 80, 80), 0.1f);
-        ColliderRay ray1 = new ColliderRay(new Vector3(2, 2, 2), new Vector3((float) Math.PI/4, (float) Math.PI/4, 0));
+        ColliderRay ray1 = new ColliderRay(new Vector3(2, 2, 2), (float) Math.PI/4, (float) Math.PI/4);
 
         assertTrue(box1.collidesWith(box2));
         assertFalse(box1.collidesWith(boxFar));
         assertTrue(box1.collidesWith(sphere1));
         assertTrue(box2.collidesWith(sphere2));
         assertFalse(sphere1.collidesWith(sphereFar));
+        assertTrue(sphere1.collidesWith(ray1));
     }
 }

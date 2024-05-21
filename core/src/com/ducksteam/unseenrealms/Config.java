@@ -13,6 +13,8 @@ public class Config {
     public static float rotationSpeed = 0.6F;
     public static int moveSpeed = 1;
 
+    public static boolean renderColliders = false;
+
     static {
         keys.put("forward", Input.Keys.W);
         keys.put("back", Input.Keys.S);
