@@ -14,10 +14,12 @@ buildscript {
     }
 }
 allprojects {
-    tasks.withType(Test) {
-        useJUnitPlatform()
-        testLogging {
-            events("passed", "skipped", "failed")
+    tasks.withType(Test).tap {
+        configureEach {
+            useJUnitPlatform()
+            testLogging {
+                events("passed", "skipped", "failed")
+            }
         }
     }
 }
@@ -46,6 +48,7 @@ allprojects {
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
         maven { url "https://jitpack.io" }
     }
+
 }
 
 project(":desktop") {
@@ -75,6 +78,15 @@ project(":core") {
         api "com.badlogicgames.gdx-controllers:gdx-controllers-core:$gdxControllersVersion"
         api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
         api "com.badlogicgames.gdx:gdx-ai:$aiVersion"
-        
+        testImplementation(platform('org.junit:junit-bom:5.10.2'))
+        testImplementation('org.junit.jupiter:junit-jupiter')
+        testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+    }
+
+    test {
+        useJUnitPlatform()
+        testLogging {
+            events "passed", "skipped", "failed"
+        }
     }
 }

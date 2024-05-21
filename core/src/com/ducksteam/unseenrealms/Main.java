@@ -130,7 +130,7 @@ public class Main extends ApplicationAdapter {
 		enemies.add(new EnemyEntity(new Vector3(0,0,0)) {
 			@Override
 			public String getModelAddress() {
-				return "models/enemies/worm.g3dj";
+				return "models/rooms/brokenceiling.g3db";
 			}
 		});
 
