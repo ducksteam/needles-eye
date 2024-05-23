@@ -20,7 +20,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.ducksteam.unseenrealms.entity.RoomObject;
 import com.ducksteam.unseenrealms.entity.enemies.EnemyEntity;
 import com.ducksteam.unseenrealms.map.MapManager;
-import com.ducksteam.unseenrealms.map.RoomInstance;
 import com.ducksteam.unseenrealms.player.Player;
 import com.ducksteam.unseenrealms.player.PlayerInput;
 
@@ -36,7 +35,6 @@ public class Main extends ApplicationAdapter {
 	Stage mainMenu;
 	SpriteBatch batch2d;
 	AssetManager assMan;
-	public static Config config;
 	public static PerspectiveCamera camera;
 	MapManager mapMan;
 	Environment environment;
@@ -45,7 +43,6 @@ public class Main extends ApplicationAdapter {
 	ArrayList<RoomObject> rooms = new ArrayList<>();
 	PlayerInput input = new PlayerInput();
 	public static Player player;
-	public static boolean menu;
 	Skin neonSkin;
 
 	Thread loaderThread = new Thread(this::loadAssets);
@@ -64,7 +61,7 @@ public class Main extends ApplicationAdapter {
 		PAUSED_MENU(3),
 		DEAD_MENU(4);
 
-		int id;
+		final int id;
 		/**
 		 * @param id assigns numeric id to state
 		 * */
@@ -133,7 +130,7 @@ public class Main extends ApplicationAdapter {
 		enemies.add(new EnemyEntity(new Vector3(0,0,0)) {
 			@Override
 			public String getModelAddress() {
-				return "models/enemies/worm.g3dj";
+				return "models/rooms/brokenceiling.g3db";
 			}
 		});
 
@@ -197,6 +194,15 @@ public class Main extends ApplicationAdapter {
 			renderMainMenuFrame();
 			return;
 		}
+
+		if (Config.renderColliders) {
+			for (RoomObject o : rooms) {
+				if (o.collider != null) {
+					o.collider.render();
+				}
+			}
+		}
+
 		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 		input.update();
 

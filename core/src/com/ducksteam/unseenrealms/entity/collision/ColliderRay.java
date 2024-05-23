@@ -1,5 +1,12 @@
 package com.ducksteam.unseenrealms.entity.collision;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.graphics.g3d.Material;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
 /**
@@ -8,27 +15,35 @@ import com.badlogic.gdx.math.Vector3;
  */
 public class ColliderRay implements IHasCollision {
     public Vector3 origin;
-    public Vector3 direction;
+    public float polar;
+    public float azimuthal;
     public boolean infinite;
 
-    public ColliderRay(Vector3 origin, Vector3 direction) {
+    public ColliderRay(Vector3 origin, float polar, float azimuthal) {
         this.origin = origin;
-        this.direction = direction;
+        this.polar = polar;
+        this.azimuthal = azimuthal;
         if (origin == null) {
             throw new IllegalArgumentException("Origin cannot be null");
-        }
-        if (direction == null) {
-            throw new IllegalArgumentException("Direction cannot be null");
         }
         this.infinite = false;
     }
 
-    public ColliderRay(Vector3 origin, Vector3 direction, boolean infinite) {
-        this(origin, direction);
-        this.infinite = infinite;
+    public Vector3 getPoint(float distance) {
+        float x = distance * (float)Math.sin(polar) * (float)Math.cos(azimuthal);
+        float y = distance * (float)Math.sin(polar) * (float)Math.sin(azimuthal);
+        float z = distance * (float)Math.cos(polar);
+
+        return new Vector3(x, y, z).add(origin);
     }
 
-    public Vector3 getPoint(float distance) {
-        return origin.cpy().add(direction.cpy().scl(distance));
+    @Override
+    public ModelInstance render() {
+        ModelBuilder modelBuilder = new ModelBuilder();
+        Material mat = new Material(new ColorAttribute(ColorAttribute.Diffuse, new Color(polar, azimuthal, 0, 1)));
+        Model arrow = modelBuilder.createArrow(origin, getPoint(1), mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        ModelInstance instance = new ModelInstance(arrow, origin);
+        arrow.dispose();
+        return instance;
     }
 }
