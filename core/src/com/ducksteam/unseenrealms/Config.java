@@ -12,8 +12,7 @@ public class Config {
     public static HashMap<String, Integer> keys = new HashMap<>();
     public static float rotationSpeed = 0.7F;
     public static int moveSpeed = 5;
-
-    public static boolean renderColliders = false;
+    public static boolean doRenderColliders = false;
 
     static {
         keys.put("forward", Input.Keys.W);

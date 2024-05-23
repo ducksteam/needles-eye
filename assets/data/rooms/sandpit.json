@@ -25,7 +25,8 @@
   "collision": [
     {
       "type": "box",
-      "position1": [0, 0, 0]
+      "position1": [0, 0, 0],
+      "position2": [1, 0, 2]
     }
   ]
 }
