@@ -1,10 +1,11 @@
 package com.ducksteam.unseenrealms.entity.enemies;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class WormEnemy extends EnemyEntity{
-    public WormEnemy(String modelAddress, Vector3 position) {
-        super(position);
+    public WormEnemy(String modelAddress, Vector3 position, Vector2 rotation) {
+        super(position, rotation);
     }
 
     @Override

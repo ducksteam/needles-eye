@@ -1,5 +1,6 @@
 package com.ducksteam.unseenrealms.entity.pickups;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.Main;
 import com.ducksteam.unseenrealms.entity.collision.Collider;
@@ -15,7 +16,7 @@ public class UpgradeEntity extends Entity {
     Upgrade upgrade;
 
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
-        super(position);
+        super(position, new Vector2(0,0));
         this.upgrade= upgrade;
         this.collider = new ColliderBox(position, new Vector3(-0.5f, -0.5f,-0.5f), new Vector3(-0.5f, -0.5f,-0.5f));
         //this.setModelAddress(upgrade.getModelAddress());
