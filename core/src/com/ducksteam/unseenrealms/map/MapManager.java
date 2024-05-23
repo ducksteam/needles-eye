@@ -3,6 +3,7 @@ package com.ducksteam.unseenrealms.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.unseenrealms.entity.RoomInstance;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -66,11 +67,9 @@ public class MapManager {
      * Generate a new level
      */
 
-//    public RoomInstance getTestRoom(){
-//        RoomInstance instance;
-//
-//        return instance;
-//    }
+    public RoomInstance getTestRoom(){
+        return new RoomInstance(roomTemplates.stream().filter(room -> room.getName().equals("brokenceiling")).findFirst().get(), new Vector2(0, 0));
+    }
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 

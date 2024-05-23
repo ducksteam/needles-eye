@@ -17,7 +17,7 @@ import java.util.HashMap;
 public class PlayerInput implements InputProcessor, ControllerListener {
 
     // The keys that are currently pressed
-    private static final HashMap<Integer, Boolean> keys = new HashMap<>();
+    private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
     protected final Vector3 tmp = new Vector3();
 
@@ -25,23 +25,23 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public void update() {
-        Gdx.app.debug("keys", keys.toString());
+        Gdx.app.debug("keys", KEYS.toString());
         Main.player.getVel().set((Vector3.Zero));
 
         Vector3 moveVec = Main.player.getRot().cpy().scl(Config.moveSpeed);
-        moveVec.y = 0;
+        //moveVec.y = 0;
 
-        if(keys.containsKey(Config.keys.get("forward")) && keys.get(Config.keys.get("forward"))){
+        if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
             Main.player.getVel().add(moveVec);
         }
-        if(keys.containsKey(Config.keys.get("back")) && keys.get(Config.keys.get("back"))){
+        if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
             Main.player.getVel().sub(moveVec);
         }
-        if(keys.containsKey(Config.keys.get("left")) && keys.get(Config.keys.get("left"))){
+        if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
             Main.player.getVel().sub(tmp.scl(Config.moveSpeed));
         }
-        if(keys.containsKey(Config.keys.get("right")) && keys.get(Config.keys.get("right"))){
+        if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
             Main.player.getVel().add(tmp.scl(Config.moveSpeed));
         }
@@ -72,7 +72,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
-        keys.put(i, true);
+        KEYS.put(i, true);
         return true;
     }
 
@@ -83,7 +83,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyUp(int i) {
-        keys.put(i, false);
+        KEYS.put(i, false);
         return true;
     }
 
