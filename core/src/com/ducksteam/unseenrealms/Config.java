@@ -10,8 +10,8 @@ import java.util.HashMap;
  */
 public class Config {
     public static HashMap<String, Integer> keys = new HashMap<>();
-    public static float rotationSpeed = 0.6F;
-    public static int moveSpeed = 1;
+    public static float rotationSpeed = 0.7F;
+    public static int moveSpeed = 5;
 
     static {
         keys.put("forward", Input.Keys.W);

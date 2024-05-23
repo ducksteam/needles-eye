@@ -65,6 +65,12 @@ public class MapManager {
     /**
      * Generate a new level
      */
+
+//    public RoomInstance getTestRoom(){
+//        RoomInstance instance;
+//
+//        return instance;
+//    }
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 

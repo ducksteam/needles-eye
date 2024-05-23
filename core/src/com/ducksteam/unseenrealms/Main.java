@@ -137,6 +137,8 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
+		//rooms.add(new RoomObject(mapMan.getTestRoom()));
+
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
 		Gdx.input.setInputProcessor(mainMenu);
