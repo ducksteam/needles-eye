@@ -15,7 +15,7 @@ import java.util.Objects;
 public class MapManager {
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
-    private final ArrayList<Level> levels;
+    public final ArrayList<Level> levels;
     private int levelIndex; // number of levels generated
 
     // placeholder room for hallways

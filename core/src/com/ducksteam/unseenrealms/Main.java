@@ -11,15 +11,19 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.ducksteam.unseenrealms.entity.RoomObject;
 import com.ducksteam.unseenrealms.entity.enemies.EnemyEntity;
+import com.ducksteam.unseenrealms.map.Level;
 import com.ducksteam.unseenrealms.map.MapManager;
+import com.ducksteam.unseenrealms.map.RoomInstance;
 import com.ducksteam.unseenrealms.player.Player;
 import com.ducksteam.unseenrealms.player.PlayerInput;
 
@@ -142,21 +146,28 @@ public class Main extends ApplicationAdapter {
 		//gameState = GameState.LOADING;
     }
 
+	public void fillRoomArray(int index){
+
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
 	private void loadAssets(){
-		enemies.forEach((EnemyEntity enemy)->{
-			assMan.load(enemy.getModelAddress(),Model.class);
-			assMan.finishLoadingAsset(enemy.getModelAddress());
-			modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
-		});
-		rooms.forEach((RoomObject room)->{
-			assMan.load(room.getModelAddress(),Model.class);
-			assMan.finishLoadingAsset(room.getModelAddress());
-			modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
-		});
-		Gdx.app.debug("Loader thread", "Loading finished");
+			enemies.forEach((EnemyEntity enemy) -> {
+				assMan.load(enemy.getModelAddress(), Model.class);
+				assMan.finishLoadingAsset(enemy.getModelAddress());
+				((Model) assMan.get(enemy.getModelAddress())).materials.clear();
+				((Model) assMan.get(enemy.getModelAddress())).materials.addAll(new Material(TextureAttribute.createDiffuse(new Texture(new String("/debug.jpg")))));
+				modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
+			});
+			rooms.forEach((RoomObject room) -> {
+				assMan.load(room.getModelAddress(), Model.class);
+				assMan.finishLoadingAsset(room.getModelAddress());
+				modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
+			});
+			Gdx.app.debug("Loader thread", "Loading finished");
+
 	}
 	/**
 	 * Renders the loading screen while the assets are loading

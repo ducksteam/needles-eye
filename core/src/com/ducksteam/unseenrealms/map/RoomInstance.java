@@ -10,7 +10,7 @@ import com.badlogic.gdx.math.Vector2;
 public class RoomInstance {
     RoomTemplate room;
     Vector2 pos;
-    int rot;
+    int rot;//IN DEGREES
 
     public RoomInstance(RoomTemplate room, Vector2 pos, int rot) {
         this.room = room;
