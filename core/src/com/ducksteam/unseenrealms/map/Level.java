@@ -1,6 +1,7 @@
 package com.ducksteam.unseenrealms.map;
 
 import com.badlogic.gdx.Gdx;
+import com.ducksteam.unseenrealms.entity.RoomInstance;
 
 import java.util.ArrayList;
 
