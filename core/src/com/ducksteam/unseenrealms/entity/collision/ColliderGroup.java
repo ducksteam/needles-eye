@@ -22,6 +22,6 @@ public class ColliderGroup implements IHasCollision {
         for (IHasCollision collider : colliders) {
             cache.add(collider.render());
         }
-        return null;
+        return cache;
     }
 }
