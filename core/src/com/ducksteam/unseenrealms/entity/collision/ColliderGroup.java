@@ -1,5 +1,6 @@
 package com.ducksteam.unseenrealms.entity.collision;
 
+import com.badlogic.gdx.graphics.g3d.ModelCache;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 
 import java.util.ArrayList;
@@ -16,7 +17,11 @@ public class ColliderGroup implements IHasCollision {
     }
 
     @Override
-    public ModelInstance render() {
+    public ModelCache render() {
+        ModelCache cache = new ModelCache();
+        for (IHasCollision collider : colliders) {
+            cache.add(collider.render());
+        }
         return null;
     }
 }

@@ -14,6 +14,8 @@ import com.badlogic.gdx.math.Vector3;
  * @author SkySourced
  */
 public class ColliderSphere implements IHasCollision {
+    public static final int SPHERE_HITBOX_RESOLUTION = 12;
+
     public float radius;
     public Vector3 centre;
 
@@ -26,7 +28,7 @@ public class ColliderSphere implements IHasCollision {
     public ModelInstance render() {
         ModelBuilder modelBuilder = new ModelBuilder();
         Material mat = new Material(new ColorAttribute(ColorAttribute.Diffuse, new Color(centre.hashCode())));
-        Model sphere = modelBuilder.createSphere(radius, radius, radius, 12, 12, mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
+        Model sphere = modelBuilder.createSphere(radius, radius, radius, SPHERE_HITBOX_RESOLUTION, SPHERE_HITBOX_RESOLUTION, mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
         ModelInstance instance = new ModelInstance(sphere, centre);
         sphere.dispose();
         return instance;

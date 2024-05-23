@@ -195,14 +195,6 @@ public class Main extends ApplicationAdapter {
 			return;
 		}
 
-		if (Config.renderColliders) {
-			for (RoomObject o : rooms) {
-				if (o.collider != null) {
-					o.collider.render();
-				}
-			}
-		}
-
 		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 		input.update();
 
@@ -214,6 +206,15 @@ public class Main extends ApplicationAdapter {
 		//camera.lookAt(0f, 0f, 0f);
 		batch.begin(camera);
 		batch.render(modelInstances,environment);
+
+		if (Config.doRenderColliders) {
+			for (RoomInstance o : rooms) {
+				if (o.collider != null) {
+					batch.render(o.collider.render(), environment);
+				}
+			}
+		}
+
 		batch.end();
 
 		camera.update();
