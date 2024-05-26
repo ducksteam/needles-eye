@@ -106,6 +106,10 @@ public class MapManager {
         levelIndex++; // increment the level index
     }
 
+    public Level getCurrentLevel(){
+        return levels.getLast();
+    }
+
     /**
      * Generate a room & add it to the level
      * @param level the level to generate the room in

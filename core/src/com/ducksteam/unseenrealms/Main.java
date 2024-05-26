@@ -19,10 +19,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.ducksteam.unseenrealms.entity.enemies.EnemyEntity;
-import com.ducksteam.unseenrealms.map.Level;
 import com.ducksteam.unseenrealms.map.MapManager;
 import com.ducksteam.unseenrealms.entity.RoomInstance;
-import com.ducksteam.unseenrealms.map.RoomInstance;
 import com.ducksteam.unseenrealms.player.Player;
 import com.ducksteam.unseenrealms.player.PlayerInput;
 
@@ -43,7 +41,6 @@ public class Main extends ApplicationAdapter {
 	Environment environment;
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
-	@Deprecated ArrayList<RoomInstance> rooms = new ArrayList<>();
 	PlayerInput input = new PlayerInput();
 	public static Player player;
 	Skin neonSkin;
@@ -137,7 +134,7 @@ public class Main extends ApplicationAdapter {
 		//	}
 		//});
 
-		rooms.add(mapMan.getTestRoom());
+		//rooms.add(mapMan.getTestRoom());
 
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
@@ -156,7 +153,7 @@ public class Main extends ApplicationAdapter {
 				((Model) assMan.get(enemy.getModelAddress())).materials.addAll(new Material(TextureAttribute.createDiffuse(new Texture(new String("/debug.jpg")))));
 				modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 			});
-			rooms.forEach((RoomInstance room) -> {
+			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
 				modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
@@ -214,7 +211,7 @@ public class Main extends ApplicationAdapter {
 		batch.render(modelInstances,environment);
 
 		if (Config.doRenderColliders) {
-			for (RoomInstance o : rooms) {
+			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
 				if (o.collider != null) {
 					batch.render(o.collider.render(), environment);
 				}
