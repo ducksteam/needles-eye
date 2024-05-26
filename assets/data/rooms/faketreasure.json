@@ -2,7 +2,7 @@
   "name": "faketreasure",
   "type": "treasure",
   "spawn": false,
-  "modelPath": "",
+  "modelPath": "models/rooms/slantedcorridor.g3db",
   "texturePath": "",
   "width": 1,
   "height": 1,

@@ -2,7 +2,7 @@
   "name": "fakebattle",
   "type": "battle",
   "spawn": true,
-  "modelPath": "",
+  "modelPath": "models/rooms/slantedcorridor.g3db",
   "texturePath": "",
   "width": 1,
   "height": 1,
