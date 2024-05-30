@@ -102,6 +102,13 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
+        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
+            if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
+                level.getRooms().remove(i);
+                i--;
+            }
+        }
+
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
     }
