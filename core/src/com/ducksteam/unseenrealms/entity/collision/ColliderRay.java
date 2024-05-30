@@ -38,7 +38,7 @@ public class ColliderRay implements IHasCollision {
     }
 
     @Override
-    public ModelInstance render() {
+    public ModelInstance getRenderable() {
         ModelBuilder modelBuilder = new ModelBuilder();
         Material mat = new Material(new ColorAttribute(ColorAttribute.Diffuse, new Color(polar, azimuthal, 0, 1)));
         Model arrow = modelBuilder.createArrow(origin, getPoint(1), mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);

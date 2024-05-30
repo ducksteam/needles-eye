@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -139,6 +138,7 @@ public class Main extends ApplicationAdapter {
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
 		Gdx.input.setInputProcessor(mainMenu);
+		//gameState = GameState.LOADING;
     }
 
 	/**
@@ -168,6 +168,7 @@ public class Main extends ApplicationAdapter {
 				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 			});
 			Gdx.app.debug("Loader thread", "Loading finished");
+
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -230,7 +231,7 @@ public class Main extends ApplicationAdapter {
 		/*if (Config.doRenderColliders) {
 			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
 				if (o.collider != null) {
-					batch.render(o.collider.render(), environment);
+					batch.render(o.collider.getRenderable(), environment);
 				}
 			}
 		}*/

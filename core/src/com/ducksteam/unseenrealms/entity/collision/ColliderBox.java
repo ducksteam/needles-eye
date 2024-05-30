@@ -33,11 +33,11 @@ public class ColliderBox implements IHasCollision {
     }
 
     @Override
-    public ModelInstance render() {
+    public ModelInstance getRenderable() {
         ModelBuilder modelBuilder = new ModelBuilder();
         Material mat = new Material(new ColorAttribute(ColorAttribute.Diffuse, new Color(min.hashCode())));
         Model box = modelBuilder.createBox(max.x - min.x, max.y - min.y, max.z - min.z, mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
-        ModelInstance instance = new ModelInstance(box, min);
+        ModelInstance instance = new ModelInstance(box, max.sub(min).scl(0.5f).add(min));
         box.dispose();
         return instance;
     }
