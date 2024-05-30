@@ -1,5 +1,6 @@
 package com.ducksteam.unseenrealms.entity;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.entity.collision.IHasCollision;
@@ -9,6 +10,7 @@ public abstract class Entity {
     //TODO: Add numeric IDs for each object
     public static String id;
     public Boolean isRenderable;
+    private ModelInstance modelInstance;
     private Vector3 position;
     private Vector2 rotation; // azimuthal (xz plane) then polar (special plane)
     public IHasCollision collider;
@@ -23,6 +25,14 @@ public abstract class Entity {
     /*public void setModelAddress(String modelAddress) {
         this.modelAddress = modelAddress;
     }*/
+
+    public ModelInstance getModelInstance() {
+        return modelInstance;
+    }
+
+    public void setModelInstance(ModelInstance modelInstance) {
+        this.modelInstance = modelInstance;
+    }
     public Vector3 getPosition() {
         return position;
     }

@@ -139,7 +139,6 @@ public class Main extends ApplicationAdapter {
 		//loaderThread.run();
 		gameState = GameState.MAIN_MENU;
 		Gdx.input.setInputProcessor(mainMenu);
-		//gameState = GameState.LOADING;
     }
 
 	/**
@@ -147,19 +146,28 @@ public class Main extends ApplicationAdapter {
 	 * */
 	private void loadAssets(){
 			enemies.forEach((EnemyEntity enemy) -> {
+				if (enemy.getModelAddress() == null){
+					enemy.isRenderable = false;
+					return;
+				}
 				assMan.load(enemy.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(enemy.getModelAddress());
-				((Model) assMan.get(enemy.getModelAddress())).materials.clear();
-				((Model) assMan.get(enemy.getModelAddress())).materials.addAll(new Material(TextureAttribute.createDiffuse(new Texture(new String("/debug.jpg")))));
-				modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
+				enemy.setModelInstance(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
+				enemy.isRenderable = true;
+				//modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+				if (room.getModelAddress() == null){
+					room.isRenderable = false;
+					return;
+				}
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
-				modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
+				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
+				room.isRenderable = true;
+				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 			});
 			Gdx.app.debug("Loader thread", "Loading finished");
-
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -208,15 +216,24 @@ public class Main extends ApplicationAdapter {
 		camera.direction.set(player.getRot());
 		//camera.lookAt(0f, 0f, 0f);
 		batch.begin(camera);
-		batch.render(modelInstances,environment);
+		//batch.render(modelInstances,environment);
 
-		if (Config.doRenderColliders) {
+		enemies.forEach((EnemyEntity enemy) -> {
+			if(!enemy.isRenderable) return;
+			batch.render(enemy.getModelInstance(), environment);
+		});
+		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+			if(!room.isRenderable) return;
+			batch.render(room.getModelInstance(), environment);
+		});
+
+		/*if (Config.doRenderColliders) {
 			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
 				if (o.collider != null) {
 					batch.render(o.collider.render(), environment);
 				}
 			}
-		}
+		}*/
 
 		batch.end();
 
