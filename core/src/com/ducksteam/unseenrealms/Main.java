@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.attributes.TextureAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
@@ -149,11 +148,12 @@ public class Main extends ApplicationAdapter {
 			enemies.forEach((EnemyEntity enemy) -> {
 				assMan.load(enemy.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(enemy.getModelAddress());
-				((Model) assMan.get(enemy.getModelAddress())).materials.clear();
-				((Model) assMan.get(enemy.getModelAddress())).materials.addAll(new Material(TextureAttribute.createDiffuse(new Texture(new String("/debug.jpg")))));
+				//((Model) assMan.get(enemy.getModelAddress())).materials.clear();
+				//((Model) assMan.get(enemy.getModelAddress())).materials.addAll(new Material(TextureAttribute.createDiffuse(new Texture(new String("/debug.jpg")))));
 				modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+				if (room.getModelAddress() == null) return;
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
 				modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
@@ -213,7 +213,7 @@ public class Main extends ApplicationAdapter {
 		if (Config.doRenderColliders) {
 			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
 				if (o.collider != null) {
-					batch.render(o.collider.render(), environment);
+					batch.render(o.collider.getRenderable(), environment);
 				}
 			}
 		}

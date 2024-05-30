@@ -12,5 +12,5 @@ public interface IHasCollision {
         return Collider.collidesWith(this, other);
     }
 
-    RenderableProvider render();
+    RenderableProvider getRenderable();
 }

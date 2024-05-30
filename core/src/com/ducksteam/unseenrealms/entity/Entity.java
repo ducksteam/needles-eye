@@ -1,5 +1,6 @@
 package com.ducksteam.unseenrealms.entity;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.entity.collision.IHasCollision;

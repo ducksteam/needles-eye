@@ -25,7 +25,7 @@ public class ColliderSphere implements IHasCollision {
     }
 
     @Override
-    public ModelInstance render() {
+    public ModelInstance getRenderable() {
         ModelBuilder modelBuilder = new ModelBuilder();
         Material mat = new Material(new ColorAttribute(ColorAttribute.Diffuse, new Color(centre.hashCode())));
         Model sphere = modelBuilder.createSphere(radius, radius, radius, SPHERE_HITBOX_RESOLUTION, SPHERE_HITBOX_RESOLUTION, mat, VertexAttributes.Usage.Position | VertexAttributes.Usage.Normal);
