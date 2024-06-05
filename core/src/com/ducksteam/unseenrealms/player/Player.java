@@ -3,6 +3,7 @@ package com.ducksteam.unseenrealms.player;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.entity.collision.ColliderBox;
 import com.ducksteam.unseenrealms.entity.collision.IHasCollision;
+import com.ducksteam.unseenrealms.player.Upgrade.BaseUpgrade;
 
 /**
  * Represents the player in the game
@@ -10,6 +11,7 @@ import com.ducksteam.unseenrealms.entity.collision.IHasCollision;
  */
 public class Player {
     public IHasCollision collider;
+    public BaseUpgrade baseUpgrade;
 
     float speed = 10f;
     int health;
@@ -20,9 +22,12 @@ public class Player {
     Inventory inv;
 
     public Player(Vector3 pos) {
+        baseUpgrade = BaseUpgrade.NONE;
+
         this.pos = pos;
         vel = new Vector3(0,0,0);
         rot = new Vector3(1,0,0);
+
         inv = new Inventory();
         collider = new ColliderBox(pos, new Vector3(-0.5f, -1, -0.5f), new Vector3(0.5f, 1, 0.5f));
         health = 6;

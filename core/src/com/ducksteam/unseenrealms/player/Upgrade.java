@@ -66,4 +66,14 @@ public abstract class Upgrade {
     public void setModelAddress(String modelAddress) {
         this.modelAddress = modelAddress;
     }
+
+    public enum BaseUpgrade {
+        SOUL_THREAD,
+        COAL_THREAD,
+        JOLT_THREAD,
+        THREADED_ROD,
+        NONE
+    }
+
 }
+
