@@ -46,4 +46,9 @@ public class ColliderBox implements IHasCollision {
     public void updateColliderPosition(Vector3 centre) {
         
     }
+
+    @Override
+    public Vector3 getCentre() {
+        return max.sub(min).scl(0.5f).add(min);
+    }
 }

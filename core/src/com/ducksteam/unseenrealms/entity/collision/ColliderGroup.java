@@ -1,6 +1,7 @@
 package com.ducksteam.unseenrealms.entity.collision;
 
 import com.badlogic.gdx.graphics.g3d.ModelCache;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 
@@ -22,5 +23,21 @@ public class ColliderGroup implements IHasCollision {
             cache.add(collider.getRenderable());
         }
         return cache;
+    }
+
+    @Override
+    public void updateColliderPosition(Vector3 centre) {
+        for (IHasCollision collider : colliders) {
+            collider.updateColliderPosition(centre.cpy().add(collider.getCentre()));
+        }
+    }
+
+    @Override
+    public Vector3 getCentre() {
+        Vector3 centre = new Vector3();
+        for (IHasCollision collider : colliders) {
+            centre.add(collider.getCentre());
+        }
+        return centre.scl(1f / colliders.size());
     }
 }

@@ -20,7 +20,10 @@ public class RoomInstance extends WorldObject {
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
-        this.collider =
+
+        if (room.getCollider() == null) return;
+        room.getCollider().updateColliderPosition(this.getPosition().cpy());
+        this.collider = room.getCollider();
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {
