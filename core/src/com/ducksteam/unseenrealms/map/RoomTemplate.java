@@ -1,6 +1,7 @@
 package com.ducksteam.unseenrealms.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.unseenrealms.entity.DecoInstance;
 import com.ducksteam.unseenrealms.entity.collision.ColliderBox;
 import com.ducksteam.unseenrealms.entity.collision.ColliderGroup;
@@ -82,14 +83,16 @@ public class RoomTemplate {
     private String name;
     private ArrayList<DecoInstance> decos;
     private HashMap<Integer, Boolean> doors;
+    private Vector3 centreOffset;
 
-    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, String texturePath) {
+    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, String texturePath, Vector3 centreOffset) {
         this.type = roomType;
         this.width = width;
         this.height = height;
         this.spawn = spawn;
         this.modelPath = modelPath;
         this.texturePath = texturePath;
+        this.centreOffset = centreOffset;
     }
 
 
@@ -117,6 +120,12 @@ public class RoomTemplate {
         rt.setModelPath((String) map.get("modelPath"));
         rt.setTexturePath((String) map.get("texturePath"));
         rt.setName((String) map.get("name"));
+
+        try {
+            rt.setCentreOffset(MapManager.vector3FromArray((ArrayList<Double>) map.get("centre_offset")));
+        } catch (Exception e) {
+            rt.setCentreOffset(new Vector3(0, 0, 0));
+        }
 
         // Read doors
         @SuppressWarnings("unchecked") LinkedTreeMap<String, Object> doors = (LinkedTreeMap<String, Object>) map.get("doors");
@@ -252,6 +261,14 @@ public class RoomTemplate {
 
     public void setDoors(HashMap<Integer, Boolean> doors) {
         this.doors = doors;
+    }
+
+    public Vector3 getCentreOffset() {
+        return centreOffset;
+    }
+
+    public void setCentreOffset(Vector3 centreOffset) {
+        this.centreOffset = centreOffset;
     }
 
     @Override

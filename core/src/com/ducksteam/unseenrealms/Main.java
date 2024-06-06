@@ -227,6 +227,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
+					Gdx.input.setInputProcessor(input);
 				} else {
 					player.baseUpgrade = BaseUpgrade.SOUL_THREAD;
 				}
@@ -241,6 +242,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
+					Gdx.input.setInputProcessor(input);
 				} else {
 					player.baseUpgrade = BaseUpgrade.COAL_THREAD;
 				}
@@ -255,6 +257,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
+					Gdx.input.setInputProcessor(input);
 				} else {
 					player.baseUpgrade = BaseUpgrade.JOLT_THREAD;
 				}
@@ -269,6 +272,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
+					Gdx.input.setInputProcessor(input);
 				} else {
 					player.baseUpgrade = BaseUpgrade.THREADED_ROD;
 				}

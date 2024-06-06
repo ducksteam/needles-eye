@@ -24,10 +24,10 @@ public class Level {
      */
     public void addRoom(RoomInstance room) {
         rooms.add(room);
-        Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getPos());
+        Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getRoomSpacePos());
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) {
-            rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getPos().add(0, 1).rotateDeg(room.getRot())));
-            Gdx.app.debug("MapManager", "Added hallway placeholder at " + room.getPos().add(0, 1).rotateDeg(room.getRot()));
+            rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getRoomSpacePos().add(0, 1).rotateDeg(room.getRot())));
+            Gdx.app.debug("MapManager", "Added hallway placeholder at " + room.getRoomSpacePos().add(0, 1).rotateDeg(room.getRot()));
         }
     }
 

@@ -41,6 +41,13 @@
       "type": "integer",
         "default": 1
     },
+    "centre_offset": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": [0, 0, 0]
+    },
     "collision": {
       "type": "array",
       "items": {
