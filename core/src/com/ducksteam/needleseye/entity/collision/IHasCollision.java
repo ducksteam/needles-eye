@@ -15,4 +15,6 @@ public interface IHasCollision {
 
     RenderableProvider getRenderable();
     void updateColliderPosition(Vector3 centre);
+
+    Vector3 getCentre();
 }

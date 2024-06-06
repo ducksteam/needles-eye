@@ -271,6 +271,14 @@ public class RoomTemplate {
         this.centreOffset = centreOffset;
     }
 
+    public ColliderGroup getCollider() {
+        return collider;
+    }
+
+    public void setCollider(ColliderGroup collider) {
+        this.collider = collider;
+    }
+
     @Override
     public String toString() {
         return "RoomTemplate{" +
