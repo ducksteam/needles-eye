@@ -11,6 +11,7 @@ public abstract class Entity {
     public static String id;
     public Boolean isRenderable;
     private ModelInstance modelInstance;
+    private Vector3 modelOffset;
     private Vector3 position;
     private Vector2 rotation; // azimuthal (xz plane) then polar (special plane)
     public IHasCollision collider;
@@ -48,7 +49,11 @@ public abstract class Entity {
 
     public void updatePosition(){
         if(modelInstance == null) return;
-        modelInstance.transform.setTranslation(position);
+        modelInstance.transform.setTranslation(position.cpy().add(modelOffset));
         //modelInstance.transform.setToRotation(Vector3.Y, rotation.x);
+    }
+
+    public void setModelOffset(Vector3 offset){
+        this.modelOffset = offset;
     }
 }
