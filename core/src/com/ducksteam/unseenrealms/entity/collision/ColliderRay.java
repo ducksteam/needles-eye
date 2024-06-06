@@ -46,4 +46,9 @@ public class ColliderRay implements IHasCollision {
         arrow.dispose();
         return instance;
     }
+
+    @Override
+    public void updateColliderPosition(Vector3 centre) {
+        this.origin = centre;
+    }
 }

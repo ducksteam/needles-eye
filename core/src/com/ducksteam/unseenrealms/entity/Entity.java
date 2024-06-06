@@ -19,6 +19,7 @@ public abstract class Entity {
     public Entity(Vector3 position, Vector2 rotation){
         this.position = position;
         this.rotation = rotation;
+        setModelOffset(Vector3.Zero);
     }
 
     public abstract String getModelAddress();
@@ -48,8 +49,12 @@ public abstract class Entity {
     }
 
     public void updatePosition(){
-        if(modelInstance == null) return;
-        modelInstance.transform.setTranslation(position.cpy().add(modelOffset));
+        if(modelInstance != null) {
+            modelInstance.transform.setTranslation(position.cpy().add(modelOffset));
+        }
+        if(collider != null){
+            collider.updateColliderPosition(position.cpy());
+        }
         //modelInstance.transform.setToRotation(Vector3.Y, rotation.x);
     }
 

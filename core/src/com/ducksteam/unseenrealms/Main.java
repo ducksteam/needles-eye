@@ -493,13 +493,14 @@ public class Main extends ApplicationAdapter {
 			batch.render(room.getModelInstance(), environment);
 		});
 
-		/*if (Config.doRenderColliders) {
+		if (Config.doRenderColliders) {
 			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
-				if (o.collider != null) {
-					batch.render(o.collider.getRenderable(), environment);
+				if (o.collider == null) {
+					continue;
 				}
+				batch.render(o.collider.getRenderable(), environment);
 			}
-		}*/
+		}
 
 		batch.end();
 
