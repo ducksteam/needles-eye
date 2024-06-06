@@ -3,7 +3,6 @@ package com.ducksteam.unseenrealms.entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.ducksteam.unseenrealms.entity.WorldObject;
 import com.ducksteam.unseenrealms.map.RoomTemplate;
 
 /**
@@ -13,13 +12,13 @@ import com.ducksteam.unseenrealms.map.RoomTemplate;
 
 public class RoomInstance extends WorldObject {
     RoomTemplate room;
-    Vector2 pos;
+    Vector2 roomSpacePos;
     int rot;//IN DEGREES
 
-    public RoomInstance(RoomTemplate room, Vector2 pos, int rot) {
-        super(new Vector3(pos.cpy().scl(20).x,0, pos.cpy().scl(20).y), new Vector2(MathUtils.degRad*rot, 0));
+    public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
+        super(new Vector3(roomSpacePos.cpy().scl(20).x,0, roomSpacePos.cpy().scl(20).y).add(room.getCentreOffset()), new Vector2(MathUtils.degRad*rot, 0));
         this.room = room;
-        this.pos = pos;
+        this.roomSpacePos = roomSpacePos;
         this.rot = rot;
     }
 
@@ -31,8 +30,8 @@ public class RoomInstance extends WorldObject {
         return room;
     }
 
-    public Vector2 getPos() {
-        return pos;
+    public Vector2 getRoomSpacePos() {
+        return roomSpacePos;
     }
 
     public int getRot() {
@@ -44,7 +43,7 @@ public class RoomInstance extends WorldObject {
         return "RoomInstance{" +
                 "room={type=" + room.getType() +
                 ", name=" + room.getName() +
-                "}, pos=" + pos +
+                "}, pos=" + roomSpacePos +
                 ", rot=" + rot +
                 '}';
     }

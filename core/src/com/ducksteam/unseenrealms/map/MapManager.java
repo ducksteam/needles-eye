@@ -20,7 +20,7 @@ public class MapManager {
     private int levelIndex; // number of levels generated
 
     // placeholder room for hallways
-    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null);
+    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
 
     // paths (these could be wrong, maybe change to just data/rooms/?)
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
@@ -172,13 +172,13 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
-        Vector2 pos = nonMutatingVectorAdd(room.getPos(), offset.scl(rot)); // add offset to room position
+        Vector2 pos = nonMutatingVectorAdd(room.getRoomSpacePos(), offset.scl(rot)); // add offset to room position
         //Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
-                    if (ri.getPos().equals(nonMutatingVectorAdd(pos, new Vector2(w, h)))) { // if the position is already taken
+                    if (ri.getRoomSpacePos().equals(nonMutatingVectorAdd(pos, new Vector2(w, h)))) { // if the position is already taken
                         return generateRoomPos(template, rooms); // try again
                     }
                 }
