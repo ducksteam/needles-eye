@@ -2,7 +2,7 @@ sourceCompatibility = 21
 sourceSets.main.java.srcDirs = [ "src/" ]
 sourceSets.main.resources.srcDirs = ["../assets"]
 
-project.ext.mainClassName = "com.chiefsource.unseenrealms.DesktopLauncher"
+project.ext.mainClassName = "com.chiefsource.needleseye.DesktopLauncher"
 project.ext.assetsDir = new File("../assets")
 
 import org.gradle.internal.os.OperatingSystem

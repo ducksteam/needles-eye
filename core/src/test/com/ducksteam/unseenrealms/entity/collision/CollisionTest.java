@@ -1,4 +1,4 @@
-package com.ducksteam.unseenrealms.entity.collision;
+package com.ducksteam.needleseye.entity.collision;
 
 import com.badlogic.gdx.math.Vector3;
 import org.junit.jupiter.api.Test;
