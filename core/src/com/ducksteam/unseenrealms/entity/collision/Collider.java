@@ -81,7 +81,7 @@ public class Collider {
                 float norm = dP.len();
                 return norm < 0.000001f; // return true if the lines collide
             }
-        } else if (a instanceof ColliderGroup aGroup){
+        } else if (a instanceof ColliderGroup aGroup) {
             for (IHasCollision collider : aGroup.colliders) {
                 boolean collides = collider.collidesWith(b);
                 if (collides) return true;

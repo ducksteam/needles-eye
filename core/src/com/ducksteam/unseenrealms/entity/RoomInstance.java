@@ -20,6 +20,7 @@ public class RoomInstance extends WorldObject {
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
+        this.collider =
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {

@@ -1,6 +1,7 @@
 package com.ducksteam.unseenrealms.entity.collision;
 
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.math.Vector3;
 
 /**
  * Interface for objects that can collide with other objects
@@ -13,4 +14,5 @@ public interface IHasCollision {
     }
 
     RenderableProvider getRenderable();
+    void updateColliderPosition(Vector3 centre);
 }

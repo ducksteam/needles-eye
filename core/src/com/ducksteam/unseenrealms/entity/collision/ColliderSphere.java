@@ -33,4 +33,9 @@ public class ColliderSphere implements IHasCollision {
         sphere.dispose();
         return instance;
     }
+
+    @Override
+    public void updateColliderPosition(Vector3 centre) {
+        this.centre = centre;
+    }
 }

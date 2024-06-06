@@ -1,6 +1,7 @@
 package com.ducksteam.unseenrealms.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
@@ -72,6 +73,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
+        if (i == Input.Keys.F12) Config.doRenderColliders = !Config.doRenderColliders;
         KEYS.put(i, true);
         return true;
     }
