@@ -45,4 +45,10 @@ public abstract class Entity {
     public void setRotation(Vector2 rotation) {
         this.rotation = rotation;
     }
+
+    public void updatePosition(){
+        if(modelInstance == null) return;
+        modelInstance.transform.setTranslation(position);
+        //modelInstance.transform.setToRotation(Vector3.Y, rotation.x);
+    }
 }

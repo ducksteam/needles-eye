@@ -221,10 +221,12 @@ public class Main extends ApplicationAdapter {
 
 		enemies.forEach((EnemyEntity enemy) -> {
 			if(!enemy.isRenderable) return;
+			enemy.updatePosition();
 			batch.render(enemy.getModelInstance(), environment);
 		});
 		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 			if(!room.isRenderable) return;
+			room.updatePosition();
 			batch.render(room.getModelInstance(), environment);
 		});
 
