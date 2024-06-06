@@ -13,6 +13,7 @@ public class Config {
     public static float rotationSpeed = 0.7F;
     public static int moveSpeed = 5;
     public static boolean doRenderColliders = true;
+    public static float loadingAnimSpeed = 0.05f;
 
     static {
         keys.put("forward", Input.Keys.W);
