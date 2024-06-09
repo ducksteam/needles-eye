@@ -18,6 +18,8 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.ducksteam.needleseye.entity.collision.ColliderGroup;
+import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -493,14 +495,20 @@ public class Main extends ApplicationAdapter {
 			batch.render(room.getModelInstance(), environment);
 		});
 
-		if (Config.doRenderColliders) {
-			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
-				if (o.collider == null) {
-					continue;
-				}
-				batch.render(o.collider.getRenderable(), environment);
-			}
-		}
+//		if (Config.doRenderColliders) {
+//			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
+//				if (o.collider == null) {
+//					continue;
+//				}
+//				if (o.collider instanceof ColliderGroup) {
+//					for (IHasCollision collider : ((ColliderGroup) o.collider).colliders) {
+//						batch.render(collider.getRenderable(), environment);
+//					}
+//				} else {
+//					batch.render(o.collider.getRenderable(), environment);
+//				}
+//			}
+//		}
 
 		batch.end();
 

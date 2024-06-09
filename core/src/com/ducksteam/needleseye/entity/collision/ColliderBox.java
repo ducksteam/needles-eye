@@ -60,4 +60,9 @@ public class ColliderBox implements IHasCollision {
         min = centre.cpy().add(dMin);
         max = centre.cpy().add(dMax);
     }
+
+    @Override
+    public IHasCollision copy() {
+        return new ColliderBox(min.cpy(), max.cpy());
+    }
 }

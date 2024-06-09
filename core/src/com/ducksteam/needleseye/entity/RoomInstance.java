@@ -23,6 +23,7 @@ public class RoomInstance extends WorldObject {
         this.rot = rot;
 
         if (room.getCollider() == null) return;
+        collider = room.getCollider();
         collider.setCentre(this.getPosition()); // i have no idea if this works or any of the collision code that i just wrote
         this.collider = room.getCollider();
     }

@@ -18,4 +18,5 @@ public interface IHasCollision {
 
     Vector3 getCentre();
     void setCentre(Vector3 centre);
+    IHasCollision copy();
 }
