@@ -51,4 +51,13 @@ public class ColliderBox implements IHasCollision {
     public Vector3 getCentre() {
         return max.sub(min).scl(0.5f).add(min);
     }
+
+    @Override
+    public void setCentre(Vector3 centre) {
+        Vector3 oldCentre = getCentre();
+        Vector3 dMin = oldCentre.cpy().sub(min);
+        Vector3 dMax = oldCentre.cpy().sub(max);
+        min = centre.cpy().add(dMin);
+        max = centre.cpy().add(dMax);
+    }
 }

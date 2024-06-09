@@ -17,4 +17,5 @@ public interface IHasCollision {
     void updateColliderPosition(Vector3 centre);
 
     Vector3 getCentre();
+    void setCentre(Vector3 centre);
 }

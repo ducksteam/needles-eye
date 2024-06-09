@@ -40,4 +40,13 @@ public class ColliderGroup implements IHasCollision {
         }
         return centre.scl(1f / colliders.size());
     }
+
+    @Override
+    public void setCentre(Vector3 centre) {
+        Vector3 groupCentre = this.getCentre();
+        for (IHasCollision collider : colliders) {
+            Vector3 delta = groupCentre.cpy().sub(collider.getCentre());
+            collider.setCentre(centre.cpy().add(delta));
+        }
+    }
 }

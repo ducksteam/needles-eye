@@ -56,4 +56,9 @@ public class ColliderRay implements IHasCollision {
     public Vector3 getCentre() {
         return origin;
     }
+
+    @Override
+    public void setCentre(Vector3 centre){
+        this.origin = centre;
+    }
 }

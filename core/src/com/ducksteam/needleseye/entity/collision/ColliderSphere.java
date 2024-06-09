@@ -43,4 +43,9 @@ public class ColliderSphere implements IHasCollision {
     public Vector3 getCentre() {
         return centre;
     }
+
+    @Override
+    public void setCentre(Vector3 centre){
+        this.centre = centre;
+    }
 }

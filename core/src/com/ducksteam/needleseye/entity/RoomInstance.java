@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.map.RoomTemplate;
 
 /**
@@ -22,7 +23,7 @@ public class RoomInstance extends WorldObject {
         this.rot = rot;
 
         if (room.getCollider() == null) return;
-        room.getCollider().updateColliderPosition(this.getPosition().cpy());
+        collider.setCentre(this.getPosition()); // i have no idea if this works or any of the collision code that i just wrote
         this.collider = room.getCollider();
     }
 
