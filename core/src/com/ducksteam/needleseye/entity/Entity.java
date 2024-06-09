@@ -1,6 +1,8 @@
 package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
@@ -64,12 +66,11 @@ public abstract class Entity {
      * */
     public void updatePosition(){
         if(modelInstance != null) {
-            modelInstance.transform.setTranslation(position.cpy().add(modelOffset));
+            modelInstance.transform.set(new Matrix4(position, new Quaternion().set(rotation.x, rotation.y, 0), new Vector3(1, 1, 1)));
         }
         if(collider != null){
             collider.updateColliderPosition(position.cpy());
         }
-        //modelInstance.transform.setToRotation(Vector3.Y, rotation.x);
     }
 
     public void setModelOffset(Vector3 offset){
