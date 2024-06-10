@@ -66,7 +66,8 @@ public abstract class Entity {
      * */
     public void updatePosition(){
         if(modelInstance != null) {
-            modelInstance.transform.set(new Matrix4(position, new Quaternion().set(rotation.x, rotation.y, 0), new Vector3(1, 1, 1)));
+            Vector3 euler = sphericalToEuler(rotation);
+            modelInstance.transform.setFromEulerAnglesRad(euler.x, euler.y, euler.z).trn(position.cpy().add(modelOffset));
         }
         if(collider != null){
             collider.updateColliderPosition(position.cpy());
@@ -75,5 +76,9 @@ public abstract class Entity {
 
     public void setModelOffset(Vector3 offset){
         this.modelOffset = offset;
+    }
+
+    public static Vector3 sphericalToEuler(Vector2 spherical){
+        return new Vector3((float) (spherical.x * Math.cos(spherical.y)), (float) (spherical.x * Math.sin(spherical.y)), 0);
     }
 }
