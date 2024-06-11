@@ -73,7 +73,9 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.F12) Config.doRenderColliders = !Config.doRenderColliders;
+        if (i == Input.Keys.F8) Config.doRenderColliders = !Config.doRenderColliders;
+        if (i == Input.Keys.F9) Config.debugMenu = !Config.debugMenu;
+        if (i == Input.Keys.ESCAPE) Gdx.input.setCursorCatched(false);
         KEYS.put(i, true);
         return true;
     }
@@ -119,6 +121,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
+        Gdx.input.setCursorCatched(true);
         return false;
     }
 

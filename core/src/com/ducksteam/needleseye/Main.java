@@ -9,8 +9,10 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
@@ -18,6 +20,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.ducksteam.needleseye.entity.collision.ColliderGroup;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
@@ -39,13 +42,17 @@ public class Main extends ApplicationAdapter {
 	ModelBatch batch;
 	Stage mainMenu;
 	Stage threadMenu;
+	Stage debug;
 	SpriteBatch batch2d;
 	AssetManager assMan;
+	BitmapFont debugFont;
 	public static PerspectiveCamera camera;
 	MapManager mapMan;
 	Environment environment;
+
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
+
 	PlayerInput input = new PlayerInput();
 	public static Player player;
 
@@ -95,6 +102,12 @@ public class Main extends ApplicationAdapter {
 	@Override
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+		// load font
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 32;
+		debugFont = generator.generateFont(parameter);
 
 		player = new Player(new Vector3(0,0,0));
 
@@ -382,6 +395,22 @@ public class Main extends ApplicationAdapter {
 		threadMenu.addActor(tRodButton);
 	}
 
+	private void buildDebugMenu(){
+		debug = new Stage();
+
+		Label coords = new Label("Location: "+player.getPos().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		coords.setPosition(12, Gdx.graphics.getHeight() - 48);
+		debug.addActor(coords);
+
+		Label mapSpaceCoords = new Label("Room space: " + Math.ceil(player.getPos().x / 10) + " " + Math.ceil(player.getPos().z / 10), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		mapSpaceCoords.setPosition(12, Gdx.graphics.getHeight() - 96);
+		debug.addActor(mapSpaceCoords);
+
+		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		fps.setPosition(12, Gdx.graphics.getHeight() - 144);
+		debug.addActor(fps);
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -511,6 +540,13 @@ public class Main extends ApplicationAdapter {
 //		}
 
 		batch.end();
+
+		if (Config.debugMenu) {
+			Gdx.app.debug("Debug menu", "Rendering");
+			buildDebugMenu();
+			debug.act();
+			debug.draw();
+		}
 
 		camera.update();
 	}

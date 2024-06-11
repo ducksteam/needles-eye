@@ -18,6 +18,7 @@ public class DesktopLauncher {
             config.setWindowedMode(1920, 1080);
         }
         config.setDecorated(false);
+		config.useVsync(false);
 
 		new Lwjgl3Application(new Main(), config);
 	}
