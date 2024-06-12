@@ -3,6 +3,7 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
@@ -21,8 +22,7 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.ducksteam.needleseye.entity.collision.ColliderGroup;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -40,20 +40,25 @@ import java.util.ArrayList;
  * */
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;
+
 	Stage mainMenu;
 	Stage threadMenu;
 	Stage debug;
 	SpriteBatch batch2d;
+
 	AssetManager assMan;
 	BitmapFont debugFont;
+
 	public static PerspectiveCamera camera;
+	public static FitViewport viewport;
 	MapManager mapMan;
 	Environment environment;
 
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
 
-	PlayerInput input = new PlayerInput();
+	GlobalInput globalInput = new GlobalInput();
+	InputMultiplexer playerInput = new InputMultiplexer(globalInput, new PlayerInput());
 	public static Player player;
 
 	Animation<TextureRegion> activeUIAnim;
@@ -67,7 +72,7 @@ public class Main extends ApplicationAdapter {
 
 	//public boolean loading;
 
-	GameState gameState;
+	public static GameState gameState;
 
 	/**
 	 * The enum for managing the game state
@@ -106,7 +111,7 @@ public class Main extends ApplicationAdapter {
 		// load font
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = 32;
+		parameter.size = (int) (0.03 * Gdx.graphics.getHeight());
 		debugFont = generator.generateFont(parameter);
 
 		player = new Player(new Vector3(0,0,0));
@@ -118,7 +123,9 @@ public class Main extends ApplicationAdapter {
 
 		environment = new Environment();
 		batch = new ModelBatch();
-		camera = new PerspectiveCamera(80, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera = new PerspectiveCamera();
+		viewport = new FitViewport(640, 360, camera);
+
 		assMan = new AssetManager();
 		mapMan = new MapManager();
 
@@ -130,7 +137,7 @@ public class Main extends ApplicationAdapter {
 		assMan.finishLoading();
 
 		gameState = GameState.MAIN_MENU;
-		Gdx.input.setInputProcessor(mainMenu);
+		Gdx.input.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
     }
 
 	private void buildMainMenu() {
@@ -138,7 +145,7 @@ public class Main extends ApplicationAdapter {
 
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/menu/thread-transition.png"));
 		TextureRegion[] transitionFrames = TextureRegion.split(transitionMap, 640, 360)[0];
-		Animation<TextureRegion> transitionAnimation = new Animation<>(Config.loadingAnimSpeed, transitionFrames);
+		Animation<TextureRegion> transitionAnimation = new Animation<>(Config.LOADING_ANIM_SPEED, transitionFrames);
 
 		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/background.png")));
 		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -159,7 +166,7 @@ public class Main extends ApplicationAdapter {
 					activeUIAnim = transitionAnimation;
 					animTime = 0;
 					animPreDraw = () -> renderMainMenuFrame();
-					animFinished = () -> gameState = GameState.THREAD_SELECT; Gdx.input.setInputProcessor(threadMenu);
+					animFinished = () -> gameState = GameState.THREAD_SELECT; Gdx.input.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
 				}
 				return true;
 			}
@@ -242,7 +249,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
-					Gdx.input.setInputProcessor(input);
+					Gdx.input.setInputProcessor(playerInput);
 				} else {
 					player.baseUpgrade = BaseUpgrade.SOUL_THREAD;
 				}
@@ -257,7 +264,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
-					Gdx.input.setInputProcessor(input);
+					Gdx.input.setInputProcessor(playerInput);
 				} else {
 					player.baseUpgrade = BaseUpgrade.COAL_THREAD;
 				}
@@ -272,7 +279,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
-					Gdx.input.setInputProcessor(input);
+					Gdx.input.setInputProcessor(playerInput);
 				} else {
 					player.baseUpgrade = BaseUpgrade.JOLT_THREAD;
 				}
@@ -287,7 +294,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					gameState = GameState.LOADING;
 					loaderThread.run();
-					Gdx.input.setInputProcessor(input);
+					Gdx.input.setInputProcessor(playerInput);
 				} else {
 					player.baseUpgrade = BaseUpgrade.THREADED_ROD;
 				}
@@ -399,15 +406,15 @@ public class Main extends ApplicationAdapter {
 		debug = new Stage();
 
 		Label coords = new Label("Location: "+player.getPos().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		coords.setPosition(12, Gdx.graphics.getHeight() - 48);
+		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
 		Label mapSpaceCoords = new Label("Room space: " + Math.ceil(player.getPos().x / 10) + " " + Math.ceil(player.getPos().z / 10), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpaceCoords.setPosition(12, Gdx.graphics.getHeight() - 96);
+		mapSpaceCoords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpaceCoords);
 
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		fps.setPosition(12, Gdx.graphics.getHeight() - 144);
+		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 	}
 
@@ -480,49 +487,45 @@ public class Main extends ApplicationAdapter {
 				animTime = 0;
 				if (animFinished != null) animFinished.run();
 			}
-			return;
 		}
 
 		if(gameState == GameState.LOADING){
 			gameState = (loaderThread.isAlive())? GameState.LOADING:GameState.IN_GAME;
 			renderLoadingFrame();
-			return;
 		}
 
 		if(gameState == GameState.MAIN_MENU) {
 			renderMainMenuFrame();
-			return;
 		}
 
 		if (gameState == GameState.THREAD_SELECT){
 			threadMenu.act();
 			threadMenu.draw();
 			buildThreadMenu();
-			return;
 		}
 
-		//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-		input.update();
+		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
+			PlayerInput.update();
 
-		player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+			player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
 
-		camera.position.set(player.getPos()).add(0,0,5);
+			camera.position.set(player.getPos()).add(0, 0, 5);
 
-		camera.direction.set(player.getRot());
-		//camera.lookAt(0f, 0f, 0f);
-		batch.begin(camera);
-		//batch.render(modelInstances,environment);
+			camera.direction.set(player.getRot());
+			//camera.lookAt(0f, 0f, 0f);
+			batch.begin(camera);
+			//batch.render(modelInstances,environment);
 
-		enemies.forEach((EnemyEntity enemy) -> {
-			if(!enemy.isRenderable) return;
-			enemy.updatePosition();
-			batch.render(enemy.getModelInstance(), environment);
-		});
-		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-			if(!room.isRenderable) return;
-			room.updatePosition();
-			batch.render(room.getModelInstance(), environment);
-		});
+			enemies.forEach((EnemyEntity enemy) -> {
+				if (!enemy.isRenderable) return;
+				enemy.updatePosition();
+				batch.render(enemy.getModelInstance(), environment);
+			});
+			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+				if (!room.isRenderable) return;
+				room.updatePosition();
+				batch.render(room.getModelInstance(), environment);
+			});
 
 //		if (Config.doRenderColliders) {
 //			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
@@ -539,7 +542,8 @@ public class Main extends ApplicationAdapter {
 //			}
 //		}
 
-		batch.end();
+			batch.end();
+		}
 
 		if (Config.debugMenu) {
 			Gdx.app.debug("Debug menu", "Rendering");
@@ -549,6 +553,11 @@ public class Main extends ApplicationAdapter {
 		}
 
 		camera.update();
+	}
+
+	@Override
+	public void resize(int width, int height) {
+		viewport.update(width, height);
 	}
 
 	@Override

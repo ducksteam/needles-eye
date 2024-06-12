@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
@@ -20,16 +19,16 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     // The keys that are currently pressed
     private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
-    protected final Vector3 tmp = new Vector3();
+    protected static final Vector3 tmp = new Vector3();
 
     /**
      * Updates the player's velocity based on the keys pressed.
      */
-    public void update() {
+    public static void update() {
         Gdx.app.debug("keys", KEYS.toString());
         Main.player.getVel().set((Vector3.Zero));
 
-        Vector3 moveVec = Main.player.getRot().cpy().scl(Config.moveSpeed);
+        Vector3 moveVec = Main.player.getRot().cpy().scl(Config.MOVE_SPEED);
         //moveVec.y = 0;
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
@@ -40,11 +39,11 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().sub(tmp.scl(Config.moveSpeed));
+            Main.player.getVel().sub(tmp.scl(Config.MOVE_SPEED));
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().add(tmp.scl(Config.moveSpeed));
+            Main.player.getVel().add(tmp.scl(Config.MOVE_SPEED));
         }
         Gdx.app.debug("PlayerInput", "Player velocity: " + Main.player.getVel());
     }
@@ -54,8 +53,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * @return true if the camera was rotated
      */
     private boolean rotateCamera() {
-        float deltaX = -Gdx.input.getDeltaX() * Config.rotationSpeed;
-        float deltaY = -Gdx.input.getDeltaY() * Config.rotationSpeed;
+        float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
+        float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
         Main.player.getRot().rotate(Main.camera.up, deltaX);
         tmp.set(Main.camera.direction).crs(Main.camera.up).nor();
         Main.player.getRot().rotate(tmp, deltaY);
@@ -73,9 +72,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.F8) Config.doRenderColliders = !Config.doRenderColliders;
-        if (i == Input.Keys.F9) Config.debugMenu = !Config.debugMenu;
-        if (i == Input.Keys.ESCAPE) Gdx.input.setCursorCatched(false);
         KEYS.put(i, true);
         return true;
     }
@@ -121,7 +117,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
-        Gdx.input.setCursorCatched(true);
         return false;
     }
 

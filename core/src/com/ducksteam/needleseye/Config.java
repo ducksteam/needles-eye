@@ -9,12 +9,16 @@ import java.util.HashMap;
  * @author SkySourced
  */
 public class Config {
+    // Modifiable
     public static HashMap<String, Integer> keys = new HashMap<>();
-    public static float rotationSpeed = 0.7F;
-    public static int moveSpeed = 5;
-    public static boolean doRenderColliders = false;
-    public static float loadingAnimSpeed = 0.05f;
     public static boolean debugMenu = false;
+    public static boolean doRenderColliders = false;
+
+    // Global constants
+    public static final float ROTATION_SPEED = 0.7F;
+    public static final int MOVE_SPEED = 5;
+    public static final float LOADING_ANIM_SPEED = 0.05f;
+    public static final float ASPECT_RATIO = (float) 16 / 9;
 
     static {
         keys.put("forward", Input.Keys.W);
