@@ -90,4 +90,8 @@ public abstract class Entity {
     public static Vector3 sphericalToEuler(Vector2 spherical){
         return new Vector3((float) (spherical.x * Math.cos(spherical.y)), (float) (spherical.x * Math.sin(spherical.y)), 0);
     }
+
+    public static Vector2 eulerToSpherical(Vector3 euler){
+        return new Vector2((float) Math.sqrt(euler.x * euler.x + euler.y * euler.y), (float) Math.atan2(euler.y, euler.x));
+    }
 }

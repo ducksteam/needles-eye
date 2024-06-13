@@ -342,9 +342,6 @@ public class Main extends ApplicationAdapter {
 				break;
         }
 
-		Gdx.app.debug("threadAnimState", threadAnimState[0] + " " + threadAnimState[1] + " " + threadAnimState[2]);
-		Gdx.app.debug("Gdx.graphics dimensions", Gdx.graphics.getWidth() + " " + Gdx.graphics.getHeight());
-
 		// positioning animated buttons
 		if (threadAnimState[0] > 0) { // soul anim
 			threadAnimState[1] = 0;
@@ -385,8 +382,6 @@ public class Main extends ApplicationAdapter {
 		} else { // no anim
 			soulButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * 193/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			Gdx.app.debug("soulButton", soulButton.getWidth() + " " + soulButton.getHeight());
 
 			coalButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
 			coalButton.setPosition((float) Gdx.graphics.getWidth() * 288/640, (float) Gdx.graphics.getHeight() * 100/360);
@@ -477,7 +472,6 @@ public class Main extends ApplicationAdapter {
 		if(activeUIAnim != null){
 			if (animPreDraw != null) animPreDraw.run();
 			animTime += Gdx.graphics.getDeltaTime();
-			Gdx.app.debug("animTime", animTime + "");
 			TextureRegion currentFrame = activeUIAnim.getKeyFrame(animTime);
 			batch2d.begin();
 			batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -523,6 +517,7 @@ public class Main extends ApplicationAdapter {
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName());
 				if (!room.isRenderable) return;
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
@@ -547,7 +542,6 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if (Config.debugMenu) {
-			Gdx.app.debug("Debug menu", "Rendering");
 			buildDebugMenu();
 			debug.act();
 			debug.draw();

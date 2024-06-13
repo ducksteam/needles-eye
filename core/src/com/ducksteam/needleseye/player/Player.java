@@ -1,6 +1,8 @@
 package com.ducksteam.needleseye.player;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
@@ -11,7 +13,7 @@ import java.util.ArrayList;
  * Represents the player in the game
  * @author SkySourced
  */
-public class Player {
+public class Player extends Entity {
     public IHasCollision collider;
     public BaseUpgrade baseUpgrade;
 
@@ -24,6 +26,7 @@ public class Player {
     Vector3 rot; // rads
 
     public Player(Vector3 pos) {
+        super(pos, new Vector2(0,0));
         baseUpgrade = BaseUpgrade.NONE;
 
         this.pos = pos;
@@ -78,5 +81,10 @@ public class Player {
 
     public void setRot(Vector3 rot) {
         this.rot = rot;
+    }
+
+    @Override
+    public String getModelAddress() {
+        return null;
     }
 }

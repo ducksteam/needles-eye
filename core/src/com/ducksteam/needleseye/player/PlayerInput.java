@@ -26,7 +26,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update() {
-        Gdx.app.debug("keys", KEYS.toString());
         Main.player.getVel().set((Vector3.Zero));
 
         Vector3 moveVec = Main.player.getRot().cpy().scl(Config.MOVE_SPEED);
@@ -48,7 +47,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
             Main.player.getVel().add(tmp.scl(Config.MOVE_SPEED));
         }
-        Gdx.app.debug("PlayerInput", "Player velocity: " + Main.player.getVel());
     }
 
     /**
@@ -64,7 +62,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 
-        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Player rotation: " + Main.player.getRot());
         return true;
     }
 
