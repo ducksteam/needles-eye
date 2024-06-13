@@ -66,4 +66,13 @@ public class ColliderRay implements IHasCollision {
     public ColliderRay copy() {
         return new ColliderRay(origin.cpy(), polar, azimuthal);
     }
+
+    @Override
+    public String toString() {
+        return "ColliderRay{" +
+                "origin=" + origin +
+                ", polar=" + polar +
+                ", azimuthal=" + azimuthal +
+                '}';
+    }
 }

@@ -53,4 +53,12 @@ public class ColliderSphere implements IHasCollision {
     public ColliderSphere copy() {
         return new ColliderSphere(centre.cpy(), radius);
     }
+
+    @Override
+    public String toString() {
+        return "ColliderSphere{" +
+                "radius=" + radius +
+                ", centre=" + centre +
+                '}';
+    }
 }

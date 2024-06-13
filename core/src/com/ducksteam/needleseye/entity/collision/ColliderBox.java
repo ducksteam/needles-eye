@@ -65,4 +65,12 @@ public class ColliderBox implements IHasCollision {
     public IHasCollision copy() {
         return new ColliderBox(min.cpy(), max.cpy());
     }
+
+    @Override
+    public String toString() {
+        return "ColliderBox{" +
+                "min=" + min +
+                ", max=" + max +
+                '}';
+    }
 }
