@@ -466,6 +466,10 @@ public class Main extends ApplicationAdapter {
 		mainMenu.draw();
 	}
 
+	private void renderGameOverlay(){
+
+	}
+
 	/**
 	 *
 	 * */
@@ -544,6 +548,15 @@ public class Main extends ApplicationAdapter {
 //		}
 
 			batch.end();
+			//renderGameOverlay();
+			batch2d.begin();
+			for(int i=0;i<player.getHealth();i++){
+				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
+				int y = Math.round(((float) Gdx.graphics.getHeight())/32F);
+				batch2d.draw(new Texture("ui/icons/heart.png"), x,y);
+			}
+			//Gdx.app.debug("HealthOverlay","rendering game overlay, possibly insuccessfully");
+			batch2d.end();
 		}
 
 		if (Config.debugMenu) {
