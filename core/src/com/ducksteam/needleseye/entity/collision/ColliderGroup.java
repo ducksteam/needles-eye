@@ -56,4 +56,11 @@ public class ColliderGroup implements IHasCollision {
         }
         return group;
     }
+
+    @Override
+    public String toString() {
+        return "ColliderGroup{" +
+                "colliders=" + colliders +
+                '}';
+    }
 }
