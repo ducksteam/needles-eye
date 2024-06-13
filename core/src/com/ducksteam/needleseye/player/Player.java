@@ -5,6 +5,8 @@ import com.ducksteam.needleseye.entity.collision.ColliderBox;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
+import java.util.ArrayList;
+
 /**
  * Represents the player in the game
  * @author SkySourced
@@ -13,12 +15,13 @@ public class Player {
     public IHasCollision collider;
     public BaseUpgrade baseUpgrade;
 
+    ArrayList<Upgrade> upgrades;
+
     int health;
     int maxHealth;
     Vector3 pos;
     Vector3 vel;
     Vector3 rot; // rads
-    Inventory inv;
 
     public Player(Vector3 pos) {
         baseUpgrade = BaseUpgrade.NONE;
@@ -27,7 +30,6 @@ public class Player {
         vel = new Vector3(0,0,0);
         rot = new Vector3(1,0,0);
 
-        inv = new Inventory();
         collider = new ColliderBox(pos, new Vector3(-0.5f, -1, -0.5f), new Vector3(0.5f, 1, 0.5f));
         health = 6;
         maxHealth = 6;
@@ -42,7 +44,6 @@ public class Player {
     }
 
     public void damage(int damage) {
-        inv.runDamageUpgrades(damage);
         health -= damage;
     }
 
@@ -69,14 +70,6 @@ public class Player {
 
     public void setVel(Vector3 vel) {
         this.vel = vel;
-    }
-
-    public Inventory getInv() {
-        return inv;
-    }
-
-    public void setInv(Inventory inv) {
-        this.inv = inv;
     }
 
     public Vector3 getRot() {

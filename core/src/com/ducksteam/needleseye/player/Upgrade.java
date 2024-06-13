@@ -19,22 +19,6 @@ public abstract class Upgrade {
         this.modelAddress = modelAddress;
     }
 
-    public void onPickup(){
-
-    }
-
-    public void onAttack(){
-
-    }
-
-    public void onThrow(){
-
-    }
-
-    public void onDamage(int damage){
-
-    }
-
     public String getName() {
         return name;
     }

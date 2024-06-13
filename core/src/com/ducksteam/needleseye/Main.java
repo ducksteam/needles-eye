@@ -487,6 +487,7 @@ public class Main extends ApplicationAdapter {
 				animTime = 0;
 				if (animFinished != null) animFinished.run();
 			}
+			return;
 		}
 
 		if(gameState == GameState.LOADING){

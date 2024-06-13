@@ -20,7 +20,7 @@ public abstract class Entity {
     private ModelInstance modelInstance;
     private Vector3 modelOffset;
     private Vector3 position;
-    private Vector2 rotation; // azimuthal (xz plane) then polar (special plane)
+    private Vector2 rotation; // (azimuthal, altitude)
     private Vector3 scale;
     public IHasCollision collider;
 

@@ -24,7 +24,6 @@ public class UpgradeEntity extends Entity {
 
     public void update(float delta) {
         if (Collider.collidesWith(this.collider, Main.player.collider)) {
-            Main.player.getInv().addUpgrade(this.upgrade);
             //TODO: Destroy entity
         }
     }
