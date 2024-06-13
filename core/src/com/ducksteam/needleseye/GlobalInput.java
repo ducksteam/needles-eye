@@ -24,7 +24,7 @@ public class GlobalInput implements InputProcessor {
 
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
-        Gdx.input.setCursorCatched(true);
+        if (Main.gameState == Main.GameState.IN_GAME) Gdx.input.setCursorCatched(true);
         return false;
     }
 

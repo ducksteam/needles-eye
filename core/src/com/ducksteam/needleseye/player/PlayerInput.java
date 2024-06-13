@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
@@ -30,6 +31,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
         Vector3 moveVec = Main.player.getRot().cpy().scl(Config.MOVE_SPEED);
         //moveVec.y = 0;
+
+        Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
             Main.player.getVel().add(moveVec);

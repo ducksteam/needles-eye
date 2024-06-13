@@ -17,7 +17,7 @@ public class RoomInstance extends WorldObject {
     int rot;//IN DEGREES
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(new Vector3(roomSpacePos.cpy().scl(20).x,0, roomSpacePos.cpy().scl(20).y).add(room.getCentreOffset()), new Vector2(MathUtils.degRad*rot, 0));
+        super(new Vector3(roomSpacePos.cpy().scl(10).x,0, roomSpacePos.cpy().scl(10).y).add(room.getCentreOffset()), new Vector2(MathUtils.degRad*rot, 0), new Vector3(0.5F, 0.5F, 0.5F));
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;

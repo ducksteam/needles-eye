@@ -13,7 +13,7 @@
       "scale": [1, 1, 1]
     }
   ],
-  "centre_offset": [0, -4, -10],
+  "centre_offset": [0, -2, -10],
   "doors": {
     "0": true,
     "1": true,

@@ -21,6 +21,7 @@ public abstract class Entity {
     private Vector3 modelOffset;
     private Vector3 position;
     private Vector2 rotation; // azimuthal (xz plane) then polar (special plane)
+    private Vector3 scale;
     public IHasCollision collider;
 
     /**
@@ -32,6 +33,14 @@ public abstract class Entity {
     public Entity(Vector3 position, Vector2 rotation){
         this.position = position;
         this.rotation = rotation;
+        this.scale = new Vector3(1, 1, 1);
+        setModelOffset(Vector3.Zero);
+    }
+
+    public Entity(Vector3 position, Vector2 rotation, Vector3 scale){
+        this.position = position;
+        this.rotation = rotation;
+        this.scale = scale;
         setModelOffset(Vector3.Zero);
     }
 
@@ -67,7 +76,7 @@ public abstract class Entity {
     public void updatePosition(){
         if(modelInstance != null) {
             Vector3 euler = sphericalToEuler(rotation);
-            modelInstance.transform.setFromEulerAnglesRad(euler.x, euler.y, euler.z).trn(position.cpy().add(modelOffset));
+            modelInstance.transform.setFromEulerAnglesRad(euler.x, euler.y, euler.z).trn(position.cpy().add(modelOffset)).scale(scale.x, scale.y, scale.z);
         }
         if(collider != null){
             collider.updateColliderPosition(position.cpy());

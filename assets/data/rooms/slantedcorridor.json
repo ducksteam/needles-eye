@@ -34,6 +34,26 @@
       "type": "box",
       "position1": [0, 0, 0],
       "position2": [1, 0, 1]
+    },
+    {
+      "type": "box",
+      "position1": [0, 0, 0],
+      "position2": [0.37, 5, 0.37]
+    },
+    {
+      "type": "box",
+      "position1": [1, 0, 0],
+      "position2": [0.67, 5, 0.37]
+    },
+    {
+      "type": "box",
+      "position1": [0, 0, 1],
+      "position2": [0.37, 5, 0.67]
+    },
+    {
+      "type": "box",
+      "position1": [1, 0, 1],
+      "position2": [0.67, 5, 0.67]
     }
   ]
 }

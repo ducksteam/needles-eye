@@ -13,7 +13,6 @@ public class Player {
     public IHasCollision collider;
     public BaseUpgrade baseUpgrade;
 
-    float speed = 10f;
     int health;
     int maxHealth;
     Vector3 pos;
@@ -86,13 +85,5 @@ public class Player {
 
     public void setRot(Vector3 rot) {
         this.rot = rot;
-    }
-
-    public float getSpeed() {
-        return speed;
-    }
-
-    public void setSpeed(float speed) {
-        this.speed = speed;
     }
 }
