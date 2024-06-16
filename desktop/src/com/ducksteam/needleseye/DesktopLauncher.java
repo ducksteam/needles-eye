@@ -7,7 +7,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		boolean fullscreen = true;
+		boolean fullscreen = false;
 
 		Graphics.DisplayMode primaryDesktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
@@ -15,9 +15,9 @@ public class DesktopLauncher {
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
-            config.setWindowedMode(800, 600);
+            config.setWindowedMode(1280, 720);
         }
-        config.setDecorated(false);
+        config.setDecorated(true);
 		config.useVsync(false);
 
 		new Lwjgl3Application(new Main(), config);

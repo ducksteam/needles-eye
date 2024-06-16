@@ -60,7 +60,8 @@ public class MapManager {
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-        generateLevel(); // generate the first level
+//        generateLevel(); // generate the first level
+        generateTestLevel();
     }
 
     /**
@@ -69,6 +70,24 @@ public class MapManager {
 
     public RoomInstance getTestRoom(){
         return new RoomInstance(roomTemplates.stream().filter(room -> room.getName().equals("brokenceiling")).findFirst().get(), new Vector2(0, 0));
+    }
+
+    public void generateTestLevel() {
+        Level level = new Level(levelIndex); // create an empty level object
+
+        RoomInstance room = new RoomInstance(getRoomWithName("sandpit"), new Vector2(0, 0)); // build a base hallway
+        level.addRoom(room);
+
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(-1, 0));
+        level.addRoom(room);
+
+        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(1, 1));
+        level.addRoom(room);
+
+        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, -1));
+        level.addRoom(room);
+
+        levels.add(level); // add the level to the list
     }
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
@@ -235,6 +254,10 @@ public class MapManager {
 
     public static Vector3 vector3FromArray(ArrayList<Double> array) {
         return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
+    }
+
+    public static RoomTemplate getRoomWithName(String name){
+        return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().get();
     }
 
 }

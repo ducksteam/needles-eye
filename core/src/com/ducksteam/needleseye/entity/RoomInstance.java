@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -25,7 +26,7 @@ public class RoomInstance extends WorldObject {
         if (room.getCollider() == null) return;
         collider = room.getCollider();
         collider.setCentre(this.getPosition()); // i have no idea if this works or any of the collision code that i just wrote
-        this.collider = room.getCollider();
+        Gdx.app.log("RoomInstance", "RoomInstance: " + this);
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {
