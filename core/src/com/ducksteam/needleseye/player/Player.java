@@ -14,7 +14,6 @@ import java.util.ArrayList;
  * @author SkySourced
  */
 public class Player extends Entity {
-    public IHasCollision collider;
     public BaseUpgrade baseUpgrade;
 
     ArrayList<Upgrade> upgrades;
@@ -65,6 +64,7 @@ public class Player extends Entity {
 
     public void setPos(Vector3 pos) {
         this.pos = pos;
+        collider.updateColliderPosition(pos);
     }
 
     public Vector3 getVel() {

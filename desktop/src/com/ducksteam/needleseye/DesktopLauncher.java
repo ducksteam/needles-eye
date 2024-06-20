@@ -15,9 +15,9 @@ public class DesktopLauncher {
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
-            config.setWindowedMode(800, 600);
+            config.setWindowedMode(1280, 720);
         }
-        config.setDecorated(false);
+        config.setDecorated(true);
 		config.useVsync(false);
 
 		new Lwjgl3Application(new Main(), config);

@@ -163,15 +163,15 @@ public class RoomTemplate {
                     ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
                     ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
                     rt.collider.addCollider(new ColliderBox(
-                            MapManager.vector3FromArray(pos1),
-                            MapManager.vector3FromArray(pos2)
+                            scaleXZ(MapManager.vector3FromArray(pos1), 10),
+                            scaleXZ(MapManager.vector3FromArray(pos2), 10)
                     ));
                 }
                 case "sphere" -> {
                     ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
                     Double radius = (Double) o.get("radius");
                     rt.collider.addCollider(new ColliderSphere(
-                            MapManager.vector3FromArray(pos),
+                            scaleXZ(MapManager.vector3FromArray(pos), 10),
                             radius.floatValue()
                     ));
                 }
@@ -180,7 +180,7 @@ public class RoomTemplate {
                     Double polar = (Double) o.get("polar");
                     Double azimuth = (Double) o.get("azimuth");
                     rt.collider.addCollider(new ColliderRay(
-                            MapManager.vector3FromArray(pos),
+                            scaleXZ(MapManager.vector3FromArray(pos), 10),
                             polar.floatValue(),
                             azimuth.floatValue()
                     ));
@@ -291,5 +291,9 @@ public class RoomTemplate {
                 ", name='" + name + '\'' +
                 ", decos=" + decos +
                 '}';
+    }
+
+    public static Vector3 scaleXZ(Vector3 vec, float scale) {
+        return new Vector3(vec.x * scale, vec.y, vec.z * scale);
     }
 }

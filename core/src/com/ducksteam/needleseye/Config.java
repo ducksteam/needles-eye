@@ -19,6 +19,7 @@ public class Config {
     public static int MOVE_SPEED = 1;
     public static final float LOADING_ANIM_SPEED = 0.05f;
     public static final float ASPECT_RATIO = (float) 16 / 9;
+    public static final int ROOM_SCALE = 10;
 
     static {
         keys.put("forward", Input.Keys.W);

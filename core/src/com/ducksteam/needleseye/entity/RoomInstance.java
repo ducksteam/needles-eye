@@ -1,10 +1,13 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.map.RoomTemplate;
+
+import static com.ducksteam.needleseye.Config.ROOM_SCALE;
 
 /**
  * Represents an instance of a room in the world
@@ -17,15 +20,15 @@ public class RoomInstance extends WorldObject {
     int rot;//IN DEGREES
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(new Vector3(roomSpacePos.cpy().scl(10).x,0, roomSpacePos.cpy().scl(10).y).add(room.getCentreOffset()), new Vector2(MathUtils.degRad*rot, 0), new Vector3(0.5F, 0.5F, 0.5F));
+        super(new Vector3(roomSpacePos.cpy().scl(ROOM_SCALE).x-5,0, roomSpacePos.cpy().scl(ROOM_SCALE).y).add(room.getCentreOffset()), new Vector2(MathUtils.degRad*rot, 0), new Vector3(0.5F, 0.5F, 0.5F));
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
 
         if (room.getCollider() == null) return;
         collider = room.getCollider();
-        collider.setCentre(this.getPosition()); // i have no idea if this works or any of the collision code that i just wrote
-        this.collider = room.getCollider();
+        Vector3 colliderCentreOffset = new Vector3((float) (room.getWidth() * ROOM_SCALE) /2 +5, 0, (float) (room.getHeight() * ROOM_SCALE) /2);
+        collider.setCentre(this.getPosition().cpy().add(colliderCentreOffset), true); // i have no idea if this works or any of the collision code that i just wrote
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {

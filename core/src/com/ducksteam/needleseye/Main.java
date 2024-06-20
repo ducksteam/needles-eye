@@ -465,6 +465,7 @@ public class Main extends ApplicationAdapter {
 					room.isRenderable = false;
 					return;
 				}
+				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
 				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
@@ -554,6 +555,9 @@ public class Main extends ApplicationAdapter {
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+				if (room.collider == null) {
+					return;
+				}
 				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName());
 				if (!room.isRenderable) return;
 				room.updatePosition();

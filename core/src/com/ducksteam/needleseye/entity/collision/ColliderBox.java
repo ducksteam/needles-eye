@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.collision;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -49,14 +50,18 @@ public class ColliderBox implements IHasCollision {
 
     @Override
     public Vector3 getCentre() {
-        return max.sub(min).scl(0.5f).add(min);
+        return max.cpy().sub(min).scl(0.5f).add(min);
     }
 
     @Override
-    public void setCentre(Vector3 centre) {
+    public void setCentre(Vector3 centre, boolean lockY) {
         Vector3 oldCentre = getCentre();
         Vector3 dMin = oldCentre.cpy().sub(min);
         Vector3 dMax = oldCentre.cpy().sub(max);
+        if (lockY) {
+            dMin.y = 0;
+            dMax.y = 0;
+        }
         min = centre.cpy().add(dMin);
         max = centre.cpy().add(dMax);
     }

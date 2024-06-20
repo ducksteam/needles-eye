@@ -45,7 +45,8 @@ public class ColliderSphere implements IHasCollision {
     }
 
     @Override
-    public void setCentre(Vector3 centre){
+    public void setCentre(Vector3 centre, boolean lockY){
+        if (lockY) centre.y = this.centre.y;
         this.centre = centre;
     }
 

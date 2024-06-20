@@ -13,11 +13,12 @@
     "2": true,
     "3": true
   },
+  "centre_offset": [0, 0, 0],
   "collision": [
     {
       "type": "box",
       "position1": [0, 0, 0],
-      "position2": [1, 1, 1]
+      "position2": [1, 0, 1]
     },
     {
       "type": "sphere",
