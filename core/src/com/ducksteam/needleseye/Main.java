@@ -1,9 +1,6 @@
 package com.ducksteam.needleseye;
 
-import com.badlogic.gdx.Application;
-import com.badlogic.gdx.ApplicationAdapter;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
@@ -72,8 +69,6 @@ public class Main extends ApplicationAdapter {
 
 	Thread loaderThread = new Thread(this::loadAssets);
 
-	//public boolean loading;
-
 	public static GameState gameState;
 
 	/**
@@ -88,6 +83,7 @@ public class Main extends ApplicationAdapter {
 		DEAD_MENU(5);
 
 		final int id;
+		InputProcessor inputProcessor;
 		/**
 		 * @param id assigns numeric id to state
 		 * */
@@ -101,6 +97,48 @@ public class Main extends ApplicationAdapter {
 		int getId(){
 			return this.id;
 		}
+
+		/**
+		 * @return the input processor of the current state
+		 * */
+		InputProcessor getInputProcessor(){
+			return this.inputProcessor;
+		}
+		/**
+		 * @param inputProcessor sets the input processor of the current state
+		 * */
+		void setInputProcessor(InputProcessor inputProcessor){
+			this.inputProcessor = inputProcessor;
+		}
+	}
+
+	public void initialiseInputProcessors(){
+		GameState.IN_GAME.setInputProcessor(new InputMultiplexer(globalInput, new PlayerInput()));
+		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
+		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
+		GameState.LOADING.setInputProcessor(globalInput);
+		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput));
+	}
+
+
+
+	/**
+	 * Sets the game state
+	 * @param gameState the state to set the game to
+	 * */
+	public static void setGameState(GameState gameState){
+		Main.gameState = gameState;
+		Gdx.input.setInputProcessor(gameState.getInputProcessor());
+		//if(gameState==GameState.LOADING) loaderThread.start();
+		if(gameState==GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+	}
+
+	/**
+	 * Begins the loading of assets
+	 * */
+	public void beginLoading(){
+		setGameState(GameState.LOADING);
+		loaderThread.start();
 	}
 
 	/**
@@ -138,8 +176,10 @@ public class Main extends ApplicationAdapter {
 
 		assMan.finishLoading();
 
-		gameState = GameState.MAIN_MENU;
-		Gdx.input.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
+		initialiseInputProcessors();
+
+
+		setGameState(GameState.MAIN_MENU);
     }
 
 	private void buildMainMenu() {
@@ -168,7 +208,7 @@ public class Main extends ApplicationAdapter {
 					activeUIAnim = transitionAnimation;
 					animTime = 0;
 					animPreDraw = () -> renderMainMenuFrame();
-					animFinished = () -> gameState = GameState.THREAD_SELECT; Gdx.input.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
+					animFinished = () -> setGameState(GameState.THREAD_SELECT);
 				}
 				return true;
 			}
@@ -249,9 +289,7 @@ public class Main extends ApplicationAdapter {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (player.baseUpgrade == BaseUpgrade.SOUL_THREAD) {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					gameState = GameState.LOADING;
-					loaderThread.run();
-					Gdx.input.setInputProcessor(playerInput);
+					beginLoading();
 				} else {
 					player.baseUpgrade = BaseUpgrade.SOUL_THREAD;
 				}
@@ -264,9 +302,7 @@ public class Main extends ApplicationAdapter {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (player.baseUpgrade == BaseUpgrade.COAL_THREAD) {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					gameState = GameState.LOADING;
-					loaderThread.run();
-					Gdx.input.setInputProcessor(playerInput);
+					beginLoading();
 				} else {
 					player.baseUpgrade = BaseUpgrade.COAL_THREAD;
 				}
@@ -279,9 +315,7 @@ public class Main extends ApplicationAdapter {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (player.baseUpgrade == BaseUpgrade.JOLT_THREAD) {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					gameState = GameState.LOADING;
-					loaderThread.run();
-					Gdx.input.setInputProcessor(playerInput);
+					beginLoading();
 				} else {
 					player.baseUpgrade = BaseUpgrade.JOLT_THREAD;
 				}
@@ -294,9 +328,7 @@ public class Main extends ApplicationAdapter {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (player.baseUpgrade == BaseUpgrade.THREADED_ROD) {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					gameState = GameState.LOADING;
-					loaderThread.run();
-					Gdx.input.setInputProcessor(playerInput);
+					beginLoading();
 				} else {
 					player.baseUpgrade = BaseUpgrade.THREADED_ROD;
 				}
@@ -515,7 +547,8 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if(gameState == GameState.LOADING){
-			gameState = (loaderThread.isAlive())? GameState.LOADING:GameState.IN_GAME;
+			//gameState = (loaderThread.isAlive())? GameState.LOADING:GameState.IN_GAME;
+			if(!loaderThread.isAlive()) setGameState(GameState.IN_GAME);
 			renderLoadingFrame();
 		}
 
@@ -586,6 +619,7 @@ public class Main extends ApplicationAdapter {
 			debug.draw();
 		}
 
+		Gdx.app.debug("GameState", gameState.toString());
 		camera.update();
 	}
 
