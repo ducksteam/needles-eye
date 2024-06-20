@@ -462,7 +462,7 @@ public class Main extends ApplicationAdapter {
 			roomInfo.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 			debug.addActor(roomInfo);
 		} else {
-			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
+//			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
 		}
 	}
 
