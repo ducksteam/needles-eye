@@ -43,6 +43,14 @@ public class RoomInstance extends WorldObject {
         return roomSpacePos;
     }
 
+    public boolean isAdjacent(RoomInstance other) {
+        return roomSpacePos.dst(other.roomSpacePos) == 1;
+    }
+
+    /*public boolean hasCommonDoor(RoomInstance other) {
+        return (isAdjacent(other) &&
+    }*/
+
     public int getRot() {
         return rot;
     }

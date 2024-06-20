@@ -191,6 +191,7 @@ public class RoomTemplate {
         return rt;
     }
 
+
     public RoomType getType() {
         return type;
     }

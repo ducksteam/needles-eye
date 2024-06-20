@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -492,6 +493,16 @@ public class Main extends ApplicationAdapter {
 				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 				room.isRenderable = true;
 				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
+			});
+			mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
+				if (wall.getModelAddress() == null){
+					wall.isRenderable = false;
+					return;
+				}
+				assMan.load(wall.getModelAddress(), Model.class);
+				assMan.finishLoadingAsset(wall.getModelAddress());
+				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
+				wall.isRenderable = true;
 			});
 			Gdx.app.debug("Loader thread", "Loading finished");
 			setGameState(GameState.IN_GAME);
