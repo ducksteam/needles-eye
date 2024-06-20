@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye.entity.collision;
 
-import com.badlogic.gdx.graphics.Mesh;
-import com.badlogic.gdx.graphics.g3d.ModelCache;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector3;
 
@@ -40,11 +39,12 @@ public class ColliderGroup implements IHasCollision {
     }
 
     @Override
-    public void setCentre(Vector3 centre) {
-        Vector3 groupCentre = getCentre();
+    public void setCentre(Vector3 centre, boolean lockY) {
+        Vector3 groupCentre = this.getCentre();
         for (IHasCollision collider : colliders) {
             Vector3 delta = groupCentre.cpy().sub(collider.getCentre());
-            collider.setCentre(centre.cpy().add(delta));
+            if (lockY) delta.y = 0;
+            collider.setCentre(centre.cpy().add(delta), lockY);
         }
     }
 

@@ -75,16 +75,7 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 
-        RoomInstance room = new RoomInstance(getRoomWithName("sandpit"), new Vector2(0, 0)); // build a base hallway
-        level.addRoom(room);
-
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(-1, 0));
-        level.addRoom(room);
-
-        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(1, 1));
-        level.addRoom(room);
-
-        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, -1));
+        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0)); // build a base hallway
         level.addRoom(room);
 
         levels.add(level); // add the level to the list
