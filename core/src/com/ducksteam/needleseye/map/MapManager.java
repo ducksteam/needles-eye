@@ -60,8 +60,7 @@ public class MapManager {
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-//        generateLevel(); // generate the first level
-        generateTestLevel();
+        generateLevel(); // generate the first level
     }
 
     /**
@@ -134,7 +133,8 @@ public class MapManager {
     private void generateRoom(Level level, RoomTemplate.RoomType type) {
         RoomTemplate template = getRandomRoomTemplate(type);
         Vector2 pos = generateRoomPos(template, level.getRooms());
-        int rot = (int) Math.floor(Math.random() * 4) * 90;
+        //int rot = (int) Math.floor(Math.random() * 4) * 90;
+        int rot = 0;
         RoomInstance room = new RoomInstance(template, pos, rot);
         level.addRoom(room);
     }

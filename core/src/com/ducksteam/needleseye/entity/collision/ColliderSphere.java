@@ -35,11 +35,6 @@ public class ColliderSphere implements IHasCollision {
     }
 
     @Override
-    public void updateColliderPosition(Vector3 centre) {
-        this.centre = centre;
-    }
-
-    @Override
     public Vector3 getCentre() {
         return centre;
     }

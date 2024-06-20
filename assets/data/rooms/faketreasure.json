@@ -13,11 +13,5 @@
     "2": true,
     "3": true
   },
-  "collision": [
-    {
-      "type": "box",
-      "position1": [0, 0, 0],
-      "position2": [1, 0, 1]
-    }
-  ]
+  "collision": []
 }

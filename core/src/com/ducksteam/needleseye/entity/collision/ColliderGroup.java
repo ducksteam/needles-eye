@@ -23,13 +23,6 @@ public class ColliderGroup implements IHasCollision {
     }
 
     @Override
-    public void updateColliderPosition(Vector3 centre) {
-        for (IHasCollision collider : colliders) {
-            collider.updateColliderPosition(centre.cpy().add(collider.getCentre()));
-        }
-    }
-
-    @Override
     public Vector3 getCentre() {
         Vector3 centre = new Vector3();
         for (IHasCollision collider : colliders) {

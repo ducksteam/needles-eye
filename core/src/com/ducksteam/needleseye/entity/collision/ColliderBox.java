@@ -24,8 +24,8 @@ public class ColliderBox implements IHasCollision {
     }
 
     public ColliderBox(Vector3 pos, Vector3 min, Vector3 max) {
-        this.min = pos.add(min);
-        this.max = pos.add(max);
+        this.min = pos.cpy().add(min);
+        this.max = pos.cpy().add(max);
     }
 
     public ColliderBox(float width, float height, float depth) {
@@ -41,11 +41,6 @@ public class ColliderBox implements IHasCollision {
         ModelInstance instance = new ModelInstance(box, max.sub(min).scl(0.5f).add(min));
         box.dispose();
         return instance;
-    }
-
-    @Override
-    public void updateColliderPosition(Vector3 centre) {
-        
     }
 
     @Override

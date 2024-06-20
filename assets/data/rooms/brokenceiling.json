@@ -18,11 +18,11 @@
     {
       "type": "box",
       "position1": [0, 0, 0],
-      "position2": [1, 0, 1]
+      "position2": [10, 0, 10]
     },
     {
       "type": "sphere",
-      "position1": [0.5, -0.9, 0.5],
+      "position1": [5, -0.9, 5],
       "radius": 1.5
     }
   ]

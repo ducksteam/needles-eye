@@ -79,7 +79,7 @@ public abstract class Entity {
             modelInstance.transform.setFromEulerAnglesRad(euler.x, euler.y, euler.z).trn(position.cpy().add(modelOffset)).scale(scale.x, scale.y, scale.z);
         }
         if(collider != null){
-            collider.updateColliderPosition(position.cpy());
+            collider.setCentre(position.cpy(), false);
         }
     }
 

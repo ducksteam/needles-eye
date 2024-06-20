@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.Entity;
@@ -64,7 +65,7 @@ public class Player extends Entity {
 
     public void setPos(Vector3 pos) {
         this.pos = pos;
-        collider.updateColliderPosition(pos);
+        collider.setCentre(pos, false);
     }
 
     public Vector3 getVel() {

@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -31,6 +32,7 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 
 /**
@@ -404,13 +406,36 @@ public class Main extends ApplicationAdapter {
 		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
-		Label mapSpaceCoords = new Label("Room space: " + Math.ceil(player.getPos().x / 10) + " " + Math.ceil(player.getPos().z / 10), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpaceCoords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
-		debug.addActor(mapSpaceCoords);
+		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
+		debug.addActor(rotation);
 
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
+
+		float x = (float) Math.ceil(player.getPos().x/10);
+		if (x == -0.0f) x = 0.0f;
+
+		float z = (float) Math.ceil(player.getPos().z/10);
+		if (z == -0.0f) z = 0.0f;
+
+		Vector2 mapSpaceCoords = new Vector2(x, z);
+
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
+		debug.addActor(mapSpace);
+
+		Optional<RoomInstance> currentRoomOp = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).findFirst();
+		if (currentRoomOp.isPresent()) {
+			RoomInstance currentRoom = currentRoomOp.get();
+
+			Label roomInfo = new Label(currentRoom.getRoom().getName() + ": " + currentRoom.getRoom().getCollider(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+			roomInfo.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
+			debug.addActor(roomInfo);
+		} else {
+			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
+		}
 	}
 
 	/**
@@ -510,7 +535,6 @@ public class Main extends ApplicationAdapter {
 			player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPos()).add(0, 0, 5);
-
 			camera.direction.set(player.getRot());
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
@@ -522,11 +546,9 @@ public class Main extends ApplicationAdapter {
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				if (room.collider == null) {
-					return;
-				}
-				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName());
+				if (room.collider == null) return;
 				if (!room.isRenderable) return;
+				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
