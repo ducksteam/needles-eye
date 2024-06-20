@@ -2,6 +2,7 @@ package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
 import com.ducksteam.needleseye.entity.RoomInstance;
+import com.ducksteam.needleseye.entity.WallObject;
 
 import java.util.ArrayList;
 
@@ -11,6 +12,8 @@ import java.util.ArrayList;
  */
 public class Level {
     private final ArrayList<RoomInstance> rooms;
+    public static ArrayList<WallObject> walls;
+
     private final int levelNo;
 
     public Level(int levelNo) {

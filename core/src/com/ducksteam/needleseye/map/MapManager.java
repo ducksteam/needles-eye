@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.RoomInstance;
+import com.ducksteam.needleseye.entity.WallObject;
 
 import java.io.File;
 import java.util.ArrayList;
