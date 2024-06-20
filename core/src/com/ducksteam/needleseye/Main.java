@@ -66,9 +66,6 @@ public class Main extends ApplicationAdapter {
 	Runnable animFinished;
 
 	int[] threadAnimState = {0, 0, 0};
-
-	Thread loaderThread = new Thread(this::loadAssets);
-
 	public static GameState gameState;
 
 	/**
@@ -129,7 +126,6 @@ public class Main extends ApplicationAdapter {
 	public static void setGameState(GameState gameState){
 		Main.gameState = gameState;
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
-		//if(gameState==GameState.LOADING) loaderThread.start();
 		if(gameState==GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 	}
 
@@ -138,7 +134,7 @@ public class Main extends ApplicationAdapter {
 	 * */
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
-		loaderThread.start();
+		loadAssets();
 	}
 
 	/**
@@ -498,7 +494,7 @@ public class Main extends ApplicationAdapter {
 				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 			});
 			Gdx.app.debug("Loader thread", "Loading finished");
-
+			setGameState(GameState.IN_GAME);
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -508,7 +504,6 @@ public class Main extends ApplicationAdapter {
 		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		batch2d.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
 		batch2d.end();
-		batch2d.dispose();
 	}
 
 	/**
@@ -547,8 +542,7 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if(gameState == GameState.LOADING){
-			//gameState = (loaderThread.isAlive())? GameState.LOADING:GameState.IN_GAME;
-			if(!loaderThread.isAlive()) setGameState(GameState.IN_GAME);
+
 			renderLoadingFrame();
 		}
 
@@ -618,8 +612,6 @@ public class Main extends ApplicationAdapter {
 			debug.act();
 			debug.draw();
 		}
-
-		Gdx.app.debug("GameState", gameState.toString());
 		camera.update();
 	}
 
@@ -631,5 +623,6 @@ public class Main extends ApplicationAdapter {
 	@Override
 	public void dispose () {
 		batch.dispose();
+		batch2d.dispose();
 	}
 }
