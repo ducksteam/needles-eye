@@ -52,11 +52,17 @@ public abstract class Upgrade {
     }
 
     public enum BaseUpgrade {
-        SOUL_THREAD,
-        COAL_THREAD,
-        JOLT_THREAD,
-        THREADED_ROD,
-        NONE
+        SOUL_THREAD (3),
+        COAL_THREAD (5),
+        JOLT_THREAD (4),
+        THREADED_ROD (4),
+        NONE (-1);
+
+        final int MAX_HEALTH;
+
+        BaseUpgrade(int maxHealth) {
+            MAX_HEALTH = maxHealth;
+        }
     }
 
 }

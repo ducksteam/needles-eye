@@ -27,6 +27,15 @@ public class GlobalInput implements InputProcessor {
             Gdx.app.debug("GameState", Main.gameState.toString());
             return true;
         }
+
+        if (i == Input.Keys.NUMPAD_ADD) {
+            Main.player.damage(-1);
+            return true;
+        }
+        if (i == Input.Keys.NUMPAD_SUBTRACT) {
+            Main.player.damage(1);
+            return true;
+        }
         return false;
     }
 

@@ -293,7 +293,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					beginLoading();
 				} else {
-					player.baseUpgrade = BaseUpgrade.SOUL_THREAD;
+					player.setBaseUpgrade(BaseUpgrade.SOUL_THREAD);
 				}
 				return true;
 			}
@@ -306,7 +306,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					beginLoading();
 				} else {
-					player.baseUpgrade = BaseUpgrade.COAL_THREAD;
+					player.setBaseUpgrade(BaseUpgrade.COAL_THREAD);
 				}
 				return true;
 			}
@@ -319,7 +319,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					beginLoading();
 				} else {
-					player.baseUpgrade = BaseUpgrade.JOLT_THREAD;
+					player.setBaseUpgrade(BaseUpgrade.JOLT_THREAD);
 				}
 				return true;
 			}
@@ -332,7 +332,7 @@ public class Main extends ApplicationAdapter {
 					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
 					beginLoading();
 				} else {
-					player.baseUpgrade = BaseUpgrade.THREADED_ROD;
+					player.setBaseUpgrade(BaseUpgrade.THREADED_ROD);
 				}
 				return true;
 			}
@@ -621,7 +621,7 @@ public class Main extends ApplicationAdapter {
 			batch.end();
 			//renderGameOverlay();
 			batch2d.begin();
-			/*for(int i=0;i<player.getHealth();i++){
+			for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
 				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
