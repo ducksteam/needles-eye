@@ -21,7 +21,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -30,6 +29,7 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 
 
@@ -56,6 +56,9 @@ public class Main extends ApplicationAdapter {
 
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
+	ArrayList<String> spriteAddresses = new ArrayList<>();
+
+	HashMap<String,Texture> spriteAssets = new HashMap<>();
 
 	GlobalInput globalInput = new GlobalInput();
 	InputMultiplexer playerInput = new InputMultiplexer(globalInput, new PlayerInput());
@@ -150,6 +153,8 @@ public class Main extends ApplicationAdapter {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.03 * Gdx.graphics.getHeight());
 		debugFont = generator.generateFont(parameter);
+
+		spriteAddresses.add("ui/icons/heart.png");
 
 		player = new Player(new Vector3(0,0,0));
 
@@ -504,6 +509,13 @@ public class Main extends ApplicationAdapter {
 //				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
 //				wall.isRenderable = true;
 //			});
+			spriteAddresses.forEach((String address)->{
+				if(address == null) return;
+
+				assMan.load(address, Texture.class);
+				assMan.finishLoadingAsset(address);
+				spriteAssets.put(address,assMan.get(address));
+			});
 			Gdx.app.debug("Loader thread", "Loading finished");
 			setGameState(GameState.IN_GAME);
 	}
@@ -611,9 +623,9 @@ public class Main extends ApplicationAdapter {
 			batch2d.begin();
 			/*for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
-				int y = Math.round(((float) Gdx.graphics.getHeight())/32F);
-				//batch2d.draw(new Texture("ui/icons/heart.png"), x,y);
-			}*/
+				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
+				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			}
 			//Gdx.app.debug("HealthOverlay","rendering game overlay, possibly insuccessfully");
 			batch2d.end();
 		}
