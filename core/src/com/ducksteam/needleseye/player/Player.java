@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
@@ -64,6 +63,7 @@ public class Player extends Entity {
     }
 
     public void setPos(Vector3 pos) {
+        collider.setCentre(pos, false);
         this.pos = pos;
         collider.setCentre(pos, false);
     }

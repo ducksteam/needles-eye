@@ -494,16 +494,16 @@ public class Main extends ApplicationAdapter {
 				room.isRenderable = true;
 				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 			});
-			mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
-				if (wall.getModelAddress() == null){
-					wall.isRenderable = false;
-					return;
-				}
-				assMan.load(wall.getModelAddress(), Model.class);
-				assMan.finishLoadingAsset(wall.getModelAddress());
-				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
-				wall.isRenderable = true;
-			});
+//			mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
+//				if (wall.getModelAddress() == null){
+//					wall.isRenderable = false;
+//					return;
+//				}
+//				assMan.load(wall.getModelAddress(), Model.class);
+//				assMan.finishLoadingAsset(wall.getModelAddress());
+//				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
+//				wall.isRenderable = true;
+//			});
 			Gdx.app.debug("Loader thread", "Loading finished");
 			setGameState(GameState.IN_GAME);
 	}
@@ -612,7 +612,7 @@ public class Main extends ApplicationAdapter {
 			/*for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 				int y = Math.round(((float) Gdx.graphics.getHeight())/32F);
-				batch2d.draw(new Texture("ui/icons/heart.png"), x,y);
+				//batch2d.draw(new Texture("ui/icons/heart.png"), x,y);
 			}*/
 			//Gdx.app.debug("HealthOverlay","rendering game overlay, possibly insuccessfully");
 			batch2d.end();

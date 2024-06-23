@@ -31,7 +31,7 @@ public class RoomInstance extends WorldObject {
         this.collider = collider;
 
         assert collider != null;
-        Vector3 roomSpacePos3 = new Vector3(roomSpacePos.cpy().scl(ROOM_SCALE).x, 0, roomSpacePos.cpy().scl(ROOM_SCALE).y);
+        Vector3 roomSpacePos3 = new Vector3(roomSpacePos.cpy().scl(ROOM_SCALE).x - 10, 0, roomSpacePos.cpy().scl(ROOM_SCALE).y - 10);
         for (IHasCollision c : collider.colliders) {
             Gdx.app.debug("Collider moving", "From: " + c.getCentre() + " To: " + c.getCentre().add(roomSpacePos3));
             c.setCentre(c.getCentre().add(roomSpacePos3), true);

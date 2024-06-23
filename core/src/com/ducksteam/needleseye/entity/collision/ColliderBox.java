@@ -53,10 +53,7 @@ public class ColliderBox implements IHasCollision {
         Vector3 oldCentre = getCentre();
         Vector3 dMin = oldCentre.cpy().sub(min);
         Vector3 dMax = oldCentre.cpy().sub(max);
-        if (lockY) {
-            dMin.y = 0;
-            dMax.y = 0;
-        }
+        if (lockY) dMin.y = dMax.y = 0;
         min = centre.cpy().add(dMin);
         max = centre.cpy().add(dMax);
     }

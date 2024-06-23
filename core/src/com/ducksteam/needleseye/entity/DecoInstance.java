@@ -14,7 +14,7 @@ public class DecoInstance extends WorldObject {
     private Vector3 scale;
 
     public DecoInstance(DecoTemplate template, Vector3 pos, Vector3 scale, Vector2 rotation) {
-        super(pos, rotation);
+        super(pos, rotation, scale);
         this.template = template;
         this.scale = scale;
     }
