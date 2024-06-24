@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+import java.util.ArrayList;
+
 /**
  * Collider for a sphere
  * @author SkySourced
@@ -48,6 +50,13 @@ public class ColliderSphere implements IHasCollision {
     @Override
     public ColliderSphere copy() {
         return new ColliderSphere(centre.cpy(), radius);
+    }
+
+    @Override
+    public ArrayList<IHasCollision> getColliders() {
+        ArrayList<IHasCollision> colliders = new ArrayList<>();
+        colliders.add(this);
+        return colliders;
     }
 
     @Override

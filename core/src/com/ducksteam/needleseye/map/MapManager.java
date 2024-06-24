@@ -73,15 +73,18 @@ public class MapManager {
     }
 
     public void generateTestLevel() {
-        Level level = new Level(levelIndex); // create an empty level object
+        Level level = new Level(levelIndex);
 
-        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0));
+        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 1));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 1));
+        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, 1));
         level.addRoom(room);
 
-        levels.add(level); // add the level to the list
+        levels.add(level);
     }
+
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 
@@ -254,4 +257,7 @@ public class MapManager {
         return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().get();
     }
 
+    public static RoomTemplate getTemplateWithName(String name) {
+        return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().get();
+    }
 }

@@ -66,6 +66,14 @@ public class RoomInstance extends WorldObject {
     }
 
     @Override
+    public void updatePosition() {
+        if(getModelInstance() != null) {
+            Vector3 euler = sphericalToEuler(getRotation());
+            getModelInstance().transform.setFromEulerAnglesRad(euler.x, euler.y, euler.z).trn(getPosition().cpy().add(getModelOffset())).scale(getScale().x, getScale().y, getScale().z);
+        }
+    }
+
+    @Override
     public String toString() {
         return "RoomInstance{" +
                 "room={type=" + room.getType() +

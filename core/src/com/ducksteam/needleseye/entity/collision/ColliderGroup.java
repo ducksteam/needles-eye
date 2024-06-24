@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 
 /**
  * A group of collision objects
@@ -15,6 +16,7 @@ public class ColliderGroup implements IHasCollision {
 
     public void addCollider(IHasCollision collider){
         colliders.add(collider);
+        colliders.sort(Comparator.comparing(Object::hashCode));
     }
 
     @Override
@@ -33,11 +35,10 @@ public class ColliderGroup implements IHasCollision {
 
     @Override
     public void setCentre(Vector3 centre, boolean lockY) {
-        Vector3 groupCentre = this.getCentre();
+        Vector3 centreDelta = centre.cpy().sub(getCentre());
+        if (lockY) centreDelta.y = 0;
         for (IHasCollision collider : colliders) {
-            Vector3 delta = groupCentre.cpy().sub(collider.getCentre());
-            if (lockY) delta.y = 0;
-            collider.setCentre(centre.cpy().add(delta), lockY);
+            collider.setCentre(collider.getCentre().cpy().add(centreDelta), lockY);
         }
     }
 
@@ -49,6 +50,12 @@ public class ColliderGroup implements IHasCollision {
         }
         return group;
     }
+
+    @Override
+    public ArrayList<IHasCollision> getColliders() {
+        return colliders;
+    }
+
 
     @Override
     public String toString() {
