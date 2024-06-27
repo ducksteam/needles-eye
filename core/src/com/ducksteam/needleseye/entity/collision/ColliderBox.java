@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.collision;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -9,6 +8,8 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
+
+import java.util.ArrayList;
 
 /**
  * Collider for an axis aligned bounding box (AABB)
@@ -61,6 +62,13 @@ public class ColliderBox implements IHasCollision {
     @Override
     public IHasCollision copy() {
         return new ColliderBox(min.cpy(), max.cpy());
+    }
+
+    @Override
+    public ArrayList<IHasCollision> getColliders() {
+        ArrayList<IHasCollision> colliders = new ArrayList<>();
+        colliders.add(this);
+        return colliders;
     }
 
     @Override

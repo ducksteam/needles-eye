@@ -54,6 +54,10 @@ public abstract class Entity {
         return modelInstance;
     }
 
+    public Vector3 getModelOffset() {
+        return modelOffset;
+    }
+
     public void setModelInstance(ModelInstance modelInstance) {
         this.modelInstance = modelInstance;
     }
@@ -68,6 +72,12 @@ public abstract class Entity {
     }
     public void setRotation(Vector2 rotation) {
         this.rotation = rotation;
+    }
+    public Vector3 getScale() {
+        return scale;
+    }
+    public void setScale(Vector3 scale) {
+        this.scale = scale;
     }
 
     /**

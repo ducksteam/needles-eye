@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -149,11 +150,7 @@ public class Main extends ApplicationAdapter {
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		// load font
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
-		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = (int) (0.03 * Gdx.graphics.getHeight());
-		debugFont = generator.generateFont(parameter);
+		buildFonts();
 
 		spriteAddresses.add("ui/icons/heart.png");
 
@@ -184,6 +181,13 @@ public class Main extends ApplicationAdapter {
 
 		setGameState(GameState.MAIN_MENU);
     }
+
+	private void buildFonts() {
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = (int) (0.02 * Gdx.graphics.getHeight());
+		debugFont = generator.generateFont(parameter);
+	}
 
 	private void buildMainMenu() {
 		mainMenu = new Stage();
@@ -465,9 +469,16 @@ public class Main extends ApplicationAdapter {
 		if (currentRoomOp.isPresent()) {
 			RoomInstance currentRoom = currentRoomOp.get();
 
-			Label roomInfo = new Label(currentRoom.getRoom().getName() + ": " + currentRoom.getRoom().getCollider(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			roomInfo.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
-			debug.addActor(roomInfo);
+			Label roomName = new Label("Room: " + currentRoom.getRoom().getName(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
+			debug.addActor(roomName);
+
+			for (int i = 0; i < currentRoom.collider.getColliders().size(); i++) {
+				IHasCollision collider = currentRoom.collider.getColliders().get(i);
+				Label colliderLabel = new Label( collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+				colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight() - i * 0.04 * Gdx.graphics.getHeight()));
+				debug.addActor(colliderLabel);
+			}
 		} else {
 //			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
 		}
@@ -599,7 +610,7 @@ public class Main extends ApplicationAdapter {
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
-				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
+//				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
@@ -629,7 +640,7 @@ public class Main extends ApplicationAdapter {
 			for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+				//batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 			}
 			batch2d.end();
 		}
@@ -645,6 +656,7 @@ public class Main extends ApplicationAdapter {
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
+		buildFonts();
 	}
 
 	@Override

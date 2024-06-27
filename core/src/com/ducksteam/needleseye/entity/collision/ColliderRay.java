@@ -9,6 +9,8 @@ import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.utils.ModelBuilder;
 import com.badlogic.gdx.math.Vector3;
 
+import java.util.ArrayList;
+
 /**
  * Collider for a ray
  * @author SkySourced
@@ -61,6 +63,13 @@ public class ColliderRay implements IHasCollision {
     @Override
     public ColliderRay copy() {
         return new ColliderRay(origin.cpy(), polar, azimuthal);
+    }
+
+    @Override
+    public ArrayList<IHasCollision> getColliders() {
+        ArrayList<IHasCollision> colliders = new ArrayList<>();
+        colliders.add(this);
+        return colliders;
     }
 
     @Override
