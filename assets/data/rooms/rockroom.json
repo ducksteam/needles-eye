@@ -27,13 +27,13 @@
     },
     {
       "type": "box",
-      "position1": [4.8, 0, 6.6],
-      "position2": [6, 0.9, 5.7]
+      "position1": [5.1, 0, 6.6],
+      "position2": [4.1, 0.9, 5.6]
     },
     {
       "type": "box",
-      "position1": [3.8, 0, 6],
-      "position2": [5.8, 1.65, 4.8]
+      "position1": [6.2, 0, 4.1],
+      "position2": [4.2, 1.65, 5.2]
     }
   ]
 }

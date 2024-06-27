@@ -610,7 +610,7 @@ public class Main extends ApplicationAdapter {
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
-//				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
+				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
@@ -640,7 +640,7 @@ public class Main extends ApplicationAdapter {
 			for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-				//batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 			}
 			batch2d.end();
 		}

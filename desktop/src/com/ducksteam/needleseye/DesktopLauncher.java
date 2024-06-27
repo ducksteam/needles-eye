@@ -12,7 +12,7 @@ public class DesktopLauncher {
 
 		Graphics.DisplayMode primaryDesktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setTitle("SchoolProject2024");
+		config.setTitle("Dust Team");
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {

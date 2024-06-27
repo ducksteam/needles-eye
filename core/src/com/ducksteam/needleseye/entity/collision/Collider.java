@@ -11,9 +11,9 @@ public class Collider {
         if (a instanceof ColliderSphere aSphere && b instanceof ColliderSphere bSphere) { // Sphere-Sphere collision
             return aSphere.radius + bSphere.radius > aSphere.centre.dst(bSphere.centre);
         } else if (a instanceof ColliderBox aBox && b instanceof ColliderBox bBox) { // Box-Box collision
-            return aBox.min.x < bBox.max.x && aBox.max.x > bBox.min.x &&
-                    aBox.min.y < bBox.max.y && aBox.max.y > bBox.min.y &&
-                    aBox.min.z < bBox.max.z && aBox.max.z > bBox.min.z;
+            return !(aBox.min.x > bBox.max.x || aBox.max.x < bBox.min.x ||
+                    aBox.min.y > bBox.max.y || aBox.max.y < bBox.min.y ||
+                    aBox.min.z > bBox.max.z || aBox.max.z < bBox.min.z);
         } else if (a instanceof ColliderSphere aSphere && b instanceof ColliderBox bBox) { // Sphere-Box collision
             return aSphere.centre.x + aSphere.radius > bBox.min.x && aSphere.centre.x - aSphere.radius < bBox.max.x &&
                     aSphere.centre.y + aSphere.radius > bBox.min.y && aSphere.centre.y - aSphere.radius < bBox.max.y &&

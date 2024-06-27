@@ -66,8 +66,7 @@ public class Player extends Entity {
     }
 
     public void setPos(Vector3 pos) {
-        collider.setCentre(pos, false);
-        this.pos = pos;
+        this.pos = pos.cpy();
         collider.setCentre(pos, false);
     }
 
