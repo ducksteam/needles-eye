@@ -12,8 +12,7 @@ import java.util.ArrayList;
  */
 public class Level {
     private final ArrayList<RoomInstance> rooms;
-    public static ArrayList<WallObject> walls;
-
+    public ArrayList<WallObject> walls;
     private final int levelNo;
 
     public Level(int levelNo) {

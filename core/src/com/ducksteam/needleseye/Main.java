@@ -21,6 +21,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -499,16 +500,16 @@ public class Main extends ApplicationAdapter {
 				room.isRenderable = true;
 				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
 			});
-//			mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
-//				if (wall.getModelAddress() == null){
-//					wall.isRenderable = false;
-//					return;
-//				}
-//				assMan.load(wall.getModelAddress(), Model.class);
-//				assMan.finishLoadingAsset(wall.getModelAddress());
-//				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
-//				wall.isRenderable = true;
-//			});
+			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
+				if (wall.getModelAddress() == null){
+					wall.isRenderable = false;
+					return;
+				}
+				assMan.load(wall.getModelAddress(), Model.class);
+				assMan.finishLoadingAsset(wall.getModelAddress());
+				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
+				wall.isRenderable = true;
+			});
 			spriteAddresses.forEach((String address)->{
 				if(address == null) return;
 
@@ -602,6 +603,10 @@ public class Main extends ApplicationAdapter {
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
+			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
+				if (!wall.isRenderable) return;
+				batch.render(wall.getModelInstance(), environment);
+			});
 
 //		if (Config.doRenderColliders) {
 //			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
@@ -626,7 +631,6 @@ public class Main extends ApplicationAdapter {
 				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
 				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 			}
-			//Gdx.app.debug("HealthOverlay","rendering game overlay, possibly insuccessfully");
 			batch2d.end();
 		}
 

@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 
@@ -61,7 +62,7 @@ public class MapManager {
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-        generateTestLevel(); // generate the first level
+        generateLevel(); // generate the first level
     }
 
     /**
@@ -120,6 +121,22 @@ public class MapManager {
                 i--;
             }
         }
+
+        level.walls = new ArrayList<>();
+
+        level.getRooms().forEach(roomInstance -> {
+            /*level.getRooms().forEach(roomInstance1 -> {
+                if (roomInstance.isAdjacent(roomInstance1)){
+                    Gdx.app.debug("MapManager", "Rooms " + roomInstance.getRoom().getName() + " and " + roomInstance1.getRoom().getName() + " are adjacent");
+                    
+                }
+            });*/ //For doors
+
+            //for(int i=0;i<4;i++){
+                level.walls.add(new WallObject(new Vector3(roomInstance.getRoomSpacePos().cpy().x*Config.ROOM_SCALE,0,roomInstance.getRoomSpacePos().cpy().y*Config.ROOM_SCALE), new Vector2(0,(float) (Math.PI/2)), new Vector3(1,1,1)));
+            //}
+        });
+
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
