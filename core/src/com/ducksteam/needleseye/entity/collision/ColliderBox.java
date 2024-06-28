@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.collision;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.graphics.g3d.Material;
@@ -22,16 +23,19 @@ public class ColliderBox implements IHasCollision {
     public ColliderBox(Vector3 min, Vector3 max) {
         this.min = min;
         this.max = max;
+        balanceVectors();
     }
 
     public ColliderBox(Vector3 pos, Vector3 min, Vector3 max) {
-        this.min = pos.cpy().add(min);
-        this.max = pos.cpy().add(max);
+        this.min = min.cpy().add(pos);
+        this.max = max.cpy().add(pos);
+        balanceVectors();
     }
 
     public ColliderBox(float width, float height, float depth) {
         this.min = new Vector3(-width / 2, -height / 2, -depth / 2);
         this.max = new Vector3(width / 2, height / 2, depth / 2);
+        balanceVectors();
     }
 
     @Override
@@ -54,9 +58,13 @@ public class ColliderBox implements IHasCollision {
         Vector3 oldCentre = getCentre();
         Vector3 dMin = oldCentre.cpy().sub(min);
         Vector3 dMax = oldCentre.cpy().sub(max);
-        if (lockY) dMin.y = dMax.y = 0;
         min = centre.cpy().add(dMin);
         max = centre.cpy().add(dMax);
+        if (lockY) {
+            min.y = oldCentre.y + dMin.y;
+            max.y = oldCentre.y + dMax.y;
+        }
+        balanceVectors();
     }
 
     @Override
@@ -77,5 +85,26 @@ public class ColliderBox implements IHasCollision {
                 "min=" + min +
                 ", max=" + max +
                 '}';
+    }
+
+    public void balanceVectors(){
+        Vector3 newMin = min.cpy();
+        Vector3 newMax = max.cpy();
+
+        if (min.x > max.x){
+            newMin.x = max.x;
+            newMax.x = min.x;
+        }
+        if (min.y > max.y){
+            newMin.y = max.y;
+            newMax.y = min.y;
+        }
+        if (min.z > max.z){
+            newMin.z = max.z;
+            newMax.z = min.z;
+        }
+
+        this.min = newMin;
+        this.max = newMax;
     }
 }

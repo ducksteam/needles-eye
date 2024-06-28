@@ -3,8 +3,7 @@ package com.ducksteam.needleseye.entity.collision;
 import com.badlogic.gdx.math.Vector3;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CollisionTest {
     @Test
@@ -26,5 +25,19 @@ public class CollisionTest {
         assertTrue(box2.collidesWith(sphere2));
         assertFalse(sphere1.collidesWith(sphereFar));
         assertTrue(sphere1.collidesWith(ray1));
+    }
+
+    @Test
+    public void centreTest() {
+        ColliderBox box = new ColliderBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+        Vector3 centre = box.getCentre();
+
+        assertEquals(Vector3.Zero, centre);
+
+        box.setCentre(new Vector3(1, 1, 1), false);
+        assertEquals(new Vector3(1, 1, 1), box.getCentre());
+
+        box.setCentre(new Vector3(0, 0, 0), true);
+        assertEquals(new Vector3(0, 1, 0), box.getCentre());
     }
 }

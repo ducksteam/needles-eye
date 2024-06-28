@@ -33,7 +33,7 @@ public class Player extends Entity {
         vel = new Vector3(0,0,0);
         rot = new Vector3(1,0,0);
 
-        collider = new ColliderBox(pos, new Vector3(-0.5f, -1, -0.5f), new Vector3(0.5f, 1, 0.5f));
+        collider = new ColliderBox(pos, new Vector3(-0.25f, -0.5f, -0.25f), new Vector3(0.25f, 0.5f, 0.25f));
         health = -1;
         maxHealth = -1;
     }
