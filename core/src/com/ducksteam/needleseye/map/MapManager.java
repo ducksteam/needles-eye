@@ -62,7 +62,7 @@ public class MapManager {
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-        generateLevel(); // generate the first level
+        generateTestLevel(); // generate the first level
     }
 
     /**

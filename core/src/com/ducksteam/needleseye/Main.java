@@ -280,14 +280,20 @@ public class Main extends ApplicationAdapter {
 		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		threadMenu.addActor(background);
 
+		//initialize textures
+		Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul"+(threadAnimState[0]+1)+".png"));
+		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal"+(threadAnimState[1]+1)+".png"));
+		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"));
+		Texture tRodTexture = new Texture(Gdx.files.internal("ui/thread/threadedrod.png"));
+
 		// Initialize buttons
-		ImageButton soulButton = new ImageButton(new Image(new Texture(Gdx.files.internal("ui/thread/soul"+(threadAnimState[0]+1)+".png"))).getDrawable());
-		ImageButton coalButton = new ImageButton(new Image(new Texture(Gdx.files.internal("ui/thread/coal"+(threadAnimState[1]+1)+".png"))).getDrawable());
-		ImageButton joltButton = new ImageButton(new Image(new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"))).getDrawable());
-		ImageButton tRodButton = new ImageButton(new Image(new Texture(Gdx.files.internal("ui/thread/threadedrod.png"))).getDrawable());
+		ImageButton soulButton = new ImageButton(new Image(soulTexture).getDrawable());
+		ImageButton coalButton = new ImageButton(new Image(coalTexture).getDrawable());
+		ImageButton joltButton = new ImageButton(new Image(joltTexture).getDrawable());
+		ImageButton tRodButton = new ImageButton(new Image(tRodTexture).getDrawable());
 
 		// trod positioning
-		tRodButton.setSize((float) Gdx.graphics.getWidth() * 198/640, (float) Gdx.graphics.getHeight() * 30/360);
+		tRodButton.setSize((float) Gdx.graphics.getWidth() * tRodTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * tRodTexture.getHeight()/360);
 		tRodButton.setPosition((float) Gdx.graphics.getWidth() * 220/640, (float) Gdx.graphics.getHeight() * 57/360);
 
 		// event listeners
@@ -388,46 +394,46 @@ public class Main extends ApplicationAdapter {
 			threadAnimState[1] = 0;
 			threadAnimState[2] = 0;
 
-			soulButton.setSize((float) Gdx.graphics.getWidth() * (65 + threadAnimState[0] * 10)/640, (float) Gdx.graphics.getHeight() * 173/360);
+			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * 193/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			coalButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
 			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 + threadAnimState[0] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			joltButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 + threadAnimState[0] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
 		} else if (threadAnimState[1] > 0) { // coal anim
 			threadAnimState[0] = 0;
 			threadAnimState[2] = 0;
 
-			soulButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			soulButton.setSize((float) Gdx.graphics.getWidth() *soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * (193 - threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			coalButton.setSize((float) Gdx.graphics.getWidth() * (65 + threadAnimState[1] * 10)/640, (float) Gdx.graphics.getHeight() * 173/360);
+			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
 			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 - threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			joltButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 + threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
 		} else if (threadAnimState[2] > 0) { // jolt anim
 			threadAnimState[0] = 0;
 			threadAnimState[1] = 0;
 
-			soulButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * (193 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			coalButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
 			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			joltButton.setSize((float) Gdx.graphics.getWidth() * (65 + threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 173/360);
+			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
 		} else { // no anim
-			soulButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * 193/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			coalButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
 			coalButton.setPosition((float) Gdx.graphics.getWidth() * 288/640, (float) Gdx.graphics.getHeight() * 100/360);
 
-			joltButton.setSize((float) Gdx.graphics.getWidth() * 65/640, (float) Gdx.graphics.getHeight() * 173/360);
+			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * 383/640, (float) Gdx.graphics.getHeight() * 100/360);
 		}
 
