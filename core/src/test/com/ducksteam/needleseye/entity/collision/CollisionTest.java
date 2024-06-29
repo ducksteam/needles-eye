@@ -1,6 +1,8 @@
 package com.ducksteam.needleseye.entity.collision;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.map.MapManager;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,5 +41,29 @@ public class CollisionTest {
 
         box.setCentre(new Vector3(0, 0, 0), true);
         assertEquals(new Vector3(0, 1, 0), box.getCentre());
+    }
+
+    @Test
+    public void positionTest() {
+        Vector3 pos = new Vector3(1, 1, 1);
+        Vector2 roomSpacePos = MapManager.getRoomSpacePos(pos);
+        Vector3 pos2 = MapManager.getRoomPos(roomSpacePos);
+
+        assertEquals(roomSpacePos, new Vector2(1, 1));
+        assertEquals(pos2, new Vector3(10, 0, 10));
+
+        pos = new Vector3(1000, -12, 1004);
+        roomSpacePos = MapManager.getRoomSpacePos(pos);
+        pos2 = MapManager.getRoomPos(roomSpacePos);
+
+        assertEquals(roomSpacePos, new Vector2(100, 101));
+        assertEquals(pos2, new Vector3(1000, 0, 1010));
+
+        pos = new Vector3(-195, 12, 1234);
+        roomSpacePos = MapManager.getRoomSpacePos(pos);
+        pos2 = MapManager.getRoomPos(roomSpacePos);
+
+        assertEquals(roomSpacePos, new Vector2(-19, 124));
+        assertEquals(pos2, new Vector3(-190, 0, 1240));
     }
 }
