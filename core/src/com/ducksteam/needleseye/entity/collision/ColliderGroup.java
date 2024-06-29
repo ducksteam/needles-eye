@@ -19,6 +19,12 @@ public class ColliderGroup implements IHasCollision {
         colliders.sort(Comparator.comparing(Object::hashCode));
     }
 
+    public ColliderGroup(IHasCollision... colliders) {
+        for (IHasCollision collider : colliders) {
+            addCollider(collider);
+        }
+    }
+
     @Override
     public RenderableProvider getRenderable() {
         throw new UnsupportedOperationException("Cannot render a group of colliders");

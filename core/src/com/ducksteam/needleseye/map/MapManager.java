@@ -205,13 +205,13 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
-        Vector2 pos = nonMutatingVectorAdd(room.getRoomSpacePos(), offset.scl(rot)); // add offset to room position
+        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.scl(rot)); // add offset to room position
         //Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
-                    if (ri.getRoomSpacePos().equals(nonMutatingVectorAdd(pos, new Vector2(w, h)))) { // if the position is already taken
+                    if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h)))) { // if the position is already taken
                         return generateRoomPos(template, rooms); // try again
                     }
                 }
@@ -255,26 +255,38 @@ public class MapManager {
     }
 
     /**
-     * Add two vectors together without mutating the original vectors
-     * Because Vector2.add() mutates the target
-     * Why??
-     * @param a the first vector
-     * @param b the second vector
-     * @return the sum of the two vectors
+     * Get a vector3 from an array
+     * @param array the array to get the vector from
+     * @return the new vector3
      */
-    public static Vector2 nonMutatingVectorAdd(Vector2 a, Vector2 b) {
-        return new Vector2(a.x + b.x, a.y + b.y);
-    }
-
     public static Vector3 vector3FromArray(ArrayList<Double> array) {
         return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
     }
 
+    /**
+     * Get a room template with a specific name
+     * @param name the name of the room
+     * @return the room template, or null if not found
+     */
     public static RoomTemplate getRoomWithName(String name){
-        return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().get();
+        return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().orElse(null);
     }
 
-    public static RoomTemplate getTemplateWithName(String name) {
-        return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().get();
+    /**
+     * Get the room space position of a world space position
+     * @param pos the world space position
+     * @return the room space position
+     */
+    public static Vector2 getRoomSpacePos (Vector3 pos) {
+        return new Vector2((int) Math.ceil(pos.x / Config.ROOM_SCALE), (int) Math.ceil(pos.z / Config.ROOM_SCALE));
+    }
+
+    /**
+     * Get the maximum world space position of a room space position
+     * @param roomSpacePos the room space position
+     * @return the maximum world space position
+     */
+    public static Vector3 getRoomPos (Vector2 roomSpacePos) {
+        return new Vector3(roomSpacePos.x * Config.ROOM_SCALE, 0, roomSpacePos.y * Config.ROOM_SCALE);
     }
 }

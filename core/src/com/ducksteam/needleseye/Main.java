@@ -451,7 +451,7 @@ public class Main extends ApplicationAdapter {
 		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
-		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label rotation = new Label("Rotation: " + player.getRot().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(rotation);
 
@@ -459,13 +459,7 @@ public class Main extends ApplicationAdapter {
 		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 
-		float x = (float) Math.ceil(player.getPos().x/10);
-		if (x == -0.0f) x = 0.0f;
-
-		float z = (float) Math.ceil(player.getPos().z/10);
-		if (z == -0.0f) z = 0.0f;
-
-		Vector2 mapSpaceCoords = new Vector2(x, z);
+		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPos());
 
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
 		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
@@ -583,7 +577,6 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if(gameState == GameState.LOADING){
-
 			renderLoadingFrame();
 		}
 
