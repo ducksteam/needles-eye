@@ -6,9 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.collision.ColliderGroup;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
+import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
-
-import static com.ducksteam.needleseye.Config.ROOM_SCALE;
 
 /**
  * Represents an instance of a room in the world
@@ -31,14 +30,13 @@ public class RoomInstance extends WorldObject {
         this.collider = collider;
 
         assert collider != null;
-        Vector3 roomSpacePos3 = new Vector3(roomSpacePos.cpy().scl(ROOM_SCALE).x - 10, 0, roomSpacePos.cpy().scl(ROOM_SCALE).y - 10);
+        Vector3 colliderCentreOffset = MapManager.getRoomPos(roomSpacePos.cpy().sub(new Vector2(1,1)));
+        Gdx.app.debug("RoomInstance", "Moving " + room.getName() + "@" + getRoomSpacePos() + " by " + colliderCentreOffset);
         for (IHasCollision c : collider.colliders) {
-            Gdx.app.debug("Collider moving", "From: " + c.getCentre() + " To: " + c.getCentre().add(roomSpacePos3));
-            c.setCentre(c.getCentre().add(roomSpacePos3), true);
+            c.setCentre(c.getCentre().add(colliderCentreOffset), true);
+            if (!room.getName().equals("brokenceiling")) continue;
+            Gdx.app.debug(c.getClass().getSimpleName() + " moving " + room.getName() + "@" + getRoomSpacePos(), "From: " + c.getCentre() + " To: " + c.getCentre().cpy().add(colliderCentreOffset));
         }
-
-//        Vector3 colliderCentreOffset = new Vector3((float) (room.getWidth() * ROOM_SCALE) /2 +5, 0, (float) (room.getHeight() * ROOM_SCALE) /2);
-//        collider.setCentre(this.getPosition().cpy().add(colliderCentreOffset), true); // i have no idea if this works or any of the collision code that i just wrote
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {
