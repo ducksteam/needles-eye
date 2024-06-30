@@ -18,6 +18,7 @@ public interface IHasCollision {
 
     Vector3 getCentre();
     void setCentre(Vector3 centre, boolean lockY);
+    void move(Vector3 delta, boolean lockY);
     IHasCollision copy();
     ArrayList<IHasCollision> getColliders();
 }

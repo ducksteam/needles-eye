@@ -61,6 +61,12 @@ public class ColliderRay implements IHasCollision {
     }
 
     @Override
+    public void move(Vector3 delta, boolean lockY) {
+        if (lockY) delta.y = 0;
+        origin.add(delta);
+    }
+
+    @Override
     public ColliderRay copy() {
         return new ColliderRay(origin.cpy(), polar, azimuthal);
     }

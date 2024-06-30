@@ -68,6 +68,13 @@ public class ColliderBox implements IHasCollision {
     }
 
     @Override
+    public void move(Vector3 delta, boolean lockY) {
+        if (lockY) delta.y = 0;
+        min.add(delta);
+        max.add(delta);
+    }
+
+    @Override
     public IHasCollision copy() {
         return new ColliderBox(min.cpy(), max.cpy());
     }

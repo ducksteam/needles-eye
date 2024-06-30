@@ -58,6 +58,14 @@ public class ColliderGroup implements IHasCollision {
     }
 
     @Override
+    public void move(Vector3 delta, boolean lockY) {
+        if (lockY) delta.y = 0;
+        for (IHasCollision collider : colliders) {
+            collider.move(delta, lockY);
+        }
+    }
+
+    @Override
     public ArrayList<IHasCollision> getColliders() {
         return colliders;
     }

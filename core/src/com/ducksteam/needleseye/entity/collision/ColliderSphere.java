@@ -48,6 +48,12 @@ public class ColliderSphere implements IHasCollision {
     }
 
     @Override
+    public void move(Vector3 delta, boolean lockY) {
+        if (lockY) delta.y = 0;
+        centre.add(delta);
+    }
+
+    @Override
     public ColliderSphere copy() {
         return new ColliderSphere(centre.cpy(), radius);
     }
