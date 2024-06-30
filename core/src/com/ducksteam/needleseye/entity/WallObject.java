@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector3;
 
 public class WallObject extends WorldObject {
 
-
     public WallObject(Vector3 position, Vector2 rotation, Vector3 scale) {
         super(position, rotation, scale);
     }

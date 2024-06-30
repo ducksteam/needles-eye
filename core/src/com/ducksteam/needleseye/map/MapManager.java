@@ -10,7 +10,6 @@ import com.ducksteam.needleseye.entity.WallObject;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
-
 /**
  * A util class for managing the map generation process
  * @author SkySourced
@@ -62,7 +61,7 @@ public class MapManager {
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-        generateLevel(); // generate the first level
+        generateTestLevel(); // generate the first level
     }
 
     /**
@@ -78,7 +77,7 @@ public class MapManager {
 
         RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 1));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
+        /*room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, 1));
         level.addRoom(room);
@@ -93,7 +92,10 @@ public class MapManager {
         room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(-1, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(-1, 1));
-        level.addRoom(room);
+        level.addRoom(room);*/
+
+
+        addWalls(level);
 
         levels.add(level);
     }
@@ -137,26 +139,29 @@ public class MapManager {
             }
         }
 
-        level.walls = new ArrayList<>();
+        addWalls(level);
 
-        level.getRooms().forEach(roomInstance -> {
-            /*level.getRooms().forEach(roomInstance1 -> {
-                if (roomInstance.isAdjacent(roomInstance1)){
-                    Gdx.app.debug("MapManager", "Rooms " + roomInstance.getRoom().getName() + " and " + roomInstance1.getRoom().getName() + " are adjacent");
-                    
-                }
-            });*/ //For doors
-
-            //for(int i=0;i<4;i++){
-                level.walls.add(new WallObject(new Vector3(roomInstance.getRoomSpacePos().cpy().x*Config.ROOM_SCALE,0,roomInstance.getRoomSpacePos().cpy().y*Config.ROOM_SCALE), new Vector2(0,(float) (Math.PI/2)), new Vector3(1,1,1)));
-            //}
-        });
 
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
     }
 
+    public void addWalls(Level level){
+        level.walls = new ArrayList<>();
+        level.getRooms().forEach(roomInstance -> {
+            /*level.getRooms().forEach(roomInstance1 -> {
+                if (roomInstance.isAdjacent(roomInstance1)){
+                    Gdx.app.debug("MapManager", "Rooms " + roomInstance.getRoom().getName() + " and " + roomInstance1.getRoom().getName() + " are adjacent");
+
+                }
+            });*/ //For doors
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Vector2((float)Math.PI/2,0), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Vector2(0,0), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Vector2((float)Math.PI/2,0), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Vector2((float)Math.PI/2,0), new Vector3(1,1,1)));
+        });
+    }
     public Level getCurrentLevel(){
         return levels.getLast();
     }

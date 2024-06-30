@@ -554,7 +554,7 @@ public class Main extends ApplicationAdapter {
 	}
 
 	/**
-	 *
+	 * Runs every frame to render the game
 	 * */
 	@Override
 	public void render () {
@@ -615,6 +615,7 @@ public class Main extends ApplicationAdapter {
 			});
 			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
 				if (!wall.isRenderable) return;
+				wall.updatePosition();
 				batch.render(wall.getModelInstance(), environment);
 			});
 
