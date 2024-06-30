@@ -154,7 +154,6 @@ public class RoomTemplate {
 
         // Read mesh
         rt.collider = new ColliderGroup();
-        Gdx.app.debug(rt.getName(), map.get("collision").toString());
         @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
         if (mesh.isEmpty() || mesh == null) Gdx.app.error(rt.getName(),"no collision data found in room template");
         for (LinkedTreeMap<String, Object> o : mesh) {

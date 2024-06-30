@@ -58,11 +58,11 @@ public class MapManager {
             if (file.getName().endsWith(".json")) { // only load json files
                 roomTemplates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
             }
-            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": \n" + roomTemplates.getLast().toString());
+            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": " + roomTemplates.getLast().toString());
         }
         Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
 
-        generateTestLevel(); // generate the first level
+        generateLevel(); // generate the first level
     }
 
     /**
@@ -70,7 +70,7 @@ public class MapManager {
      */
 
     public RoomInstance getTestRoom(){
-        return new RoomInstance(roomTemplates.stream().filter(room -> room.getName().equals("brokenceiling")).findFirst().get(), new Vector2(0, 0));
+        return new RoomInstance(roomTemplates.stream().filter(room -> room.getName().equals("brokenceiling")).findFirst().orElse(null), new Vector2(0, 0));
     }
 
     public void generateTestLevel() {
@@ -81,6 +81,18 @@ public class MapManager {
         room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, 1));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(1, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(1, -1));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(0, -1));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(-1, -1));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(-1, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(-1, 1));
         level.addRoom(room);
 
         levels.add(level);
