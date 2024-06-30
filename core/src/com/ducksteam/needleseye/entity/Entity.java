@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.entity;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
 
@@ -20,6 +21,7 @@ public abstract class Entity {
     private Vector3 position;
     private Vector2 rotation; // (azimuthal, altitude)
     private Vector3 scale;
+    private Vector3 velocity;
     public IHasCollision collider;
 
     /**
@@ -77,6 +79,12 @@ public abstract class Entity {
     public void setScale(Vector3 scale) {
         this.scale = scale;
     }
+    public Vector3 getVelocity() {
+        return velocity;
+    }
+    public void setVelocity(Vector3 velocity) {
+        this.velocity = velocity;
+    }
 
     /**
      * Run periodically in {@link Main#render()} to update entity data
@@ -89,6 +97,20 @@ public abstract class Entity {
         if(collider != null){
             collider.setCentre(position.cpy(), false);
         }
+    }
+
+    public void collisionResponse(Vector3 contactNormal){
+        Vector3 norVel = this.velocity.cpy().sub(contactNormal.scl(contactNormal.cpy().dot(velocity.cpy())));
+        Vector3 tanVel = this.velocity.cpy().sub(norVel);
+
+        norVel.scl(-0.1f);
+        tanVel.scl(0.9f);
+        Vector3 newVel = norVel.cpy().add(tanVel);
+
+        Vector3 newPos = getPosition().cpy().add(contactNormal.cpy().scl(Config.COLLISION_PENETRATION));
+
+        setVelocity(newVel);
+        setPosition(newPos);
     }
 
     public void setModelOffset(Vector3 offset){

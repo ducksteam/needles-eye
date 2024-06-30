@@ -8,8 +8,11 @@ import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.entity.Entity;
 
 import java.util.HashMap;
+
+import static com.ducksteam.needleseye.entity.Entity.sphericalToEuler;
 
 /**
  * Handles player input
@@ -26,26 +29,26 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update() {
-        Main.player.getVel().set((Vector3.Zero));
+        Main.player.getVelocity().set((Vector3.Zero));
 
-        Vector3 moveVec = Main.player.getRot().cpy().scl(Config.MOVE_SPEED);
+        Vector3 moveVec = sphericalToEuler(Main.player.getRotation()).cpy().scl(Config.MOVE_SPEED);
         //moveVec.y = 0;
 
         Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
-            Main.player.getVel().add(moveVec);
+            Main.player.getVelocity().add(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
-            Main.player.getVel().sub(moveVec);
+            Main.player.getVelocity().sub(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
-            tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().sub(tmp.scl(Config.MOVE_SPEED));
+            tmp.set(sphericalToEuler(Main.player.getRotation())).crs(Vector3.Y).nor();
+            Main.player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
-            tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().add(tmp.scl(Config.MOVE_SPEED));
+            tmp.set(sphericalToEuler(Main.player.getRotation())).crs(Vector3.Y).nor();
+            Main.player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
         }
     }
 
@@ -56,9 +59,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     private boolean rotateCamera() {
         float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
         float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
-        Main.player.getRot().rotate(Main.camera.up, deltaX);
-        tmp.set(Main.camera.direction).crs(Main.camera.up).nor();
-        Main.player.getRot().rotate(tmp, deltaY);
+        Main.player.getRotation().x += deltaX;
+        Main.player.getRotation().y += deltaY;
 
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 
