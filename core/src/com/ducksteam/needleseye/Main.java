@@ -453,7 +453,7 @@ public class Main extends ApplicationAdapter {
 		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
-		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label rotation = new Label("Rotation: " + player.getRot().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(rotation);
 
@@ -595,10 +595,10 @@ public class Main extends ApplicationAdapter {
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update();
 
-			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
+			player.setPos(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.direction.set(sphericalToEuler(player.getRotation()));
+			camera.direction.set(player.getRot());
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
 			//batch.render(modelInstances,environment);

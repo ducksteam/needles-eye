@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -108,6 +109,8 @@ public abstract class Entity {
         Vector3 newVel = norVel.cpy().add(tanVel);
 
         Vector3 newPos = getPosition().cpy().add(contactNormal.cpy().scl(Config.COLLISION_PENETRATION));
+
+        Gdx.app.debug("Collision", "Normal: " + contactNormal + " Velocity: " + velocity + " New Velocity: " + newVel + " New Position: " + newPos);
 
         setVelocity(newVel);
         setPosition(newPos);

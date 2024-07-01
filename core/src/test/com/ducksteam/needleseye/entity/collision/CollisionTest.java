@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.collision;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.map.MapManager;
@@ -65,5 +66,13 @@ public class CollisionTest {
 
         assertEquals(roomSpacePos, new Vector2(-19, 124));
         assertEquals(pos2, new Vector3(-190, 0, 1240));
+    }
+
+    @Test
+    public void contactNormalTest(){
+        ColliderBox box1 = new ColliderBox(new Vector3(-0.5f, -0.5f, -0.5f), new Vector3(0.5f, 0.5f, 0.5f));
+        ColliderBox target = new ColliderBox(new Vector3(1, -1, 1), new Vector3(2, 1, 2));
+        System.out.println("Normal: " + Collider.contactNormal(box1, target));
+        assertEquals(Collider.contactNormal(box1, target), new Vector3());
     }
 }
