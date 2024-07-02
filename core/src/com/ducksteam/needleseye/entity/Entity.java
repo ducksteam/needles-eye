@@ -2,8 +2,10 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.collision.IHasCollision;
@@ -12,17 +14,22 @@ import com.ducksteam.needleseye.entity.collision.IHasCollision;
  * @author thechiefpotatopeeler
  * This class is the base for all objects with models in the game world
  * */
-public abstract class Entity {
+public abstract class Entity extends btMotionState {
 
     //TODO: Add numeric IDs for each object
     public static String id;
+
     public Boolean isRenderable;
     private ModelInstance modelInstance;
     private Vector3 modelOffset;
+
     private Vector3 position;
     private Vector2 rotation; // (azimuthal, altitude)
     private Vector3 scale;
     private Vector3 velocity;
+
+    public Matrix4 transform;
+
     public IHasCollision collider;
 
     /**
@@ -32,10 +39,7 @@ public abstract class Entity {
      * takes a position and rotation offset
      * */
     public Entity(Vector3 position, Vector2 rotation){
-        this.position = position;
-        this.rotation = rotation;
-        this.scale = new Vector3(1, 1, 1);
-        setModelOffset(Vector3.Zero);
+        this(position, rotation, new Vector3(1, 1, 1));
     }
 
     public Entity(Vector3 position, Vector2 rotation, Vector3 scale){
@@ -43,6 +47,8 @@ public abstract class Entity {
         this.rotation = rotation;
         this.scale = scale;
         setModelOffset(Vector3.Zero);
+
+        transform = new Matrix4().setToTranslationAndScaling(position, scale);
     }
 
     public abstract String getModelAddress();
@@ -118,6 +124,16 @@ public abstract class Entity {
 
     public void setModelOffset(Vector3 offset){
         this.modelOffset = offset;
+    }
+
+    @Override
+    public void setWorldTransform(Matrix4 worldTrans) {
+        worldTrans.set(transform);
+    }
+
+    @Override
+    public void getWorldTransform(Matrix4 worldTrans) {
+        transform.set(worldTrans);
     }
 
     public static Vector3 sphericalToEuler(Vector2 spherical){

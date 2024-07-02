@@ -611,7 +611,7 @@ public class Main extends ApplicationAdapter {
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
-				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
+//				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
