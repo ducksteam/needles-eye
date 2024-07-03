@@ -1,8 +1,13 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
@@ -25,13 +30,14 @@ public class Player extends Entity {
     Vector3 rot; // rads
 
     public Player(Vector3 pos) {
-        super(pos, new Vector2(0,0));
+        super(pos, new Quaternion());
         baseUpgrade = BaseUpgrade.NONE;
 
         this.setVelocity(new Vector3(0,0,0));
-        rot = new Vector3(1,0,0);
+//        rot = new Vector3(1,0,0);
 
-        collider = new ColliderBox(pos, new Vector3(-0.25f, -0.5f, -0.25f), new Vector3(0.25f, 0.5f, 0.25f));
+        collider = new btRigidBody(Config.PLAYER_MASS, this, new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F)));
+
         health = -1;
         maxHealth = -1;
     }
@@ -59,18 +65,17 @@ public class Player extends Entity {
         if (heal) this.health = maxHealth;
     }
 
-    public void setPos(Vector3 pos) {
-        setPosition(pos);
-        collider.setCentre(pos, false);
-    }
-
-    public Vector3 getRot() {
-        return rot;
-    }
-
-    public void setRot(Vector3 rot) {
-        this.rot = rot;
-    }
+//    public void setPos(Vector3 pos) {
+//        setPosition(pos);
+//    }
+//
+//    public Vector3 getRot() {
+//        return rot;
+//    }
+//
+//    public void setRot(Vector3 rot) {
+//        this.rot = rot;
+//    }
 
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         this.baseUpgrade = baseUpgrade;
