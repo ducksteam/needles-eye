@@ -22,6 +22,8 @@ public class Config {
     public static final int ROOM_SCALE = 10;
     public static final float COLLISION_PENETRATION = 0.05f;
     public static final float PLAYER_MASS = 10;
+    public static final float FOV = 90;
+
 
     static {
         keys.put("forward", Input.Keys.W);

@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -508,7 +509,7 @@ public class Main extends ApplicationAdapter {
 					room.isRenderable = false;
 					return;
 				}
-				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
+//				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
 				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
@@ -600,7 +601,13 @@ public class Main extends ApplicationAdapter {
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.direction.set(player.getRotation());
+			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
+			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
+			camera.view.rotate(player.getRotation());
+
+			camera.combined.set(camera.projection);
+			Matrix4.mul(camera.combined.val, camera.view.val);
+
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
 			//batch.render(modelInstances,environment);

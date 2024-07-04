@@ -41,10 +41,11 @@ public abstract class Entity extends btMotionState {
     }
 
     public Entity(Vector3 position, Quaternion rotation, Vector3 scale){
+        transform = new Matrix4();
         transform.idt()
                 .translate(position)
                 .rotate(rotation)
-                .scale(scale.x, scale.y, scale.z); // i'm actually going to make a pr for this
+                .scale(scale.x, scale.y, scale.z);
 
         setModelOffset(Vector3.Zero);
     }
@@ -65,22 +66,27 @@ public abstract class Entity extends btMotionState {
         this.modelInstance = modelInstance;
     }
     public Vector3 getPosition() {
-        return transform.getTranslation(new Vector3()); // what the hell is this
+        return transform.getTranslation(new Vector3());
     }
     public void setPosition(Vector3 position) {
         transform.setTranslation(position);
     }
     public Quaternion getRotation() {
-        return transform.getRotation(new Quaternion()); // libgdx devs discover the new keyword challenge (impossible)
+        return transform.getRotation(new Quaternion());
     }
     public void setRotation(Quaternion rotation) {
         transform.rotate(rotation);
     }
+
+    public void setRotation(Vector3 axis, float angle){
+        transform.rotate(axis, angle);
+    }
+
     public Vector3 getScale() {
-        return transform.getScale(new Vector3()); // i found out the name of the developer behind this
+        return transform.getScale(new Vector3());
     }
     public void setScale(Vector3 scale) {
-        transform.scale(scale.x, scale.y, scale.z); // okay this is just annoying
+        transform.scale(scale.x, scale.y, scale.z);
     }
     public Vector3 getVelocity() {
         return velocity;
@@ -122,6 +128,10 @@ public abstract class Entity extends btMotionState {
 
     public static Vector2 eulerToSpherical(Vector3 euler){
         return new Vector2((float) Math.sqrt(euler.x * euler.x + euler.y * euler.y), (float) Math.atan2(euler.y, euler.x));
+    }
+
+    public static Vector3 quatToEuler(Quaternion quat){
+        return new Vector3(quat.getRoll(), quat.getYaw(), quat.getPitch());
     }
 
     public void destroy() {
