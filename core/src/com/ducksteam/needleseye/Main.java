@@ -15,6 +15,7 @@ import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -600,13 +601,17 @@ public class Main extends ApplicationAdapter {
 
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
-			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
-			camera.view.rotate(player.getRotation());
+			Quaternion q = player.getRotation().cpy();
+			Vector3 cameraDirection = new Vector3(q.x, q.y, q.z);
+			camera.direction.set(camera.position.cpy().add(cameraDirection));
 
-			camera.combined.set(camera.projection);
-			Matrix4.mul(camera.combined.val, camera.view.val);
+			camera.position.set(player.getPosition()).add(0, 0, 5);
+//			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
+////			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
+//			camera.view.rotate(player.getRotation());
+//
+//			camera.combined.set(camera.projection);
+//			Matrix4.mul(camera.combined.val, camera.view.val);
 
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
@@ -614,19 +619,19 @@ public class Main extends ApplicationAdapter {
 
 			enemies.forEach((EnemyEntity enemy) -> {
 				if (!enemy.isRenderable) return;
-//				enemy.updatePosition();
+				enemy.update(Gdx.graphics.getDeltaTime());
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
 //				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
-//				room.updatePosition();
+				room.update(Gdx.graphics.getDeltaTime());
 				batch.render(room.getModelInstance(), environment);
 			});
 			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
 				if (!wall.isRenderable) return;
-//				wall.updatePosition();
+				wall.update(Gdx.graphics.getDeltaTime());
 				batch.render(wall.getModelInstance(), environment);
 			});
 

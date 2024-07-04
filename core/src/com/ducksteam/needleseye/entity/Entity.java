@@ -6,7 +6,10 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
@@ -28,7 +31,7 @@ public abstract class Entity extends btMotionState {
     private Vector3 velocity;
 
     public Matrix4 transform;
-    public btCollisionObject collider;
+    public btRigidBody collider;
 
     /**
      * @param position the initial position
@@ -37,10 +40,14 @@ public abstract class Entity extends btMotionState {
      * takes a position and rotation offset
      * */
     public Entity(Vector3 position, Quaternion rotation){
-        this(position, rotation, new Vector3(1, 1, 1));
+        this(position, rotation, new Vector3(1, 1, 1), 1);
     }
 
     public Entity(Vector3 position, Quaternion rotation, Vector3 scale){
+        this(position, rotation, scale, 1);
+    }
+    public Entity(Vector3 position, Quaternion rotation, Vector3 scale, float mass){
+        velocity = new Vector3();
         transform = new Matrix4();
         transform.idt()
                 .translate(position)
@@ -48,6 +55,7 @@ public abstract class Entity extends btMotionState {
                 .scale(scale.x, scale.y, scale.z);
 
         setModelOffset(Vector3.Zero);
+        if (modelInstance != null) collider = new btRigidBody(mass, this, Bullet.obtainStaticNodeShape(getModelInstance().model.nodes));
     }
 
     public abstract String getModelAddress();
@@ -79,7 +87,7 @@ public abstract class Entity extends btMotionState {
     }
 
     public void setRotation(Vector3 axis, float angle){
-        transform.rotate(axis, angle);
+        transform.rotateRad(axis, angle);
     }
 
     public Vector3 getScale() {
@@ -93,6 +101,12 @@ public abstract class Entity extends btMotionState {
     }
     public void setVelocity(Vector3 velocity) {
         this.velocity = velocity;
+    }
+
+    public void update(float delta){
+        transform.translate(velocity.cpy().scl(delta));
+        if (collider != null) collider.setWorldTransform(transform);
+        modelInstance.transform.set(transform);
     }
 
     public void collisionResponse(Vector3 contactNormal){
@@ -114,11 +128,13 @@ public abstract class Entity extends btMotionState {
 
     @Override
     public void setWorldTransform(Matrix4 worldTrans) {
+        Gdx.app.debug("Entity", "Setting world transform");
         worldTrans.set(transform);
     }
 
     @Override
     public void getWorldTransform(Matrix4 worldTrans) {
+        Gdx.app.debug("Entity", "Getting world transform");
         transform.set(worldTrans);
     }
 

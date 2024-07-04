@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.math.MathUtils;
 
 import java.util.HashMap;
 
@@ -15,7 +16,7 @@ public class Config {
     public static boolean doRenderColliders = false;
 
     // Global constants
-    public static final float ROTATION_SPEED = 0.7F;
+    public static final float ROTATION_SPEED = 0.7F * MathUtils.degRad;
     public static int MOVE_SPEED = 1;
     public static final float LOADING_ANIM_SPEED = 0.05f;
     public static final float ASPECT_RATIO = (float) 16 / 9;

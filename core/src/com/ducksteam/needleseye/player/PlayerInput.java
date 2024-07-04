@@ -55,8 +55,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * @return true if the camera was rotated
      */
     private boolean rotateCamera() {
-        float deltaY = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
-        float deltaX = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
+        float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
+        float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
         Main.player.setRotation(Main.camera.up, deltaX);
         Gdx.app.debug("PlayerInput", Main.player.transform.toString());
         Gdx.app.debug("PlayerInput", Main.player.getRotation().toString());

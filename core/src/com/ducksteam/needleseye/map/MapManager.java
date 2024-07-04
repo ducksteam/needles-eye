@@ -158,9 +158,9 @@ public class MapManager {
                 }
             });*/ //For doors
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(Vector3.Y, 0), new Vector3(1,1,1)));
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, 0), new Vector3(1,1,1)));
         });
     }
     public Level getCurrentLevel(){
