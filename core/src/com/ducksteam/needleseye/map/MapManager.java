@@ -16,6 +16,9 @@ import java.util.Objects;
  * @author SkySourced
  */
 public class MapManager {
+
+    public static final float WALL_SCALE = 0.5f;
+    public static final Vector3 WALL_SCALE_VECTOR = new Vector3(WALL_SCALE, WALL_SCALE, WALL_SCALE);
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
@@ -157,10 +160,11 @@ public class MapManager {
 
                 }
             });*/ //For doors
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
+
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Vector2(0,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,-Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Vector2(0,0), WALL_SCALE_VECTOR));
         });
     }
     public Level getCurrentLevel(){
