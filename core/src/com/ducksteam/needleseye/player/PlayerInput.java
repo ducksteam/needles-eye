@@ -26,7 +26,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update() {
-        Main.player.getVel().set((Vector3.Zero));
+        Main.player.getVelocity().set((Vector3.Zero));
 
         Vector3 moveVec = Main.player.getRot().cpy().scl(Config.MOVE_SPEED);
         //moveVec.y = 0;
@@ -34,18 +34,18 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
-            Main.player.getVel().add(moveVec);
+            Main.player.getVelocity().add(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
-            Main.player.getVel().sub(moveVec);
+            Main.player.getVelocity().sub(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().sub(tmp.scl(Config.MOVE_SPEED));
+            Main.player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
             tmp.set(Main.player.getRot()).crs(Vector3.Y).nor();
-            Main.player.getVel().add(tmp.scl(Config.MOVE_SPEED));
+            Main.player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
         }
     }
 

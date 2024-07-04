@@ -34,6 +34,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 
+import static com.ducksteam.needleseye.entity.Entity.sphericalToEuler;
+
 
 /**
  * The main class of the game
@@ -447,7 +449,7 @@ public class Main extends ApplicationAdapter {
 	private void buildDebugMenu(){
 		debug = new Stage();
 
-		Label coords = new Label("Location: "+player.getPos().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
@@ -459,7 +461,7 @@ public class Main extends ApplicationAdapter {
 		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 
-		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPos());
+		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
 		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
@@ -593,9 +595,9 @@ public class Main extends ApplicationAdapter {
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update();
 
-			player.setPos(player.getPos().add(player.getVel().scl(Gdx.graphics.getDeltaTime())));
+			player.setPos(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			camera.position.set(player.getPos()).add(0, 0, 5);
+			camera.position.set(player.getPosition()).add(0, 0, 5);
 			camera.direction.set(player.getRot());
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
@@ -609,7 +611,7 @@ public class Main extends ApplicationAdapter {
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
-				if (room.collider.collidesWith(player.collider)) Gdx.app.debug("Collision", "Player collided with room " + room.getRoom().getName() + "@" + room.getRoomSpacePos());
+				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
 				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});

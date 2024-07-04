@@ -2,6 +2,9 @@ package com.ducksteam.needleseye.entity.collision;
 
 import com.badlogic.gdx.math.Vector3;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 /**
  * Utility class for collisions
  * @author SkySourced
@@ -32,8 +35,8 @@ public class Collider {
             float t5 = (bBox.min.z - aRay.origin.z) * dirFrac.z;
             float t6 = (bBox.max.z - aRay.origin.z) * dirFrac.z;
 
-            float tmin = Math.max(Math.max(Math.min(t1, t2), Math.min(t3, t4)), Math.min(t5, t6));
-            float tmax = Math.min(Math.min(Math.max(t1, t2), Math.max(t3, t4)), Math.max(t5, t6));
+            float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+            float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
 
             return tmax > 0 && tmin < tmax;
         } else if (a instanceof ColliderBox aBox && b instanceof ColliderRay bRay) {
@@ -91,10 +94,20 @@ public class Collider {
                 boolean collides = collider.collidesWith(b);
                 if (collides) return true;
             }
-            // TODO: create plane/quad/tri collider
         } else {
             throw new IllegalArgumentException("Unknown collision types");
         }
         return false;
+    }
+
+    public static Vector3 contactNormal(IHasCollision a, IHasCollision b) {
+        if (a instanceof ColliderSphere aSphere && b instanceof ColliderSphere bSphere) { // Sphere-Sphere collision
+            return aSphere.centre.cpy().sub(bSphere.centre).nor();
+        } else if (a instanceof ColliderBox aBox && b instanceof ColliderBox bBox) { // Box-Box collision
+
+        } else {
+            throw new IllegalArgumentException("Unknown collision types");
+        }
+        return null;
     }
 }

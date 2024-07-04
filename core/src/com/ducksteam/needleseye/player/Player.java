@@ -21,16 +21,14 @@ public class Player extends Entity {
 
     int health;
     int maxHealth;
-    Vector3 pos;
-    Vector3 vel;
+
     Vector3 rot; // rads
 
     public Player(Vector3 pos) {
         super(pos, new Vector2(0,0));
         baseUpgrade = BaseUpgrade.NONE;
 
-        this.pos = pos;
-        vel = new Vector3(0,0,0);
+        this.setVelocity(new Vector3(0,0,0));
         rot = new Vector3(1,0,0);
 
         collider = new ColliderBox(pos, new Vector3(-0.25f, -0.5f, -0.25f), new Vector3(0.25f, 0.5f, 0.25f));
@@ -61,21 +59,9 @@ public class Player extends Entity {
         if (heal) this.health = maxHealth;
     }
 
-    public Vector3 getPos() {
-        return pos;
-    }
-
     public void setPos(Vector3 pos) {
-        this.pos = pos.cpy();
+        setPosition(pos);
         collider.setCentre(pos, false);
-    }
-
-    public Vector3 getVel() {
-        return vel;
-    }
-
-    public void setVel(Vector3 vel) {
-        this.vel = vel;
     }
 
     public Vector3 getRot() {
