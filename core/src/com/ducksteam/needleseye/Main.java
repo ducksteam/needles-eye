@@ -14,8 +14,11 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
@@ -153,6 +156,8 @@ public class Main extends ApplicationAdapter {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 		buildFonts();
+
+		Bullet.init();
 
 		spriteAddresses.add("ui/icons/heart.png");
 
@@ -453,7 +458,7 @@ public class Main extends ApplicationAdapter {
 		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
 		debug.addActor(coords);
 
-		Label rotation = new Label("Rotation: " + player.getRot().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(rotation);
 
@@ -475,12 +480,10 @@ public class Main extends ApplicationAdapter {
 			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
 
-			for (int i = 0; i < currentRoom.collider.getColliders().size(); i++) {
-				IHasCollision collider = currentRoom.collider.getColliders().get(i);
-				Label colliderLabel = new Label( collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-				colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight() - i * 0.04 * Gdx.graphics.getHeight()));
-				debug.addActor(colliderLabel);
-			}
+			btCollisionObject collider = currentRoom.collider;
+			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
+			debug.addActor(colliderLabel);
 		} else {
 //			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
 		}
@@ -506,7 +509,7 @@ public class Main extends ApplicationAdapter {
 					room.isRenderable = false;
 					return;
 				}
-				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
+//				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
 				assMan.load(room.getModelAddress(), Model.class);
 				assMan.finishLoadingAsset(room.getModelAddress());
 				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
@@ -595,29 +598,35 @@ public class Main extends ApplicationAdapter {
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update();
 
-			player.setPos(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
+			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.direction.set(player.getRot());
+			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
+			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
+			camera.view.rotate(player.getRotation());
+
+			camera.combined.set(camera.projection);
+			Matrix4.mul(camera.combined.val, camera.view.val);
+
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
 			//batch.render(modelInstances,environment);
 
 			enemies.forEach((EnemyEntity enemy) -> {
 				if (!enemy.isRenderable) return;
-				enemy.updatePosition();
+//				enemy.updatePosition();
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 				if (room.collider == null) return;
 				if (!room.isRenderable) return;
-				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
-				room.updatePosition();
+//				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
+//				room.updatePosition();
 				batch.render(room.getModelInstance(), environment);
 			});
 			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
 				if (!wall.isRenderable) return;
-				wall.updatePosition();
+//				wall.updatePosition();
 				batch.render(wall.getModelInstance(), environment);
 			});
 

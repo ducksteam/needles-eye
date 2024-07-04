@@ -16,7 +16,7 @@ public class DesktopLauncher {
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
-            config.setWindowedMode(1280, 720);
+            config.setWindowedMode(960, 540);
         }
         config.setDecorated(true);
 		config.useVsync(false);

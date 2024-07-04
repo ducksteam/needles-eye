@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
@@ -159,6 +160,7 @@ public class MapManager {
 
                 }
             });*/ //For doors
+
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Vector2(0,0), WALL_SCALE_VECTOR));
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,-Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
