@@ -601,17 +601,13 @@ public class Main extends ApplicationAdapter {
 
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			Quaternion q = player.getRotation().cpy();
-			Vector3 cameraDirection = new Vector3(q.x, q.y, q.z);
-			camera.direction.set(camera.position.cpy().add(cameraDirection));
-
 			camera.position.set(player.getPosition()).add(0, 0, 5);
-//			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
-////			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
-//			camera.view.rotate(player.getRotation());
-//
-//			camera.combined.set(camera.projection);
-//			Matrix4.mul(camera.combined.val, camera.view.val);
+			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
+//            camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
+			camera.view.set(player.getRotation());
+
+			camera.combined.set(camera.projection);
+			Matrix4.mul(camera.combined.val, camera.view.val);
 
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
