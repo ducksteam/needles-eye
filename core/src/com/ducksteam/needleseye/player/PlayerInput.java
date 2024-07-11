@@ -8,9 +8,8 @@ import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
-import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.entity.Entity;
+
 import static com.ducksteam.needleseye.Main.player;
 
 import java.util.HashMap;
@@ -23,8 +22,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
     // The keys that are currently pressed
     private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
-
-    protected static Quaternion tmp = new Quaternion();
 
     /**
      * Updates the player's velocity based on the keys pressed.
@@ -61,23 +58,24 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     private boolean rotateCamera() {
         float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
-        float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
-        if (deltaX != 0 && deltaY != 0) Gdx.app.debug("PlayerInput", "DeltaX: " + deltaX + " DeltaY: " + deltaY);
+        float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
+
+        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "DeltaX: " + deltaX + " DeltaY: " + deltaY);
 
         // I LOVE QUATERNIONS
         Quaternion xRotQ = new Quaternion(Vector3.Y, deltaX);
         Quaternion yRotQ = new Quaternion(Vector3.X, deltaY);
-        if (deltaX != 0 && deltaY != 0) Gdx.app.debug("PlayerInput", "XRotQ: " + xRotQ + " YRotQ: " + yRotQ);
+        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "XRotQ: " + xRotQ + " YRotQ: " + yRotQ);
 
         Quaternion combined = xRotQ.mul(yRotQ);
 
-        tmp = player.getRotation().conjugate();
+        combined.setEulerAngles(combined.getPitch(), combined.getYaw(), 0);
 
-        player.setRotation(player.getRotation().mulLeft(combined).mul(tmp).nor());
-        if (deltaX != 0 && deltaY != 0) Gdx.app.debug("PlayerInput", "Rotation: " + combined);
+        player.transform.rotate(combined);
+        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Rotation: " + combined);
 
 //        Gdx.app.debug("PlayerInput", player.transform.toString());
-        if (deltaX != 0 && deltaY != 0) Gdx.app.debug("PlayerInput", player.getRotation().toString());
+        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", player.getRotation().toString());
 
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 

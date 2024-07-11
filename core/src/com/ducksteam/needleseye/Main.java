@@ -14,8 +14,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -25,7 +23,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -37,8 +34,6 @@ import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
-
-import static com.ducksteam.needleseye.entity.Entity.sphericalToEuler;
 
 
 /**
@@ -485,8 +480,6 @@ public class Main extends ApplicationAdapter {
 			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 			debug.addActor(colliderLabel);
-		} else {
-//			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
 		}
 	}
 
@@ -601,13 +594,13 @@ public class Main extends ApplicationAdapter {
 
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
-//            camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
-			camera.view.set(player.getRotation());
+			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
 
-			camera.combined.set(camera.projection);
-			Matrix4.mul(camera.combined.val, camera.view.val);
+			Vector3 dir = player.getRotation().transform(new Vector3(0, 0, 1));
+
+			camera.direction.set(dir);
+
+			camera.update();
 
 			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
@@ -662,7 +655,6 @@ public class Main extends ApplicationAdapter {
 			debug.act();
 			debug.draw();
 		}
-		camera.update();
 	}
 
 	@Override

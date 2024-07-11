@@ -7,13 +7,9 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
 
 /**
  * @author thechiefpotatopeeler
@@ -82,7 +78,7 @@ public abstract class Entity extends btMotionState {
     public Quaternion getRotation() {
         return transform.getRotation(new Quaternion());
     }
-    public void setRotation(Quaternion rotation) {
+    public void rotate(Quaternion rotation) {
         transform.rotate(rotation);
     }
 
