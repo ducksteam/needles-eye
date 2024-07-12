@@ -122,6 +122,7 @@ public class RoomTemplate {
         rt.setName((String) map.get("name"));
 
         try {
+            //noinspection unchecked
             rt.setCentreOffset(MapManager.vector3FromArray((ArrayList<Double>) map.get("centre_offset")));
         } catch (Exception e) {
             rt.setCentreOffset(new Vector3(0, 0, 0));
@@ -159,15 +160,15 @@ public class RoomTemplate {
         for (LinkedTreeMap<String, Object> o : mesh) {
             switch ((String) o.get("type")) {
                 case "box" -> {
-                    ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
-                    ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
                     rt.collider.addCollider(new ColliderBox(
                             MapManager.vector3FromArray(pos1),
                             MapManager.vector3FromArray(pos2)
                     ));
                 }
                 case "sphere" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
                     Double radius = (Double) o.get("radius");
                     rt.collider.addCollider(new ColliderSphere(
                             MapManager.vector3FromArray(pos),
@@ -175,7 +176,7 @@ public class RoomTemplate {
                     ));
                 }
                 case "ray" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
                     Double polar = (Double) o.get("polar");
                     Double azimuth = (Double) o.get("azimuth");
                     rt.collider.addCollider(new ColliderRay(

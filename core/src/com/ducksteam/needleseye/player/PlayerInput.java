@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
@@ -13,6 +15,7 @@ import com.ducksteam.needleseye.Config;
 import static com.ducksteam.needleseye.Main.player;
 
 import java.util.HashMap;
+import java.util.Vector;
 
 /**
  * Handles player input
@@ -22,6 +25,9 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
     // The keys that are currently pressed
     private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
+
+    float mouseX = 0;
+    float mouseY = 0;
 
     /**
      * Updates the player's velocity based on the keys pressed.
@@ -60,24 +66,41 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
         float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
 
-        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "DeltaX: " + deltaX + " DeltaY: " + deltaY);
+        mouseX -= deltaX;
+        mouseY -= deltaY;
 
-        // I LOVE QUATERNIONS
-        Quaternion xRotQ = new Quaternion(Vector3.Y, deltaX);
-        Quaternion yRotQ = new Quaternion(Vector3.X, deltaY);
-        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "XRotQ: " + xRotQ + " YRotQ: " + yRotQ);
-
-        Quaternion combined = xRotQ.mul(yRotQ);
-
-        combined.setEulerAngles(combined.getPitch(), combined.getYaw(), 0);
-
-        player.transform.rotate(combined);
-        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Rotation: " + combined);
-
-//        Gdx.app.debug("PlayerInput", player.transform.toString());
-        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", player.getRotation().toString());
-
+//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "DeltaX: " + deltaX + " DeltaY: " + deltaY);
+//
+//        // I LOVE QUATERNIONS
+//        Quaternion xRotQ = new Quaternion(Vector3.Y, deltaX);
+//        Quaternion yRotQ = new Quaternion(Vector3.X, deltaY);
+//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "XRotQ: " + xRotQ + " YRotQ: " + yRotQ);
+//
+//        Quaternion combined = xRotQ.mulLeft(yRotQ);
+//
+//        combined.setEulerAngles(combined.getPitch(), combined.getYaw(), 0);
+//
+//        player.transform.rotate(combined);
+//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Rotation: " + combined);
+//
+////        Gdx.app.debug("PlayerInput", player.transform.toString());
+//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", player.getRotation().toString());
+//
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
+
+        Quaternion qPitch = new Quaternion(Vector3.X, mouseY);
+        Quaternion qYaw = new Quaternion(Vector3.Y, mouseX);
+
+        //For a FPS camera we can omit roll
+        Quaternion orientation = qPitch.mul(qYaw);
+        orientation.nor();
+
+        Vector3 translation = player.transform.getTranslation(new Vector3());
+        Vector3 scale = player.transform.getScale(new Vector3());
+
+        player.transform.set(orientation);
+        player.transform.translate(translation);
+        player.transform.scale(scale.x, scale.y, scale.z);
 
         return true;
     }
