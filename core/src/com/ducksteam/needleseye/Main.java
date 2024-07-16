@@ -14,15 +14,19 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.*;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -458,14 +462,18 @@ public class Main extends ApplicationAdapter {
 		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(rotation);
 
+		Label eulerAngles = new Label("Euler Angles: " + Entity.quatToEuler(player.getRotation()), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		eulerAngles.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
+		debug.addActor(eulerAngles);
+
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
+		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
+		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpace);
 
 		Optional<RoomInstance> currentRoomOp = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).findFirst();
@@ -473,14 +481,19 @@ public class Main extends ApplicationAdapter {
 			RoomInstance currentRoom = currentRoomOp.get();
 
 			Label roomName = new Label("Room: " + currentRoom.getRoom().getName(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
+			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
 
-			btCollisionObject collider = currentRoom.collider;
+			btCollisionObject collider = new btRigidBody(1, null, null);
+			if (currentRoom.collider != null) collider = currentRoom.collider;
 			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
+			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
 			debug.addActor(colliderLabel);
 		}
+
+//		Label rotationEqual = new Label("Rotation Equal: " + player.getRotation().equals(new Quaternion().setEulerAnglesRad(player.getEulerRotation().x, player.getEulerRotation().y, player.getEulerRotation().z)), new Label.LabelStyle(debugFont, debugFont.getColor()));
+//		rotationEqual.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.32 * Gdx.graphics.getHeight()));
+//		debug.addActor(rotationEqual);
 	}
 
 	/**
@@ -595,15 +608,11 @@ public class Main extends ApplicationAdapter {
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
-
-			Vector3 dir = player.getRotation().transform(new Vector3(0, 0, 1));
-
-			camera.direction.set(dir);
-
+			camera.direction.set(player.eulerRotation);
 			camera.update();
 
-			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
+
 			//batch.render(modelInstances,environment);
 
 			enemies.forEach((EnemyEntity enemy) -> {

@@ -27,14 +27,16 @@ public class Player extends Entity {
     int health;
     int maxHealth;
 
-    Vector3 rot; // rads
+    public Vector3 eulerRotation; // rads
+
+    Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
         super(pos, new Quaternion());
         baseUpgrade = BaseUpgrade.NONE;
 
         this.setVelocity(new Vector3(0,0,0));
-//        rot = new Vector3(1,0,0);
+        eulerRotation = new Vector3(0,0,1);
 
         collider = new btRigidBody(Config.PLAYER_MASS, this, new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F)));
 
@@ -65,17 +67,16 @@ public class Player extends Entity {
         if (heal) this.health = maxHealth;
     }
 
-//    public void setPos(Vector3 pos) {
-//        setPosition(pos);
-//    }
-//
-//    public Vector3 getRot() {
-//        return rot;
-//    }
-//
-//    public void setRot(Vector3 rot) {
-//        this.rot = rot;
-//    }
+    public Vector3 getEulerRotation() {
+        return eulerRotation;
+    }
+
+    public void setEulerRotation(Vector3 rot) {
+        this.eulerRotation = rot;
+        transform.getTranslation(tmp);
+        transform.setFromEulerAnglesRad(rot.x, rot.y, rot.z);
+        transform.setTranslation(tmp);
+    }
 
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         this.baseUpgrade = baseUpgrade;

@@ -143,7 +143,7 @@ public abstract class Entity extends btMotionState {
     }
 
     public static Vector3 quatToEuler(Quaternion quat){
-        return new Vector3(quat.getRoll(), quat.getYaw(), quat.getPitch());
+        return new Vector3(quat.getPitch(), quat.getYaw(), quat.getRoll());
     }
 
     public void destroy() {

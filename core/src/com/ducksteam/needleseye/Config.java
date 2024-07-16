@@ -16,7 +16,7 @@ public class Config {
     public static boolean doRenderColliders = false;
 
     // Global constants
-    public static final float ROTATION_SPEED = 0.07F /* * MathUtils.degRad*/;
+    public static final float ROTATION_SPEED = 0.007F /* * MathUtils.degRad*/;
     public static int MOVE_SPEED = 1;
     public static final float LOADING_ANIM_SPEED = 0.05f;
     public static final float ASPECT_RATIO = (float) 16 / 9;
@@ -31,5 +31,6 @@ public class Config {
         keys.put("back", Input.Keys.S);
         keys.put("left", Input.Keys.A);
         keys.put("right", Input.Keys.D);
+        keys.put("disappear", Input.Keys.R);
     }
 }

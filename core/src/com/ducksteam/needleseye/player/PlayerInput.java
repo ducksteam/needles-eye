@@ -11,7 +11,9 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.entity.Entity;
 
+import static com.ducksteam.needleseye.Main.camera;
 import static com.ducksteam.needleseye.Main.player;
 
 import java.util.HashMap;
@@ -26,6 +28,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     // The keys that are currently pressed
     private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
+    static Vector3 tmp = new Vector3();
+
     float mouseX = 0;
     float mouseY = 0;
 
@@ -37,25 +41,30 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
         Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
 
-//        float angle = player.getRotation().getAxisAngleRad(Vector3.Y);
-//        Gdx.app.debug("PlayerInput", "Angle: " + angle);
-//        Vector3 moveVec = new Vector3((float) Math.sin(angle), 0, (float) Math.cos(angle)).scl(Config.MOVE_SPEED);
-//        //moveVec.y = 0;
-//
-//        if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
-//            player.getVelocity().add(moveVec);
-//        }
-//        if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
-//            player.getVelocity().sub(moveVec);
-//        }
-//        if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
-//            tmp.set(Entity.quatToEuler(player.getRotation())).crs(Vector3.Y).nor();
-//            player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
-//        }
-//        if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
-//            tmp.set(Entity.quatToEuler(player.getRotation())).crs(Vector3.Y).nor();
-//            player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
-//        }
+        Vector3 moveVec = player.eulerRotation.cpy().scl(Config.MOVE_SPEED);
+        //moveVec.y = 0;
+
+        if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
+            player.getVelocity().add(moveVec);
+        }
+        if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
+            player.getVelocity().sub(moveVec);
+        }
+        if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
+            tmp.set(player.eulerRotation).cpy().crs(Vector3.Y).nor();
+            Gdx.app.debug("PlayerInput", tmp.toString());
+            player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
+        }
+        if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
+            tmp.set(player.eulerRotation).cpy().crs(Vector3.Y).nor();
+            player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
+        }
+        if(KEYS.containsKey(Config.keys.get("disappear")) && KEYS.get(Config.keys.get("disappear"))){
+            tmp.set(player.eulerRotation).cpy().crs(Vector3.Y).nor();
+            player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
+        }
+
+        if (!player.getVelocity().isZero()) Gdx.app.debug("PlayerInput", player.getVelocity().toString());
     }
 
     /**
@@ -63,44 +72,18 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * @return true if the camera was rotated
      */
     private boolean rotateCamera() {
-        float deltaX = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
-        float deltaY = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
+        float deltaX = Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
+        float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
 
         mouseX -= deltaX;
         mouseY -= deltaY;
 
-//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "DeltaX: " + deltaX + " DeltaY: " + deltaY);
-//
-//        // I LOVE QUATERNIONS
-//        Quaternion xRotQ = new Quaternion(Vector3.Y, deltaX);
-//        Quaternion yRotQ = new Quaternion(Vector3.X, deltaY);
-//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "XRotQ: " + xRotQ + " YRotQ: " + yRotQ);
-//
-//        Quaternion combined = xRotQ.mulLeft(yRotQ);
-//
-//        combined.setEulerAngles(combined.getPitch(), combined.getYaw(), 0);
-//
-//        player.transform.rotate(combined);
-//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", "Rotation: " + combined);
-//
-////        Gdx.app.debug("PlayerInput", player.transform.toString());
-//        if (deltaX != 0 || deltaY != 0) Gdx.app.debug("PlayerInput", player.getRotation().toString());
-//
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 
-        Quaternion qPitch = new Quaternion(Vector3.X, mouseY);
-        Quaternion qYaw = new Quaternion(Vector3.Y, mouseX);
+        tmp = player.getEulerRotation().cpy().rotateRad(camera.up, -deltaX);
+        tmp.rotateRad(camera.direction.cpy().crs(camera.up).nor(), -deltaY);
 
-        //For a FPS camera we can omit roll
-        Quaternion orientation = qPitch.mul(qYaw);
-        orientation.nor();
-
-        Vector3 translation = player.transform.getTranslation(new Vector3());
-        Vector3 scale = player.transform.getScale(new Vector3());
-
-        player.transform.set(orientation);
-        player.transform.translate(translation);
-        player.transform.scale(scale.x, scale.y, scale.z);
+        player.setEulerRotation(tmp);
 
         return true;
     }
