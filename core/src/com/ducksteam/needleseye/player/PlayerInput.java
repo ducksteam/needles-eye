@@ -51,12 +51,12 @@ public class PlayerInput implements InputProcessor, ControllerListener {
             player.getVelocity().sub(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
-            tmp.set(player.eulerRotation).cpy().crs(Vector3.Y).nor();
+            tmp.set(moveVec).cpy().crs(Vector3.Y).nor();
             Gdx.app.debug("PlayerInput", tmp.toString());
             player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
-            tmp.set(player.eulerRotation).cpy().crs(Vector3.Y).nor();
+            tmp.set(moveVec).cpy().crs(Vector3.Y).nor();
             player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
         }
         if(KEYS.containsKey(Config.keys.get("disappear")) && KEYS.get(Config.keys.get("disappear"))){
