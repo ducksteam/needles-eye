@@ -31,6 +31,7 @@ import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
+import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
@@ -156,6 +157,8 @@ public class Main extends ApplicationAdapter {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 		buildFonts();
+
+		Upgrade.registerUpgrades();
 
 		Bullet.init();
 
@@ -555,7 +558,28 @@ public class Main extends ApplicationAdapter {
 	}
 
 	private void renderGameOverlay(){
+		batch2d.begin();
+		for(int i=0;i<player.getHealth();i++){
+			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
+			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
+			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+		}
 
+		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
+			if(upgradeClass == null||player.upgrades==null) return;
+			for(Upgrade upgrade : player.upgrades){
+				if(upgrade.getClass().equals(upgradeClass)){
+					try {
+						Vector2 pos = new Vector2(Math.round((((float) Gdx.graphics.getWidth()) / 32F) + (((float) (Gdx.graphics.getWidth())) / 32F)), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 32F));
+						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
+					} catch (Exception e){
+						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
+					}
+				}
+			}
+		});
+
+		batch2d.end();
 	}
 
 	/**
@@ -646,14 +670,8 @@ public class Main extends ApplicationAdapter {
 //		}
 
 			batch.end();
-			//renderGameOverlay();
-			batch2d.begin();
-			for(int i=0;i<player.getHealth();i++){
-				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
-				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
-			}
-			batch2d.end();
+			renderGameOverlay();
+
 		}
 
 		if (Config.debugMenu) {

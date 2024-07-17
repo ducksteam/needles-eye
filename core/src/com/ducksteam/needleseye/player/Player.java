@@ -22,7 +22,7 @@ import java.util.ArrayList;
 public class Player extends Entity {
     public BaseUpgrade baseUpgrade;
 
-    ArrayList<Upgrade> upgrades;
+    public ArrayList<Upgrade> upgrades;
 
     int health;
     int maxHealth;

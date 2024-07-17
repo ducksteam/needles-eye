@@ -161,10 +161,10 @@ public class MapManager {
                 }
             });*/ //For doors
 
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Vector2(0,0), WALL_SCALE_VECTOR));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,-Config.ROOM_SCALE*WALL_SCALE)), new Vector2((float)Math.PI/2,0), WALL_SCALE_VECTOR));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Vector2(0,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,Config.ROOM_SCALE*WALL_SCALE)), new Quaternion().set((float)Math.PI/2,0,0,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion(), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE*WALL_SCALE,0,-Config.ROOM_SCALE*WALL_SCALE)), new Quaternion().set((float)Math.PI/2,0,0,0), WALL_SCALE_VECTOR));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion(), WALL_SCALE_VECTOR));
         });
     }
     public Level getCurrentLevel(){
