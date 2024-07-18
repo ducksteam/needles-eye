@@ -1,16 +1,12 @@
 package com.ducksteam.needleseye.player;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
-import com.ducksteam.needleseye.entity.collision.ColliderBox;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
@@ -32,7 +28,7 @@ public class Player extends Entity {
     Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
-        super(pos, new Quaternion());
+        super(pos, new Quaternion().setEulerAngles(0, 0, 1));
         baseUpgrade = BaseUpgrade.NONE;
 
         this.setVelocity(new Vector3(0,0,0));

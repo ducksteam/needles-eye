@@ -4,12 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
-import com.ducksteam.needleseye.Config;
 
 /**
  * @author thechiefpotatopeeler
@@ -25,6 +23,7 @@ public abstract class Entity extends btMotionState {
     private Vector3 modelOffset;
 
     private Vector3 velocity;
+    public float mass;
 
     public Matrix4 transform;
     public btRigidBody collider;
@@ -51,7 +50,7 @@ public abstract class Entity extends btMotionState {
                 .scale(scale.x, scale.y, scale.z);
 
         setModelOffset(Vector3.Zero);
-        if (modelInstance != null) collider = new btRigidBody(mass, this, Bullet.obtainStaticNodeShape(getModelInstance().model.nodes));
+        this.mass = mass;
     }
 
     public abstract String getModelAddress();
@@ -68,6 +67,7 @@ public abstract class Entity extends btMotionState {
     }
     public void setModelInstance(ModelInstance modelInstance) {
         this.modelInstance = modelInstance;
+        collider = new btRigidBody(mass, this, Bullet.obtainStaticNodeShape(getModelInstance().model.nodes));
     }
     public Vector3 getPosition() {
         return transform.getTranslation(new Vector3());
@@ -105,23 +105,6 @@ public abstract class Entity extends btMotionState {
         modelInstance.transform.set(transform);
     }
 
-    public void collisionResponse(Vector3 contactNormal){
-        Vector3 norVel = this.velocity.cpy().sub(contactNormal.scl(contactNormal.cpy().dot(velocity.cpy())));
-        Vector3 tanVel = this.velocity.cpy().sub(norVel);
-
-        norVel.scl(-0.1f);
-        tanVel.scl(0.9f);
-        Vector3 newVel = norVel.cpy().add(tanVel);
-
-        Vector3 newPos = getPosition().cpy().add(contactNormal.cpy().scl(Config.COLLISION_PENETRATION));
-
-        Gdx.app.debug("Collision", "Normal: " + contactNormal + " Velocity: " + velocity + " New Velocity: " + newVel + " New Position: " + newPos);
-
-        setVelocity(newVel);
-        setPosition(newPos);
-    }
-
-
     @Override
     public void setWorldTransform(Matrix4 worldTrans) {
         Gdx.app.debug("Entity", "Setting world transform");
@@ -132,14 +115,6 @@ public abstract class Entity extends btMotionState {
     public void getWorldTransform(Matrix4 worldTrans) {
         Gdx.app.debug("Entity", "Getting world transform");
         transform.set(worldTrans);
-    }
-
-    public static Vector3 sphericalToEuler(Vector2 spherical){
-        return new Vector3((float) (spherical.x * Math.cos(spherical.y)), (float) (spherical.x * Math.sin(spherical.y)), 0);
-    }
-
-    public static Vector2 eulerToSpherical(Vector3 euler){
-        return new Vector2((float) Math.sqrt(euler.x * euler.x + euler.y * euler.y), (float) Math.atan2(euler.y, euler.x));
     }
 
     public static Vector3 quatToEuler(Quaternion quat){
