@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.MathUtils;
 
 import java.util.HashMap;
 
@@ -31,6 +30,5 @@ public class Config {
         keys.put("back", Input.Keys.S);
         keys.put("left", Input.Keys.A);
         keys.put("right", Input.Keys.D);
-        keys.put("disappear", Input.Keys.R);
     }
 }

@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye.entity.enemies;
 
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 public class WormEnemy extends EnemyEntity{

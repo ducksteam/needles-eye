@@ -78,7 +78,7 @@ public class MapManager {
 
         RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 1));
         level.addRoom(room);
-        /*room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
+        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, 1));
         level.addRoom(room);
@@ -93,7 +93,7 @@ public class MapManager {
         room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(-1, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(-1, 1));
-        level.addRoom(room);*/
+        level.addRoom(room);
 
 
         addWalls(level);

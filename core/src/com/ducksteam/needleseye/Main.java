@@ -11,26 +11,29 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.Matrix4;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
-import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
@@ -490,10 +493,6 @@ public class Main extends ApplicationAdapter {
 			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
 			debug.addActor(colliderLabel);
 		}
-
-//		Label rotationEqual = new Label("Rotation Equal: " + player.getRotation().equals(new Quaternion().setEulerAnglesRad(player.getEulerRotation().x, player.getEulerRotation().y, player.getEulerRotation().z)), new Label.LabelStyle(debugFont, debugFont.getColor()));
-//		rotationEqual.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.32 * Gdx.graphics.getHeight()));
-//		debug.addActor(rotationEqual);
 	}
 
 	/**
@@ -608,7 +607,7 @@ public class Main extends ApplicationAdapter {
 			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
-			camera.direction.set(player.eulerRotation);
+			camera.direction.set(player.getEulerRotation());
 			camera.update();
 
 			batch.begin(camera);
@@ -621,7 +620,7 @@ public class Main extends ApplicationAdapter {
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				if (room.collider == null) return;
+//				if (room.collider == null) return;
 				if (!room.isRenderable) return;
 //				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
 				room.update(Gdx.graphics.getDeltaTime());
@@ -633,28 +632,13 @@ public class Main extends ApplicationAdapter {
 				batch.render(wall.getModelInstance(), environment);
 			});
 
-//		if (Config.doRenderColliders) {
-//			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
-//				if (o.collider == null) {
-//					continue;
-//				}
-//				if (o.collider instanceof ColliderGroup) {
-//					for (IHasCollision collider : ((ColliderGroup) o.collider).colliders) {
-//						batch.render(collider.getRenderable(), environment);
-//					}
-//				} else {
-//					batch.render(o.collider.getRenderable(), environment);
-//				}
-//			}
-//		}
-
 			batch.end();
 			//renderGameOverlay();
 			batch2d.begin();
 			for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 			}
 			batch2d.end();
 		}

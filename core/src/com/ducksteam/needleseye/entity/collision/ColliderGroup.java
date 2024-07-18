@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.collision;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.math.Vector3;
 
