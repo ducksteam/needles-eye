@@ -9,16 +9,22 @@ import com.ducksteam.needleseye.UpgradeRegistry;
  * @author SkySourced
  */
 public abstract class Upgrade {
+
+    public Boolean isIconLoaded;
     String name;
     String description;
     Texture icon;
+    String iconAddress;
     String modelAddress;
 
-    public Upgrade (String name, String description, Texture icon, String modelAddress) {
+    public Upgrade (String name, String description, String iconAddress, String modelAddress) {
         this.name = name;
         this.description = description;
-        this.icon = icon;
+        this.iconAddress = iconAddress;
         this.modelAddress = modelAddress;
+        if(UpgradeRegistry.iconsLoaded) {
+            icon = new Texture(Gdx.files.internal(iconAddress));
+        }
     }
 
     public static void registerUpgrades() {
@@ -29,12 +35,25 @@ public abstract class Upgrade {
         }
     }
 
+    /*
+    * Accessor/mutator methods ______.
+    *                                |
+    *                                V
+    * */
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getIconAddress() {
+        return iconAddress;
+    }
+
+    public void setIconAddress(String iconAddress) {
+        this.iconAddress = iconAddress;
     }
 
     public String getDescription() {
@@ -79,7 +98,7 @@ public abstract class Upgrade {
 
     public class SoulThread extends Upgrade {
         public SoulThread() {
-            super("Soul Thread", "Increases maximum health by 3", null, null);
+            super("Soul Thread", "Increases maximum health by 3", "ui/icons/soul_thread.png", null);
         }
     }
 

@@ -2,6 +2,7 @@ package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -23,8 +24,8 @@ import com.badlogic.gdx.scenes.scene2d.*;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -34,11 +35,12 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
-
-import static com.ducksteam.needleseye.entity.Entity.sphericalToEuler;
 
 
 /**
@@ -48,6 +50,8 @@ import static com.ducksteam.needleseye.entity.Entity.sphericalToEuler;
  * */
 public class Main extends ApplicationAdapter {
 	ModelBatch batch;
+
+	static Music menuMusic;
 
 	Stage mainMenu;
 	Stage threadMenu;
@@ -138,7 +142,11 @@ public class Main extends ApplicationAdapter {
 	public static void setGameState(GameState gameState){
 		Main.gameState = gameState;
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
-		if(gameState==GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+		if(menuMusic!=null) {
+			if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
+			else menuMusic.pause();
+		}
 	}
 
 	/**
@@ -156,7 +164,20 @@ public class Main extends ApplicationAdapter {
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+
+		//Registers upgrade icon addresses
+		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
+			if(upgradeClass == null) return;
+			spriteAddresses.add(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(id)).getIconAddress());
+		});
+
 		buildFonts();
+
+		try {
+			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
+		} catch (GdxRuntimeException e) {
+			Gdx.app.error("Main", "Failed to load music file",e);
+		}
 
 		Upgrade.registerUpgrades();
 
@@ -531,11 +552,11 @@ public class Main extends ApplicationAdapter {
 			});
 			spriteAddresses.forEach((String address)->{
 				if(address == null) return;
-
 				assMan.load(address, Texture.class);
 				assMan.finishLoadingAsset(address);
 				spriteAssets.put(address,assMan.get(address));
 			});
+			UpgradeRegistry.iconsLoaded=true;
 			Gdx.app.debug("Loader thread", "Loading finished");
 			setGameState(GameState.IN_GAME);
 	}

@@ -8,6 +8,8 @@ import java.util.HashMap;
 
 public class UpgradeRegistry {
 
+    public static boolean iconsLoaded = false;
+
     public static HashMap<String,Class<?extends Upgrade>> registeredUpgrades = new HashMap<String,Class<?extends Upgrade>>();
 
     public static void registerUpgrade(String id,Class<?extends Upgrade> upgradeClass) {
