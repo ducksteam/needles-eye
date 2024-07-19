@@ -9,10 +9,12 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 /**
@@ -38,6 +40,7 @@ public class Player extends Entity {
 
         collider = new btRigidBody(Config.PLAYER_MASS, this, new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F)));
 
+        this.upgrades = new ArrayList<>();
         health = -1;
         maxHealth = -1;
     }
@@ -80,6 +83,12 @@ public class Player extends Entity {
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true);
+        try {
+            this.upgrades.add(UpgradeRegistry.getUpgradeInstance(baseUpgrade.upgradeClass));
+        } catch (Exception e) {
+            Gdx.app.error("Player", "Base upgrade not found: " + baseUpgrade.name(),e);
+        }
+
     }
 
     @Override

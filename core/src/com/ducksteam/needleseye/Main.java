@@ -35,8 +35,6 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -164,12 +162,18 @@ public class Main extends ApplicationAdapter {
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		Upgrade.registerUpgrades();
 
 		//Registers upgrade icon addresses
 		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
 			if(upgradeClass == null) return;
-			spriteAddresses.add(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(id)).getIconAddress());
-		});
+			try {
+				spriteAddresses.add(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getIconAddress());
+			} catch (NullPointerException e) {
+				Gdx.app.error("Main", "Failed to load icon for "+id,e);
+			}
+        });
+		Gdx.app.debug("SpriteAddresses", spriteAddresses.toString());
 
 		buildFonts();
 
@@ -179,7 +183,6 @@ public class Main extends ApplicationAdapter {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
 
-		Upgrade.registerUpgrades();
 
 		Bullet.init();
 
@@ -588,15 +591,19 @@ public class Main extends ApplicationAdapter {
 
 		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
 			if(upgradeClass == null||player.upgrades==null) return;
+			int counter = 0;
 			for(Upgrade upgrade : player.upgrades){
+				if(upgrade == null) continue;
+				if(upgrade.getIcon() == null) upgrade.setIconFromMap(spriteAssets);
 				if(upgrade.getClass().equals(upgradeClass)){
 					try {
-						Vector2 pos = new Vector2(Math.round((((float) Gdx.graphics.getWidth()) / 32F) + (((float) (Gdx.graphics.getWidth())) / 32F)), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 32F));
+						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 32F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 32F));
 						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
 					}
 				}
+				counter++;
 			}
 		});
 

@@ -1,14 +1,17 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
 import com.ducksteam.needleseye.UpgradeRegistry;
+
+import java.util.HashMap;
 
 /**
  * Represents an upgrade that the player can pick up
  * @author SkySourced
  */
-public abstract class Upgrade {
+public class Upgrade {
 
     public Boolean isIconLoaded;
     String name;
@@ -17,14 +20,16 @@ public abstract class Upgrade {
     String iconAddress;
     String modelAddress;
 
+    public Upgrade() {
+        this.name = "Upgrade";
+        this.description = "This is an upgrade";
+        this.modelAddress = null;
+    }
     public Upgrade (String name, String description, String iconAddress, String modelAddress) {
         this.name = name;
         this.description = description;
         this.iconAddress = iconAddress;
         this.modelAddress = modelAddress;
-        if(UpgradeRegistry.iconsLoaded) {
-            icon = new Texture(Gdx.files.internal(iconAddress));
-        }
     }
 
     public static void registerUpgrades() {
@@ -40,6 +45,7 @@ public abstract class Upgrade {
     *                                |
     *                                V
     * */
+
     public String getName() {
         return name;
     }
@@ -72,6 +78,14 @@ public abstract class Upgrade {
         this.icon = icon;
     }
 
+    public void setIconFromMap(HashMap<String,Texture> map){
+        if(map.containsKey(iconAddress)) {
+            icon = map.get(iconAddress);
+        } else {
+            Gdx.app.error("Upgrade", "Icon not found: " + iconAddress);
+        }
+    }
+
     public String getModelAddress() {
         return modelAddress;
     }
@@ -87,7 +101,7 @@ public abstract class Upgrade {
         THREADED_ROD (4,ThreadedRod.class),
         NONE (-1,null);
 
-        Class<? extends Upgrade> upgradeClass;
+        public Class<? extends Upgrade> upgradeClass;
         final int MAX_HEALTH;
 
         BaseUpgrade(int maxHealth, Class<? extends Upgrade> upgradeClass) {
@@ -119,6 +133,5 @@ public abstract class Upgrade {
             super("Threaded Rod", "Increases maximum health by 4", null, null);
         }
     }
-
 }
 
