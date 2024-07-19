@@ -140,17 +140,22 @@ public class RoomTemplate {
         rt.setDecos(new ArrayList<>());
 
         for(LinkedTreeMap<String, Object> entry : decos) { // Read decos from GSON map
-            DecoInstance deco = new DecoInstance(); // Create empty deco instance
+            DecoTemplate template = null;
+            Vector3 position = null;
             for(Map.Entry<String, Object> e : entry.entrySet()) { // For each deco in the JSON array
                 switch (e.getKey()) { // Read values from GSON map
-                    case "name" -> deco.setTemplate(MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null));
+                    case "name" -> template = MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null);
                     case "position" -> //noinspection unchecked
-                        deco.setPosition(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
-                    case "scale" -> //noinspection unchecked
-                        deco.setScale(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
+							position = MapManager.vector3FromArray((ArrayList<Double>) e.getValue());
+
+                }
+                if (template == null || position == null) {
+                    Gdx.app.error(rt.getName(),"Deco template not found: " + e.getValue());
+                } else {
+                    DecoInstance deco = new DecoInstance(template, position);
+                    rt.getDecos().add(deco);
                 }
             }
-            rt.getDecos().add(deco);
         }
 
         // Read mesh

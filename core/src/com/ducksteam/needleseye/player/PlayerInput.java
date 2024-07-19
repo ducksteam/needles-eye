@@ -25,36 +25,35 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     static Vector3 tmp = new Vector3();
     static Vector3 tmp2 = new Vector3();
 
-    float mouseX = 0;
-    float mouseY = 0;
-
     /**
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update() {
-        player.setVelocity(Vector3.Zero);
-
         Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
 
+        Vector3 forceDir = new Vector3();
+
         Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.MOVE_SPEED);
-        //moveVec.y = 0;
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
-            player.getVelocity().add(moveVec);
+            forceDir.add(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
-            player.getVelocity().sub(moveVec);
+            forceDir.sub(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
             tmp.set(moveVec).nor().crs(Vector3.Y);
-            player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
+            forceDir.sub(tmp);
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
             tmp.set(moveVec).nor().crs(Vector3.Y);
-            player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
+            forceDir.add(tmp);
         }
 
-        if (!player.getVelocity().isZero()) Gdx.app.debug("PlayerInput", player.getVelocity().toString());
+        forceDir.nor().scl(Config.MOVE_SPEED);
+        Gdx.app.debug("player force", forceDir.toString());
+        player.collider.applyCentralForce(forceDir);
+
     }
 
     /**
@@ -63,9 +62,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     private void rotateCamera() {
         float deltaX = Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
         float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
-
-        mouseX -= deltaX;
-        mouseY -= deltaY;
 
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 

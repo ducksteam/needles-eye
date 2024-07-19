@@ -1,12 +1,15 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,10 +46,18 @@ public class MapManager {
         for (File file : Objects.requireNonNull(decoDir.listFiles())) { // load all deco templates
             if (file.getName().endsWith(".json")) { // only load json files
                 decoTemplates.add(DecoTemplate.loadDecoTemplate(file)); // load the deco template
+                Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": \n" + decoTemplates.getLast().toString());
             }
-            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": \n" + decoTemplates.getLast().toString());
         }
-        Gdx.app.debug("MapManager", "Loaded " + decoTemplates.size() + " deco templates");
+        Gdx.app.debug("MapManager", "Loaded data for " + decoTemplates.size() + " deco templates");
+
+
+        MapManager.decoTemplates.forEach((DecoTemplate deco) -> {
+            if (deco.getModelPath() == null) return;
+            Gdx.app.debug("MapManager", "Loaded model for deco " + deco.getName());
+            Main.assMan.load(deco.getModelPath(), Model.class);
+        });
+        Main.assMan.finishLoading(); // finish loading elements in rooms so room gen will proceed smoothly
 
         // load room templates
         File roomDir = new File(ROOM_TEMPLATE_PATH);
@@ -57,12 +68,10 @@ public class MapManager {
         for (File file : Objects.requireNonNull(roomDir.listFiles())) { // load all room templates
             if (file.getName().endsWith(".json")) { // only load json files
                 roomTemplates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
+                Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": " + roomTemplates.getLast().toString());
             }
-            Gdx.app.debug("MapManager", "Loaded " + file.getName() + ": " + roomTemplates.getLast().toString());
         }
-        Gdx.app.debug("MapManager", "Loaded " + roomTemplates.size() + " room templates");
-
-        generateLevel(); // generate the first level
+        Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
     }
 
     /**
@@ -157,10 +166,10 @@ public class MapManager {
 
                 }
             });*/ //For doors
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(Vector3.Y, 0), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2)), new Vector3(1,1,1)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, 0), new Vector3(1,1,1)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2))));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(Vector3.Y, 0)));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2))));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, 0)));
         });
     }
     public Level getCurrentLevel(){
