@@ -135,7 +135,7 @@ public class RoomTemplate {
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
         }
 
-        // Read decos
+        /*// Read decos
         @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> decos = (ArrayList<LinkedTreeMap<String, Object>>) map.get("decos");
         rt.setDecos(new ArrayList<>());
 
@@ -156,7 +156,7 @@ public class RoomTemplate {
                     rt.getDecos().add(deco);
                 }
             }
-        }
+        }*/
 
         // Read mesh
         rt.collider = new ColliderGroup();
@@ -297,9 +297,5 @@ public class RoomTemplate {
                 ", name='" + name + '\'' +
                 ", decos=" + decos +
                 '}';
-    }
-
-    public static Vector3 scaleXZ(Vector3 vec, float scale) {
-        return new Vector3(vec.x * scale, vec.y, vec.z * scale);
     }
 }

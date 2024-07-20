@@ -2,6 +2,7 @@ package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
@@ -32,7 +33,7 @@ public class Player extends Entity {
     Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
-        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null);
+        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null, Entity.PLAYER_GROUP);
         baseUpgrade = BaseUpgrade.NONE;
 
         eulerRotation = new Vector3(0,0,1);
@@ -45,6 +46,8 @@ public class Player extends Entity {
         Vector3 inertia = new Vector3();
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
+        collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+        collider.setDamping(0.8f, 0.8f);
 
         Main.dynamicsWorld.addRigidBody(collider);
 

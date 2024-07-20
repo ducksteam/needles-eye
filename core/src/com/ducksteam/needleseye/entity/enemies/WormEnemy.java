@@ -8,7 +8,7 @@ import com.ducksteam.needleseye.Main;
 
 public class WormEnemy extends EnemyEntity{
     public WormEnemy(String modelAddress, Vector3 position, Quaternion rotation) {
-        super(position, rotation, new ModelInstance((Model) Main.assMan.get(modelAddress)));
+        super(position, rotation, 8, new ModelInstance((Model) Main.assMan.get(modelAddress)));
     }
 
     @Override

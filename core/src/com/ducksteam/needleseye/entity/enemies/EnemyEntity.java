@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.Entity;
 
 public abstract class EnemyEntity extends Entity {
-    public EnemyEntity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
-        super(position, rotation, modelInstance);
+    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance) {
+        super(position, rotation, mass, modelInstance, ENEMY_GROUP);
     }
 }

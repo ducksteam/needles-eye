@@ -5,9 +5,10 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.Main;
 
 /**
@@ -31,7 +32,8 @@ public abstract class Entity {
 	public btCollisionShape collisionShape;
 	public MotionState motionState;
 	private ModelInstance modelInstance;
-	private Vector3 modelOffset;
+
+	private static final Matrix4 tmpMat = new Matrix4();
 
 	/**
 	 * Creates a static entity with mass 0
@@ -42,7 +44,7 @@ public abstract class Entity {
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
-		this(position, rotation, 0, modelInstance);
+		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
 	}
 
 	/**
@@ -54,7 +56,7 @@ public abstract class Entity {
 	 * @param modelInstance the model instance of the entity
 	 */
 
-	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance) {
+	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
 		transform.idt().translate(position).rotate(rotation);
 
 		isStatic = mass == 0;
@@ -62,19 +64,17 @@ public abstract class Entity {
 
 		this.modelInstance = modelInstance;
 
-		setModelOffset(Vector3.Zero);
-
-		if (isRenderable && modelInstance != null) {
+		if (isRenderable) {
 			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
 			motionState = new MotionState(this, transform);
-			Vector3 inertia;
-			if (isStatic) {
-				inertia = Vector3.Zero;
-			} else {
-				inertia = new Vector3();
-				collisionShape.calculateLocalInertia(mass, inertia);
-			}
+
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
+
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+
 			Main.dynamicsWorld.addRigidBody(collider);
 		}
 	}
@@ -90,24 +90,19 @@ public abstract class Entity {
 		return modelInstance;
 	}
 
-	public Vector3 getModelOffset() {
-		return modelOffset;
-	}
-
-	public void setModelOffset(Vector3 offset) {
-		this.modelOffset = offset;
-	}
-
 	public Vector3 getPosition() {
-		return transform.getTranslation(new Vector3());
+		motionState.getWorldTransform(tmpMat);
+		return tmpMat.getTranslation(new Vector3());
 	}
 
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
+		motionState.setWorldTransform(transform);
 	}
 
 	public void translate(Vector3 translation) {
-		transform.translate(translation);
+		transform.trn(translation);
+		motionState.setWorldTransform(transform);
 	}
 
 	public Vector3 getVelocity() {
@@ -131,7 +126,9 @@ public abstract class Entity {
 	}
 
 	public void destroy() {
+		Main.dynamicsWorld.removeRigidBody(collider);
 		collider.dispose();
+		collisionShape.dispose();
 		motionState.dispose();
 	}
 }

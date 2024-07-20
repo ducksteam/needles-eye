@@ -510,8 +510,8 @@ public class Main extends ApplicationAdapter {
 			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
 
-			btCollisionObject collider = new btRigidBody(1, null, null);
-			if (currentRoom.collider != null) collider = currentRoom.collider;
+			btCollisionShape collider = new btCollisionShape(123, false);
+			if (currentRoom.collider != null) collider = currentRoom.collider.getCollisionShape();
 			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
 			debug.addActor(colliderLabel);
@@ -615,9 +615,9 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-			PlayerInput.update();
+			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
-			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
+//			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
 			camera.direction.set(player.getEulerRotation());
@@ -651,9 +651,7 @@ public class Main extends ApplicationAdapter {
 			batch2d.end();
 
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
-			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				room.collider.getWorldTransform(room.transform);
-			});
+			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
 		}
 
 		if (Config.debugMenu) {

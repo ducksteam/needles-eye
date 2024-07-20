@@ -20,7 +20,7 @@ public class DecoInstance extends Entity {
     }
 
     public DecoInstance(DecoTemplate template, Vector3 pos, Quaternion rotation) {
-        super(pos, rotation, 0, new ModelInstance((Model) Main.assMan.get(template.getModelPath())));
+        super(pos, rotation, new ModelInstance((Model) Main.assMan.get(template.getModelPath())));
         this.template = template;
     }
 
