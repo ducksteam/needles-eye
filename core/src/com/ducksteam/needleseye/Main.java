@@ -53,6 +53,8 @@ public class Main extends ApplicationAdapter {
 
 	Stage mainMenu;
 	Stage threadMenu;
+
+	Stage pauseMenu;
 	Stage debug;
 	SpriteBatch batch2d;
 
@@ -67,7 +69,6 @@ public class Main extends ApplicationAdapter {
 	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
-
 	HashMap<String,Texture> spriteAssets = new HashMap<>();
 
 	GlobalInput globalInput = new GlobalInput();
@@ -78,9 +79,9 @@ public class Main extends ApplicationAdapter {
 	float animTime;
 	Runnable animPreDraw;
 	Runnable animFinished;
-
 	int[] threadAnimState = {0, 0, 0};
 	public static GameState gameState;
+	private static String gameStateCheck;
 
 	/**
 	 * The enum for managing the game state
@@ -128,7 +129,7 @@ public class Main extends ApplicationAdapter {
 		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
 		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
 		GameState.LOADING.setInputProcessor(globalInput);
-		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput));
+		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
 	}
 
 
@@ -145,6 +146,8 @@ public class Main extends ApplicationAdapter {
 			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
 			else menuMusic.pause();
 		}
+		gameStateCheck = gameState.toString();
+		if(gameState == GameState.IN_GAME) Gdx.input.setCursorCatched(true);
 	}
 
 	/**
@@ -153,6 +156,7 @@ public class Main extends ApplicationAdapter {
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
 		loadAssets();
+        setGameState(GameState.IN_GAME);
 	}
 
 	/**
@@ -194,6 +198,7 @@ public class Main extends ApplicationAdapter {
 
 		buildMainMenu();
 		buildThreadMenu();
+		buildPauseMenu();
 
 		environment = new Environment();
 		batch = new ModelBatch();
@@ -516,6 +521,28 @@ public class Main extends ApplicationAdapter {
 		}
 	}
 
+	private void buildPauseMenu(){
+		pauseMenu = new Stage();
+
+		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
+		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
+		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+
+		ImageButton resumeButton = new ImageButton(resumeButtonStyle);
+		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
+		resumeButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
+		resumeButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				setGameState(GameState.IN_GAME);
+				return true;
+			}
+		});
+		pauseMenu.addActor(resumeButton);
+
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -561,7 +588,6 @@ public class Main extends ApplicationAdapter {
 			});
 			UpgradeRegistry.iconsLoaded=true;
 			Gdx.app.debug("Loader thread", "Loading finished");
-			setGameState(GameState.IN_GAME);
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -618,6 +644,13 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		if(gameState!=null) {
+			if (!gameState.toString().equals(gameStateCheck)) {
+				setGameState(gameState);
+				gameStateCheck = gameState.toString();
+			}
+		}
+
 		if(activeUIAnim != null){
 			if (animPreDraw != null) animPreDraw.run();
 			animTime += Gdx.graphics.getDeltaTime();
@@ -645,6 +678,12 @@ public class Main extends ApplicationAdapter {
 			threadMenu.act();
 			threadMenu.draw();
 			buildThreadMenu();
+		}
+
+		if(gameState == GameState.PAUSED_MENU) {
+			//renderGameOverlay();
+			pauseMenu.act();
+			pauseMenu.draw();
 		}
 
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
