@@ -47,7 +47,7 @@ public class Player extends Entity {
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-        collider.setDamping(0.8f, 0.8f);
+        collider.setDamping(0.7f, 0.7f);
 
         Main.dynamicsWorld.addRigidBody(collider);
 

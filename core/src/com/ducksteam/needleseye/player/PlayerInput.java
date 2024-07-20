@@ -50,16 +50,14 @@ public class PlayerInput implements InputProcessor, ControllerListener {
             forceDir.add(tmp);
         }
 
-        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.001){
-            player.collider.applyCentralImpulse(new Vector3(0, 300, 0));
+        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.1){
+            player.collider.applyCentralImpulse(new Vector3(0, 50, 0));
         }
 
         forceDir.y = 0;
         forceDir.nor().scl(Config.MOVE_SPEED * delta);
-        Gdx.app.debug("player force", forceDir.toString());
         Gdx.app.debug("player velocity", player.getVelocity().toString());
         player.collider.applyCentralImpulse(forceDir);
-        Gdx.app.debug("player position", player.getPosition().toString());
 
     }
 

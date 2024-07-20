@@ -9,7 +9,6 @@ import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
-import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -166,9 +165,9 @@ public class MapManager {
 
                 }
             });*/ //For doors
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2))));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (90))));
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE)), new Quaternion(Vector3.Y, 0)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (Math.PI/2))));
+            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,0)), new Quaternion().set(Vector3.Y, (float) (90))));
             level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()), new Quaternion().set(Vector3.Y, 0)));
         });
     }
