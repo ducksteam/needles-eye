@@ -2,7 +2,7 @@
   "name": "prison",
   "type": "hallway",
   "spawn": true,
-  "modelPath": "models/rooms/prison.g3db",
+  "modelPath": "models/rooms/prison.gltf",
   "texturePath": "",
   "width": 1,
   "height": 2,
