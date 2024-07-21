@@ -21,6 +21,7 @@ public class Config {
     public static final float ASPECT_RATIO = (float) 16 / 9;
     public static final int ROOM_SCALE = 10;
     public static final float PLAYER_MASS = 10;
+    public static final float DAMAGE_TIMEOUT = 0.5f; // seconds
 
 
     static {

@@ -1,6 +1,8 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -123,6 +125,14 @@ public abstract class Entity {
 
 	public void rotate(Quaternion rotation) {
 		transform.rotate(rotation);
+	}
+
+	public void setAnimation(String animationName) {
+		if (isRenderable) {
+			Animation animation = modelInstance.getAnimation(animationName);
+			if (animation == null) Gdx.app.error("Entity", "Animation not found: " + animationName);
+			else Gdx.app.debug("Entity", "Setting animation: " + animationName);
+		}
 	}
 
 	public void destroy() {

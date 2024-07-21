@@ -187,7 +187,7 @@ public class Main extends ApplicationAdapter {
 
 		spriteAddresses.add("ui/icons/heart.png");
 
-		player = new Player(new Vector3(0,0,0));
+		player = new Player(new Vector3(0,5,0));
 
 		batch2d = new SpriteBatch();
 
@@ -552,7 +552,7 @@ public class Main extends ApplicationAdapter {
 
 			Gdx.app.debug("Loader thread", "Loading finished");
 
-			mapMan.generateLevel();
+			mapMan.generateTestLevel();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
@@ -627,8 +627,11 @@ public class Main extends ApplicationAdapter {
 
 			//batch.render(modelInstances,environment);
 
+			player.update(Gdx.graphics.getDeltaTime());
+
 			enemies.forEach((EnemyEntity enemy) -> {
 				if (!enemy.isRenderable) return;
+				enemy.update(Gdx.graphics.getDeltaTime());
 				batch.render(enemy.getModelInstance(), environment);
 			});
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {

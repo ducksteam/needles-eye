@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.MotionState;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
@@ -20,13 +21,15 @@ import static com.ducksteam.needleseye.Main.*;
  * Represents the player in the game
  * @author SkySourced
  */
-public class Player extends Entity {
+public class Player extends Entity implements IHasHealth {
     public BaseUpgrade baseUpgrade;
 
     ArrayList<Upgrade> upgrades;
 
     int health;
     int maxHealth;
+
+    float damageTimeout = 0;
 
     public Vector3 eulerRotation; // rads
 
@@ -55,27 +58,47 @@ public class Player extends Entity {
         maxHealth = -1;
     }
 
+    public void update(float delta) {
+        if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH;
+        if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
+        if (getDamageTimeout() > 0) damageTimeout -= delta;
+    }
+
     public int getHealth() {
         return health;
     }
 
-    public void setHealth(int health) {
-        this.health = health;
+    @Override
+    public void setMaxHealth(int maxHealth, boolean heal) {
+        this.maxHealth = maxHealth;
+        if (heal) setHealth(maxHealth);
     }
 
     public void damage(int damage) {
+        if (damageTimeout > 0) return;
         health -= damage;
+        setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health <= 0) Main.setGameState(Main.GameState.DEAD_MENU);
         if (health > maxHealth) setHealth(maxHealth);
+    }
+
+    @Override
+    public void setHealth(int health) {
+        this.health = health;
     }
 
     public int getMaxHealth() {
         return maxHealth;
     }
 
-    public void setMaxHealth(int maxHealth, boolean heal) {
-        this.maxHealth = maxHealth;
-        if (heal) this.health = maxHealth;
+    @Override
+    public void setDamageTimeout(float timeout) {
+        this.damageTimeout = timeout;
+    }
+
+    @Override
+    public float getDamageTimeout() {
+        return damageTimeout;
     }
 
     public Vector3 getEulerRotation() {
