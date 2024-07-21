@@ -38,6 +38,10 @@ import com.ducksteam.needleseye.map.RoomTemplate;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
+import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,9 +66,7 @@ public class Main extends ApplicationAdapter {
 	Stage threadMenu;
 	Stage debug;
 	SpriteBatch batch2d;
-
 	HashMap<String,Texture> spriteAssets = new HashMap<>();
-
 	BitmapFont debugFont;
 
 	// asset manager
@@ -530,15 +532,22 @@ public class Main extends ApplicationAdapter {
 					enemy.isRenderable = false;
 					return;
 				}
-				assMan.load(enemy.getModelAddress(), Model.class);
+				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+				assMan.load(enemy.getModelAddress(), SceneAsset.class);
+				assMan.finishLoadingAsset(enemy.getModelAddress());
+				enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
 			});
 
 			MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 				if (room.getModelPath() == null) return;
-				assMan.load(room.getModelPath(), Model.class);
+				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+				assMan.load(room.getModelPath(), SceneAsset.class);
+				assMan.finishLoadingAsset(room.getModelPath());
+				room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
 			});
 
-			assMan.load(WallObject.modelAddress, Model.class);
+			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+			assMan.load(WallObject.modelAddress, SceneAsset.class);
 
 			spriteAddresses.forEach((String address)->{
 				if(address == null) return;

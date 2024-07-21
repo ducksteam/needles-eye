@@ -35,6 +35,8 @@ public abstract class Entity {
 	public MotionState motionState;
 	private ModelInstance modelInstance;
 
+	private float mass = 0f;
+	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
 	private static final Matrix4 tmpMat = new Matrix4();
 
 	/**
@@ -66,6 +68,9 @@ public abstract class Entity {
 
 		this.modelInstance = modelInstance;
 
+		this.mass = mass;
+		this.flags = flags;
+
 		if (isRenderable) {
 			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
 			motionState = new MotionState(this, transform);
@@ -85,6 +90,22 @@ public abstract class Entity {
 		return new Vector3(quat.getPitch(), quat.getYaw(), quat.getRoll());
 	}
 
+	public void setModelInstance(ModelInstance modelInstance) {
+		this.modelInstance = modelInstance;
+		if (isRenderable) {
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			motionState = new MotionState(this, transform);
+
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
+
+			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+
+			Main.dynamicsWorld.addRigidBody(collider);
+		}
+	}
 	public abstract String getModelAddress();
 
 	public ModelInstance getModelInstance() {

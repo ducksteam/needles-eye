@@ -9,10 +9,10 @@ import static com.ducksteam.needleseye.Main.assMan;
 
 public class WallObject extends Entity {
 
-    public static String modelAddress = "models/rooms/door.g3db";
+    public static String modelAddress = "models/rooms/door.gltf";
 
     public WallObject(Vector3 position, Quaternion rotation) {
-        super(position, rotation, new ModelInstance((Model) assMan.get("models/rooms/door.g3db")));
+        super(position, rotation, new ModelInstance((Model) assMan.get("models/rooms/door.gltf")));
     }
 
     @Override

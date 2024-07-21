@@ -54,9 +54,9 @@ public class MapManager {
         MapManager.decoTemplates.forEach((DecoTemplate deco) -> {
             if (deco.getModelPath() == null) return;
             Gdx.app.debug("MapManager", "Loaded model for deco " + deco.getName());
-            Main.assMan.load(deco.getModelPath(), Model.class);
+            //Main.assMan.load(deco.getModelPath(), Model.class);
         });
-        Main.assMan.finishLoading(); // finish loading elements in rooms so room gen will proceed smoothly
+        //Main.assMan.finishLoading(); // finish loading elements in rooms so room gen will proceed smoothly
 
         // load room templates
         File roomDir = new File(ROOM_TEMPLATE_PATH);

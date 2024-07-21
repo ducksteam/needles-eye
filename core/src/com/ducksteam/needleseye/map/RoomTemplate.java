@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.DecoInstance;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
@@ -21,6 +22,8 @@ import java.util.Map;
  * @author SkySourced
  */
 public class RoomTemplate {
+
+    private Model model;
 
     public enum RoomType {
         SMALL(2, 0.9f), // 90% chance of being a small room
@@ -196,6 +199,13 @@ public class RoomTemplate {
         return rt;
     }
 
+    public Model getModel() {
+        return this.model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
 
     public RoomType getType() {
         return type;

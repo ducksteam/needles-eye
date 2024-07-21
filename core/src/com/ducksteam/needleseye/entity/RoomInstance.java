@@ -20,7 +20,7 @@ public class RoomInstance extends Entity {
     int rot;//IN DEGREES
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance((Model) Main.assMan.get(room.getModelPath() == null ? "models/rooms/brokenceiling.g3db" : room.getModelPath())));
+        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance(room.getModel()));
 
         this.room = room;
         this.roomSpacePos = roomSpacePos;
