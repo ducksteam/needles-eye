@@ -30,6 +30,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
@@ -73,10 +74,10 @@ public class Main extends ApplicationAdapter {
 	public static AssetManager assMan;
 
 	// level & room manager
-	MapManager mapMan;
+	public static MapManager mapMan;
 
 	// objects to be rendered
-	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
+	public static HashMap<Integer, Entity> entities = new HashMap<Integer, Entity>(); // key = entity.id
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
 
@@ -561,7 +562,7 @@ public class Main extends ApplicationAdapter {
 
 			Gdx.app.debug("Loader thread", "Loading finished");
 
-			mapMan.generateTestLevel();
+			mapMan.generateLevel();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
@@ -638,18 +639,9 @@ public class Main extends ApplicationAdapter {
 
 			player.update(Gdx.graphics.getDeltaTime());
 
-			enemies.forEach((EnemyEntity enemy) -> {
-				if (!enemy.isRenderable) return;
-				enemy.update(Gdx.graphics.getDeltaTime());
-				batch.render(enemy.getModelInstance(), environment);
-			});
-			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				if (!room.isRenderable) return;
-				batch.render(room.getModelInstance(), environment);
-			});
-			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
-				if (!wall.isRenderable) return;
-				batch.render(wall.getModelInstance(), environment);
+			entities.forEach((Integer id, Entity entity) -> {
+				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
+				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
 
 			batch.end();

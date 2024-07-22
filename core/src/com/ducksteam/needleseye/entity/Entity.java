@@ -39,6 +39,9 @@ public abstract class Entity {
 	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
 	private static final Matrix4 tmpMat = new Matrix4();
 
+	public static int currentId = 0;
+	public int id;
+
 	/**
 	 * Creates a static entity with mass 0
 	 *
@@ -62,6 +65,9 @@ public abstract class Entity {
 
 	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
 		transform.idt().translate(position).rotate(rotation);
+
+		id = currentId++;
+		Main.entities.put(id, this);
 
 		isStatic = mass == 0;
 		isRenderable = modelInstance != null;

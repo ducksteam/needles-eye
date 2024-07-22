@@ -9,6 +9,8 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
 
+import java.util.HashMap;
+
 /**
  * Represents an instance of a room in the world
  * @author SkySourced
@@ -18,6 +20,8 @@ public class RoomInstance extends Entity {
     RoomTemplate room;
     Vector2 roomSpacePos;
     int rot;//IN DEGREES
+
+    HashMap<Integer, Entity> enemies = new HashMap<>();
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
         super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance(room.getModel()));
@@ -70,6 +74,42 @@ public class RoomInstance extends Entity {
 
     public int getRot() {
         return rot;
+    }
+
+    /**
+     * Lock the room (for when the player is inside)
+     */
+    public void lock(){
+
+    }
+
+    /**
+     * Unlock the room (for when the player defeats all enemies)
+     */
+    public void unlock(){
+
+    }
+
+    public void addEnemy(Entity enemy) {
+        enemies.put(enemy.id, enemy);
+    }
+
+    public void addEnemy(int id){
+        enemies.put(id, Main.entities.get(id));
+    }
+
+    public void removeEnemy(Entity enemy) {
+        enemies.remove(enemy.id);
+        if (enemies.isEmpty()) unlock();
+    }
+
+    public void removeEnemy(int id) {
+        enemies.remove(id);
+        if (enemies.isEmpty()) unlock();
+    }
+
+    public HashMap<Integer, Entity> getEnemies() {
+        return enemies;
     }
 
     @Override
