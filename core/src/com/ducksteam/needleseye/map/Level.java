@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 
@@ -39,6 +40,13 @@ public class Level {
      */
     public ArrayList<RoomInstance> getRooms() {
         return rooms;
+    }
+
+    public RoomInstance getRoom(Vector2 pos) {
+        for (RoomInstance room : rooms) {
+            if (room.getRoomSpacePos().equals(pos)) return room;
+        }
+        return null;
     }
 
     /**

@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
@@ -75,5 +76,13 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
     public void setAi(IHasAi ai) {
         this.ai = ai;
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (assignedRoom != null) {
+            Main.mapMan.getCurrentLevel().getRoom(assignedRoom).removeEnemy(this);
+        }
     }
 }
