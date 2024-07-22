@@ -6,11 +6,12 @@ import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.math.Vector3;
-import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.entity.Entity;
 
 import java.util.HashMap;
+
+import static com.ducksteam.needleseye.Main.camera;
+import static com.ducksteam.needleseye.Main.player;
 
 /**
  * Handles player input
@@ -21,51 +22,58 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     // The keys that are currently pressed
     private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
-    protected static final Vector3 tmp = new Vector3();
+    static Vector3 tmp = new Vector3();
+    static Vector3 tmp2 = new Vector3();
 
     /**
      * Updates the player's velocity based on the keys pressed.
      */
-    public static void update() {
-        Main.player.getVelocity().set((Vector3.Zero));
+    public static void update(float delta) {
+        Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 200f : 80f;
 
-        Vector3 moveVec = Entity.quatToEuler(Main.player.getRotation()).scl(Config.MOVE_SPEED);
-        //moveVec.y = 0;
+        Vector3 forceDir = new Vector3();
 
-        Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 5 : 1;
+        Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.MOVE_SPEED);
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
-            Main.player.getVelocity().add(moveVec);
+            forceDir.add(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
-            Main.player.getVelocity().sub(moveVec);
+            forceDir.sub(moveVec);
         }
         if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
-            tmp.set(Entity.quatToEuler(Main.player.getRotation())).crs(Vector3.Y).nor();
-            Main.player.getVelocity().sub(tmp.scl(Config.MOVE_SPEED));
+            tmp.set(moveVec).nor().crs(Vector3.Y);
+            forceDir.sub(tmp);
         }
         if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
-            tmp.set(Entity.quatToEuler(Main.player.getRotation())).crs(Vector3.Y).nor();
-            Main.player.getVelocity().add(tmp.scl(Config.MOVE_SPEED));
+            tmp.set(moveVec).nor().crs(Vector3.Y);
+            forceDir.add(tmp);
         }
+
+        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.1){
+            player.collider.applyCentralImpulse(new Vector3(0, 50, 0));
+        }
+
+        forceDir.y = 0;
+        forceDir.nor().scl(Config.MOVE_SPEED * delta);
+        Gdx.app.debug("player velocity", player.getVelocity().toString());
+        player.collider.applyCentralImpulse(forceDir);
+
     }
 
     /**
      * Rotates the camera based on the mouse movement.
-     * @return true if the camera was rotated
      */
-    private boolean rotateCamera() {
-        float deltaY = -Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
-        float deltaX = -Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
-        Main.player.setRotation(Main.camera.up, deltaX);
-        Gdx.app.debug("PlayerInput", Main.player.transform.toString());
-        Gdx.app.debug("PlayerInput", Main.player.getRotation().toString());
-        tmp.set(Main.camera.direction).crs(Main.camera.up).nor();
-        Main.player.setRotation(tmp, deltaY);
+    private void rotateCamera() {
+        float deltaX = Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
+        float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
 
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
 
-        return true;
+        tmp2 = player.getEulerRotation().cpy().rotateRad(camera.up, -deltaX);
+        tmp2.rotateRad(camera.direction.cpy().crs(camera.up).nor(), -deltaY);
+
+        player.setEulerRotation(tmp2);
     }
 
     /**
@@ -99,7 +107,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean touchDragged(int mouseX, int mouseY, int pointer) {
-        return rotateCamera();
+        rotateCamera();
+        return true;
     }
 
     /**
@@ -110,7 +119,8 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean mouseMoved(int mouseX, int mouseY) {
-        return rotateCamera();
+        rotateCamera();
+        return true;
     }
 
     @Override

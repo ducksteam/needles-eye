@@ -2,7 +2,7 @@
   "name": "sandpit",
   "type": "hallway",
   "spawn": false,
-  "modelPath": "models/rooms/sandpit.g3db",
+  "modelPath": "models/rooms/sandpit.gltf",
   "texturePath": "",
   "width": 1,
   "height": 2,

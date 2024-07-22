@@ -1,43 +1,37 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.DecoTemplate;
 
 /**
  * Represents an instance of a decoration in the world
  * @author SkySourced
  */
-public class DecoInstance extends WorldObject {
+public class DecoInstance extends Entity {
 
     private DecoTemplate template;
-    private Vector3 scale;
 
-    public DecoInstance(DecoTemplate template, Vector3 pos, Vector3 scale, Quaternion rotation) {
-        super(pos, rotation, scale);
-        this.template = template;
-        this.scale = scale;
+    public DecoInstance(DecoTemplate template, Vector3 pos) {
+        this(template, pos, new Quaternion());
     }
 
-    public DecoInstance() {
-        this(null, new Vector3(), new Vector3(), new Quaternion());
+    public DecoInstance(DecoTemplate template, Vector3 pos, Quaternion rotation) {
+        super(pos, rotation, new ModelInstance((Model) Main.assMan.get(template.getModelPath())));
+        this.template = template;
     }
 
     public DecoTemplate getTemplate() {
         return template;
-    }
-    public Vector3 getScale() {
-        return scale;
     }
 
     public void setTemplate(DecoTemplate template) {
         this.template = template;
     }
 
-    public void setScale(Vector3 scale) {
-        this.scale = scale;
-    }
 
     @Override
     public String toString() {
@@ -45,7 +39,6 @@ public class DecoInstance extends WorldObject {
                 "template=" + template +
                 ", pos=" + getPosition() +
                 ", rot=" + getRotation() +
-                ", scale=" + scale +
                 '}';
     }
 

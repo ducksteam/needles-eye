@@ -2,7 +2,7 @@
   "name": "fakeboss",
   "type": "boss",
   "spawn": false,
-  "modelPath": "models/rooms/slantedcorridor.g3db",
+  "modelPath": "models/rooms/pedestal.gltf",
   "texturePath": "",
   "width": 1,
   "height": 1,

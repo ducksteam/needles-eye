@@ -1,10 +1,11 @@
 package com.ducksteam.needleseye.entity;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
 
@@ -13,13 +14,13 @@ import com.ducksteam.needleseye.map.RoomTemplate;
  * @author SkySourced
  */
 
-public class RoomInstance extends WorldObject {
+public class RoomInstance extends Entity {
     RoomTemplate room;
     Vector2 roomSpacePos;
     int rot;//IN DEGREES
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,0)).cpy().add(room.getCentreOffset()), new Quaternion(), new Vector3(0.5F, 0.5F, 0.5F));
+        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance(room.getModel()));
 
         this.room = room;
         this.roomSpacePos = roomSpacePos;
@@ -74,6 +75,7 @@ public class RoomInstance extends WorldObject {
     @Override
     public String toString() {
         return "RoomInstance{" +
+                "isrenderable=" + isRenderable +
                 "room={type=" + room.getType() +
                 ", name=" + room.getName() +
                 "}, pos=" + roomSpacePos +

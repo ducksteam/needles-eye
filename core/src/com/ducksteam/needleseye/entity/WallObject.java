@@ -1,17 +1,23 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
-public class WallObject extends WorldObject {
+import static com.ducksteam.needleseye.Main.assMan;
 
-    public WallObject(Vector3 position, Quaternion rotation, Vector3 scale) {
-        super(position, rotation, scale);
+public class WallObject extends Entity {
+
+    public static String modelAddress = "models/rooms/door.gltf";
+
+
+    public WallObject(Vector3 position, Quaternion rotation) {
+        super(position, rotation, new ModelInstance(((SceneAsset) assMan.get("models/rooms/door.gltf")).scene.model));
     }
 
     @Override
     public String getModelAddress() {
-        return "models/rooms/door.g3db";
+        return modelAddress;
     }
 }
