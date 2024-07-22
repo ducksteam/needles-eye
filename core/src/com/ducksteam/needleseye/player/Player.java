@@ -8,11 +8,13 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.MotionState;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -24,7 +26,7 @@ import static com.ducksteam.needleseye.Main.*;
 public class Player extends Entity implements IHasHealth {
     public BaseUpgrade baseUpgrade;
 
-    ArrayList<Upgrade> upgrades;
+    public ArrayList<Upgrade> upgrades;
 
     int health;
     int maxHealth;
@@ -54,6 +56,7 @@ public class Player extends Entity implements IHasHealth {
 
         Main.dynamicsWorld.addRigidBody(collider);
 
+        this.upgrades = new ArrayList<>();
         health = -1;
         maxHealth = -1;
     }
@@ -115,6 +118,12 @@ public class Player extends Entity implements IHasHealth {
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true);
+        try {
+            this.upgrades.add(UpgradeRegistry.getUpgradeInstance(baseUpgrade.upgradeClass));
+        } catch (Exception e) {
+            Gdx.app.error("Player", "Base upgrade not found: " + baseUpgrade.name(),e);
+        }
+
     }
 
     @Override

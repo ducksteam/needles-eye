@@ -18,6 +18,9 @@ import java.util.Objects;
  * @author SkySourced
  */
 public class MapManager {
+
+    public static final float WALL_SCALE = 0.5f;
+    public static final Vector3 WALL_SCALE_VECTOR = new Vector3(WALL_SCALE, WALL_SCALE, WALL_SCALE);
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
