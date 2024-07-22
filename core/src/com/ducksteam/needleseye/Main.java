@@ -2,6 +2,7 @@ package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.PerspectiveCamera;
@@ -28,6 +29,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.RoomInstance;
@@ -37,6 +39,7 @@ import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
+import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.loaders.gltf.GLTFLoader;
@@ -45,6 +48,7 @@ import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.Optional;
 
 
@@ -61,9 +65,13 @@ public class Main extends ApplicationAdapter {
 	public static FitViewport viewport;
 	Environment environment;
 
+  static Music menuMusic;
+  
 	// 2d rendering utils
 	Stage mainMenu;
 	Stage threadMenu;
+
+	Stage pauseMenu;
 	Stage debug;
 	SpriteBatch batch2d;
 	HashMap<String,Texture> spriteAssets = new HashMap<>();
@@ -96,9 +104,9 @@ public class Main extends ApplicationAdapter {
 	float animTime;
 	Runnable animPreDraw;
 	Runnable animFinished;
-
 	int[] threadAnimState = {0, 0, 0};
 	public static GameState gameState;
+	private static String gameStateCheck;
 
 	/**
 	 * The enum for managing the game state
@@ -146,7 +154,7 @@ public class Main extends ApplicationAdapter {
 		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
 		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
 		GameState.LOADING.setInputProcessor(globalInput);
-		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput));
+		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
 	}
 
 
@@ -158,7 +166,13 @@ public class Main extends ApplicationAdapter {
 	public static void setGameState(GameState gameState){
 		Main.gameState = gameState;
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
-		if(gameState==GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+		if(menuMusic!=null) {
+			if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
+			else menuMusic.pause();
+		}
+		gameStateCheck = gameState.toString();
+		if(gameState == GameState.IN_GAME) Gdx.input.setCursorCatched(true);
 	}
 
 	/**
@@ -167,6 +181,7 @@ public class Main extends ApplicationAdapter {
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
 		loadAssets();
+        setGameState(GameState.IN_GAME);
 	}
 
 	/**
@@ -176,7 +191,27 @@ public class Main extends ApplicationAdapter {
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		Upgrade.registerUpgrades();
+
+		//Registers upgrade icon addresses
+		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
+			if(upgradeClass == null) return;
+			try {
+				spriteAddresses.add(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getIconAddress());
+			} catch (NullPointerException e) {
+				Gdx.app.error("Main", "Failed to load icon for "+id,e);
+			}
+        });
+		Gdx.app.debug("SpriteAddresses", spriteAddresses.toString());
+
 		buildFonts();
+
+		try {
+			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
+		} catch (GdxRuntimeException e) {
+			Gdx.app.error("Main", "Failed to load music file",e);
+		}
+
 
 		Bullet.init();
 
@@ -195,6 +230,7 @@ public class Main extends ApplicationAdapter {
 
 		buildMainMenu();
 		buildThreadMenu();
+		buildPauseMenu();
 
 		environment = new Environment();
 		batch = new ModelBatch();
@@ -520,6 +556,28 @@ public class Main extends ApplicationAdapter {
 		}
 	}
 
+	private void buildPauseMenu(){
+		pauseMenu = new Stage();
+
+		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
+		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
+		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+
+		ImageButton resumeButton = new ImageButton(resumeButtonStyle);
+		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
+		resumeButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
+		resumeButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				setGameState(GameState.IN_GAME);
+				return true;
+			}
+		});
+		pauseMenu.addActor(resumeButton);
+
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -551,13 +609,13 @@ public class Main extends ApplicationAdapter {
 
 			spriteAddresses.forEach((String address)->{
 				if(address == null) return;
-
 				assMan.load(address, Texture.class);
 				assMan.finishLoadingAsset(address);
 				spriteAssets.put(address,assMan.get(address));
 			});
-
+    
 			assMan.finishLoading();
+			UpgradeRegistry.iconsLoaded=true;
 
 			Gdx.app.debug("Loader thread", "Loading finished");
 
@@ -583,7 +641,32 @@ public class Main extends ApplicationAdapter {
 	}
 
 	private void renderGameOverlay(){
+		batch2d.begin();
+		for(int i=0;i<player.getHealth();i++){
+			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
+			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
+			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+		}
 
+		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
+			if(upgradeClass == null||player.upgrades==null) return;
+			int counter = 0;
+			for(Upgrade upgrade : player.upgrades){
+				if(upgrade == null) continue;
+				if(upgrade.getIcon() == null) upgrade.setIconFromMap(spriteAssets);
+				if(upgrade.getClass().equals(upgradeClass)){
+					try {
+						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 32F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 32F));
+						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
+					} catch (Exception e){
+						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
+					}
+				}
+				counter++;
+			}
+		});
+
+		batch2d.end();
 	}
 
 	/**
@@ -593,6 +676,13 @@ public class Main extends ApplicationAdapter {
 	public void render () {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+		if(gameState!=null) {
+			if (!gameState.toString().equals(gameStateCheck)) {
+				setGameState(gameState);
+				gameStateCheck = gameState.toString();
+			}
+		}
 
 		if(activeUIAnim != null){
 			if (animPreDraw != null) animPreDraw.run();
@@ -621,6 +711,12 @@ public class Main extends ApplicationAdapter {
 			threadMenu.act();
 			threadMenu.draw();
 			buildThreadMenu();
+		}
+
+		if(gameState == GameState.PAUSED_MENU) {
+			//renderGameOverlay();
+			pauseMenu.act();
+			pauseMenu.draw();
 		}
 
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
@@ -653,7 +749,9 @@ public class Main extends ApplicationAdapter {
 			});
 
 			batch.end();
-			//renderGameOverlay();
+      
+			renderGameOverlay();
+      
 			batch2d.begin();
 			for(int i=0;i<player.getHealth();i++){
 				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
