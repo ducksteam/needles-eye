@@ -1,18 +1,20 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
+
+import static com.ducksteam.needleseye.Main.assMan;
+
 /**
  * A util class for managing the map generation process
  * @author SkySourced
@@ -20,14 +22,13 @@ import java.util.Objects;
 public class MapManager {
 
     public static final float WALL_SCALE = 0.5f;
-    public static final Vector3 WALL_SCALE_VECTOR = new Vector3(WALL_SCALE, WALL_SCALE, WALL_SCALE);
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
     private int levelIndex; // number of levels generated
 
     // placeholder room for hallways
-    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
+    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, "models/rooms/rockroom.gltf", null, new Vector3(0, 0, 0));
 
     // paths (these could be wrong, maybe change to just data/rooms/?)
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
@@ -114,6 +115,8 @@ public class MapManager {
 
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
+
+        HALLWAY_PLACEHOLDER.setModel(((SceneAsset)assMan.get(HALLWAY_PLACEHOLDER.getModelPath())).scene.model);
 
         RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector2(0, 0)); // build a base hallway
         level.addRoom(room);

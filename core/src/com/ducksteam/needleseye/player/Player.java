@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.player;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
@@ -14,7 +15,6 @@ import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.MotionState;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import static com.ducksteam.needleseye.Main.*;
