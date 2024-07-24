@@ -2,140 +2,170 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
-import com.ducksteam.needleseye.Config;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.entity.collision.IHasCollision;
 
 /**
- * @author thechiefpotatopeeler
- * This class is the base for all objects with models in the game world
- * */
-public abstract class Entity extends btMotionState {
+ * This class represents an entity in the game world. It has a transform, a collider, and a model instance.
+ * Static entities have mass 0 and are not affected by physics.
+ */
+public abstract class Entity {
 
-    //TODO: Add numeric IDs for each object
-    public static String id;
+	// collision group flags
+	public static final short GROUND_GROUP = 1 << 8;
+	public static final short PLAYER_GROUP = 1 << 9;
+	public static final short ENEMY_GROUP = 1 << 10;
+	public static final short PROJECTILE_GROUP = 1 << 11;
+	public static final short PICKUP_GROUP = 1 << 12;
+	public static final short ALL = -1;
 
-    public Boolean isRenderable;
-    private ModelInstance modelInstance;
-    private Vector3 modelOffset;
+	public Boolean isRenderable;
+	public Boolean isStatic;
+	public Matrix4 transform = new Matrix4();
+	public btRigidBody collider;
+	public btCollisionShape collisionShape;
+	public MotionState motionState;
+	private ModelInstance modelInstance;
 
-    private Vector3 velocity;
+	private float mass = 0f;
+	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
+	private static final Matrix4 tmpMat = new Matrix4();
 
-    public Matrix4 transform;
-    public btCollisionObject collider;
+	public static int currentId = 0;
+	public int id;
 
-    /**
-     * @param position the initial position
-     * @param rotation the initial rotation
-     * Constructor for entity class
-     * takes a position and rotation offset
-     * */
-    public Entity(Vector3 position, Quaternion rotation){
-        this(position, rotation, new Vector3(1, 1, 1));
-    }
+	/**
+	 * Creates a static entity with mass 0
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param modelInstance the model instance of the entity
+	 */
 
-    public Entity(Vector3 position, Quaternion rotation, Vector3 scale){
-        transform = new Matrix4();
-        transform.idt()
-                .translate(position)
-                .rotate(rotation)
-                .scale(scale.x, scale.y, scale.z);
+	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
+		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+	}
 
-        setModelOffset(Vector3.Zero);
-    }
+	/**
+	 * Creates a dynamic entity
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param mass          the mass of the entity
+	 * @param modelInstance the model instance of the entity
+	 */
 
-    public abstract String getModelAddress();
+	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
+		transform.idt().translate(position).rotate(rotation);
 
-    public ModelInstance getModelInstance() {
-        return modelInstance;
-    }
+		id = currentId++;
+		Main.entities.put(id, this);
 
-    public void setModelOffset(Vector3 offset){
-        this.modelOffset = offset;
-    }
-    public Vector3 getModelOffset() {
-        return modelOffset;
-    }
-    public void setModelInstance(ModelInstance modelInstance) {
-        this.modelInstance = modelInstance;
-    }
-    public Vector3 getPosition() {
-        return transform.getTranslation(new Vector3());
-    }
-    public void setPosition(Vector3 position) {
-        transform.setTranslation(position);
-    }
-    public Quaternion getRotation() {
-        return transform.getRotation(new Quaternion());
-    }
-    public void setRotation(Quaternion rotation) {
-        transform.rotate(rotation);
-    }
+		isStatic = mass == 0;
+		isRenderable = modelInstance != null;
 
-    public void setRotation(Vector3 axis, float angle){
-        transform.rotate(axis, angle);
-    }
+		this.modelInstance = modelInstance;
 
-    public Vector3 getScale() {
-        return transform.getScale(new Vector3());
-    }
-    public void setScale(Vector3 scale) {
-        transform.scale(scale.x, scale.y, scale.z);
-    }
-    public Vector3 getVelocity() {
-        return velocity;
-    }
-    public void setVelocity(Vector3 velocity) {
-        this.velocity = velocity;
-    }
+		this.mass = mass;
+		this.flags = flags;
 
-    public void collisionResponse(Vector3 contactNormal){
-        Vector3 norVel = this.velocity.cpy().sub(contactNormal.scl(contactNormal.cpy().dot(velocity.cpy())));
-        Vector3 tanVel = this.velocity.cpy().sub(norVel);
+		if (isRenderable) {
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			motionState = new MotionState(this, transform);
 
-        norVel.scl(-0.1f);
-        tanVel.scl(0.9f);
-        Vector3 newVel = norVel.cpy().add(tanVel);
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
 
-        Vector3 newPos = getPosition().cpy().add(contactNormal.cpy().scl(Config.COLLISION_PENETRATION));
+			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 
-        Gdx.app.debug("Collision", "Normal: " + contactNormal + " Velocity: " + velocity + " New Velocity: " + newVel + " New Position: " + newPos);
+			Main.dynamicsWorld.addRigidBody(collider);
+		}
+	}
 
-        setVelocity(newVel);
-        setPosition(newPos);
-    }
+	public static Vector3 quatToEuler(Quaternion quat) {
+		return new Vector3(quat.getPitch(), quat.getYaw(), quat.getRoll());
+	}
 
+	public void setModelInstance(ModelInstance modelInstance) {
+		this.modelInstance = modelInstance;
+		if (isRenderable) {
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			motionState = new MotionState(this, transform);
 
-    @Override
-    public void setWorldTransform(Matrix4 worldTrans) {
-        worldTrans.set(transform);
-    }
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
 
-    @Override
-    public void getWorldTransform(Matrix4 worldTrans) {
-        transform.set(worldTrans);
-    }
+			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 
-    public static Vector3 sphericalToEuler(Vector2 spherical){
-        return new Vector3((float) (spherical.x * Math.cos(spherical.y)), (float) (spherical.x * Math.sin(spherical.y)), 0);
-    }
+			Main.dynamicsWorld.addRigidBody(collider);
+		}
+	}
+	public abstract String getModelAddress();
 
-    public static Vector2 eulerToSpherical(Vector3 euler){
-        return new Vector2((float) Math.sqrt(euler.x * euler.x + euler.y * euler.y), (float) Math.atan2(euler.y, euler.x));
-    }
+	public ModelInstance getModelInstance() {
+		motionState.getWorldTransform(modelInstance.transform); // i suppose this does save a little bit of memory
+		return modelInstance;
+	}
 
-    public static Vector3 quatToEuler(Quaternion quat){
-        return new Vector3(quat.getRoll(), quat.getYaw(), quat.getPitch());
-    }
+	public Vector3 getPosition() {
+		motionState.getWorldTransform(tmpMat);
+		return tmpMat.getTranslation(new Vector3());
+	}
 
-    public void destroy() {
-        collider.dispose();
-        this.dispose();
-    }
+	public void setPosition(Vector3 position) {
+		transform.setTranslation(position);
+		motionState.setWorldTransform(transform);
+	}
+
+	public void translate(Vector3 translation) {
+		transform.trn(translation);
+		motionState.setWorldTransform(transform);
+	}
+
+	public Vector3 getVelocity() {
+		return collider.getLinearVelocity();
+	}
+
+	public void setVelocity(Vector3 velocity) {
+		collider.setLinearVelocity(velocity);
+	}
+
+	public Quaternion getRotation() {
+		return transform.getRotation(new Quaternion());
+	}
+
+	public void setRotation(Vector3 axis, float angle) {
+		transform.rotateRad(axis, angle);
+	}
+
+	public void rotate(Quaternion rotation) {
+		transform.rotate(rotation);
+	}
+
+	public void setAnimation(String animationName) {
+		if (isRenderable) {
+			Animation animation = modelInstance.getAnimation(animationName);
+			if (animation == null) Gdx.app.error("Entity", "Animation not found: " + animationName);
+			else Gdx.app.debug("Entity", "Setting animation: " + animationName);
+		}
+	}
+
+	public void destroy() {
+		Main.dynamicsWorld.removeRigidBody(collider);
+		collider.dispose();
+		collisionShape.dispose();
+		motionState.dispose();
+	}
 }

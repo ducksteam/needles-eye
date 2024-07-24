@@ -2,7 +2,7 @@
   "name": "brokenceiling",
   "type": "small",
   "spawn": true,
-  "modelPath": "models/rooms/brokenceiling.g3db",
+  "modelPath": "models/rooms/brokenceiling.gltf",
   "texturePath": "",
   "width": 1,
   "height": 1,

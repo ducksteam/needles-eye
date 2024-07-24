@@ -1,0 +1,17 @@
+{
+  "name": "pedestal",
+  "type": "treasure",
+  "spawn": false,
+  "modelPath": "models/rooms/pedestal.gltf",
+  "texturePath": "",
+  "width": 1,
+  "height": 1,
+  "decos": [],
+  "doors": {
+    "0": true,
+    "1": true,
+    "2": true,
+    "3": true
+  },
+  "collision": []
+}

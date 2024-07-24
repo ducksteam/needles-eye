@@ -12,28 +12,40 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g3d.*;
+import com.badlogic.gdx.graphics.g3d.Environment;
+import com.badlogic.gdx.graphics.g3d.Model;
+import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.dynamics.*;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.IHasHealth;
+import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
-import com.ducksteam.needleseye.entity.RoomInstance;
+import com.ducksteam.needleseye.map.RoomTemplate;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
+import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.loaders.gltf.GLTFLoader;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,34 +59,48 @@ import java.util.Optional;
  * @author SkySourced
  * */
 public class Main extends ApplicationAdapter {
+	// 3d rendering utils
 	ModelBatch batch;
 
-	static Music menuMusic;
+	public static PerspectiveCamera camera;
+	public static FitViewport viewport;
+	Environment environment;
 
+  static Music menuMusic;
+  
+	// 2d rendering utils
 	Stage mainMenu;
 	Stage threadMenu;
 
 	Stage pauseMenu;
 	Stage debug;
 	SpriteBatch batch2d;
-
-	AssetManager assMan;
+	HashMap<String,Texture> spriteAssets = new HashMap<>();
 	BitmapFont debugFont;
 
-	public static PerspectiveCamera camera;
-	public static FitViewport viewport;
-	MapManager mapMan;
-	Environment environment;
+	// asset manager
+	public static AssetManager assMan;
 
-	ArrayList<ModelInstance> modelInstances = new ArrayList<>();
+	// level & room manager
+	public static MapManager mapMan;
+
+	// objects to be rendered
+	public static HashMap<Integer, Entity> entities = new HashMap<Integer, Entity>(); // key = entity.id
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
-	HashMap<String,Texture> spriteAssets = new HashMap<>();
 
+	// physics utils
+	public static btDynamicsWorld dynamicsWorld;
+	public static btConstraintSolver constraintSolver;
+	public static btBroadphaseInterface broadphase;
+	public static btCollisionConfiguration collisionConfig;
+	public static btDispatcher dispatcher;
+
+	// input & player
 	GlobalInput globalInput = new GlobalInput();
-	InputMultiplexer playerInput = new InputMultiplexer(globalInput, new PlayerInput());
 	public static Player player;
 
+	// ui animation resources
 	Animation<TextureRegion> activeUIAnim;
 	float animTime;
 	Runnable animPreDraw;
@@ -190,9 +216,16 @@ public class Main extends ApplicationAdapter {
 
 		Bullet.init();
 
+		collisionConfig = new btDefaultCollisionConfiguration();
+		dispatcher = new btCollisionDispatcher(collisionConfig);
+		broadphase = new btDbvtBroadphase();
+		constraintSolver = new btSequentialImpulseConstraintSolver();
+		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
+		dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
+
 		spriteAddresses.add("ui/icons/heart.png");
 
-		player = new Player(new Vector3(0,0,0));
+		player = new Player(new Vector3(0,5,0));
 
 		batch2d = new SpriteBatch();
 
@@ -494,14 +527,18 @@ public class Main extends ApplicationAdapter {
 		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
 		debug.addActor(rotation);
 
+		Label eulerAngles = new Label("Euler Angles: " + Entity.quatToEuler(player.getRotation()), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		eulerAngles.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
+		debug.addActor(eulerAngles);
+
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
+		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
+		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpace);
 
 		Optional<RoomInstance> currentRoomOp = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).findFirst();
@@ -509,15 +546,14 @@ public class Main extends ApplicationAdapter {
 			RoomInstance currentRoom = currentRoomOp.get();
 
 			Label roomName = new Label("Room: " + currentRoom.getRoom().getName(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
+			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
 
-			btCollisionObject collider = currentRoom.collider;
+			btCollisionShape collider = new btCollisionShape(123, false);
+			if (currentRoom.collider != null) collider = currentRoom.collider.getCollisionShape();
 			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
+			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
 			debug.addActor(colliderLabel);
-		} else {
-//			Gdx.app.debug("Debug", "Failed to find "+mapSpaceCoords);
 		}
 	}
 
@@ -547,47 +583,45 @@ public class Main extends ApplicationAdapter {
 	 * Method for loader thread to load assets
 	 * */
 	private void loadAssets(){
+			Gdx.app.debug("Loader thread", "Loading started");
+			// Deco loading is moved to MapManager
+
 			enemies.forEach((EnemyEntity enemy) -> {
 				if (enemy.getModelAddress() == null){
 					enemy.isRenderable = false;
 					return;
 				}
-				assMan.load(enemy.getModelAddress(), Model.class);
+				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+				assMan.load(enemy.getModelAddress(), SceneAsset.class);
 				assMan.finishLoadingAsset(enemy.getModelAddress());
-				enemy.setModelInstance(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
-				enemy.isRenderable = true;
-				//modelInstances.add(new ModelInstance((Model) assMan.get(enemy.getModelAddress())));
+				enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
 			});
-			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				if (room.getModelAddress() == null){
-					room.isRenderable = false;
-					return;
-				}
-//				Gdx.app.debug("Collider for " + room.getRoom().getName() + " pos " + room.getRoomSpacePos().toString(), room.collider.toString());
-				assMan.load(room.getModelAddress(), Model.class);
-				assMan.finishLoadingAsset(room.getModelAddress());
-				room.setModelInstance(new ModelInstance((Model) assMan.get(room.getModelAddress())));
-				room.isRenderable = true;
-				//modelInstances.add(new ModelInstance((Model) assMan.get(room.getModelAddress())));
+
+			MapManager.roomTemplates.forEach((RoomTemplate room) -> {
+				if (room.getModelPath() == null) return;
+				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+				assMan.load(room.getModelPath(), SceneAsset.class);
+				assMan.finishLoadingAsset(room.getModelPath());
+				room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
 			});
-			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall)->{
-				if (wall.getModelAddress() == null){
-					wall.isRenderable = false;
-					return;
-				}
-				assMan.load(wall.getModelAddress(), Model.class);
-				assMan.finishLoadingAsset(wall.getModelAddress());
-				wall.setModelInstance(new ModelInstance((Model) assMan.get(wall.getModelAddress())));
-				wall.isRenderable = true;
-			});
+
+			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+			assMan.load(WallObject.modelAddress, SceneAsset.class);
+
 			spriteAddresses.forEach((String address)->{
 				if(address == null) return;
 				assMan.load(address, Texture.class);
 				assMan.finishLoadingAsset(address);
 				spriteAssets.put(address,assMan.get(address));
 			});
+    
+			assMan.finishLoading();
 			UpgradeRegistry.iconsLoaded=true;
+
 			Gdx.app.debug("Loader thread", "Loading finished");
+
+			mapMan.generateLevel();
+			setGameState(GameState.IN_GAME);
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -687,58 +721,39 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
-			PlayerInput.update();
+			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
-			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
+//			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			camera.position.set(player.getPosition()).add(0, 0, 5);
-			camera.projection.setToProjection(0.01f, 10000f, Config.FOV, Config.ASPECT_RATIO);
-			camera.view.setToLookAt(camera.position, camera.position.cpy().add(camera.direction), camera.up);
-			camera.view.rotate(player.getRotation());
+			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
+			camera.direction.set(player.getEulerRotation());
+			camera.update();
 
-			camera.combined.set(camera.projection);
-			Matrix4.mul(camera.combined.val, camera.view.val);
-
-			//camera.lookAt(0f, 0f, 0f);
 			batch.begin(camera);
+
 			//batch.render(modelInstances,environment);
 
-			enemies.forEach((EnemyEntity enemy) -> {
-				if (!enemy.isRenderable) return;
-//				enemy.updatePosition();
-				batch.render(enemy.getModelInstance(), environment);
-			});
-			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
-				if (room.collider == null) return;
-				if (!room.isRenderable) return;
-//				if (room.collider.collidesWith(player.collider)) player.collisionResponse(room.collider.contactNormal(player.collider));
-//				room.updatePosition();
-				batch.render(room.getModelInstance(), environment);
-			});
-			if(mapMan.getCurrentLevel().walls !=null) mapMan.getCurrentLevel().walls.forEach((WallObject wall) -> {
-				if (!wall.isRenderable) return;
-//				wall.updatePosition();
-				batch.render(wall.getModelInstance(), environment);
-			});
+			player.update(Gdx.graphics.getDeltaTime());
 
-//		if (Config.doRenderColliders) {
-//			for (RoomInstance o : mapMan.getCurrentLevel().getRooms()) {
-//				if (o.collider == null) {
-//					continue;
-//				}
-//				if (o.collider instanceof ColliderGroup) {
-//					for (IHasCollision collider : ((ColliderGroup) o.collider).colliders) {
-//						batch.render(collider.getRenderable(), environment);
-//					}
-//				} else {
-//					batch.render(o.collider.getRenderable(), environment);
-//				}
-//			}
-//		}
+			entities.forEach((Integer id, Entity entity) -> {
+				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
+				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
+			});
 
 			batch.end();
+      
 			renderGameOverlay();
+      
+			batch2d.begin();
+			for(int i=0;i<player.getHealth();i++){
+				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
+				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
+				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			}
+			batch2d.end();
 
+			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
+			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
 		}
 
 		if (Config.debugMenu) {
@@ -746,7 +761,6 @@ public class Main extends ApplicationAdapter {
 			debug.act();
 			debug.draw();
 		}
-		camera.update();
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.DecoInstance;
 import com.ducksteam.needleseye.entity.collision.ColliderBox;
@@ -21,6 +22,8 @@ import java.util.Map;
  * @author SkySourced
  */
 public class RoomTemplate {
+
+    private Model model;
 
     public enum RoomType {
         SMALL(2, 0.9f), // 90% chance of being a small room
@@ -122,6 +125,7 @@ public class RoomTemplate {
         rt.setName((String) map.get("name"));
 
         try {
+            //noinspection unchecked
             rt.setCentreOffset(MapManager.vector3FromArray((ArrayList<Double>) map.get("centre_offset")));
         } catch (Exception e) {
             rt.setCentreOffset(new Vector3(0, 0, 0));
@@ -134,40 +138,45 @@ public class RoomTemplate {
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
         }
 
-        // Read decos
+        /*// Read decos
         @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> decos = (ArrayList<LinkedTreeMap<String, Object>>) map.get("decos");
         rt.setDecos(new ArrayList<>());
 
         for(LinkedTreeMap<String, Object> entry : decos) { // Read decos from GSON map
-            DecoInstance deco = new DecoInstance(); // Create empty deco instance
+            DecoTemplate template = null;
+            Vector3 position = null;
             for(Map.Entry<String, Object> e : entry.entrySet()) { // For each deco in the JSON array
                 switch (e.getKey()) { // Read values from GSON map
-                    case "name" -> deco.setTemplate(MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null));
+                    case "name" -> template = MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null);
                     case "position" -> //noinspection unchecked
-                        deco.setPosition(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
-                    case "scale" -> //noinspection unchecked
-                        deco.setScale(MapManager.vector3FromArray((ArrayList<Double>) e.getValue()));
+							position = MapManager.vector3FromArray((ArrayList<Double>) e.getValue());
+
+                }
+                if (template == null || position == null) {
+                    Gdx.app.error(rt.getName(),"Deco template not found: " + e.getValue());
+                } else {
+                    DecoInstance deco = new DecoInstance(template, position);
+                    rt.getDecos().add(deco);
                 }
             }
-            rt.getDecos().add(deco);
-        }
+        }*/
 
         // Read mesh
         rt.collider = new ColliderGroup();
         @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
-        if (mesh.isEmpty() || mesh == null) Gdx.app.error(rt.getName(),"no collision data found in room template");
+        if (mesh.isEmpty()) Gdx.app.error(rt.getName(),"no collision data found in room template");
         for (LinkedTreeMap<String, Object> o : mesh) {
             switch ((String) o.get("type")) {
                 case "box" -> {
-                    ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
-                    ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
                     rt.collider.addCollider(new ColliderBox(
                             MapManager.vector3FromArray(pos1),
                             MapManager.vector3FromArray(pos2)
                     ));
                 }
                 case "sphere" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
                     Double radius = (Double) o.get("radius");
                     rt.collider.addCollider(new ColliderSphere(
                             MapManager.vector3FromArray(pos),
@@ -175,7 +184,7 @@ public class RoomTemplate {
                     ));
                 }
                 case "ray" -> {
-                    ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
+                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
                     Double polar = (Double) o.get("polar");
                     Double azimuth = (Double) o.get("azimuth");
                     rt.collider.addCollider(new ColliderRay(
@@ -190,6 +199,13 @@ public class RoomTemplate {
         return rt;
     }
 
+    public Model getModel() {
+        return this.model;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
+    }
 
     public RoomType getType() {
         return type;
@@ -291,9 +307,5 @@ public class RoomTemplate {
                 ", name='" + name + '\'' +
                 ", decos=" + decos +
                 '}';
-    }
-
-    public static Vector3 scaleXZ(Vector3 vec, float scale) {
-        return new Vector3(vec.x * scale, vec.y, vec.z * scale);
     }
 }
