@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Environment;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
@@ -21,8 +20,12 @@ import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
+import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.*;
-import com.badlogic.gdx.physics.bullet.dynamics.*;
+import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
+import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
+import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -43,9 +46,7 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
-import net.mgsx.gltf.loaders.gltf.GLTFLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
-import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,7 +67,7 @@ public class Main extends ApplicationAdapter {
 	public static FitViewport viewport;
 	Environment environment;
 
-  static Music menuMusic;
+  	static Music menuMusic;
   
 	// 2d rendering utils
 	Stage mainMenu;
@@ -85,7 +86,7 @@ public class Main extends ApplicationAdapter {
 	public static MapManager mapMan;
 
 	// objects to be rendered
-	public static HashMap<Integer, Entity> entities = new HashMap<Integer, Entity>(); // key = entity.id
+	public static HashMap<Integer, Entity> entities = new HashMap<>(); // key = entity.id
 	ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
 
@@ -95,6 +96,7 @@ public class Main extends ApplicationAdapter {
 	public static btBroadphaseInterface broadphase;
 	public static btCollisionConfiguration collisionConfig;
 	public static btDispatcher dispatcher;
+	public static DebugDrawer debugDrawer;
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
@@ -220,8 +222,9 @@ public class Main extends ApplicationAdapter {
 		dispatcher = new btCollisionDispatcher(collisionConfig);
 		broadphase = new btDbvtBroadphase();
 		constraintSolver = new btSequentialImpulseConstraintSolver();
-		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-		dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
+
+		debugDrawer = new DebugDrawer();
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
 
 		spriteAddresses.add("ui/icons/heart.png");
 
@@ -760,6 +763,11 @@ public class Main extends ApplicationAdapter {
 			buildDebugMenu();
 			debug.act();
 			debug.draw();
+
+			// Physics debugging
+			debugDrawer.begin(camera);
+			dynamicsWorld.debugDrawWorld();
+			debugDrawer.end();
 		}
 	}
 

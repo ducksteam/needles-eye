@@ -21,14 +21,13 @@ import static com.ducksteam.needleseye.Main.assMan;
  */
 public class MapManager {
 
-    public static final float WALL_SCALE = 0.5f;
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
     private int levelIndex; // number of levels generated
 
     // placeholder room for hallways
-    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, "models/rooms/rockroom.gltf", null, new Vector3(0, 0, 0));
+    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, "models/rooms/pedestal.gltf", null, new Vector3(0, 0, 0));
 
     // paths (these could be wrong, maybe change to just data/rooms/?)
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";

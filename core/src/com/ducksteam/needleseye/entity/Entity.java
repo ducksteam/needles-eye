@@ -6,10 +6,7 @@ import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.Collision;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 
@@ -78,7 +75,7 @@ public abstract class Entity {
 		this.flags = flags;
 
 		if (isRenderable) {
-			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
 			motionState = new MotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
@@ -99,7 +96,7 @@ public abstract class Entity {
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
-			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
 			motionState = new MotionState(this, transform);
 
 			Vector3 inertia = new Vector3();

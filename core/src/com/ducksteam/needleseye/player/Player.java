@@ -45,6 +45,7 @@ public class Player extends Entity implements IHasHealth {
 
         Main.dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
         Main.dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
+        Main.dynamicsWorld.setDebugDrawer(debugDrawer);
 
         collisionShape = new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F));
         motionState = new MotionState(this);
@@ -53,6 +54,7 @@ public class Player extends Entity implements IHasHealth {
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
         collider.setDamping(0.7f, 0.7f);
+        collider.setAngularFactor(Vector3.Y);
 
         Main.dynamicsWorld.addRigidBody(collider);
 

@@ -7,6 +7,7 @@ import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
 
 import java.util.HashMap;
 
@@ -83,6 +84,10 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
+        if (i == Input.Keys.F10) {
+            float gravity = Main.dynamicsWorld.getGravity().y;
+            Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
+        }
         KEYS.put(i, true);
         return true;
     }
