@@ -816,7 +816,9 @@ public class Main extends ApplicationAdapter {
 			buildDebugMenu();
 			debug.act();
 			debug.draw();
+		}
 
+		if (Config.doRenderColliders) {
 			// Physics debugging
 			debugDrawer.begin(camera);
 			dynamicsWorld.debugDrawWorld();

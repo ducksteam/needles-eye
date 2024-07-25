@@ -69,6 +69,40 @@ public class Player extends Entity implements IHasHealth {
         if (getDamageTimeout() > 0) damageTimeout -= delta;
     }
 
+    public void primaryAttack() {
+        if (baseUpgrade == BaseUpgrade.NONE) return;
+        switch (baseUpgrade) {
+            case SOUL_THREAD -> {
+                player.whipAttack(3);
+            }
+            case COAL_THREAD -> {
+//                player.whipAttack();
+            }
+            case JOLT_THREAD -> {
+                player.whipAttack(3, (Entity target) -> {
+                    boolean freeze = Math.random() < 0.2;
+                    if (freeze) target.freeze(2);
+                });
+            }
+            case THREADED_ROD -> {
+
+            }
+        }
+    }
+
+//    public void secondaryAttack() {
+//        if (baseUpgrade == BaseUpgrade.NONE) return;
+//        baseUpgrade.secondaryAttack();
+//    }
+
+    public void whipAttack(int damage){
+        whipAttack(damage, null);
+    }
+
+    public void whipAttack(int damage, EntityRunnable enemyLogic) {
+
+    }
+
     public int getHealth() {
         return health;
     }

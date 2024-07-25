@@ -33,6 +33,7 @@ public abstract class Entity {
 	private ModelInstance modelInstance;
 
 	private float mass = 0f;
+	private float freezeTime = 0f;
 	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
 	private static final Matrix4 tmpMat = new Matrix4();
 
@@ -73,6 +74,7 @@ public abstract class Entity {
 
 		this.mass = mass;
 		this.flags = flags;
+		this.freezeTime = 0;
 
 		if (isRenderable) {
 			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
@@ -86,6 +88,17 @@ public abstract class Entity {
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 
 			Main.dynamicsWorld.addRigidBody(collider);
+		}
+	}
+
+	public void update(float dT){
+		if (freezeTime > 0) {
+			freezeTime -= dT;
+			if (freezeTime <= 0) {
+
+			} else {
+
+			}
 		}
 	}
 
@@ -164,5 +177,14 @@ public abstract class Entity {
 		collider.dispose();
 		collisionShape.dispose();
 		motionState.dispose();
+	}
+
+	public void freeze(int time) {
+		freezeTime = time;
+	}
+
+	@FunctionalInterface
+	public interface EntityRunnable {
+		void run(Entity entity);
 	}
 }

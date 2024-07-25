@@ -3,6 +3,9 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector3;
+
+import static com.ducksteam.needleseye.Main.player;
 
 public class GlobalInput implements InputProcessor {
     @Override
@@ -23,6 +26,13 @@ public class GlobalInput implements InputProcessor {
             Gdx.app.debug("GameState", Main.gameState.toString());
             return true;
         }
+
+        if (i == Input.Keys.F10) {
+            float gravity = Main.dynamicsWorld.getGravity().y;
+            Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
+        }
+
+        if (i == Input.Keys.F11) player.collider.applyCentralImpulse(Vector3.Y.scl(50));
 
         if (i == Input.Keys.NUMPAD_ADD) {
             Main.player.damage(-1);
