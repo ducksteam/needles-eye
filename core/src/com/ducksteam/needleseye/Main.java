@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
@@ -34,10 +35,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.ducksteam.needleseye.entity.Entity;
-import com.ducksteam.needleseye.entity.IHasHealth;
-import com.ducksteam.needleseye.entity.RoomInstance;
-import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
@@ -67,13 +65,13 @@ public class Main extends ApplicationAdapter {
 	public static FitViewport viewport;
 	Environment environment;
 
-  	static Music menuMusic;
+   static Music menuMusic;
   
 	// 2d rendering utils
 	Stage mainMenu;
 	Stage threadMenu;
-
 	Stage pauseMenu;
+	Stage deathMenu;
 	Stage debug;
 	SpriteBatch batch2d;
 	HashMap<String,Texture> spriteAssets = new HashMap<>();
@@ -158,6 +156,7 @@ public class Main extends ApplicationAdapter {
 		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
 		GameState.LOADING.setInputProcessor(globalInput);
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
+		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(globalInput, deathMenu));
 	}
 
 
@@ -195,6 +194,7 @@ public class Main extends ApplicationAdapter {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 		Upgrade.registerUpgrades();
+		EnemyRegistry.initEnemies();
 
 		//Registers upgrade icon addresses
 		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
@@ -235,6 +235,7 @@ public class Main extends ApplicationAdapter {
 		buildMainMenu();
 		buildThreadMenu();
 		buildPauseMenu();
+		buildDeathMenu();
 
 		environment = new Environment();
 		batch = new ModelBatch();
@@ -256,6 +257,36 @@ public class Main extends ApplicationAdapter {
 
 		setGameState(GameState.MAIN_MENU);
     }
+
+	private void buildDeathMenu() {
+		deathMenu = new Stage();
+
+		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
+		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
+		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+
+		ImageButton resumeButton = new ImageButton(resumeButtonStyle);
+		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
+		resumeButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
+		resumeButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				setGameState(GameState.MAIN_MENU);
+				return true;
+			}
+		});
+
+		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/background.png")));
+		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		deathMenu.addActor(background);
+
+		Image title = new Image(new Texture(Gdx.files.internal("ui/menu/death_title.png")));
+		title.setPosition((float) Gdx.graphics.getWidth() * 0.5f-title.getWidth()/2, (float) Gdx.graphics.getHeight() * 0.5f);
+		title.setSize((float) Gdx.graphics.getWidth() * 0.75f, (float) Gdx.graphics.getHeight() * 0.75f);
+		deathMenu.addActor(title);
+		deathMenu.addActor(resumeButton);
+	}
 
 	private void buildFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
@@ -579,7 +610,6 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 		pauseMenu.addActor(resumeButton);
-
 	}
 
 	/**
@@ -673,6 +703,10 @@ public class Main extends ApplicationAdapter {
 		batch2d.end();
 	}
 
+	public void onPlayerDeath() {
+		setGameState(GameState.DEAD_MENU);
+	}
+
 	/**
 	 * Runs every frame to render the game
 	 * */
@@ -723,6 +757,11 @@ public class Main extends ApplicationAdapter {
 			pauseMenu.draw();
 		}
 
+		if(gameState == GameState.DEAD_MENU){
+			deathMenu.act();
+			deathMenu.draw();
+		}
+
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
@@ -757,7 +796,21 @@ public class Main extends ApplicationAdapter {
 
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
+
+			//if player falls off the map, they die
+
+			Matrix4 transform = new Matrix4();
+			player.motionState.getWorldTransform(transform);
+
+			if(transform.getTranslation(new Vector3()).y < -10){
+				player.setHealth(0);
+			}
+			if(player.getHealth() <= 0){
+				onPlayerDeath();
+			}
 		}
+
+
 
 		if (Config.debugMenu) {
 			buildDebugMenu();
