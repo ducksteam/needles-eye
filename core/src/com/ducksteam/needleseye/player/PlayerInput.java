@@ -57,7 +57,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
 
         forceDir.y = 0;
         forceDir.nor().scl(Config.MOVE_SPEED * delta);
-        Gdx.app.debug("player velocity", player.getVelocity().toString());
+//        Gdx.app.debug("player velocity", player.getVelocity().toString());
         player.collider.applyCentralImpulse(forceDir);
 
     }

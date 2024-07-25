@@ -767,7 +767,7 @@ public class Main extends ApplicationAdapter {
 
 //			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
-			camera.position.set(player.getPosition()).add(0, 0.8F, 0);
+			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
 			camera.direction.set(player.getEulerRotation());
 			camera.update();
 
