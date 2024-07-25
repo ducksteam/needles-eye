@@ -262,13 +262,13 @@ public class Main extends ApplicationAdapter {
 		deathMenu = new Stage();
 
 		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
-		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
-		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
-		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
+		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png"))).getDrawable();
+		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
+		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
 
 		ImageButton resumeButton = new ImageButton(resumeButtonStyle);
-		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
-		resumeButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
+		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 237/640, (float) Gdx.graphics.getHeight() * 34/360);
+		resumeButton.setSize((float) Gdx.graphics.getWidth() * 167/640, (float) Gdx.graphics.getHeight() * 32/360);
 		resumeButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -277,13 +277,12 @@ public class Main extends ApplicationAdapter {
 			}
 		});
 
-		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/background.png")));
+		Image background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
 		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		deathMenu.addActor(background);
 
-		Image title = new Image(new Texture(Gdx.files.internal("ui/menu/death_title.png")));
-		title.setPosition((float) Gdx.graphics.getWidth() * 0.5f-title.getWidth()/2, (float) Gdx.graphics.getHeight() * 0.5f);
-		title.setSize((float) Gdx.graphics.getWidth() * 0.75f, (float) Gdx.graphics.getHeight() * 0.75f);
+		Image title = new Image(new Texture(Gdx.files.internal("ui/death/title.png")));
+		title.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		deathMenu.addActor(title);
 		deathMenu.addActor(resumeButton);
 	}
@@ -512,7 +511,7 @@ public class Main extends ApplicationAdapter {
 			threadAnimState[0] = 0;
 			threadAnimState[2] = 0;
 
-			soulButton.setSize((float) Gdx.graphics.getWidth() *soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
+			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
 			soulButton.setPosition((float) Gdx.graphics.getWidth() * (193 - threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
 
 			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
@@ -705,6 +704,7 @@ public class Main extends ApplicationAdapter {
 
 	public void onPlayerDeath() {
 		setGameState(GameState.DEAD_MENU);
+		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
 
 	/**
