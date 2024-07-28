@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
 
@@ -21,7 +22,7 @@ public class RoomInstance extends Entity {
     Vector2 roomSpacePos;
     int rot;//IN DEGREES
 
-    HashMap<Integer, Entity> enemies = new HashMap<>();
+    HashMap<Integer, EnemyEntity> enemies = new HashMap<>();
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
         super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance(room.getModel()));
@@ -90,12 +91,16 @@ public class RoomInstance extends Entity {
 
     }
 
-    public void addEnemy(Entity enemy) {
+    public void addEnemy(EnemyEntity enemy) {
         enemies.put(enemy.id, enemy);
     }
 
     public void addEnemy(int id){
-        enemies.put(id, Main.entities.get(id));
+        try {
+            enemies.put(id, (EnemyEntity) Main.entities.get(id));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void removeEnemy(Entity enemy) {
@@ -108,7 +113,7 @@ public class RoomInstance extends Entity {
         if (enemies.isEmpty()) unlock();
     }
 
-    public HashMap<Integer, Entity> getEnemies() {
+    public HashMap<Integer, EnemyEntity> getEnemies() {
         return enemies;
     }
 

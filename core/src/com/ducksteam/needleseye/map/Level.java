@@ -6,6 +6,7 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Represents a floor of the dungeon
@@ -13,8 +14,9 @@ import java.util.ArrayList;
  */
 public class Level {
     private final ArrayList<RoomInstance> rooms;
-    public ArrayList<WallObject> walls;
+    public HashMap<Vector2,WallObject> walls;
     private final int levelNo;
+
 
     public Level(int levelNo) {
         this.levelNo = levelNo;

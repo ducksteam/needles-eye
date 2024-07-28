@@ -11,6 +11,7 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Objects;
 
 import static com.ducksteam.needleseye.Main.assMan;
@@ -162,7 +163,7 @@ public class MapManager {
     }
 
     public void addWalls(Level level){
-        level.walls = new ArrayList<>();
+        level.walls = new HashMap<>();
         level.getRooms().forEach(roomInstance -> {
             /*level.getRooms().forEach(roomInstance1 -> {
                 if (roomInstance.isAdjacent(roomInstance1)){
@@ -170,10 +171,10 @@ public class MapManager {
 
                 }
             });*/ //For doors
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (90))));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE/2)), new Quaternion(Vector3.Y, 0)));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,0)), new Quaternion().set(Vector3.Y, (float) (90))));
-            level.walls.add(new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE/2)), new Quaternion().set(Vector3.Y, 0)));
+            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1/2,-1)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (90))));
+            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(0,1/2)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE/2)), new Quaternion(Vector3.Y, 0)));
+            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1/2,0)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,0)), new Quaternion().set(Vector3.Y, (float) (90))));
+            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1,-1/2)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE/2)), new Quaternion().set(Vector3.Y, 0)));
         });
     }
     public Level getCurrentLevel(){

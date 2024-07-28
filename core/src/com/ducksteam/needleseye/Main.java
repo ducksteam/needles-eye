@@ -46,10 +46,7 @@ import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 
 /**
@@ -85,7 +82,7 @@ public class Main extends ApplicationAdapter {
 
 	// objects to be rendered
 	public static HashMap<Integer, Entity> entities = new HashMap<>(); // key = entity.id
-	ArrayList<EnemyEntity> enemies = new ArrayList<>();
+	//ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
 
 	// physics utils
@@ -609,6 +606,22 @@ public class Main extends ApplicationAdapter {
 		pauseMenu.addActor(resumeButton);
 	}
 
+	public void spawnEnemies(){
+		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
+			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
+				EnemyEntity enemy = entry.getValue();
+				Matrix4 transform = new Matrix4();
+				enemy.motionState.getWorldTransform(transform);
+				transform.setTranslation(room.getPosition().add(new Vector3(0,2,0)));
+				/*transform.rotate(Vector3.Y, enemy.getRotation().y);
+				transform.rotate(Vector3.X, enemy.getRotation().x);
+				transform.rotate(Vector3.Z, enemy.getRotation().z);*/
+				//enemies.add(enemy);
+				entities.put(enemy.id, enemy);
+			}
+		});
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -616,7 +629,8 @@ public class Main extends ApplicationAdapter {
 			Gdx.app.debug("Loader thread", "Loading started");
 			// Deco loading is moved to MapManager
 
-			enemies.forEach((EnemyEntity enemy) -> {
+			//Enemies is no longer used, replaced with entities
+			/*enemies.forEach((EnemyEntity enemy) -> {
 				if (enemy.getModelAddress() == null){
 					enemy.isRenderable = false;
 					return;
@@ -625,7 +639,9 @@ public class Main extends ApplicationAdapter {
 				assMan.load(enemy.getModelAddress(), SceneAsset.class);
 				assMan.finishLoadingAsset(enemy.getModelAddress());
 				enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
-			});
+			});*/
+
+			EnemyRegistry.loadEnemyAssets(assMan);
 
 			MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 				if (room.getModelPath() == null) return;
@@ -650,7 +666,7 @@ public class Main extends ApplicationAdapter {
 
 			Gdx.app.debug("Loader thread", "Loading finished");
 
-			mapMan.generateTestLevel();
+			mapMan.generateLevel();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
