@@ -11,6 +11,8 @@ import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 
+import java.util.ArrayList;
+
 /**
  * This class represents an entity in the game world. It has a transform, a collider, and a model instance.
  * Static entities have mass 0 and are not affected by physics.
@@ -30,7 +32,7 @@ public abstract class Entity {
 	public Matrix4 transform = new Matrix4();
 	public btRigidBody collider;
 	public btCollisionShape collisionShape;
-	public MotionState motionState;
+	public EntityMotionState motionState;
 	private ModelInstance modelInstance;
 
 	private float mass = 0f;
@@ -79,7 +81,7 @@ public abstract class Entity {
 
 		if (isRenderable) {
 			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
-			motionState = new MotionState(this, transform);
+			motionState = new EntityMotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
 			collisionShape.calculateLocalInertia(mass, inertia);
@@ -92,7 +94,7 @@ public abstract class Entity {
 		}
 	}
 
-	boolean checkCollision(btCollisionObject obj0, btCollisionObject obj1) {
+	public static boolean checkCollision(btCollisionObject obj0, btCollisionObject obj1) {
 		CollisionObjectWrapper co0 = new CollisionObjectWrapper(obj0);
 		CollisionObjectWrapper co1 = new CollisionObjectWrapper(obj1);
 
@@ -114,6 +116,14 @@ public abstract class Entity {
 		return r;
 	}
 
+	public static void checkCollision(btCollisionObject obj, ArrayList<Entity> entities, EntityRunnable logic) {
+		for (Entity entity : entities) {
+			if (checkCollision(obj, entity.collider)) {
+				logic.run(entity);
+			}
+		}
+	}
+
 	public void update(float dT){
 		if (freezeTime > 0) {
 			freezeTime -= dT;
@@ -133,7 +143,7 @@ public abstract class Entity {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
 			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
-			motionState = new MotionState(this, transform);
+			motionState = new EntityMotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
 			collisionShape.calculateLocalInertia(mass, inertia);
