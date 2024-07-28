@@ -650,7 +650,7 @@ public class Main extends ApplicationAdapter {
 
 			Gdx.app.debug("Loader thread", "Loading finished");
 
-			mapMan.generateLevel();
+			mapMan.generateTestLevel();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
@@ -814,7 +814,9 @@ public class Main extends ApplicationAdapter {
 			buildDebugMenu();
 			debug.act();
 			debug.draw();
+		}
 
+		if (Config.doRenderColliders) {
 			// Physics debugging
 			debugDrawer.begin(camera);
 			dynamicsWorld.debugDrawWorld();
