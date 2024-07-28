@@ -159,8 +159,6 @@ public class Main extends ApplicationAdapter {
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(globalInput, deathMenu));
 	}
 
-
-
 	/**
 	 * Sets the game state
 	 * @param gameState the state to set the game to
@@ -834,5 +832,20 @@ public class Main extends ApplicationAdapter {
 	public void dispose () {
 		batch.dispose();
 		batch2d.dispose();
+		entities.values().forEach(Entity::destroy);
+		menuMusic.dispose();
+		mainMenu.dispose();
+		threadMenu.dispose();
+		pauseMenu.dispose();
+		deathMenu.dispose();
+		debug.dispose();
+		assMan.dispose();
+		debugFont.dispose();
+		dynamicsWorld.dispose();
+		constraintSolver.dispose();
+		broadphase.dispose();
+		collisionConfig.dispose();
+		dispatcher.dispose();
+		debugDrawer.dispose();
 	}
 }

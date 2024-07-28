@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g3d.model.Animation;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
@@ -75,7 +76,7 @@ public abstract class Entity {
 		this.flags = flags;
 
 		if (isRenderable) {
-			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
 			motionState = new MotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
@@ -89,6 +90,28 @@ public abstract class Entity {
 		}
 	}
 
+	boolean checkCollision(btCollisionObject obj0, btCollisionObject obj1) {
+		CollisionObjectWrapper co0 = new CollisionObjectWrapper(obj0);
+		CollisionObjectWrapper co1 = new CollisionObjectWrapper(obj1);
+
+		btDispatcherInfo info = new btDispatcherInfo();
+		btManifoldResult result = new btManifoldResult(co0.wrapper, co1.wrapper);
+
+		btCollisionAlgorithm algorithm = Main.dispatcher.findAlgorithm(co0.wrapper, co1.wrapper, result.getPersistentManifold(), 1);
+
+		algorithm.processCollision(co0.wrapper, co1.wrapper, info, result);
+
+		boolean r = result.getPersistentManifold().getNumContacts() > 0;
+
+		Main.dispatcher.freeCollisionAlgorithm(algorithm.getCPointer());
+		result.dispose();
+		info.dispose();
+		co1.dispose();
+		co0.dispose();
+
+		return r;
+	}
+
 	public static Vector3 quatToEuler(Quaternion quat) {
 		return new Vector3(quat.getPitch(), quat.getYaw(), quat.getRoll());
 	}
@@ -96,7 +119,7 @@ public abstract class Entity {
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
-			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
 			motionState = new MotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
@@ -105,7 +128,7 @@ public abstract class Entity {
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-
+			collider.setUserValue(this.id);
 			Main.dynamicsWorld.addRigidBody(collider);
 		}
 	}
