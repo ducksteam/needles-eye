@@ -25,7 +25,7 @@ public class MapManager {
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
-    private int levelIndex; // number of levels generated
+    public int levelIndex; // number of levels generated
 
     // placeholder room for hallways
     public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, "models/rooms/pedestal.gltf", null, new Vector3(0, 0, 0));
@@ -88,7 +88,7 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex);
 
-        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 1));
+        RoomInstance room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(0, 1));
         level.addRoom(room);
         /*room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
         level.addRoom(room);
@@ -147,12 +147,12 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
-        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
+        /*for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
             if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
                 level.getRooms().remove(i);
                 i--;
             }
-        }
+        }*/
 
         addWalls(level);
 

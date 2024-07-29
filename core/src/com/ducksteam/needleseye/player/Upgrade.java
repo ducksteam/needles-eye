@@ -118,19 +118,19 @@ public class Upgrade {
 
     public class CoalThread extends Upgrade {
         public CoalThread() {
-            super("Coal Thread", "Increases maximum health by 5", null, null);
+            super("Coal Thread", "Increases maximum health by 5", "ui/icons/coal_thread.png", null);
         }
     }
 
     public class JoltThread extends Upgrade {
         public JoltThread() {
-            super("Jolt Thread", "Increases maximum health by 4", null, null);
+            super("Jolt Thread", "Increases maximum health by 4", "ui/icons/jolt_thread.png", null);
         }
     }
 
     public class ThreadedRod extends Upgrade {
         public ThreadedRod() {
-            super("Threaded Rod", "Increases maximum health by 4", null, null);
+            super("Threaded Rod", "Increases maximum health by 4", "ui/icons/soul_thread.png", null);
         }
     }
 }

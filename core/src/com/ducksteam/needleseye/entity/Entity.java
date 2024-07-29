@@ -13,6 +13,8 @@ import com.ducksteam.needleseye.Main;
 
 import java.util.ArrayList;
 
+import static com.ducksteam.needleseye.Main.dynamicsWorld;
+
 /**
  * This class represents an entity in the game world. It has a transform, a collider, and a model instance.
  * Static entities have mass 0 and are not affected by physics.
@@ -90,7 +92,7 @@ public abstract class Entity {
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 
-			Main.dynamicsWorld.addRigidBody(collider);
+			dynamicsWorld.addRigidBody(collider);
 		}
 	}
 
@@ -152,7 +154,7 @@ public abstract class Entity {
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 			collider.setUserValue(this.id);
-			Main.dynamicsWorld.addRigidBody(collider);
+			dynamicsWorld.addRigidBody(collider);
 		}
 	}
 	public abstract String getModelAddress();
@@ -170,6 +172,10 @@ public abstract class Entity {
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
 		motionState.setWorldTransform(transform);
+		if (isStatic) {
+			dynamicsWorld.removeRigidBody(collider);
+			dynamicsWorld.addRigidBody(collider);
+		}
 	}
 
 	public void translate(Vector3 translation) {
@@ -206,7 +212,7 @@ public abstract class Entity {
 	}
 
 	public void destroy() {
-		Main.dynamicsWorld.removeRigidBody(collider);
+		dynamicsWorld.removeRigidBody(collider);
 		collider.dispose();
 		collisionShape.dispose();
 		motionState.dispose();

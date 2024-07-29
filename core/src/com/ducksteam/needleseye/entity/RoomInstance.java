@@ -31,7 +31,7 @@ public class RoomInstance extends Entity {
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
 
-        if (room.getType() == RoomTemplate.RoomType.HALLWAY) this.setPosition(getPosition().add(0, 0, 5));
+          if (room.getType() == RoomTemplate.RoomType.HALLWAY) this.setPosition(getPosition().add(0, 20, 10));
 
 //        if (room.getCollider() == null) return;
 //        this.collider = room.getCollider().copy();
@@ -121,11 +121,9 @@ public class RoomInstance extends Entity {
     public String toString() {
         return "RoomInstance{" +
                 "isrenderable=" + isRenderable +
-                "room={type=" + room.getType() +
+                ",room={type=" + room.getType() +
                 ", name=" + room.getName() +
                 "}, pos=" + roomSpacePos +
-                ", rot=" + rot +
-                ", collider=" + collider +
                 '}';
     }
 

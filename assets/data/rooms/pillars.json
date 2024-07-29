@@ -1,8 +1,8 @@
 {
-  "name": "sandpit",
+  "name": "pillars",
   "type": "hallway",
   "spawn": false,
-  "modelPath": "models/rooms/sandpit.gltf",
+  "modelPath": "models/rooms/pillars.gltf",
   "texturePath": "",
   "width": 1,
   "height": 2,
@@ -13,7 +13,7 @@
       "scale": [1, 1, 1]
     }
   ],
-  "centre_offset": [0, -2, -10],
+  "centre_offset": [0, 0, 0],
   "doors": {
     "0": true,
     "1": true,

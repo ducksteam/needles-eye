@@ -23,6 +23,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
+import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
@@ -222,7 +223,7 @@ public class Main extends ApplicationAdapter {
 
 		spriteAddresses.add("ui/icons/heart.png");
 
-		player = new Player(new Vector3(-7.5f,0.501f,5));
+		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		batch2d = new SpriteBatch();
 
@@ -568,19 +569,15 @@ public class Main extends ApplicationAdapter {
 		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpace);
 
-		Optional<RoomInstance> currentRoomOp = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).findFirst();
-		if (currentRoomOp.isPresent()) {
-			RoomInstance currentRoom = currentRoomOp.get();
+		if (mapMan.getCurrentLevel() == null) return;
 
-			Label roomName = new Label("Room: " + currentRoom.getRoom().getName(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		RoomInstance[] currentRooms = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).toArray(RoomInstance[]::new);
+		if (currentRooms.length != 0) {
+			StringBuilder names = new StringBuilder();
+			for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
+			Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
 			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
-
-			btCollisionShape collider = new btCollisionShape(123, false);
-			if (currentRoom.collider != null) collider = currentRoom.collider.getCollisionShape();
-			Label colliderLabel = new Label(collider.toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-			colliderLabel.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
-			debug.addActor(colliderLabel);
 		}
 	}
 
@@ -716,6 +713,9 @@ public class Main extends ApplicationAdapter {
 	}
 
 	public void onPlayerDeath() {
+		player.setPosition(new Vector3(-5f,0.501f,2.5f));
+		mapMan.levels.clear();
+		mapMan.levelIndex = 1;
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
@@ -846,23 +846,23 @@ public class Main extends ApplicationAdapter {
 	}
 
 	@Override
-	public void dispose () {
-		batch.dispose();
-		batch2d.dispose();
-		entities.values().forEach(Entity::destroy);
-		menuMusic.dispose();
-		mainMenu.dispose();
-		threadMenu.dispose();
-		pauseMenu.dispose();
-		deathMenu.dispose();
-		debug.dispose();
-		assMan.dispose();
-		debugFont.dispose();
-		dynamicsWorld.dispose();
-		constraintSolver.dispose();
-		broadphase.dispose();
-		collisionConfig.dispose();
-		dispatcher.dispose();
-		debugDrawer.dispose();
+	public void dispose() {
+		if (batch != null) batch.dispose();
+		if (batch2d != null) batch2d.dispose();
+		if (entities != null) entities.values().forEach(Entity::destroy);
+		if (menuMusic != null) menuMusic.dispose();
+		if (mainMenu != null) mainMenu.dispose();
+		if (threadMenu != null) threadMenu.dispose();
+		if (pauseMenu != null) pauseMenu.dispose();
+		if (deathMenu != null) deathMenu.dispose();
+		if (debug != null) debug.dispose();
+		if (assMan != null) assMan.dispose();
+		if (debugFont != null) debugFont.dispose();
+		if (dynamicsWorld != null) dynamicsWorld.dispose();
+		if (constraintSolver != null) constraintSolver.dispose();
+		if (broadphase != null) broadphase.dispose();
+		if (collisionConfig != null) collisionConfig.dispose();
+		if (dispatcher != null) dispatcher.dispose();
+		if (debugDrawer != null) debugDrawer.dispose();
 	}
 }

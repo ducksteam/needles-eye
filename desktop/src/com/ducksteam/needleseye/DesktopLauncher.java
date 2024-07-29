@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -16,7 +17,7 @@ public class DesktopLauncher {
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
-            config.setWindowedMode(960, 540);
+            config.setWindowedMode(2560, 1440);
         }
         config.setDecorated(true);
 		config.useVsync(false);
