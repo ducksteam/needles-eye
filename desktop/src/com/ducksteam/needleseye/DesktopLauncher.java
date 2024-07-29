@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
@@ -21,7 +20,7 @@ public class DesktopLauncher {
         }
         config.setDecorated(true);
 		config.useVsync(false);
-		config.setHdpiMode(HdpiMode.Logical);
+		config.setHdpiMode(HdpiMode.Pixels);
 
 		new Lwjgl3Application(new Main(), config);
 	}

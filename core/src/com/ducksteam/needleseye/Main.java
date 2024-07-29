@@ -23,7 +23,6 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
-import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
@@ -165,7 +164,7 @@ public class Main extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if(menuMusic!=null) {
 			if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
-			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
+//			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
 			else menuMusic.pause();
 		}
 		gameStateCheck = gameState.toString();
@@ -386,11 +385,20 @@ public class Main extends ApplicationAdapter {
 		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"));
 		Texture tRodTexture = new Texture(Gdx.files.internal("ui/thread/threadedrod.png"));
 
+		ImageButton.ImageButtonStyle soulButtonStyle = new ImageButton.ImageButtonStyle();
+		soulButtonStyle.up = new Image(soulTexture).getDrawable();
+		ImageButton.ImageButtonStyle coalButtonStyle = new ImageButton.ImageButtonStyle();
+		coalButtonStyle.up = new Image(coalTexture).getDrawable();
+		ImageButton.ImageButtonStyle joltButtonStyle = new ImageButton.ImageButtonStyle();
+		joltButtonStyle.up = new Image(joltTexture).getDrawable();
+		ImageButton.ImageButtonStyle tRodButtonStyle = new ImageButton.ImageButtonStyle();
+		tRodButtonStyle.up = new Image(tRodTexture).getDrawable();
+
 		// Initialize buttons
-		ImageButton soulButton = new ImageButton(new Image(soulTexture).getDrawable());
-		ImageButton coalButton = new ImageButton(new Image(coalTexture).getDrawable());
-		ImageButton joltButton = new ImageButton(new Image(joltTexture).getDrawable());
-		ImageButton tRodButton = new ImageButton(new Image(tRodTexture).getDrawable());
+		ImageButton soulButton = new ImageButton(soulButtonStyle);
+		ImageButton coalButton = new ImageButton(coalButtonStyle);
+		ImageButton joltButton = new ImageButton(joltButtonStyle);
+		ImageButton tRodButton = new ImageButton(tRodButtonStyle);
 
 		// trod positioning
 		tRodButton.setSize((float) Gdx.graphics.getWidth() * tRodTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * tRodTexture.getHeight()/360);
@@ -569,7 +577,7 @@ public class Main extends ApplicationAdapter {
 		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpace);
 
-		if (mapMan.getCurrentLevel() == null) return;
+		if (mapMan.levels.isEmpty()) return;
 
 		RoomInstance[] currentRooms = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).toArray(RoomInstance[]::new);
 		if (currentRooms.length != 0) {
@@ -714,8 +722,11 @@ public class Main extends ApplicationAdapter {
 
 	public void onPlayerDeath() {
 		player.setPosition(new Vector3(-5f,0.501f,2.5f));
+
 		mapMan.levels.clear();
 		mapMan.levelIndex = 1;
+
+		threadAnimState = new int[]{0, 0, 0};
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
