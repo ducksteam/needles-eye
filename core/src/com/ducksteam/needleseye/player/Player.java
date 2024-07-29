@@ -7,13 +7,13 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
-import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.EntityMotionState;
+import com.ducksteam.needleseye.entity.GenericMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
@@ -84,7 +84,8 @@ public class Player extends Entity implements IHasHealth {
     public void primaryAttack() {
         if (baseUpgrade == BaseUpgrade.NONE) return;
         setAttackTimeout(attackLength);
-        switch (baseUpgrade) {
+        player.whipAttack(3);
+        /*switch (baseUpgrade) {
             case SOUL_THREAD -> {
                 player.whipAttack(3);
             }
@@ -100,7 +101,7 @@ public class Player extends Entity implements IHasHealth {
             case THREADED_ROD -> {
 
             }
-        }
+        }*/
     }
 
 //    public void secondaryAttack() {
@@ -113,10 +114,11 @@ public class Player extends Entity implements IHasHealth {
     }
 
     public void whipAttack(int damage, EntityRunnable enemyLogic) {
+        if (attackTimeout > 0) return;
+        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return;
         player.motionState.getWorldTransform(conePosition);
         conePosition.translate(0, 0.6f, 0);
-        btCollisionObject attackCone = new btRigidBody(0, new btMotionState(), attackConeShape, Vector3.Zero);
-        attackCone.setWorldTransform(conePosition);
+        btCollisionObject attackCone = new btRigidBody(0, new GenericMotionState(conePosition), attackConeShape, Vector3.Zero);
         Collection<? extends Entity> activeEntities = mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())).getEnemies().values();
         Entity.checkCollision(attackCone, (ArrayList<Entity>) activeEntities, (Entity target) -> {
             if (target instanceof EnemyEntity) {
