@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity;
 
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -24,14 +23,21 @@ public class RoomInstance extends Entity {
 
     HashMap<Integer, EnemyEntity> enemies = new HashMap<>();
 
+    public RoomInstance(RoomTemplate room, Vector3 drawPos, Vector2 roomSpacePos, int rot){
+        super(drawPos, new Quaternion().setEulerAngles(0, rot, 0), new ModelInstance(room.getModel()));
+        this.room = room;
+        this.roomSpacePos = roomSpacePos;
+        this.rot = rot;
+    }
+
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), new ModelInstance(room.getModel()));
+        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), (room.getModel() == null) ? null : new ModelInstance(room.getModel()));
 
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
 
-          if (room.getType() == RoomTemplate.RoomType.HALLWAY) this.setPosition(getPosition().add(0, 20, 10));
+//        if (room.getType() == RoomTemplate.RoomType.HALLWAY) this.setPosition(getPosition().add(0, 20, 10));
 
 //        if (room.getCollider() == null) return;
 //        this.collider = room.getCollider().copy();

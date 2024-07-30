@@ -567,14 +567,18 @@ public class Main extends ApplicationAdapter {
 		eulerAngles.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
 		debug.addActor(eulerAngles);
 
+		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		velocity.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
+		debug.addActor(velocity);
+
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
+		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
 		debug.addActor(fps);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
+		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
 		debug.addActor(mapSpace);
 
 		if (mapMan.levels.isEmpty()) return;
@@ -584,7 +588,7 @@ public class Main extends ApplicationAdapter {
 			StringBuilder names = new StringBuilder();
 			for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
 			Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
-			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
+			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
 			debug.addActor(roomName);
 		}
 	}

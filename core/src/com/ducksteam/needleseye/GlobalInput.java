@@ -32,7 +32,7 @@ public class GlobalInput implements InputProcessor {
             Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
         }
 
-        if (i == Input.Keys.F11) player.collider.applyCentralImpulse(Vector3.Y.scl(50));
+        if (i == Input.Keys.F11) player.collider.translate(Vector3.Y.cpy().scl(50));
 
         if (i == Input.Keys.NUMPAD_ADD) {
             Main.player.damage(-1);

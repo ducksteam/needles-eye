@@ -7,14 +7,12 @@ import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
-import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
-import static com.ducksteam.needleseye.Main.assMan;
 
 /**
  * A util class for managing the map generation process
@@ -28,7 +26,7 @@ public class MapManager {
     public int levelIndex; // number of levels generated
 
     // placeholder room for hallways
-    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, "models/rooms/pedestal.gltf", null, new Vector3(0, 0, 0));
+    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
 
     // paths (these could be wrong, maybe change to just data/rooms/?)
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
@@ -88,25 +86,26 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex);
 
-        RoomInstance room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(0, 1));
-        level.addRoom(room);
-        /*room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(0, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(1, 1));
+        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(1, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(1, -1));
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(2, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(0, -1));
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(3, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(-1, -1));
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(4, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("rockroom"), new Vector2(-1, 0));
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(5, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("slantedcorridor"), new Vector2(-1, 1));
-        level.addRoom(room);*/
-
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(6, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(7, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(8, 0));
+        level.addRoom(room);
+        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(9, 0));
+        level.addRoom(room);
 
         addWalls(level);
 
@@ -116,9 +115,9 @@ public class MapManager {
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 
-        HALLWAY_PLACEHOLDER.setModel(((SceneAsset)assMan.get(HALLWAY_PLACEHOLDER.getModelPath())).scene.model);
+//        HALLWAY_PLACEHOLDER.setModel(((SceneAsset)assMan.get(HALLWAY_PLACEHOLDER.getModelPath())).scene.model);
 
-        RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector2(0, 0)); // build a base hallway
+        RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector3(-5, 0, 0), new Vector2(0,0), 0); // build a base hallway
         level.addRoom(room);
         int battleRoomCount = 0;
 
@@ -147,12 +146,12 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
-        /*for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
+        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
             if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
                 level.getRooms().remove(i);
                 i--;
             }
-        }*/
+        }
 
         addWalls(level);
 
@@ -190,6 +189,7 @@ public class MapManager {
         Vector2 pos = generateRoomPos(template, level.getRooms());
         //int rot = (int) Math.floor(Math.random() * 4) * 90;
         int rot = 0;
+        if (template.getType() == RoomTemplate.RoomType.HALLWAY) pos.add(0, 0.5f);
         RoomInstance room = new RoomInstance(template, pos, rot);
         level.addRoom(room);
     }
