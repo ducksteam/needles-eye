@@ -91,6 +91,7 @@ public class Main extends ApplicationAdapter {
 	public static btCollisionConfiguration collisionConfig;
 	public static btDispatcher dispatcher;
 	public static DebugDrawer debugDrawer;
+	public static ContactListener contactListener;
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
@@ -211,6 +212,9 @@ public class Main extends ApplicationAdapter {
 
 
 		Bullet.init();
+
+		contactListener = new CollisionListener();
+		contactListener.enable();
 
 		collisionConfig = new btDefaultCollisionConfiguration();
 		dispatcher = new btCollisionDispatcher(collisionConfig);
@@ -554,43 +558,46 @@ public class Main extends ApplicationAdapter {
 
 	private void buildDebugMenu(){
 		debug = new Stage();
+		ArrayList<Label> labels = new ArrayList<>();
 
 		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		coords.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.04 * Gdx.graphics.getHeight()));
-		debug.addActor(coords);
+		labels.add(coords);
 
 		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		rotation.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.08 * Gdx.graphics.getHeight()));
-		debug.addActor(rotation);
+		labels.add(rotation);
 
-		Label eulerAngles = new Label("Euler Angles: " + Entity.quatToEuler(player.getRotation()), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		eulerAngles.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.12 * Gdx.graphics.getHeight()));
-		debug.addActor(eulerAngles);
+		Label eulerAngles = new Label("Camera angle: " + player.eulerRotation, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		labels.add(eulerAngles);
 
 		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		velocity.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.16 * Gdx.graphics.getHeight()));
-		debug.addActor(velocity);
+		labels.add(velocity);
 
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
-		fps.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.20 * Gdx.graphics.getHeight()));
-		debug.addActor(fps);
+		labels.add(fps);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
-
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
-		mapSpace.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.24 * Gdx.graphics.getHeight()));
-		debug.addActor(mapSpace);
+		labels.add(mapSpace);
 
-		if (mapMan.levels.isEmpty()) return;
-
-		RoomInstance[] currentRooms = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).toArray(RoomInstance[]::new);
-		if (currentRooms.length != 0) {
-			StringBuilder names = new StringBuilder();
-			for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
-			Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
-			roomName.setPosition(12, (float) (Gdx.graphics.getHeight() - 0.28 * Gdx.graphics.getHeight()));
-			debug.addActor(roomName);
+		if (!mapMan.levels.isEmpty()) {
+			RoomInstance[] currentRooms = mapMan.getCurrentLevel().getRooms().stream().filter(room -> room.getRoomSpacePos().equals(mapSpaceCoords)).toArray(RoomInstance[]::new);
+			if (currentRooms.length != 0) {
+				StringBuilder names = new StringBuilder();
+				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
+				Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
+				labels.add(roomName);
+			}
 		}
+
+		if (player.isGrounded()) {
+			Label grounded = new Label("Grounded", new Label.LabelStyle(debugFont, debugFont.getColor()));
+			labels.add(grounded);
+		}
+
+		labels.forEach(label -> {
+			label.setPosition(16F, (float) (Gdx.graphics.getHeight() - (0.04 * (labels.indexOf(label)+1) * Gdx.graphics.getHeight())));
+			debug.addActor(label);
+		});
 	}
 
 	private void buildPauseMenu(){
@@ -725,7 +732,7 @@ public class Main extends ApplicationAdapter {
 	}
 
 	public void onPlayerDeath() {
-		player.setPosition(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		mapMan.levels.clear();
 		mapMan.levelIndex = 1;
@@ -792,6 +799,8 @@ public class Main extends ApplicationAdapter {
 
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update(Gdx.graphics.getDeltaTime());
+
+//			player.grounded = false;
 
 //			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 

@@ -34,6 +34,7 @@ public class Player extends Entity implements IHasHealth {
 
     int health;
     int maxHealth;
+    private boolean grounded = false;
 
     public static float attackConeRadius = 0.6f;
     public static float attackConeHeight = 1.5f;
@@ -63,6 +64,7 @@ public class Player extends Entity implements IHasHealth {
         Vector3 inertia = new Vector3();
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | Entity.PLAYER_GROUP);
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
         collider.setDamping(0.7f, 0.7f);
         collider.setAngularFactor(Vector3.Y);
@@ -120,12 +122,20 @@ public class Player extends Entity implements IHasHealth {
         conePosition.translate(0, 0.6f, 0);
         btCollisionObject attackCone = new btRigidBody(0, new GenericMotionState(conePosition), attackConeShape, Vector3.Zero);
         Collection<? extends Entity> activeEntities = mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())).getEnemies().values();
-        Entity.checkCollision(attackCone, (ArrayList<Entity>) activeEntities, (Entity target) -> {
+        Entity.runLogicOnCollision(attackCone, (ArrayList<? extends Entity>) activeEntities, (Entity target) -> {
             if (target instanceof EnemyEntity) {
                 ((IHasHealth) target).damage(damage);
                 if (enemyLogic != null) enemyLogic.run(target);
             }
         });
+    }
+
+    public void setGrounded(boolean grounded) {
+        this.grounded = grounded;
+    }
+
+    public boolean isGrounded() {
+        return grounded;
     }
 
     public int getHealth() {

@@ -42,7 +42,7 @@ public abstract class Entity {
 	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
 	private static final Matrix4 tmpMat = new Matrix4();
 
-	public static int currentId = 0;
+	public static int currentId = 1;
 	public int id;
 
 	/**
@@ -89,8 +89,9 @@ public abstract class Entity {
 			collisionShape.calculateLocalInertia(mass, inertia);
 
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags | (!isStatic ? btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK : 0));
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+			collider.setUserValue(this.id);
 
 			dynamicsWorld.addRigidBody(collider);
 		}
@@ -118,7 +119,17 @@ public abstract class Entity {
 		return r;
 	}
 
-	public static void checkCollision(btCollisionObject obj, ArrayList<Entity> entities, EntityRunnable logic) {
+	public static boolean checkCollision(btCollisionObject obj, ArrayList<? extends btCollisionObject> entities) {
+		for (btCollisionObject entity : entities) {
+			if (entity == null) continue;
+			if (checkCollision(obj, entity)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static void runLogicOnCollision(btCollisionObject obj, ArrayList<? extends Entity> entities, EntityRunnable logic) {
 		for (Entity entity : entities) {
 			if (checkCollision(obj, entity.collider)) {
 				logic.run(entity);
@@ -144,7 +155,7 @@ public abstract class Entity {
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
-			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
+			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
 			motionState = new EntityMotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
