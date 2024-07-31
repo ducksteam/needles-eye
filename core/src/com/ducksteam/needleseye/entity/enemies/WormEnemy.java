@@ -17,6 +17,11 @@ public class WormEnemy extends EnemyEntity{
     }
 
     @Override
+    public int getContactDamage() {
+        return 2;
+    }
+
+    @Override
     public String getModelAddress() {
         return "models/worm.g3db";
     }
