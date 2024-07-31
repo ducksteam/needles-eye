@@ -73,6 +73,13 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         tmp2 = player.getEulerRotation().cpy().rotateRad(camera.up, -deltaX);
         tmp2.rotateRad(camera.direction.cpy().crs(camera.up).nor(), -deltaY);
 
+        // lock the player from looking up or down too far
+        if (tmp2.y > 0.95) tmp2.y = 0.95f;
+        if (tmp2.y < -0.95) tmp2.y = -0.95f;
+        tmp2.nor();
+
+        if (Math.abs(tmp2.y) > 0.95) return;
+
         player.setEulerRotation(tmp2);
     }
 

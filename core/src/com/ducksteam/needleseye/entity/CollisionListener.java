@@ -43,6 +43,6 @@ public class CollisionListener extends ContactListener {
 
 	@Override
 	public void onContactEnded(int userValue0, int userValue1) {
-		super.onContactEnded(userValue0, userValue1);
+//		super.onContactEnded(userValue0, userValue1);
 	}
 }

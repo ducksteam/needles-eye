@@ -189,8 +189,9 @@ public class MapManager {
         Vector2 pos = generateRoomPos(template, level.getRooms());
         //int rot = (int) Math.floor(Math.random() * 4) * 90;
         int rot = 0;
-        if (template.getType() == RoomTemplate.RoomType.HALLWAY) pos.add(0, 0.5f);
-        RoomInstance room = new RoomInstance(template, pos, rot);
+        RoomInstance room;
+        if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).sub(new Vector3(5, 0, 0)), pos, rot);
+        else room = new RoomInstance(template, pos, rot);
         level.addRoom(room);
     }
 
