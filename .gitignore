@@ -112,5 +112,5 @@ Thumbs.db
 
 # Textures (these large images will be transported manually, not sent over github)
 **/textures/
-**.gltf
-**.bin
+*.gltf
+*.bin
