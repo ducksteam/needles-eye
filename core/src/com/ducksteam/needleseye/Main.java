@@ -103,6 +103,8 @@ public class Main extends ApplicationAdapter {
 	Runnable animPreDraw;
 	Runnable animFinished;
 	int[] threadAnimState = {0, 0, 0};
+
+	//Runtime info
 	public static GameState gameState;
 	private static String gameStateCheck;
 
@@ -637,6 +639,10 @@ public class Main extends ApplicationAdapter {
 		});
 	}
 
+	private void postLevelLoad(){
+		spawnEnemies();
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -682,6 +688,7 @@ public class Main extends ApplicationAdapter {
 			Gdx.app.debug("Loader thread", "Loading finished");
 
 			mapMan.generateLevel();
+			postLevelLoad();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
