@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class CollisionListener extends ContactListener {
 
-	private static ArrayList<Integer> playerGroundContacts = new ArrayList<>();
+	private static final ArrayList<Integer> playerGroundContacts = new ArrayList<>();
 
 	/**
 	 * Called when two objects (one of which having the <code>CF_CUSTOM_MATERIAL_CALLBACK</code> flag) collide, specifically before any physics is applied.
@@ -29,7 +29,7 @@ public class CollisionListener extends ContactListener {
 		Entity entity1 = Main.entities.get(userValue1);
 		if (entity0 instanceof Player) {
 			if (entity1 instanceof EnemyEntity) {
-				((Player) entity0).damage(1);
+				((Player) entity0).damage(((EnemyEntity) entity1).getContactDamage());
 			} else if (entity1 instanceof RoomInstance) {
 				if (!playerGroundContacts.contains(userValue1)) {
 					playerGroundContacts.add(userValue1);
@@ -43,6 +43,6 @@ public class CollisionListener extends ContactListener {
 
 	@Override
 	public void onContactEnded(int userValue0, int userValue1) {
-		super.onContactEnded(userValue0, userValue1);
+//		super.onContactEnded(userValue0, userValue1);
 	}
 }

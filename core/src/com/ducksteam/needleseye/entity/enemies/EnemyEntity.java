@@ -78,6 +78,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         this.ai = ai;
     }
 
+    public int getContactDamage(){
+        return 0;
+    }
+
     @Override
     public void destroy() {
         super.destroy();

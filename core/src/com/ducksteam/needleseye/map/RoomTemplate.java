@@ -4,10 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.DecoInstance;
-import com.ducksteam.needleseye.entity.collision.ColliderBox;
-import com.ducksteam.needleseye.entity.collision.ColliderGroup;
-import com.ducksteam.needleseye.entity.collision.ColliderRay;
-import com.ducksteam.needleseye.entity.collision.ColliderSphere;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -80,9 +76,7 @@ public class RoomTemplate {
     private int width;
     private int height;
     private boolean spawn;
-    private ColliderGroup collider;
     private String modelPath;
-    private String texturePath;
     private String name;
     private ArrayList<DecoInstance> decos;
     private HashMap<Integer, Boolean> doors;
@@ -94,7 +88,6 @@ public class RoomTemplate {
         this.height = height;
         this.spawn = spawn;
         this.modelPath = modelPath;
-        this.texturePath = texturePath;
         this.centreOffset = centreOffset;
     }
 
@@ -121,7 +114,6 @@ public class RoomTemplate {
         rt.setHeight(((Double) map.get("height")).intValue());
         rt.setSpawn((boolean) map.get("spawn"));
         rt.setModelPath((String) map.get("modelPath"));
-        rt.setTexturePath((String) map.get("texturePath"));
         rt.setName((String) map.get("name"));
 
         try {
@@ -160,41 +152,6 @@ public class RoomTemplate {
                 }
             }
         }*/
-
-        // Read mesh
-        rt.collider = new ColliderGroup();
-        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> mesh = (ArrayList<LinkedTreeMap<String, Object>>) map.get("collision");
-//        if (mesh.isEmpty()) Gdx.app.error(rt.getName(),"no collision data found in room template");
-        for (LinkedTreeMap<String, Object> o : mesh) {
-            switch ((String) o.get("type")) {
-                case "box" -> {
-                    @SuppressWarnings("unchecked") ArrayList<Double> pos1 = (ArrayList<Double>) o.get("position1");
-                    @SuppressWarnings("unchecked") ArrayList<Double> pos2 = (ArrayList<Double>) o.get("position2");
-                    rt.collider.addCollider(new ColliderBox(
-                            MapManager.vector3FromArray(pos1),
-                            MapManager.vector3FromArray(pos2)
-                    ));
-                }
-                case "sphere" -> {
-                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
-                    Double radius = (Double) o.get("radius");
-                    rt.collider.addCollider(new ColliderSphere(
-                            MapManager.vector3FromArray(pos),
-                            radius.floatValue()
-                    ));
-                }
-                case "ray" -> {
-                    @SuppressWarnings("unchecked") ArrayList<Double> pos = (ArrayList<Double>) o.get("position1");
-                    Double polar = (Double) o.get("polar");
-                    Double azimuth = (Double) o.get("azimuth");
-                    rt.collider.addCollider(new ColliderRay(
-                            MapManager.vector3FromArray(pos),
-                            polar.floatValue(),
-                            azimuth.floatValue()
-                    ));
-                }
-            }
-        }
 
         return rt;
     }
@@ -247,14 +204,6 @@ public class RoomTemplate {
         this.modelPath = modelPath;
     }
 
-    public String getTexturePath() {
-        return texturePath;
-    }
-
-    public void setTexturePath(String texturePath) {
-        this.texturePath = texturePath;
-    }
-
     public String getName() {
         return name;
     }
@@ -287,14 +236,6 @@ public class RoomTemplate {
         this.centreOffset = centreOffset;
     }
 
-    public ColliderGroup getCollider() {
-        return collider;
-    }
-
-    public void setCollider(ColliderGroup collider) {
-        this.collider = collider;
-    }
-
     @Override
     public String toString() {
         return "RoomTemplate{" +
@@ -303,7 +244,6 @@ public class RoomTemplate {
                 ", height=" + height +
                 ", spawn=" + spawn +
                 ", modelPath='" + modelPath + '\'' +
-                ", texturePath='" + texturePath + '\'' +
                 ", name='" + name + '\'' +
                 ", decos=" + decos +
                 '}';

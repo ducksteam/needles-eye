@@ -103,6 +103,8 @@ public class Main extends ApplicationAdapter {
 	Runnable animPreDraw;
 	Runnable animFinished;
 	int[] threadAnimState = {0, 0, 0};
+
+	//Runtime info
 	public static GameState gameState;
 	private static String gameStateCheck;
 
@@ -119,6 +121,7 @@ public class Main extends ApplicationAdapter {
 
 		final int id;
 		InputProcessor inputProcessor;
+
 		/**
 		 * @param id assigns numeric id to state
 		 * */
@@ -637,6 +640,10 @@ public class Main extends ApplicationAdapter {
 		});
 	}
 
+	private void postLevelLoad(){
+		spawnEnemies();
+	}
+
 	/**
 	 * Method for loader thread to load assets
 	 * */
@@ -668,8 +675,10 @@ public class Main extends ApplicationAdapter {
 
 			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 			assMan.load(WallObject.modelAddress, SceneAsset.class);
+			assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
 
-			spriteAddresses.forEach((String address)->{
+
+		spriteAddresses.forEach((String address)->{
 				if(address == null) return;
 				assMan.load(address, Texture.class);
 				assMan.finishLoadingAsset(address);
@@ -682,6 +691,7 @@ public class Main extends ApplicationAdapter {
 			Gdx.app.debug("Loader thread", "Loading finished");
 
 			mapMan.generateLevel();
+			postLevelLoad();
 			setGameState(GameState.IN_GAME);
 	}
 	/**
