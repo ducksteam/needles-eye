@@ -23,6 +23,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
+import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
@@ -91,7 +92,7 @@ public class Main extends ApplicationAdapter {
 	public static btCollisionConfiguration collisionConfig;
 	public static btDispatcher dispatcher;
 	public static DebugDrawer debugDrawer;
-	public static ContactListener contactListener;
+	public static CollisionListener contactListener;
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
@@ -223,6 +224,8 @@ public class Main extends ApplicationAdapter {
 		dispatcher = new btCollisionDispatcher(collisionConfig);
 		broadphase = new btDbvtBroadphase();
 		constraintSolver = new btSequentialImpulseConstraintSolver();
+
+		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 
 		debugDrawer = new DebugDrawer();
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
@@ -408,8 +411,8 @@ public class Main extends ApplicationAdapter {
 		ImageButton tRodButton = new ImageButton(tRodButtonStyle);
 
 		// trod positioning
-		tRodButton.setSize((float) Gdx.graphics.getWidth() * tRodTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * tRodTexture.getHeight()/360);
 		tRodButton.setPosition((float) Gdx.graphics.getWidth() * 220/640, (float) Gdx.graphics.getHeight() * 57/360);
+		tRodButton.setSize((float) Gdx.graphics.getWidth() * ((float) tRodTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) tRodTexture.getHeight())/360);
 
 		// event listeners
 		soulButton.addListener(new InputListener(){
@@ -748,8 +751,34 @@ public class Main extends ApplicationAdapter {
 		mapMan.levelIndex = 1;
 
 		threadAnimState = new int[]{0, 0, 0};
+		player.baseUpgrade = BaseUpgrade.NONE;
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+	}
+
+	public static void rebuildDynamicsWorld() {
+		if (dynamicsWorld != null) dynamicsWorld.dispose();
+		if (constraintSolver != null) constraintSolver.dispose();
+		if (broadphase != null) broadphase.dispose();
+		if (collisionConfig != null) collisionConfig.dispose();
+		if (dispatcher != null) dispatcher.dispose();
+		if (debugDrawer != null) debugDrawer.dispose();
+
+		collisionConfig = new btDefaultCollisionConfiguration();
+		dispatcher = new btCollisionDispatcher(collisionConfig);
+		broadphase = new btDbvtBroadphase();
+		constraintSolver = new btSequentialImpulseConstraintSolver();
+
+		debugDrawer = new DebugDrawer();
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+
+		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
+		dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
+		dynamicsWorld.setDebugDrawer(debugDrawer);
+
+		for (Entity entity : entities.values()) {
+			dynamicsWorld.addRigidBody(entity.collider);
+		}
 	}
 
 	/**
@@ -810,7 +839,7 @@ public class Main extends ApplicationAdapter {
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
-//			player.grounded = false;
+			player.setGrounded(!contactListener.playerGroundContacts.isEmpty());
 
 //			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 

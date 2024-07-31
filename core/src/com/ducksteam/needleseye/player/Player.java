@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -18,6 +19,7 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -59,17 +61,7 @@ public class Player extends Entity implements IHasHealth {
         Main.dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
         Main.dynamicsWorld.setDebugDrawer(debugDrawer);
 
-        collisionShape = new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F));
-        motionState = new EntityMotionState(this);
-        Vector3 inertia = new Vector3();
-        collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
-        collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | Entity.PLAYER_GROUP);
-        collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-        collider.setDamping(0.7f, 0.7f);
-        collider.setAngularFactor(Vector3.Y);
-
-        Main.dynamicsWorld.addRigidBody(collider);
+        setModelInstance(null);
 
         this.upgrades = new ArrayList<>();
         health = -1;
@@ -81,6 +73,21 @@ public class Player extends Entity implements IHasHealth {
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
         if (getDamageTimeout() > 0) damageTimeout -= delta;
         if (attackTimeout > 0) attackTimeout -= delta;
+    }
+
+    @Override
+    public void setModelInstance(ModelInstance modelInstance) {
+        collisionShape = new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F));
+        motionState = new EntityMotionState(this);
+        Vector3 inertia = new Vector3();
+        collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
+        collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | Entity.PLAYER_GROUP);
+        collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+        collider.setDamping(0.7f, 0.7f);
+        collider.setAngularFactor(Vector3.Y);
+
+        Main.dynamicsWorld.addRigidBody(collider);
     }
 
     public void primaryAttack() {

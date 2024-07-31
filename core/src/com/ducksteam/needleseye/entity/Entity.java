@@ -75,26 +75,11 @@ public abstract class Entity {
 		isStatic = mass == 0;
 		isRenderable = modelInstance != null;
 
-		this.modelInstance = modelInstance;
-
 		this.mass = mass;
 		this.flags = flags;
 		this.freezeTime = 0;
 
-		if (isRenderable) {
-			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
-			motionState = new EntityMotionState(this, transform);
-
-			Vector3 inertia = new Vector3();
-			collisionShape.calculateLocalInertia(mass, inertia);
-
-			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags | (!isStatic ? btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK : 0));
-			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-			collider.setUserValue(this.id);
-
-			dynamicsWorld.addRigidBody(collider);
-		}
+		setModelInstance(modelInstance);
 	}
 
 	public static boolean checkCollision(btCollisionObject obj0, btCollisionObject obj1) {
@@ -183,10 +168,7 @@ public abstract class Entity {
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
 		motionState.setWorldTransform(transform);
-		if (isStatic) {
-			dynamicsWorld.removeRigidBody(collider);
-			dynamicsWorld.addRigidBody(collider);
-		}
+		if (isStatic) Main.rebuildDynamicsWorld();
 	}
 
 	public void translate(Vector3 translation) {
