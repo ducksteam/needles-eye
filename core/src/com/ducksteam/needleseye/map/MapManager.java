@@ -88,7 +88,7 @@ public class MapManager {
 
         RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0));
         level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(1, 0));
+        /*room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(1, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(2, 0));
         level.addRoom(room);
@@ -105,7 +105,7 @@ public class MapManager {
         room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(8, 0));
         level.addRoom(room);
         room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(9, 0));
-        level.addRoom(room);
+        level.addRoom(room);*/
 
         addWalls(level);
 
@@ -164,16 +164,24 @@ public class MapManager {
     public void addWalls(Level level){
         level.walls = new HashMap<>();
         level.getRooms().forEach(roomInstance -> {
-            /*level.getRooms().forEach(roomInstance1 -> {
-                if (roomInstance.isAdjacent(roomInstance1)){
-                    Gdx.app.debug("MapManager", "Rooms " + roomInstance.getRoom().getName() + " and " + roomInstance1.getRoom().getName() + " are adjacent");
 
-                }
-            });*/ //For doors
-            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1/2,-1)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,-Config.ROOM_SCALE)), new Quaternion().set(Vector3.Y, (float) (90))));
-            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(0,1/2)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(0,0,-Config.ROOM_SCALE/2)), new Quaternion(Vector3.Y, 0)));
-            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1/2,0)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE/2,0,0)), new Quaternion().set(Vector3.Y, (float) (90))));
-            level.walls.put(roomInstance.getRoomSpacePos().cpy().add(new Vector2(-1,-1/2)),new WallObject(getRoomPos(roomInstance.getRoomSpacePos()).add(new Vector3(-Config.ROOM_SCALE,0,-Config.ROOM_SCALE/2)), new Quaternion().set(Vector3.Y, 0)));
+            Vector2[] translations = new Vector2[]{ new Vector2(0,-0.5F), new Vector2(-0.5F,0), new Vector2(-0.5F,-1),new Vector2(-1,-0.5F)};
+            float[] rotations = new float[]{0,90,90,0};
+
+            for(int i=0;i<translations.length;i++){
+                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(translations[i])) != null) continue; // if there's already a wall there, skip it
+                Vector2 translation = translations[i];
+                Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
+                Quaternion rotation = new Quaternion();
+                rotation.set(Vector3.Y, rotations[i]);
+
+                boolean hasDoor = roomInstance.getRoom().getDoors().get(i);
+
+                WallObject wall = new WallObject(position, rotation, hasDoor);
+                level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
+            }
+
+//
         });
     }
     public Level getCurrentLevel(){

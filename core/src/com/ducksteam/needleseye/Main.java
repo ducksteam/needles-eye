@@ -121,6 +121,7 @@ public class Main extends ApplicationAdapter {
 
 		final int id;
 		InputProcessor inputProcessor;
+
 		/**
 		 * @param id assigns numeric id to state
 		 * */
@@ -674,8 +675,10 @@ public class Main extends ApplicationAdapter {
 
 			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 			assMan.load(WallObject.modelAddress, SceneAsset.class);
+			assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
 
-			spriteAddresses.forEach((String address)->{
+
+		spriteAddresses.forEach((String address)->{
 				if(address == null) return;
 				assMan.load(address, Texture.class);
 				assMan.finishLoadingAsset(address);
