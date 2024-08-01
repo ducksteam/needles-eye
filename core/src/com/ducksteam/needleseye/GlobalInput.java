@@ -22,7 +22,6 @@ public class GlobalInput implements InputProcessor {
             if(!(Main.gameState == Main.GameState.IN_GAME || Main.gameState == Main.GameState.PAUSED_MENU)) return true;
             if(Main.gameState == Main.GameState.PAUSED_MENU) Main.gameState = Main.GameState.IN_GAME;
             else Main.setGameState(Main.GameState.PAUSED_MENU);
-
             Gdx.app.debug("GameState", Main.gameState.toString());
             return true;
         }

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 
 public class CollisionListener extends ContactListener {
 
-	private static final ArrayList<Integer> playerGroundContacts = new ArrayList<>();
+	public static final ArrayList<Integer> playerGroundContacts = new ArrayList<>();
 
 	/**
 	 * Called when two objects (one of which having the <code>CF_CUSTOM_MATERIAL_CALLBACK</code> flag) collide, specifically before any physics is applied.

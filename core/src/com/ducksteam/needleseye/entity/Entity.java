@@ -150,6 +150,7 @@ public abstract class Entity {
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 			collider.setUserValue(this.id);
+			if(this instanceof RoomInstance) collider.setFriction(2f);
 			dynamicsWorld.addRigidBody(collider);
 		}
 	}

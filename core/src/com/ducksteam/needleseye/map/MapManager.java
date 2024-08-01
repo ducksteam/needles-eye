@@ -5,8 +5,11 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.entity.EnemyRegistry;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.entity.enemies.WormEnemy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -23,6 +26,8 @@ public class MapManager {
     public static ArrayList<RoomTemplate> roomTemplates;
     public static ArrayList<DecoTemplate> decoTemplates;
     public final ArrayList<Level> levels;
+
+    public static HashMap<Class<?extends EnemyEntity>,Integer> bagRandomiser = new HashMap<>();
     public int levelIndex; // number of levels generated
 
     // placeholder room for hallways
@@ -75,6 +80,30 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
     }
 
+    public void populateLevel(Level level){
+        level.getRooms().forEach((RoomInstance room)->{
+            for(int i=1;i<room.getRoom().getType().getDifficulty();i++) {
+                if (bagRandomiser == null || bagRandomiser.isEmpty()) {
+                    fillBagRandomiser();
+                }
+                Class<? extends EnemyEntity> enemyClass = bagRandomiser.keySet().stream().skip((int) (bagRandomiser.size() * Math.random())).findFirst().orElse(null);
+                if(bagRandomiser.get(enemyClass)<=0) return;
+                bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
+                EnemyEntity enemy = EnemyRegistry.getEnemyInstance(enemyClass);
+                enemy.setPosition(room.getPosition().cpy().add(0, 0.5F, 0));
+                enemy.setAssignedRoom(room);
+                room.addEnemy(enemy);
+            }
+        });
+    }
+
+    private void fillBagRandomiser() {
+        if(bagRandomiser==null){
+            bagRandomiser = new HashMap<>();
+        }
+        bagRandomiser.put(WormEnemy.class,7);
+    }
+
     /**
      * Generate a new level
      */
@@ -108,6 +137,7 @@ public class MapManager {
         level.addRoom(room);*/
 
         addWalls(level);
+        populateLevel(level);
 
         levels.add(level);
     }

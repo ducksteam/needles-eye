@@ -97,6 +97,7 @@ public class RoomInstance extends Entity {
 
     }
 
+
     public void addEnemy(EnemyEntity enemy) {
         enemies.put(enemy.id, enemy);
     }

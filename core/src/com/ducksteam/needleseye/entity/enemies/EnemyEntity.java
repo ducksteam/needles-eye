@@ -8,6 +8,7 @@ import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
+import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 
 public abstract class EnemyEntity extends Entity implements IHasHealth {
@@ -80,6 +81,14 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
     public int getContactDamage(){
         return 0;
+    }
+
+    public void setAssignedRoom(RoomInstance room){
+        assignedRoom = room.getRoomSpacePos();
+    }
+
+    public Vector2 getAssignedRoom(){
+        return assignedRoom;
     }
 
     @Override

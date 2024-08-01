@@ -637,7 +637,6 @@ public class Main extends ApplicationAdapter {
 				/*transform.rotate(Vector3.Y, enemy.getRotation().y);
 				transform.rotate(Vector3.X, enemy.getRotation().x);
 				transform.rotate(Vector3.Z, enemy.getRotation().z);*/
-				//enemies.add(enemy);
 				entities.put(enemy.id, enemy);
 			}
 		});
