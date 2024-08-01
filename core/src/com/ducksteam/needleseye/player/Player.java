@@ -19,7 +19,6 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -58,7 +57,7 @@ public class Player extends Entity implements IHasHealth {
         eulerRotation = new Vector3(0,0,1);
 
         Main.dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-        Main.dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
+        Main.dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
         Main.dynamicsWorld.setDebugDrawer(debugDrawer);
 
         setModelInstance(null);
@@ -84,7 +83,7 @@ public class Player extends Entity implements IHasHealth {
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
         collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | Entity.PLAYER_GROUP);
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-        collider.setDamping(0.7f, 0.7f);
+        collider.setDamping(0.95f, 1f);
         collider.setAngularFactor(Vector3.Y);
 
         Main.dynamicsWorld.addRigidBody(collider);
