@@ -101,9 +101,13 @@ public class Main extends ApplicationAdapter {
 	// ui animation resources
 	Animation<TextureRegion> activeUIAnim;
 	float animTime;
+	public static float attackAnimTime;
+	public static float crackAnimTime;
 	Runnable animPreDraw;
 	Runnable animFinished;
 	int[] threadAnimState = {0, 0, 0};
+
+	Animation<TextureRegion> transitionAnimation;
 
 	//Runtime info
 	public static GameState gameState;
@@ -254,10 +258,13 @@ public class Main extends ApplicationAdapter {
 
 		camera.near = 0.1f;
 
+		Texture transitionMap = new Texture(Gdx.files.internal("ui/menu/thread-transition.png"));
+		TextureRegion[] transitionFrames = TextureRegion.split(transitionMap, 640, 360)[0];
+		transitionAnimation = new Animation<>(Config.LOADING_ANIM_SPEED, transitionFrames);
+
 		assMan.finishLoading();
 
 		initialiseInputProcessors();
-
 
 		setGameState(GameState.MAIN_MENU);
     }
@@ -300,10 +307,6 @@ public class Main extends ApplicationAdapter {
 
 	private void buildMainMenu() {
 		mainMenu = new Stage();
-
-		Texture transitionMap = new Texture(Gdx.files.internal("ui/menu/thread-transition.png"));
-		TextureRegion[] transitionFrames = TextureRegion.split(transitionMap, 640, 360)[0];
-		Animation<TextureRegion> transitionAnimation = new Animation<>(Config.LOADING_ANIM_SPEED, transitionFrames);
 
 		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/background.png")));
 		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -882,6 +885,24 @@ public class Main extends ApplicationAdapter {
 			}
 			if(player.getHealth() <= 0){
 				onPlayerDeath();
+			}
+
+			if (attackAnimTime > 0 && player.baseUpgrade.swingAnim != null) {
+				attackAnimTime += Gdx.graphics.getDeltaTime();
+				TextureRegion currentFrame = player.baseUpgrade.swingAnim.getKeyFrame(attackAnimTime);
+				batch2d.begin();
+				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+				batch2d.end();
+				if(player.baseUpgrade.swingAnim.isAnimationFinished(attackAnimTime)) attackAnimTime = 0;
+			}
+
+			if (crackAnimTime > 0 && player.baseUpgrade.crackAnim != null) {
+				crackAnimTime += Gdx.graphics.getDeltaTime();
+				TextureRegion currentFrame = player.baseUpgrade.swingAnim.getKeyFrame(crackAnimTime);
+				batch2d.begin();
+				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+				batch2d.end();
+				if(player.baseUpgrade.crackAnim.isAnimationFinished(crackAnimTime)) crackAnimTime = 0;
 			}
 		}
 

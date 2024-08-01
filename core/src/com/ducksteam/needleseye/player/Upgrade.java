@@ -1,8 +1,10 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.UpgradeRegistry;
 
 import java.util.HashMap;
@@ -95,18 +97,38 @@ public class Upgrade {
     }
 
     public enum BaseUpgrade {
-        SOUL_THREAD (3,SoulThread.class),
-        COAL_THREAD (5,CoalThread.class),
-        JOLT_THREAD (4,JoltThread.class),
-        THREADED_ROD (4,ThreadedRod.class),
-        NONE (-1,null);
+        SOUL_THREAD (3,SoulThread.class,
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
+                null),
+        COAL_THREAD (5,CoalThread.class,
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
+                null),
+        JOLT_THREAD (4,JoltThread.class,
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_swing.png")), 640, 360)[0]),
+                null),
+        THREADED_ROD (4,ThreadedRod.class,
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/trod_swing.png")), 640, 360)[0]),
+                null),
+        NONE (-1,null, null, null);
 
-        public Class<? extends Upgrade> upgradeClass;
+        public final Class<? extends Upgrade> upgradeClass;
         final int MAX_HEALTH;
+        public final Animation<TextureRegion> swingAnim;
+        public final Animation<TextureRegion> crackAnim;
 
-        BaseUpgrade(int maxHealth, Class<? extends Upgrade> upgradeClass) {
+        BaseUpgrade(int maxHealth, Class<? extends Upgrade> upgradeClass, Animation<TextureRegion> swingAnim, Animation<TextureRegion> crackAnim) {
             MAX_HEALTH = maxHealth;
             this.upgradeClass = upgradeClass;
+            this.swingAnim = swingAnim;
+            this.crackAnim = crackAnim;
         }
     }
 
