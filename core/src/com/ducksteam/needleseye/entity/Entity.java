@@ -14,6 +14,7 @@ import com.ducksteam.needleseye.Main;
 import java.util.ArrayList;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
+import static com.ducksteam.needleseye.Main.rebuildDynamicsWorld;
 
 /**
  * This class represents an entity in the game world. It has a transform, a collider, and a model instance.
@@ -140,7 +141,7 @@ public abstract class Entity {
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
-			collisionShape = new btBvhTriangleMeshShape(modelInstance.model.meshParts);
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
 			motionState = new EntityMotionState(this, transform);
 
 			Vector3 inertia = new Vector3();
@@ -150,7 +151,7 @@ public abstract class Entity {
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 			collider.setUserValue(this.id);
-			if(this instanceof RoomInstance) collider.setFriction(2f);
+			if (this instanceof RoomInstance) collider.setFriction(2f);
 			dynamicsWorld.addRigidBody(collider);
 		}
 	}
@@ -169,7 +170,7 @@ public abstract class Entity {
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
 		motionState.setWorldTransform(transform);
-		if (isStatic) Main.rebuildDynamicsWorld();
+		if (isStatic) rebuildDynamicsWorld();
 	}
 
 	public void translate(Vector3 translation) {
