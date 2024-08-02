@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
@@ -20,14 +21,14 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     float damageTimeout = 0;
 
     public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
-        super(position, rotation, mass, modelInstance, ENEMY_GROUP);
+        super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
         setMaxHealth(maxHealth, true);
         this.assignedRoom = assignedRoom;
     }
 
     @Override
     public void update(float delta) {
-        if (ai != null) ai.update(delta);
+//        if (ai != null) ai.update(delta);
         if (getDamageTimeout() > 0) damageTimeout -= delta;
     }
 

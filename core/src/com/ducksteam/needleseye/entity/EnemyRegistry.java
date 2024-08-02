@@ -4,11 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.WormEnemy;
-import com.ducksteam.needleseye.map.RoomTemplate;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
@@ -24,7 +22,7 @@ public class EnemyRegistry {
         registeredEnemies.put(id, enemyClass);
     }
 
-    public static EnemyEntity getEnemyInstance(Class<? extends EnemyEntity> enemyClass,Vector3 pos,Quaternion rot,RoomInstance room) {
+    public static EnemyEntity getNewEnemyInstance(Class<? extends EnemyEntity> enemyClass, Vector3 pos, Quaternion rot, RoomInstance room) {
         if (registeredEnemies.containsValue(enemyClass)) {
             try {
                 return enemyClass.getDeclaredConstructor(Vector3.class,Quaternion.class,RoomInstance.class).newInstance(pos,rot,room);
@@ -35,9 +33,9 @@ public class EnemyRegistry {
         return null;
     }
 
-    public static EnemyEntity getEnemyInstance(String id,Vector3 pos,Quaternion rot,RoomInstance room) {
+    public static EnemyEntity getNewEnemyInstance(String id, Vector3 pos, Quaternion rot, RoomInstance room) {
         if (registeredEnemies.containsKey(id)) {
-            return getEnemyInstance(registeredEnemies.get(id),pos,rot,room);
+            return getNewEnemyInstance(registeredEnemies.get(id),pos,rot,room);
         }
         return null;
     }

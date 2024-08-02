@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -99,6 +100,7 @@ public class RoomInstance extends Entity {
 
 
     public void addEnemy(EnemyEntity enemy) {
+        Gdx.app.debug("Population", "Added " + enemy.getClass().getSimpleName() + " to room " + room.getName() + " at " + roomSpacePos);
         enemies.put(enemy.id, enemy);
     }
 

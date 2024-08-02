@@ -138,6 +138,7 @@ public class Player extends Entity implements IHasHealth {
                 if (enemyLogic != null) enemyLogic.run(target);
             }
         });
+        if (!attackCone.isDisposed()) attackCone.dispose();
     }
 
     public void setGrounded(boolean grounded) {

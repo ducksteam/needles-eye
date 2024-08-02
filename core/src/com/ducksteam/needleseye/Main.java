@@ -187,7 +187,7 @@ public class Main extends ApplicationAdapter {
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if(menuMusic!=null) {
 			if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
-//			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
+			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
 			else menuMusic.pause();
 		}
 		gameStateCheck = gameState.toString();
@@ -231,7 +231,6 @@ public class Main extends ApplicationAdapter {
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
-
 
 		Bullet.init();
 
@@ -906,6 +905,7 @@ public class Main extends ApplicationAdapter {
 //			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
 
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
+//			camera.position.set(entities.values().stream().filter(e -> e instanceof EnemyEntity).findFirst().get().getPosition()).add(0, 0.2f, 0);
 			camera.direction.set(player.getEulerRotation());
 			camera.update();
 

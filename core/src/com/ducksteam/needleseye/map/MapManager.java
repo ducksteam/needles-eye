@@ -82,14 +82,14 @@ public class MapManager {
 
     public void populateLevel(Level level){
         level.getRooms().forEach((RoomInstance room)->{
-            for(int i=1;i<room.getRoom().getType().getDifficulty();i++) {
+            for(int i=0;i<room.getRoom().getType().getDifficulty();i++) {
                 if (bagRandomiser == null || bagRandomiser.isEmpty()) {
                     fillBagRandomiser();
                 }
                 Class<? extends EnemyEntity> enemyClass = bagRandomiser.keySet().stream().skip((int) (bagRandomiser.size() * Math.random())).findFirst().orElse(null);
                 if(bagRandomiser.get(enemyClass)<=0) return;
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
-                EnemyEntity enemy = EnemyRegistry.getEnemyInstance(enemyClass, room.getPosition().cpy().add(0, 0.5F, 0), new Quaternion(), room);
+                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(0, 0.5F, 0), new Quaternion(), room);
                 enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
             }
@@ -184,8 +184,6 @@ public class MapManager {
 
         addWalls(level);
         populateLevel(level);
-
-
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index

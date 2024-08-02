@@ -201,8 +201,9 @@ public abstract class Entity {
 	public void setAnimation(String animationName) {
 		if (isRenderable) {
 			Animation animation = modelInstance.getAnimation(animationName);
-			if (animation == null) Gdx.app.error("Entity", "Animation not found: " + animationName);
-			else Gdx.app.debug("Entity", "Setting animation: " + animationName);
+			if (animation != null) {
+				Gdx.app.debug("Entity", "Setting animation: " + animationName);
+			}
 		}
 	}
 
