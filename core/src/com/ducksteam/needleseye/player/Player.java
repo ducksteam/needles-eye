@@ -91,7 +91,9 @@ public class Player extends Entity implements IHasHealth {
 
     public void primaryAttack() {
         if (baseUpgrade == BaseUpgrade.NONE) return;
+        if (attackAnimTime != 0 || crackAnimTime != 0) return;
         setAttackTimeout(attackLength);
+        attackAnimTime = 0.01F;
         player.whipAttack(3);
         /*switch (baseUpgrade) {
             case SOUL_THREAD -> {
@@ -114,7 +116,9 @@ public class Player extends Entity implements IHasHealth {
 
 //    public void secondaryAttack() {
 //        if (baseUpgrade == BaseUpgrade.NONE) return;
+//        if (attackAnimTime != 0 || crackAnimTime != 0) return;
 //        baseUpgrade.secondaryAttack();
+//        crackAnimTime = 0.01F;
 //    }
 
     public void whipAttack(int damage){

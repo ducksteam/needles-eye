@@ -24,10 +24,10 @@ public class EnemyRegistry {
         registeredEnemies.put(id, enemyClass);
     }
 
-    public static EnemyEntity getEnemyInstance(Class<? extends EnemyEntity> enemyClass) {
+    public static EnemyEntity getEnemyInstance(Class<? extends EnemyEntity> enemyClass,Vector3 pos,Quaternion rot,RoomInstance room) {
         if (registeredEnemies.containsValue(enemyClass)) {
             try {
-                return enemyClass.getDeclaredConstructor().newInstance();
+                return enemyClass.getDeclaredConstructor(Vector3.class,Quaternion.class,RoomInstance.class).newInstance(pos,rot,room);
             } catch (Exception e) {
                 Gdx.app.error("EnemyRegistry", "Error creating enemy instance", e);
             }
@@ -35,9 +35,9 @@ public class EnemyRegistry {
         return null;
     }
 
-    public static EnemyEntity getEnemyInstance(String id) {
+    public static EnemyEntity getEnemyInstance(String id,Vector3 pos,Quaternion rot,RoomInstance room) {
         if (registeredEnemies.containsKey(id)) {
-            return getEnemyInstance(registeredEnemies.get(id));
+            return getEnemyInstance(registeredEnemies.get(id),pos,rot,room);
         }
         return null;
     }
