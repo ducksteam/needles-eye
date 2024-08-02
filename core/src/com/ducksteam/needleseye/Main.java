@@ -158,13 +158,24 @@ public class Main extends ApplicationAdapter {
 	}
 
 	public void initialiseInputProcessors(){
+		InputAdapter menuEscape = new InputAdapter(){
+			@Override
+			public boolean keyDown(int keycode) {
+				if (keycode == Input.Keys.ESCAPE) {
+					setGameState(GameState.MAIN_MENU);
+					return true;
+				}
+				return false;
+			}
+		};
+
 		GameState.IN_GAME.setInputProcessor(new InputMultiplexer(globalInput, new PlayerInput()));
 		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
-		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(globalInput, threadMenu));
+		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, threadMenu));
 		GameState.LOADING.setInputProcessor(globalInput);
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(globalInput, deathMenu));
-		GameState.INSTRUCTIONS.setInputProcessor(globalInput);
+		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, instructionsMenu));
 	}
 
 	/**
@@ -247,6 +258,7 @@ public class Main extends ApplicationAdapter {
 		buildThreadMenu();
 		buildPauseMenu();
 		buildDeathMenu();
+		buildInstructionsMenu();
 
 		environment = new Environment();
 		batch = new ModelBatch();
@@ -272,7 +284,7 @@ public class Main extends ApplicationAdapter {
 		setGameState(GameState.MAIN_MENU);
     }
 
-	private void buildInstructionMenu() {
+	private void buildInstructionsMenu() {
 		instructionsMenu = new Stage();
 
 		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/instructions/instructions.png")));
@@ -304,8 +316,8 @@ public class Main extends ApplicationAdapter {
 		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
 		keysText.append(Input.Keys.toString(Config.keys.get("right")));
 
-		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies.", new Label.LabelStyle(debugFont, null));
-		instructions.setBounds((float) (Gdx.graphics.getWidth() * 145) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 348) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
+		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use LMB to use your melee attack, and use RMB to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room, then defeat the boss at the end.", new Label.LabelStyle(debugFont, null));
+		instructions.setBounds((float) (Gdx.graphics.getWidth() * 155) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 338) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
 		instructions.setWrap(true);
 
 		instructionsMenu.addActor(instructions);
@@ -393,7 +405,7 @@ public class Main extends ApplicationAdapter {
 		});
 		mainMenu.addActor(instructionsButton);
 
-		ImageButton.ImageButtonStyle optionsButtonStyle = new ImageButton.ImageButtonStyle();
+		/*ImageButton.ImageButtonStyle optionsButtonStyle = new ImageButton.ImageButtonStyle();
 		optionsButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/options1.png"))).getDrawable();
 		optionsButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/options2.png"))).getDrawable();
 		optionsButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/options2.png"))).getDrawable();
@@ -407,7 +419,7 @@ public class Main extends ApplicationAdapter {
 				return true;
 			}
 		});
-		mainMenu.addActor(optionsButton);
+		mainMenu.addActor(optionsButton);*/
 
 		ImageButton.ImageButtonStyle quitButtonStyle = new ImageButton.ImageButtonStyle();
 		quitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/quit1.png"))).getDrawable();
@@ -865,7 +877,6 @@ public class Main extends ApplicationAdapter {
 		}
 
 		if(gameState == GameState.INSTRUCTIONS) {
-			buildInstructionMenu();
 			instructionsMenu.act();
 			instructionsMenu.draw();
 		}
