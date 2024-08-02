@@ -31,5 +31,6 @@ public class Config {
         keys.put("left", Input.Keys.A);
         keys.put("right", Input.Keys.D);
         keys.put("jump", Input.Keys.SPACE);
+        keys.put("run", Input.Keys.SHIFT_LEFT);
     }
 }

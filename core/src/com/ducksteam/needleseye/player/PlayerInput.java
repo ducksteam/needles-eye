@@ -29,7 +29,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update(float delta) {
-        Config.MOVE_SPEED = KEYS.containsKey(Input.Keys.SHIFT_LEFT) && KEYS.get(Input.Keys.SHIFT_LEFT) ? 300f : 220f;
+        Config.MOVE_SPEED = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? 300f : 220f;
 
         Vector3 forceDir = new Vector3();
 

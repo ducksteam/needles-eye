@@ -66,6 +66,7 @@ public class Main extends ApplicationAdapter {
   
 	// 2d rendering utils
 	Stage mainMenu;
+	Stage instructionsMenu;
 	Stage threadMenu;
 	Stage pauseMenu;
 	Stage deathMenu;
@@ -122,7 +123,8 @@ public class Main extends ApplicationAdapter {
 		THREAD_SELECT(2),
 		IN_GAME(3),
 		PAUSED_MENU(4),
-		DEAD_MENU(5);
+		DEAD_MENU(5),
+		INSTRUCTIONS(6);
 
 		final int id;
 		InputProcessor inputProcessor;
@@ -162,6 +164,7 @@ public class Main extends ApplicationAdapter {
 		GameState.LOADING.setInputProcessor(globalInput);
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(globalInput, deathMenu));
+		GameState.INSTRUCTIONS.setInputProcessor(globalInput);
 	}
 
 	/**
@@ -269,6 +272,45 @@ public class Main extends ApplicationAdapter {
 		setGameState(GameState.MAIN_MENU);
     }
 
+	private void buildInstructionMenu() {
+		instructionsMenu = new Stage();
+
+		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/instructions/instructions.png")));
+		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		instructionsMenu.addActor(background);
+
+		ImageButton.ImageButtonStyle exitButtonStyle = new ImageButton.ImageButtonStyle();
+		exitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png"))).getDrawable(); // reusing assets from death menu
+		exitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
+		exitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
+
+		ImageButton exitButton = new ImageButton(exitButtonStyle);
+		exitButton.setPosition((float) Gdx.graphics.getWidth() * 237/640, (float) Gdx.graphics.getHeight() * 34/360);
+		exitButton.setSize((float) Gdx.graphics.getWidth() * 167/640, (float) Gdx.graphics.getHeight() * 32/360);
+		exitButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				setGameState(GameState.MAIN_MENU);
+				return true;
+			}
+		});
+
+		instructionsMenu.addActor(exitButton);
+
+		StringBuilder keysText;
+		keysText = new StringBuilder();
+		keysText.append(Input.Keys.toString(Config.keys.get("forward"))).append(", ");
+		keysText.append(Input.Keys.toString(Config.keys.get("left"))).append(", ");
+		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
+		keysText.append(Input.Keys.toString(Config.keys.get("right")));
+
+		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies.", new Label.LabelStyle(debugFont, null));
+		instructions.setBounds((float) (Gdx.graphics.getWidth() * 145) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 348) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
+		instructions.setWrap(true);
+
+		instructionsMenu.addActor(instructions);
+	}
+
 	private void buildDeathMenu() {
 		deathMenu = new Stage();
 
@@ -345,6 +387,7 @@ public class Main extends ApplicationAdapter {
 		instructionsButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				setGameState(GameState.INSTRUCTIONS);
 				return true;
 			}
 		});
@@ -819,6 +862,12 @@ public class Main extends ApplicationAdapter {
 
 		if(gameState == GameState.MAIN_MENU) {
 			renderMainMenuFrame();
+		}
+
+		if(gameState == GameState.INSTRUCTIONS) {
+			buildInstructionMenu();
+			instructionsMenu.act();
+			instructionsMenu.draw();
 		}
 
 		if (gameState == GameState.THREAD_SELECT){
