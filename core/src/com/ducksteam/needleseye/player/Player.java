@@ -48,6 +48,11 @@ public class Player extends Entity implements IHasHealth {
 
     public Vector3 eulerRotation; // rads
 
+    // Upgrade properties
+    public float playerSpeedMultiplier = 1;
+    public float dodgeChance = 0f;
+    public float damageBoost = 0f;
+
     Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
@@ -81,10 +86,14 @@ public class Player extends Entity implements IHasHealth {
         Vector3 inertia = new Vector3();
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | Entity.PLAYER_GROUP);
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP);
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
         collider.setDamping(0.95f, 1f);
         collider.setAngularFactor(Vector3.Y);
+        collider.setUserValue(this.id);
+
+        collider.setContactCallbackFlag(PLAYER_GROUP);
+        collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP);
 
         Main.dynamicsWorld.addRigidBody(collider);
     }
@@ -94,16 +103,16 @@ public class Player extends Entity implements IHasHealth {
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
         setAttackTimeout(attackLength);
         attackAnimTime = 0.01F;
-        player.whipAttack(3);
+        player.whipAttack(3 + (int) damageBoost);
         /*switch (baseUpgrade) {
             case SOUL_THREAD -> {
-                player.whipAttack(3);
+                player.whipAttack(3 + (int) damageBoost;
             }
             case COAL_THREAD -> {
-//                player.whipAttack();
+//                player.whipAttack(); // todo add warming temperature
             }
             case JOLT_THREAD -> {
-                player.whipAttack(3, (Entity target) -> {
+                player.whipAttack(3 + (int) damageBoost, (Entity target) -> {
                     boolean freeze = Math.random() < 0.2;
                     if (freeze) target.freeze(2);
                 });
@@ -161,10 +170,12 @@ public class Player extends Entity implements IHasHealth {
 
     public void damage(int damage) {
         if (damageTimeout > 0) return;
+        if (Math.random() < dodgeChance) return;
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health <= 0) Main.setGameState(Main.GameState.DEAD_MENU);
         if (health > maxHealth) setHealth(maxHealth);
+        upgrades.forEach((Upgrade::onDamage));
     }
 
     @Override
@@ -217,7 +228,26 @@ public class Player extends Entity implements IHasHealth {
     }
 
     @Override
+    public String toString() {
+        return "Player{" +
+                "baseUpgrade=" + baseUpgrade +
+                ", id=" + id +
+                ", grounded=" + grounded +
+                ", transform=" + transform +
+                ", upgrades=" + upgrades +
+                ", health=" + health +
+                ", maxHealth=" + maxHealth +
+                '}';
+    }
+
+    @Override
     public String getModelAddress() {
         return null;
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        attackConeShape.dispose();
     }
 }

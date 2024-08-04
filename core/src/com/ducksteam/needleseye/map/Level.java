@@ -2,8 +2,11 @@ package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
+import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
+import com.ducksteam.needleseye.player.Upgrade;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +36,12 @@ public class Level {
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) {
             rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getRoomSpacePos().cpy().add(0, 1)));
 //            Gdx.app.debug("MapManager", "Added hallway placeholder at " + room.getRoomSpacePos().add(0, 1).rotateDeg(room.getRot()));
+        }
+
+        if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) {
+            Upgrade upgrade = UpgradeRegistry.getRandomUpgrade();
+            new UpgradeEntity(room.getPosition().add(0,1.5f,0), upgrade);
+            Gdx.app.debug("MapManager", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
         }
     }
 

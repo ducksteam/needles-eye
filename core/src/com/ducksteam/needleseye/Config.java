@@ -23,6 +23,7 @@ public class Config {
     public static final int ROOM_SCALE = 10;
     public static final float PLAYER_MASS = 10;
     public static final float DAMAGE_TIMEOUT = 0.5f; // seconds
+    public static final float UPGRADE_HEIGHT = 1.6f;
 
 
     static {

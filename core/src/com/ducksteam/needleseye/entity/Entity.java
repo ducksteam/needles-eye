@@ -13,8 +13,7 @@ import com.ducksteam.needleseye.Main;
 
 import java.util.ArrayList;
 
-import static com.ducksteam.needleseye.Main.dynamicsWorld;
-import static com.ducksteam.needleseye.Main.rebuildDynamicsWorld;
+import static com.ducksteam.needleseye.Main.*;
 
 /**
  * This class represents an entity in the game world. It has a transform, a collider, and a model instance.
@@ -40,7 +39,7 @@ public abstract class Entity {
 
 	private float mass = 0f;
 	private float freezeTime = 0f;
-	private int flags = btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP;
+	private int flags;
 	private static final Matrix4 tmpMat = new Matrix4();
 
 	public static int currentId = 1;
@@ -55,7 +54,7 @@ public abstract class Entity {
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
-		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT | GROUND_GROUP);
 	}
 
 	/**
@@ -170,7 +169,7 @@ public abstract class Entity {
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
 		motionState.setWorldTransform(transform);
-		if (isStatic) rebuildDynamicsWorld();
+//		if (isStatic) rebuildDynamicsWorld();
 	}
 
 	public void translate(Vector3 translation) {
@@ -209,9 +208,10 @@ public abstract class Entity {
 
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
+		entities.remove(id);
 		collider.dispose();
-		collisionShape.dispose();
 		motionState.dispose();
+		collisionShape.dispose();
 	}
 
 	public void freeze(int time) {

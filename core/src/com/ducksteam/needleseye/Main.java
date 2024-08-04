@@ -26,6 +26,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
+import com.badlogic.gdx.physics.bullet.linearmath.LinearMath;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -37,6 +38,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
 import com.ducksteam.needleseye.player.Player;
@@ -94,6 +96,8 @@ public class Main extends ApplicationAdapter {
 	public static btDispatcher dispatcher;
 	public static DebugDrawer debugDrawer;
 	public static CollisionListener contactListener;
+
+	static long time = 0; // ms since first render
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
@@ -707,51 +711,58 @@ public class Main extends ApplicationAdapter {
 	 * Method for loader thread to load assets
 	 * */
 	private void loadAssets(){
-			Gdx.app.debug("Loader thread", "Loading started");
-			// Deco loading is moved to MapManager
+		Gdx.app.debug("Loader thread", "Loading started");
+		// Deco loading is moved to MapManager
 
-			//Enemies is no longer used, replaced with entities
-			/*enemies.forEach((EnemyEntity enemy) -> {
-				if (enemy.getModelAddress() == null){
-					enemy.isRenderable = false;
-					return;
-				}
-				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
-				assMan.load(enemy.getModelAddress(), SceneAsset.class);
-				assMan.finishLoadingAsset(enemy.getModelAddress());
-				enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
-			});*/
+		//Enemies is no longer used, replaced with entities
+		/*enemies.forEach((EnemyEntity enemy) -> {
+			if (enemy.getModelAddress() == null){
+				enemy.isRenderable = false;
+				return;
+			}
+			assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+			assMan.load(enemy.getModelAddress(), SceneAsset.class);
+			assMan.finishLoadingAsset(enemy.getModelAddress());
+			enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
+		});*/
 
-			EnemyRegistry.loadEnemyAssets(assMan);
+		EnemyRegistry.loadEnemyAssets(assMan);
 
-			MapManager.roomTemplates.forEach((RoomTemplate room) -> {
-				if (room.getModelPath() == null) return;
-				assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
-				assMan.load(room.getModelPath(), SceneAsset.class);
-				assMan.finishLoadingAsset(room.getModelPath());
-				room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
-			});
+		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
+			if (room.getModelPath() == null) return;
+			assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+			assMan.load(room.getModelPath(), SceneAsset.class);
+			assMan.finishLoadingAsset(room.getModelPath());
+			room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
+		});
 
-			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
-			assMan.load(WallObject.modelAddress, SceneAsset.class);
-			assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
-
+		assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+		assMan.load(WallObject.modelAddress, SceneAsset.class);
+		assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
 
 		spriteAddresses.forEach((String address)->{
-				if(address == null) return;
-				assMan.load(address, Texture.class);
-				assMan.finishLoadingAsset(address);
-				spriteAssets.put(address,assMan.get(address));
-			});
+			if(address == null) return;
+			assMan.load(address, Texture.class);
+			assMan.finishLoadingAsset(address);
+			spriteAssets.put(address,assMan.get(address));
+		});
+
+		UpgradeRegistry.registeredUpgrades.values().forEach((upgradeClass) -> {
+			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+			if (Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress() == null) return;
+			try {
+				assMan.load(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress(), SceneAsset.class);
+			} catch (NullPointerException ignored) {}
+		});
     
-			assMan.finishLoading();
-			UpgradeRegistry.iconsLoaded=true;
+		assMan.finishLoading();
+		UpgradeRegistry.iconsLoaded=true;
 
-			Gdx.app.debug("Loader thread", "Loading finished");
+		Gdx.app.debug("Loader thread", "Loading finished");
 
-			mapMan.generateLevel();
-			postLevelLoad();
-			setGameState(GameState.IN_GAME);
+		mapMan.generateLevel();
+		postLevelLoad();
+		setGameState(GameState.IN_GAME);
 	}
 	/**
 	 * Renders the loading screen while the assets are loading
@@ -845,6 +856,8 @@ public class Main extends ApplicationAdapter {
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
+		time += (long) (Gdx.graphics.getDeltaTime()*1000);
+
 		if(gameState!=null) {
 			if (!gameState.toString().equals(gameStateCheck)) {
 				setGameState(gameState);
@@ -917,6 +930,7 @@ public class Main extends ApplicationAdapter {
 
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
+				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
 
@@ -980,6 +994,10 @@ public class Main extends ApplicationAdapter {
 			dynamicsWorld.debugDrawWorld();
 			debugDrawer.end();
 		}
+	}
+
+	public static long getTime() {
+		return time;
 	}
 
 	@Override

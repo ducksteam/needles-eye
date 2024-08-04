@@ -30,6 +30,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     public static void update(float delta) {
         Config.MOVE_SPEED = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? 300f : 220f;
+        Config.MOVE_SPEED *= player.playerSpeedMultiplier;
 
         Vector3 forceDir = new Vector3();
 

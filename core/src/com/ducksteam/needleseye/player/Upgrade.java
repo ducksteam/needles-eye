@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.UpgradeRegistry;
+import com.ducksteam.needleseye.player.upgrades.*;
 
 import java.util.HashMap;
 
@@ -21,17 +22,24 @@ public class Upgrade {
     Texture icon;
     String iconAddress;
     String modelAddress;
+    public boolean isBaseUpgrade;
 
     public Upgrade() {
         this.name = "Upgrade";
         this.description = "This is an upgrade";
         this.modelAddress = null;
     }
+
     public Upgrade (String name, String description, String iconAddress, String modelAddress) {
+        this(name, description, iconAddress, modelAddress, false);
+    }
+
+    public Upgrade (String name, String description, String iconAddress, String modelAddress, boolean isBaseUpgrade) {
         this.name = name;
         this.description = description;
         this.iconAddress = iconAddress;
         this.modelAddress = modelAddress;
+        this.isBaseUpgrade = isBaseUpgrade;
     }
 
     public static void registerUpgrades() {
@@ -40,6 +48,20 @@ public class Upgrade {
             UpgradeRegistry.registerUpgrade(upgrade.name(), upgrade.upgradeClass);
             Gdx.app.debug("UpgradeRegistry", "Registered upgrade: " + upgrade.name()+ " with class: " + upgrade.upgradeClass);
         }
+        UpgradeRegistry.registerUpgrade("Lead", LeadUpgrade.class);
+        UpgradeRegistry.registerUpgrade("Mercury", MercuryUpgrade.class);
+    }
+
+    public void onPickup() {
+        Gdx.app.debug("Upgrade", "Picked up upgrade: " + name);
+    }
+
+    public void onAttack() {
+        Gdx.app.debug("Upgrade", "Attacked with upgrade: " + name);
+    }
+
+    public void onDamage() {
+        Gdx.app.debug("Upgrade", "Damaged with upgrade: " + name);
     }
 
     /*
@@ -97,27 +119,27 @@ public class Upgrade {
     }
 
     public enum BaseUpgrade {
-        SOUL_THREAD (3,SoulThread.class,
+        SOUL_THREAD(3, SoulThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
                 null),
-        COAL_THREAD (5,CoalThread.class,
+        COAL_THREAD(5, CoalThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
                 null),
-        JOLT_THREAD (4,JoltThread.class,
+        JOLT_THREAD(4, JoltThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_swing.png")), 640, 360)[0]),
                 null),
-        THREADED_ROD (4,ThreadedRod.class,
+        THREADED_ROD(4, ThreadedRod.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/trod_swing.png")), 640, 360)[0]),
                 null),
-        NONE (-1,null, null, null);
+        NONE(-1, null, null, null);
 
         public final Class<? extends Upgrade> upgradeClass;
         final int MAX_HEALTH;
@@ -129,30 +151,6 @@ public class Upgrade {
             this.upgradeClass = upgradeClass;
             this.swingAnim = swingAnim;
             this.crackAnim = crackAnim;
-        }
-    }
-
-    public class SoulThread extends Upgrade {
-        public SoulThread() {
-            super("Soul Thread", "Increases maximum health by 3", "ui/icons/soul_thread.png", null);
-        }
-    }
-
-    public class CoalThread extends Upgrade {
-        public CoalThread() {
-            super("Coal Thread", "Increases maximum health by 5", "ui/icons/coal_thread.png", null);
-        }
-    }
-
-    public class JoltThread extends Upgrade {
-        public JoltThread() {
-            super("Jolt Thread", "Increases maximum health by 4", "ui/icons/jolt_thread.png", null);
-        }
-    }
-
-    public class ThreadedRod extends Upgrade {
-        public ThreadedRod() {
-            super("Threaded Rod", "Increases maximum health by 4", "ui/icons/soul_thread.png", null);
         }
     }
 }

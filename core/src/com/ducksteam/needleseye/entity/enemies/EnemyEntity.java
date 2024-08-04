@@ -22,6 +22,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
     public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
         super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+
+        collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
+        collider.setContactCallbackFilter(PLAYER_GROUP); // Special logic should be applied when colliding with player
+
         setMaxHealth(maxHealth, true);
         this.assignedRoom = assignedRoom;
     }
