@@ -15,7 +15,7 @@ import java.util.Map;
 
 public class EnemyRegistry {
     public static HashMap<String, Class<? extends EnemyEntity>> registeredEnemies = new HashMap<>();
-
+    public static boolean loaded = false;
     public static HashMap<Class<? extends EnemyEntity>, ModelInstance> enemyModelInstances = new HashMap<>();
 
     public static void registerEnemy(String id, Class<? extends EnemyEntity> enemyClass) {
@@ -57,6 +57,7 @@ public class EnemyRegistry {
                 Gdx.app.error("EnemyRegistry", "Error loading enemy assets", e);
             }
         }
+        loaded = true;
         Gdx.app.debug("EnemyRegistry", "Loaded enemy assets");
     }
 }
