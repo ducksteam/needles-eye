@@ -793,6 +793,7 @@ public class Main extends ApplicationAdapter {
 			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 		}
 
+
 		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
 			if(upgradeClass == null||player.upgrades==null) return;
 			int counter = 0;
@@ -801,8 +802,8 @@ public class Main extends ApplicationAdapter {
 				if(upgrade.getIcon() == null) upgrade.setIconFromMap(spriteAssets);
 				if(upgrade.getClass().equals(upgradeClass)){
 					try {
-						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 32F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 32F));
-						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
+						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 16F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 16F));
+						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
 					}
