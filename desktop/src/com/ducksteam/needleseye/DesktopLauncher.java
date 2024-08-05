@@ -8,7 +8,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiMode;
 // Please note that on macOS your application needs to be started with the -XstartOnFirstThread JVM argument
 public class DesktopLauncher {
 	public static void main (String[] arg) {
-		boolean fullscreen = false;
+		boolean fullscreen = true;
 
 		Graphics.DisplayMode primaryDesktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();

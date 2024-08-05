@@ -691,6 +691,9 @@ public class Main extends ApplicationAdapter {
 	public void spawnEnemies(){
 		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
+				if(entry.getValue().getModelInstance()==null){
+					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass().toString()));
+				}
 				EnemyEntity enemy = entry.getValue();
 				Matrix4 transform = new Matrix4();
 				enemy.motionState.getWorldTransform(transform);
@@ -937,14 +940,6 @@ public class Main extends ApplicationAdapter {
 			batch.end();
       
 			renderGameOverlay();
-      
-			batch2d.begin();
-			for(int i=0;i<player.getHealth();i++){
-				int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
-				int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-				batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
-			}
-			batch2d.end();
 
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
@@ -1003,7 +998,14 @@ public class Main extends ApplicationAdapter {
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
-		buildFonts();
+		//buildFonts();
+		buildPauseMenu();
+		buildDebugMenu();
+		buildMainMenu();
+		buildThreadMenu();
+		buildDeathMenu();
+		buildInstructionsMenu();
+		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
 	}
 
 	@Override
