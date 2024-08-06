@@ -12,7 +12,7 @@ public class DesktopLauncher {
 
 		Graphics.DisplayMode primaryDesktopMode = Lwjgl3ApplicationConfiguration.getDisplayMode();
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
-		config.setTitle("Dust Team");
+		config.setTitle("Needle's Eye");
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
@@ -21,6 +21,8 @@ public class DesktopLauncher {
         config.setDecorated(true);
 		config.useVsync(false);
 		config.setHdpiMode(HdpiMode.Pixels);
+		config.setWindowIcon("icon/icon_128.png", "icon/icon_64.png", "icon/icon_32.png", "icon/icon_16.png");
+
 
 		new Lwjgl3Application(new Main(), config);
 	}
