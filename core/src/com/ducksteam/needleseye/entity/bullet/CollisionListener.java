@@ -1,8 +1,10 @@
-package com.ducksteam.needleseye.entity;
+package com.ducksteam.needleseye.entity.bullet;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.player.Player;
