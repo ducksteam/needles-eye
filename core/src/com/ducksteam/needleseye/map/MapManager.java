@@ -48,11 +48,12 @@ public class MapManager {
         if (!decoDir.exists()) { // check if the deco template directory exists
             Gdx.app.error("MapManager", "Deco template directory not found: " + DECO_TEMPLATE_PATH);
             return;
-        }
-        for (File file : Objects.requireNonNull(decoDir.listFiles())) { // load all deco templates
-            if (file.getName().endsWith(".json")) { // only load json files
-                decoTemplates.add(DecoTemplate.loadDecoTemplate(file)); // load the deco template
-                Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": \n" + decoTemplates.getLast().toString());
+        } else {
+            for (File file : Objects.requireNonNull(decoDir.listFiles())) { // load all deco templates
+                if (file.getName().endsWith(".json")) { // only load json files
+                    decoTemplates.add(DecoTemplate.loadDecoTemplate(file)); // load the deco template
+                    Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": \n" + decoTemplates.getLast().toString());
+                }
             }
         }
         Gdx.app.debug("MapManager", "Loaded data for " + decoTemplates.size() + " deco templates");

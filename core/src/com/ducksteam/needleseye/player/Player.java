@@ -13,8 +13,8 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
-import com.ducksteam.needleseye.entity.EntityMotionState;
-import com.ducksteam.needleseye.entity.GenericMotionState;
+import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
+import com.ducksteam.needleseye.entity.bullet.GenericMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
@@ -61,9 +61,10 @@ public class Player extends Entity implements IHasHealth {
 
         eulerRotation = new Vector3(0,0,1);
 
-        Main.dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-        Main.dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
-        Main.dynamicsWorld.setDebugDrawer(debugDrawer);
+        dynamicsWorld.dispose();
+        dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
+        dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
+        dynamicsWorld.setDebugDrawer(debugDrawer);
 
         setModelInstance(null);
 
@@ -81,6 +82,9 @@ public class Player extends Entity implements IHasHealth {
 
     @Override
     public void setModelInstance(ModelInstance modelInstance) {
+        if (collisionShape != null && !collisionShape.isDisposed()) collisionShape.dispose();
+        if (collider != null && !collider.isDisposed()) collider.dispose();
+
         collisionShape = new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F));
         motionState = new EntityMotionState(this);
         Vector3 inertia = new Vector3();

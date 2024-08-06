@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 
 import java.util.ArrayList;
 

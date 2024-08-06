@@ -26,7 +26,6 @@ import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
-import com.badlogic.gdx.physics.bullet.linearmath.LinearMath;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
@@ -37,6 +36,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
+import com.ducksteam.needleseye.entity.bullet.CollisionListener;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -816,10 +816,14 @@ public class Main extends ApplicationAdapter {
 	}
 
 	public void onPlayerDeath() {
+		player.destroy();
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		mapMan.levels.clear();
 		mapMan.levelIndex = 1;
+
+		batch.dispose();
+		batch = new ModelBatch();
 
 		threadAnimState = new int[]{0, 0, 0};
 		player.baseUpgrade = BaseUpgrade.NONE;

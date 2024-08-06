@@ -1,4 +1,4 @@
-package com.ducksteam.needleseye.entity;
+package com.ducksteam.needleseye.entity.bullet;
 
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
