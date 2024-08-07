@@ -57,7 +57,6 @@ import java.util.*;
 public class Main extends ApplicationAdapter {
 	// 3d rendering utils
 	ModelBatch batch;
-
 	public static PerspectiveCamera camera;
 	public static FitViewport viewport;
 	Environment environment;
@@ -239,24 +238,14 @@ public class Main extends ApplicationAdapter {
 
 		//Establishes physics
 		Bullet.init();
-
 		contactListener = new CollisionListener();
 		contactListener.enable();
-
 		collisionConfig = new btDefaultCollisionConfiguration();
 		dispatcher = new btCollisionDispatcher(collisionConfig);
 		broadphase = new btDbvtBroadphase();
 		constraintSolver = new btSequentialImpulseConstraintSolver();
-
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-
-		debugDrawer = new DebugDrawer();
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-
-		spriteAddresses.add("ui/icons/heart.png");
-
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
-
 		batch2d = new SpriteBatch();
 
 		debugDrawer = new DebugDrawer();
@@ -285,8 +274,6 @@ public class Main extends ApplicationAdapter {
 		assMan = new AssetManager();
 		mapMan = new MapManager();
 
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
-		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
 		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/menu/thread-transition.png"));
@@ -295,9 +282,7 @@ public class Main extends ApplicationAdapter {
 
 		//Finalises
 		assMan.finishLoading();
-
 		initialiseInputProcessors();
-
 		setGameState(GameState.MAIN_MENU);
     }
 
@@ -735,9 +720,6 @@ public class Main extends ApplicationAdapter {
 				Matrix4 transform = new Matrix4();
 				enemy.motionState.getWorldTransform(transform);
 				transform.setTranslation(room.getPosition().add(new Vector3(0,2,0)));
-				/*transform.rotate(Vector3.Y, enemy.getRotation().y);
-				transform.rotate(Vector3.X, enemy.getRotation().x);
-				transform.rotate(Vector3.Z, enemy.getRotation().z);*/
 				entities.put(enemy.id, enemy);
 			}
 		});
@@ -960,17 +942,12 @@ public class Main extends ApplicationAdapter {
 
 			// Update camera pos
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
-//			camera.position.set(entities.values().stream().filter(e -> e instanceof EnemyEntity).findFirst().get().getPosition()).add(0, 0.2f, 0);
 			camera.direction.set(player.getEulerRotation());
-			camera.update();
 
 			playerLantern.set(playerLanternColour,player.getPosition().add(0, 0.5f, 0),10);
 
 			//Render the game contents
 			batch.begin(camera);
-
-			//batch.render(modelInstances,environment);
-
 			player.update(Gdx.graphics.getDeltaTime());
 
 			entities.forEach((Integer id, Entity entity) -> {
@@ -978,7 +955,6 @@ public class Main extends ApplicationAdapter {
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
-
 			batch.end();
 			camera.update();
 
@@ -988,11 +964,8 @@ public class Main extends ApplicationAdapter {
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
 
-			//if player falls off the map, they die
-
 			Matrix4 transform = new Matrix4();
 			player.motionState.getWorldTransform(transform);
-
 			if(transform.getTranslation(new Vector3()).y < -10){
 				player.setHealth(0);
 			}
