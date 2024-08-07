@@ -208,12 +208,13 @@ public class Main extends ApplicationAdapter {
 	}
 
 	/**
-	 * Establishes game at start of runtime
+	 * Establishes game at start of runtime and starts all necessary processes
 	 * */
 	@Override
 	public void create () {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		//Runs registries
 		Upgrade.registerUpgrades();
 		EnemyRegistry.initEnemies();
 
@@ -228,14 +229,15 @@ public class Main extends ApplicationAdapter {
         });
 		Gdx.app.debug("SpriteAddresses", spriteAddresses.toString());
 
-		buildFonts();
-
+		//Registers other assets
+		spriteAddresses.add("ui/icons/heart.png");
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
 
+		//Establishes physics
 		Bullet.init();
 
 		contactListener = new CollisionListener();
@@ -257,29 +259,41 @@ public class Main extends ApplicationAdapter {
 
 		batch2d = new SpriteBatch();
 
+		debugDrawer = new DebugDrawer();
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+
+		//Builds UI elements
+		buildFonts();
 		buildMainMenu();
 		buildThreadMenu();
 		buildPauseMenu();
 		buildDeathMenu();
 		buildInstructionsMenu();
 
+		//Sets up environment and camera
+		playerLanternColour = new Color(0.8f, 0.8f, 0.8f, 1f);
+		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
 		environment = new Environment();
 		batch = new ModelBatch();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.globalLightColour));
+		environment.add(playerLantern);
+		camera.near = 0.1f;
 
+		//Sets up game managers
 		assMan = new AssetManager();
 		mapMan = new MapManager();
 
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight, 0.4f, 0.4f, 0.4f, 1f));
 		environment.add(new DirectionalLight().set(0.8f, 0.8f, 0.8f, -1f, -0.8f, -0.2f));
 
-		camera.near = 0.1f;
-
+		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/menu/thread-transition.png"));
 		TextureRegion[] transitionFrames = TextureRegion.split(transitionMap, 640, 360)[0];
 		transitionAnimation = new Animation<>(Config.LOADING_ANIM_SPEED, transitionFrames);
 
+		//Finalises
 		assMan.finishLoading();
 
 		initialiseInputProcessors();
@@ -287,6 +301,9 @@ public class Main extends ApplicationAdapter {
 		setGameState(GameState.MAIN_MENU);
     }
 
+	/**
+	 * Construct instructions menu from actors
+	 * */
 	private void buildInstructionsMenu() {
 		instructionsMenu = new Stage();
 
@@ -325,7 +342,9 @@ public class Main extends ApplicationAdapter {
 
 		instructionsMenu.addActor(instructions);
 	}
-
+	/**
+	 * Construct death menu from actors
+	 * */
 	private void buildDeathMenu() {
 		deathMenu = new Stage();
 
@@ -355,6 +374,9 @@ public class Main extends ApplicationAdapter {
 		deathMenu.addActor(resumeButton);
 	}
 
+	/**
+	 * Construct font assets
+	 * */
 	private void buildFonts() {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
@@ -362,6 +384,9 @@ public class Main extends ApplicationAdapter {
 		debugFont = generator.generateFont(parameter);
 	}
 
+	/**
+	 * Construct main menu from actors
+	 * */
 	private void buildMainMenu() {
 		mainMenu = new Stage();
 
@@ -442,6 +467,9 @@ public class Main extends ApplicationAdapter {
 		mainMenu.addActor(quitButton);
 	}
 
+	/**
+	 * Construct thread menu from actors
+	 * */
 	private void buildThreadMenu(){
 		threadMenu = new Stage();
 
@@ -623,6 +651,9 @@ public class Main extends ApplicationAdapter {
 		threadMenu.addActor(tRodButton);
 	}
 
+	/**
+	 * Construct debug menu from actors
+	 * */
 	private void buildDebugMenu(){
 		debug = new Stage();
 		ArrayList<Label> labels = new ArrayList<>();
@@ -667,6 +698,9 @@ public class Main extends ApplicationAdapter {
 		});
 	}
 
+	/**
+	 * Construct pause menu from actors
+	 * */
 	private void buildPauseMenu(){
 		pauseMenu = new Stage();
 
@@ -688,6 +722,9 @@ public class Main extends ApplicationAdapter {
 		pauseMenu.addActor(resumeButton);
 	}
 
+	/**
+	 * Receives enemy data from rooms and releases them to level
+	 * */
 	public void spawnEnemies(){
 		mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
@@ -711,26 +748,13 @@ public class Main extends ApplicationAdapter {
 	}
 
 	/**
-	 * Method for loader thread to load assets
+	 * Loads all models and sprites tp game
 	 * */
 	private void loadAssets(){
 		Gdx.app.debug("Loader thread", "Loading started");
-		// Deco loading is moved to MapManager
-
-		//Enemies is no longer used, replaced with entities
-		/*enemies.forEach((EnemyEntity enemy) -> {
-			if (enemy.getModelAddress() == null){
-				enemy.isRenderable = false;
-				return;
-			}
-			assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
-			assMan.load(enemy.getModelAddress(), SceneAsset.class);
-			assMan.finishLoadingAsset(enemy.getModelAddress());
-			enemy.setModelInstance(new ModelInstance(((SceneAsset)assMan.get(enemy.getModelAddress())).scene.model));
-		});*/
-
+		//Enemies
 		EnemyRegistry.loadEnemyAssets(assMan);
-
+		//Rooms
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
 			assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
@@ -738,18 +762,18 @@ public class Main extends ApplicationAdapter {
 			assMan.finishLoadingAsset(room.getModelPath());
 			room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
 		});
-
+		//Walls
 		assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 		assMan.load(WallObject.modelAddress, SceneAsset.class);
 		assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
-
+		//Sprites
 		spriteAddresses.forEach((String address)->{
 			if(address == null) return;
 			assMan.load(address, Texture.class);
 			assMan.finishLoadingAsset(address);
 			spriteAssets.put(address,assMan.get(address));
 		});
-
+		//Upgrade sprites
 		UpgradeRegistry.registeredUpgrades.values().forEach((upgradeClass) -> {
 			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 			if (Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress() == null) return;
@@ -785,7 +809,11 @@ public class Main extends ApplicationAdapter {
 		mainMenu.draw();
 	}
 
+	/**
+	 * Game overlay rendering protocol
+	 * */
 	private void renderGameOverlay(){
+		//Draws health
 		batch2d.begin();
 		for(int i=0;i<player.getHealth();i++){
 			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
@@ -793,7 +821,7 @@ public class Main extends ApplicationAdapter {
 			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 		}
 
-
+		//Draws upgrades
 		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
 			if(upgradeClass == null||player.upgrades==null) return;
 			int counter = 0;
@@ -815,6 +843,10 @@ public class Main extends ApplicationAdapter {
 		batch2d.end();
 	}
 
+	/**
+	 * Called on the death of the player
+	 * Resets important information and sets the game state to the dead menu
+	 * */
 	public void onPlayerDeath() {
 		player.destroy();
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
@@ -831,6 +863,9 @@ public class Main extends ApplicationAdapter {
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
 
+	/**
+	 * Rebuilds the physics system
+	 * */
 	public static void rebuildDynamicsWorld() {
 		if (dynamicsWorld != null) dynamicsWorld.dispose();
 		if (constraintSolver != null) constraintSolver.dispose();
@@ -923,13 +958,15 @@ public class Main extends ApplicationAdapter {
 
 			player.setGrounded(!contactListener.playerGroundContacts.isEmpty());
 
-//			player.setPosition(player.getPosition().add(player.getVelocity().scl(Gdx.graphics.getDeltaTime())));
-
+			// Update camera pos
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
 //			camera.position.set(entities.values().stream().filter(e -> e instanceof EnemyEntity).findFirst().get().getPosition()).add(0, 0.2f, 0);
 			camera.direction.set(player.getEulerRotation());
 			camera.update();
 
+			playerLantern.set(playerLanternColour,player.getPosition().add(0, 0.5f, 0),10);
+
+			//Render the game contents
 			batch.begin(camera);
 
 			//batch.render(modelInstances,environment);
@@ -943,9 +980,11 @@ public class Main extends ApplicationAdapter {
 			});
 
 			batch.end();
-      
+			camera.update();
+
 			renderGameOverlay();
 
+			//Update physics
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
 			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
 
@@ -961,6 +1000,7 @@ public class Main extends ApplicationAdapter {
 				onPlayerDeath();
 			}
 
+			// Update the attack display
 			if (attackAnimTime > 0 && player.baseUpgrade.swingAnim != null) {
 				attackAnimTime += Gdx.graphics.getDeltaTime();
 				TextureRegion currentFrame = player.baseUpgrade.swingAnim.getKeyFrame(attackAnimTime);
@@ -996,10 +1036,18 @@ public class Main extends ApplicationAdapter {
 		}
 	}
 
+	/**
+	 * Returns the current tracking time in milliseconds
+	 * */
 	public static long getTime() {
 		return time;
 	}
 
+	/**
+	 * @param width The new width of the window
+	 * @param height The new height of the window
+	 * Called when the window is resized
+	 * */
 	@Override
 	public void resize(int width, int height) {
 		viewport.update(width, height);
@@ -1013,6 +1061,9 @@ public class Main extends ApplicationAdapter {
 		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
 	}
 
+	/**
+	 * Disposes resources
+	 * */
 	@Override
 	public void dispose() {
 		if (batch != null) batch.dispose();

@@ -1,6 +1,8 @@
 package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.HashMap;
 
@@ -13,6 +15,9 @@ public class Config {
     public static HashMap<String, Integer> keys = new HashMap<>();
     public static boolean debugMenu = false;
     public static boolean doRenderColliders = false;
+
+    public static float globalLightIntensity = 0.3f;
+    public static Color globalLightColour = new Color(0.4f*globalLightIntensity, 0.4f*globalLightIntensity, 0.4f*globalLightIntensity, 1);
 
     // Global constants
     public static final float ROTATION_SPEED = 0.007F /* * MathUtils.degRad*/;
