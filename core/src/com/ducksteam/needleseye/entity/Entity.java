@@ -40,7 +40,7 @@ public abstract class Entity {
 
 	private float mass = 0f;
 	private float freezeTime = 0f;
-	private int flags;
+	private final int flags;
 	protected static final Matrix4 tmpMat = new Matrix4();
 
 	public static int currentId = 1;
@@ -87,10 +87,10 @@ public abstract class Entity {
 		CollisionObjectWrapper co0 = new CollisionObjectWrapper(obj0);
 		CollisionObjectWrapper co1 = new CollisionObjectWrapper(obj1);
 
+		btCollisionAlgorithm algorithm = Main.dispatcher.findAlgorithm(co0.wrapper, co1.wrapper, null, ebtDispatcherQueryType.BT_CONTACT_POINT_ALGORITHMS);
+
 		btDispatcherInfo info = new btDispatcherInfo();
 		btManifoldResult result = new btManifoldResult(co0.wrapper, co1.wrapper);
-
-		btCollisionAlgorithm algorithm = Main.dispatcher.findAlgorithm(co0.wrapper, co1.wrapper, result.getPersistentManifold(), 1);
 
 		algorithm.processCollision(co0.wrapper, co1.wrapper, info, result);
 

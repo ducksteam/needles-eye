@@ -631,6 +631,11 @@ public class Main extends ApplicationAdapter {
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * 383/640, (float) Gdx.graphics.getHeight() * 100/360);
 		}
 
+		soulButton.debugAll();
+		coalButton.debugAll();
+		joltButton.debugAll();
+		tRodButton.debugAll();
+
 		// Adding buttons to stage
 		threadMenu.addActor(soulButton);
 		threadMenu.addActor(coalButton);
@@ -879,6 +884,7 @@ public class Main extends ApplicationAdapter {
 		dynamicsWorld.setDebugDrawer(debugDrawer);
 
 		for (Entity entity : entities.values()) {
+			if (entity.collider == null) continue;
 			dynamicsWorld.addRigidBody(entity.collider);
 		}
 	}
@@ -945,7 +951,7 @@ public class Main extends ApplicationAdapter {
 			deathMenu.draw();
 		}
 
-		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
+		if (gameState == GameState.IN_GAME){
 			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
 			player.setGrounded(!CollisionListener.playerGroundContacts.isEmpty());
@@ -958,6 +964,7 @@ public class Main extends ApplicationAdapter {
 
 			//Render the game contents
 			batch.begin(camera);
+
 			player.update(Gdx.graphics.getDeltaTime());
 
 			entities.forEach((Integer id, Entity entity) -> {
@@ -966,6 +973,9 @@ public class Main extends ApplicationAdapter {
 				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
+			});
+
+			entities.forEach((Integer id, Entity entity) -> {
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
 			batch.end();
@@ -1053,11 +1063,11 @@ public class Main extends ApplicationAdapter {
 		if (debug != null) debug.dispose();
 		if (assMan != null) assMan.dispose();
 		if (debugFont != null) debugFont.dispose();
-		if (dynamicsWorld != null) dynamicsWorld.dispose();
-		if (constraintSolver != null) constraintSolver.dispose();
-		if (broadphase != null) broadphase.dispose();
-		if (collisionConfig != null) collisionConfig.dispose();
-		if (dispatcher != null) dispatcher.dispose();
-		if (debugDrawer != null) debugDrawer.dispose();
-	}
+        if (dynamicsWorld != null  && !dynamicsWorld.isDisposed()) dynamicsWorld.dispose();
+        if (constraintSolver != null && !constraintSolver.isDisposed()) constraintSolver.dispose();
+        if (broadphase != null && !broadphase.isDisposed()) broadphase.dispose();
+        if (collisionConfig != null && !collisionConfig.isDisposed()) collisionConfig.dispose();
+        if (dispatcher != null && !dispatcher.isDisposed()) dispatcher.dispose();
+        if (debugDrawer != null && !debugDrawer.isDisposed()) debugDrawer.dispose();
+    }
 }

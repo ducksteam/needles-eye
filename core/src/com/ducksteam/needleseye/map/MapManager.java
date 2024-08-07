@@ -195,9 +195,11 @@ public class MapManager {
         level.walls = new HashMap<>();
 
         Vector2[] translations = new Vector2[]{ new Vector2(0,-0.5F), new Vector2(-0.5F,0), new Vector2(-0.5F,-1),new Vector2(-1,-0.5F)};
-        Vector2[] hallwayTranslations = new Vector2[]{new Vector2(-0.5f, -1), new Vector2(0, -0.5f), new Vector2(1, -0.5f), new Vector2(0, 0.5f), new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(0.5f, 1)};
-        float[] rotations = new float[]{0,90,90,0,90,90,0};
-        Vector2[] roomOffsets = new Vector2[]{new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(1, 1), new Vector2(-1, 1), new Vector2(0, 2)};
+        Vector2[] hallwayTranslations = new Vector2[]{new Vector2(-0.5f, -1), new Vector2(0, -0.5f), new Vector2(1, -0.5f), new Vector2(0, 0.5f), new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(1, 0.5f)};
+        float[] rotations = new float[]{0,90,90,0};
+        float[] hallwayRotations = new float[]{90, 0, 0, 90, 0, 90, 90, 0};
+        Vector2[] roomOffsets = {new Vector2(0, -1), new Vector2(-1, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(0, 2)
+        };
         int[] correspondingDoors = new int[]{3, 2, 1, 0, 2, 1, 0};
         int[] placeholderDoors = new int[]{6, 5, 4, 99, 5, 4, 99};
 
@@ -209,9 +211,11 @@ public class MapManager {
             if (type == RoomTemplate.RoomType.HALLWAY) possibleDoors = 7;
 
             Vector2[] relevantTranslations = type == RoomTemplate.RoomType.HALLWAY ? hallwayTranslations : translations;
+            float[] relevantRotations = type == RoomTemplate.RoomType.HALLWAY ? hallwayRotations : rotations;
 
             for(int i = 0; i < possibleDoors; i++){
-                if (i == 3) continue; // skip door 3
+//                if (i > 1) continue;
+                if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
                 if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(relevantTranslations[i])) != null) continue; // if there's already a wall there, skip it
 
                 boolean hasDoor = false;
@@ -220,7 +224,7 @@ public class MapManager {
                 Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
 
                 Quaternion rotation = new Quaternion();
-                rotation.set(Vector3.Y, rotations[i]);
+                rotation.set(Vector3.Y, relevantRotations[i]);
 
                 boolean roomTemplateDoorEnabled = roomInstance.getRoom().getDoors().get(i); // if this template has the door enabled
                 if (roomTemplateDoorEnabled) {

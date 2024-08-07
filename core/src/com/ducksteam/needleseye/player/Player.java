@@ -79,9 +79,8 @@ public class Player extends Entity implements IHasHealth {
         if (getDamageTimeout() > 0) damageTimeout -= delta;
         if (attackTimeout > 0) attackTimeout -= delta;
         motionState.getWorldTransform(tmpMat);
-        tmpMat.getTranslation(tmp);
-        if (tmp.y <= -10) setHealth(0);
-        if (getHealth() <= 0 && gameState == GameState.IN_GAME) onPlayerDeath();
+        if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
+        if (getHealth() <= 0) Main.onPlayerDeath();
     }
 
     @Override
@@ -104,7 +103,7 @@ public class Player extends Entity implements IHasHealth {
         collider.setContactCallbackFlag(PLAYER_GROUP);
         collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);
 
-        Main.dynamicsWorld.addRigidBody(collider);
+        dynamicsWorld.addRigidBody(collider);
     }
 
     public void primaryAttack() {
