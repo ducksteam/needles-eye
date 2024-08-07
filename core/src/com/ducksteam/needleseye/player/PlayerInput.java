@@ -20,7 +20,7 @@ import static com.ducksteam.needleseye.Main.player;
 public class PlayerInput implements InputProcessor, ControllerListener {
 
     // The keys that are currently pressed
-    private static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
+    public static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
     static Vector3 tmp = new Vector3();
     static Vector3 tmp2 = new Vector3();

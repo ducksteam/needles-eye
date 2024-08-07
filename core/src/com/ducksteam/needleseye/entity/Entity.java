@@ -41,7 +41,7 @@ public abstract class Entity {
 	private float mass = 0f;
 	private float freezeTime = 0f;
 	private int flags;
-	private static final Matrix4 tmpMat = new Matrix4();
+	protected static final Matrix4 tmpMat = new Matrix4();
 
 	public static int currentId = 1;
 	public int id;
@@ -148,6 +148,7 @@ public abstract class Entity {
 			collisionShape.calculateLocalInertia(mass, inertia);
 
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.obtain();
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 			collider.setUserValue(this.id);
@@ -210,9 +211,10 @@ public abstract class Entity {
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
 		entities.remove(id);
-		collider.dispose();
-		motionState.dispose();
-		collisionShape.dispose();
+//		collisionShape.release();
+//		motionState.release();
+//		collider.release();
+//		collider.dispose();
 	}
 
 	public void freeze(int time) {

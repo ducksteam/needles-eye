@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.pickups;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -27,8 +28,9 @@ public class UpgradeEntity extends Entity {
 
         collider.setContactCallbackFlag(PICKUP_GROUP);
         collider.setContactCallbackFilter(PLAYER_GROUP);
+        Gdx.app.debug("ContactCallback", collider.getContactCallbackFilter() + " filter " + collider.getContactCallbackFlag() + " flag");
 
-        //this.setModelAddress(upgrade.getModelAddress());ad
+        //this.setModelAddress(upgrade.getModelAddress());
     }
 
     public Upgrade getUpgrade() {

@@ -8,6 +8,7 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.player.Player;
+import com.ducksteam.needleseye.player.Upgrade;
 
 import java.util.ArrayList;
 
@@ -33,6 +34,9 @@ public class CollisionListener extends ContactListener {
 		Entity entity1 = Main.entities.get(userValue1);
 		if (entity0 == null || entity1 == null) return false;
 		Gdx.app.debug("CollisionListener", "Contact added between " + entity0 + " cf " + match0 + " and " + entity1 + " cf " + match1);
+
+		if (entity1 instanceof Player) onContactAdded(userValue1, partId1, index1, match1, userValue0, partId0, index0, match0); // flip for convenience
+
 		if (entity0 instanceof Player) {
 			if (entity1 instanceof EnemyEntity) {
 				((Player) entity0).damage(((EnemyEntity) entity1).getContactDamage());
@@ -42,7 +46,8 @@ public class CollisionListener extends ContactListener {
 				}
 			} else if (entity1 instanceof UpgradeEntity) {
 				entity1.collider.setContactCallbackFilter(0);
-				((Player) entity0).upgrades.add(((UpgradeEntity) entity1).getUpgrade());
+				Upgrade pickup = ((UpgradeEntity) entity1).getUpgrade();
+				((Player) entity0).upgrades.add(pickup);
 				((UpgradeEntity) entity1).getUpgrade().onPickup();
 				entity1.destroy();
 			}

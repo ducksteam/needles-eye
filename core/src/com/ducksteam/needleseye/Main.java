@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
-import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -56,7 +55,7 @@ import java.util.*;
  * */
 public class Main extends ApplicationAdapter {
 	// 3d rendering utils
-	ModelBatch batch;
+	static ModelBatch batch;
 	public static PerspectiveCamera camera;
 	public static FitViewport viewport;
 	Environment environment;
@@ -109,7 +108,7 @@ public class Main extends ApplicationAdapter {
 	public static float crackAnimTime;
 	Runnable animPreDraw;
 	Runnable animFinished;
-	int[] threadAnimState = {0, 0, 0};
+	static int[] threadAnimState = {0, 0, 0};
 
 	Animation<TextureRegion> transitionAnimation;
 
@@ -194,7 +193,10 @@ public class Main extends ApplicationAdapter {
 			else menuMusic.pause();
 		}
 		gameStateCheck = gameState.toString();
-		if(gameState == GameState.IN_GAME) Gdx.input.setCursorCatched(true);
+		if(gameState == GameState.IN_GAME) {
+			Gdx.input.setCursorCatched(true);
+			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
+		}
 	}
 
 	/**
@@ -237,7 +239,7 @@ public class Main extends ApplicationAdapter {
 		}
 
 		//Establishes physics
-		Bullet.init();
+		Bullet.init(true);
 		contactListener = new CollisionListener();
 		contactListener.enable();
 		collisionConfig = new btDefaultCollisionConfiguration();
@@ -829,15 +831,23 @@ public class Main extends ApplicationAdapter {
 	 * Called on the death of the player
 	 * Resets important information and sets the game state to the dead menu
 	 * */
-	public void onPlayerDeath() {
+	public static void onPlayerDeath() {
+		Gdx.app.log("Main", "Player died");
 		player.destroy();
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		mapMan.levels.clear();
 		mapMan.levelIndex = 1;
+		entities.clear();
 
 		batch.dispose();
 		batch = new ModelBatch();
+
+		contactListener.dispose();
+		contactListener = new CollisionListener();
+		contactListener.enable();
+
+		Gdx.app.debug("contactListener death", contactListener.isOnAddedEnabled() + " added, " + contactListener.isOnEndedEnabled() + " ended");
 
 		threadAnimState = new int[]{0, 0, 0};
 		player.baseUpgrade = BaseUpgrade.NONE;
@@ -938,7 +948,7 @@ public class Main extends ApplicationAdapter {
 		if (gameState == GameState.IN_GAME){//if (!player.getVel().equals(Vector3.Zero)) Gdx.app.debug("vel", player.getVel() + " vel | pos " + player.getPos());
 			PlayerInput.update(Gdx.graphics.getDeltaTime());
 
-			player.setGrounded(!contactListener.playerGroundContacts.isEmpty());
+			player.setGrounded(!CollisionListener.playerGroundContacts.isEmpty());
 
 			// Update camera pos
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
@@ -951,6 +961,9 @@ public class Main extends ApplicationAdapter {
 			player.update(Gdx.graphics.getDeltaTime());
 
 			entities.forEach((Integer id, Entity entity) -> {
+				if (entity instanceof RoomInstance) {
+					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
+				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
@@ -962,16 +975,6 @@ public class Main extends ApplicationAdapter {
 
 			//Update physics
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
-			mapMan.getCurrentLevel().getRooms().forEach((RoomInstance room) -> room.collider.getWorldTransform(room.transform));
-
-			Matrix4 transform = new Matrix4();
-			player.motionState.getWorldTransform(transform);
-			if(transform.getTranslation(new Vector3()).y < -10){
-				player.setHealth(0);
-			}
-			if(player.getHealth() <= 0){
-				onPlayerDeath();
-			}
 
 			// Update the attack display
 			if (attackAnimTime > 0 && player.baseUpgrade.swingAnim != null) {
