@@ -3,10 +3,7 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.Cursor;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.PerspectiveCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,6 +13,7 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.DirectionalLight;
+import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -63,6 +61,8 @@ public class Main extends ApplicationAdapter {
 	public static PerspectiveCamera camera;
 	public static FitViewport viewport;
 	Environment environment;
+	PointLight playerLantern;
+	Color playerLanternColour;
 
    static Music menuMusic;
   
@@ -831,7 +831,7 @@ public class Main extends ApplicationAdapter {
 				if(upgrade.getClass().equals(upgradeClass)){
 					try {
 						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 16F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 16F));
-						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
+						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getHeight()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
 					}
