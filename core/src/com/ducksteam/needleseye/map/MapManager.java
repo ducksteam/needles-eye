@@ -176,12 +176,13 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
-        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
-            if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
-                level.getRooms().remove(i);
-                i--;
-            }
-        }
+        // Currently being used in adding walls
+//        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
+//            if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
+//                level.getRooms().remove(i);
+//                i--;
+//            }
+//        }
 
         addWalls(level);
         populateLevel(level);
@@ -192,25 +193,72 @@ public class MapManager {
 
     public void addWalls(Level level){
         level.walls = new HashMap<>();
+
+        Vector2[] translations = new Vector2[]{ new Vector2(0,-0.5F), new Vector2(-0.5F,0), new Vector2(-0.5F,-1),new Vector2(-1,-0.5F)};
+        Vector2[] hallwayTranslations = new Vector2[]{new Vector2(-0.5f, -1), new Vector2(0, -0.5f), new Vector2(1, -0.5f), new Vector2(0, 0.5f), new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(0.5f, 1)};
+        float[] rotations = new float[]{0,90,90,0,90,90,0};
+        Vector2[] roomOffsets = new Vector2[]{new Vector2(0, -1), new Vector2(1, 0), new Vector2(-1, 0), new Vector2(0, 1), new Vector2(1, 1), new Vector2(-1, 1), new Vector2(0, 2)};
+        int[] correspondingDoors = new int[]{3, 2, 1, 0, 2, 1, 0};
+        int[] placeholderDoors = new int[]{6, 5, 4, 99, 5, 4, 99};
+
         level.getRooms().forEach(roomInstance -> {
+            RoomTemplate.RoomType type = roomInstance.getRoom().getType();
+            if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return; // skip placeholder rooms
 
-            Vector2[] translations = new Vector2[]{ new Vector2(0,-0.5F), new Vector2(-0.5F,0), new Vector2(-0.5F,-1),new Vector2(-1,-0.5F)};
-            float[] rotations = new float[]{0,90,90,0};
+            int possibleDoors = 4;
+            if (type == RoomTemplate.RoomType.HALLWAY) possibleDoors = 7;
 
-            for(int i=0;i<translations.length;i++){
-                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(translations[i])) != null) continue; // if there's already a wall there, skip it
-                Vector2 translation = translations[i];
+            Vector2[] relevantTranslations = type == RoomTemplate.RoomType.HALLWAY ? hallwayTranslations : translations;
+
+            for(int i = 0; i < possibleDoors; i++){
+                if (i == 3) continue; // skip door 3
+                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(relevantTranslations[i])) != null) continue; // if there's already a wall there, skip it
+
+                boolean hasDoor = false;
+
+                Vector2 translation = relevantTranslations[i];
                 Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
+
                 Quaternion rotation = new Quaternion();
                 rotation.set(Vector3.Y, rotations[i]);
 
-                boolean hasDoor = roomInstance.getRoom().getDoors().get(i);
+                boolean roomTemplateDoorEnabled = roomInstance.getRoom().getDoors().get(i); // if this template has the door enabled
+                if (roomTemplateDoorEnabled) {
+                    // check if the corresponding room exists
+                    Vector2 adjacentRoomOffset = roomOffsets[i];
+                    boolean adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset)));
+
+                    if (adjacentRoomExists) {
+                        // check if the adjacent room also has the door enabled
+
+                        // get the adjacent room
+                        RoomInstance adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset))).findFirst().orElse(null);
+                        assert adjacentRoom != null;
+
+                        // get door to check (assuming room is not placeholder)
+                        int correspondingDoor = correspondingDoors[i];
+
+                        // if room is placeholder
+                        if (adjacentRoom.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER){
+                            if (i == 6) break; // if door 6 is a placeholder, the second room of the hallway is also a new hallway, which is not possible
+                            adjacentRoomOffset.add(new Vector2(0, -1)); // move the offset to the real room
+                            adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset))).findFirst().orElse(null); // get the real room
+                            assert adjacentRoom != null; // make sure the room exists
+                            correspondingDoor = placeholderDoors[i]; // set the door to check to the original position in the new room
+                        }
+
+                        // check that the adjacent room's template allows for the door
+                        boolean adjacentRoomDoorEnabled = adjacentRoom.getRoom().getDoors().get(correspondingDoor);
+
+                        if (adjacentRoomDoorEnabled) { // if all checks have passed, allow the door
+                            hasDoor = true;
+                        }
+                    }
+                }
 
                 WallObject wall = new WallObject(position, rotation, hasDoor);
                 level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
             }
-
-//
         });
     }
     public Level getCurrentLevel(){
