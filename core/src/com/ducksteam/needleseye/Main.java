@@ -53,7 +53,7 @@ import java.util.*;
  * @author thechiefpotatopeeler
  * @author SkySourced
  * */
-public class Main extends ApplicationAdapter {
+public class Main extends Game {
 	// 3d rendering utils
 	static ModelBatch batch;
 	public static PerspectiveCamera camera;
@@ -74,6 +74,7 @@ public class Main extends ApplicationAdapter {
 	SpriteBatch batch2d;
 	HashMap<String,Texture> spriteAssets = new HashMap<>();
 	BitmapFont debugFont;
+	Splash splash;
 
 	// asset manager
 	public static AssetManager assMan;
@@ -204,6 +205,7 @@ public class Main extends ApplicationAdapter {
 	 * */
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
+		setScreen(splash);
 		loadAssets();
         setGameState(GameState.IN_GAME);
 	}
@@ -237,6 +239,7 @@ public class Main extends ApplicationAdapter {
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
+		splash = new Splash();
 
 		//Establishes physics
 		Bullet.init(true);
@@ -784,10 +787,7 @@ public class Main extends ApplicationAdapter {
 	 * Renders the loading screen while the assets are loading
 	 * */
 	private void renderLoadingFrame(){
-		batch2d.begin();
-		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		batch2d.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
-		batch2d.end();
+
 	}
 
 	/**
@@ -894,6 +894,7 @@ public class Main extends ApplicationAdapter {
 	 * */
 	@Override
 	public void render () {
+		super.render();
 		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
@@ -905,6 +906,13 @@ public class Main extends ApplicationAdapter {
 				gameStateCheck = gameState.toString();
 			}
 		}
+
+		/*if(assMan.update()){
+			batch2d.begin();
+			batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+			batch2d.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+			batch2d.end();
+		}*/
 
 		if(activeUIAnim != null){
 			if (animPreDraw != null) animPreDraw.run();
@@ -919,10 +927,6 @@ public class Main extends ApplicationAdapter {
 				if (animFinished != null) animFinished.run();
 			}
 			return;
-		}
-
-		if(gameState == GameState.LOADING){
-			renderLoadingFrame();
 		}
 
 		if(gameState == GameState.MAIN_MENU) {
@@ -1036,6 +1040,7 @@ public class Main extends ApplicationAdapter {
 	 * */
 	@Override
 	public void resize(int width, int height) {
+		super.resize(width, height);
 		viewport.update(width, height);
 		//buildFonts();
 		buildPauseMenu();
@@ -1052,6 +1057,7 @@ public class Main extends ApplicationAdapter {
 	 * */
 	@Override
 	public void dispose() {
+		super.dispose();
 		if (batch != null) batch.dispose();
 		if (batch2d != null) batch2d.dispose();
 		if (entities != null) entities.values().forEach(Entity::destroy);
