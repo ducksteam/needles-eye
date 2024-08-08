@@ -647,6 +647,7 @@ public class Main extends ApplicationAdapter {
 	 * Construct debug menu from actors
 	 * */
 	private void buildDebugMenu(){
+		if (debug != null) debug.dispose();
 		debug = new Stage();
 		ArrayList<Label> labels = new ArrayList<>();
 
