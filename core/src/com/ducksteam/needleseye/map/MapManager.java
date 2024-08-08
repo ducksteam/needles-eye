@@ -108,10 +108,6 @@ public class MapManager {
      * Generate a new level
      */
 
-    public RoomInstance getTestRoom(){
-        return new RoomInstance(roomTemplates.stream().filter(room -> room.getName().equals("brokenceiling")).findFirst().orElse(null), new Vector2(0, 0));
-    }
-
     public void generateTestLevel() {
         Level level = new Level(levelIndex);
 
@@ -171,18 +167,8 @@ public class MapManager {
             generateRoom(level, RoomTemplate.RoomType.TREASURE);
         }
 
-        generateRoom(level, RoomTemplate.RoomType.BOSS); // generate a boss room
-
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
-
-        // Currently being used in adding walls
-//        for (int i = 0; i < level.getRooms().size(); i++) { // remove placeholder hallways
-//            if (level.getRooms().get(i).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
-//                level.getRooms().remove(i);
-//                i--;
-//            }
-//        }
 
         addWalls(level);
         populateLevel(level);
@@ -194,73 +180,33 @@ public class MapManager {
     public void addWalls(Level level){
         level.walls = new HashMap<>();
 
-        Vector2[] translations = new Vector2[]{ new Vector2(0,-0.5F), new Vector2(-0.5F,0), new Vector2(-0.5F,-1),new Vector2(-1,-0.5F)};
-        Vector2[] hallwayTranslations = new Vector2[]{new Vector2(-0.5f, -1), new Vector2(0, -0.5f), new Vector2(1, -0.5f), new Vector2(0, 0.5f), new Vector2(0.5f, 0), new Vector2(0.5f, 1), new Vector2(1, 0.5f)};
-        float[] rotations = new float[]{0,90,90,0};
-        float[] hallwayRotations = new float[]{90, 0, 0, 90, 0, 90, 90, 0};
-        Vector2[] roomOffsets = {new Vector2(0, -1), new Vector2(-1, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(-1, 1), new Vector2(1, 1), new Vector2(0, 2)
-        };
-        int[] correspondingDoors = new int[]{3, 2, 1, 0, 2, 1, 0};
-        int[] placeholderDoors = new int[]{6, 5, 4, 99, 5, 4, 99};
+        Vector2[] translations = new Vector2[]{new Vector2(0, -0.5f), new Vector2(-0.5f, 0), new Vector2(-0.5f, -1), new Vector2(-1, -0.5f)};
+        int[] rotations = new int[]{0, 90, 270, 180};
+        Vector2[] roomOffsets = {new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 0)};
 
         level.getRooms().forEach(roomInstance -> {
             RoomTemplate.RoomType type = roomInstance.getRoom().getType();
-            if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return; // skip placeholder rooms
 
             int possibleDoors = 4;
-            if (type == RoomTemplate.RoomType.HALLWAY) possibleDoors = 7;
 
-            Vector2[] relevantTranslations = type == RoomTemplate.RoomType.HALLWAY ? hallwayTranslations : translations;
-            float[] relevantRotations = type == RoomTemplate.RoomType.HALLWAY ? hallwayRotations : rotations;
+			for(int i = 0; i < possibleDoors; i++){
+                if (i == 1 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
+                if (i == 2 && type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) continue; // skip door 0 for hallway placeholders
+                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(translations[i])) != null) continue; // if there's already a wall there, skip it
 
-            for(int i = 0; i < possibleDoors; i++){
-//                if (i > 1) continue;
-                if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
-                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(relevantTranslations[i])) != null) continue; // if there's already a wall there, skip it
+                boolean adjacentRoomExists;
 
-                boolean hasDoor = false;
-
-                Vector2 translation = relevantTranslations[i];
+                Vector2 translation = translations[i];
                 Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
 
                 Quaternion rotation = new Quaternion();
-                rotation.set(Vector3.Y, relevantRotations[i]);
+                rotation.set(Vector3.Y, rotations[i]);
 
-                boolean roomTemplateDoorEnabled = roomInstance.getRoom().getDoors().get(i); // if this template has the door enabled
-                if (roomTemplateDoorEnabled) {
-                    // check if the corresponding room exists
-                    Vector2 adjacentRoomOffset = roomOffsets[i];
-                    boolean adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset)));
+                // check if the corresponding room exists
+                Vector2 adjacentRoomOffset = roomOffsets[i];
+                adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset)));
 
-                    if (adjacentRoomExists) {
-                        // check if the adjacent room also has the door enabled
-
-                        // get the adjacent room
-                        RoomInstance adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset))).findFirst().orElse(null);
-                        assert adjacentRoom != null;
-
-                        // get door to check (assuming room is not placeholder)
-                        int correspondingDoor = correspondingDoors[i];
-
-                        // if room is placeholder
-                        if (adjacentRoom.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER){
-                            if (i == 6) break; // if door 6 is a placeholder, the second room of the hallway is also a new hallway, which is not possible
-                            adjacentRoomOffset.add(new Vector2(0, -1)); // move the offset to the real room
-                            adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset))).findFirst().orElse(null); // get the real room
-                            assert adjacentRoom != null; // make sure the room exists
-                            correspondingDoor = placeholderDoors[i]; // set the door to check to the original position in the new room
-                        }
-
-                        // check that the adjacent room's template allows for the door
-                        boolean adjacentRoomDoorEnabled = adjacentRoom.getRoom().getDoors().get(correspondingDoor);
-
-                        if (adjacentRoomDoorEnabled) { // if all checks have passed, allow the door
-                            hasDoor = true;
-                        }
-                    }
-                }
-
-                WallObject wall = new WallObject(position, rotation, hasDoor);
+                WallObject wall = new WallObject(position, rotation, adjacentRoomExists);
                 level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
             }
         });
@@ -355,15 +301,6 @@ public class MapManager {
         } else { // if the template is the wrong type, try again
             return getRandomRoomTemplate(type);
         }
-    }
-
-    /**
-     * Get a random room template, regardless of type
-     * @return a random room template
-     */
-
-    private RoomTemplate getRandomRoomTemplate() {
-        return getRandomRoomTemplate(null);
     }
 
     /**
