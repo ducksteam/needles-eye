@@ -650,6 +650,7 @@ public class Main extends Game {
 	 * Construct debug menu from actors
 	 * */
 	private void buildDebugMenu(){
+		if (debug != null) debug.dispose();
 		debug = new Stage();
 		ArrayList<Label> labels = new ArrayList<>();
 
