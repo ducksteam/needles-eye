@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.pickups;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
@@ -28,9 +27,10 @@ public class UpgradeEntity extends Entity {
 
         collider.setContactCallbackFlag(PICKUP_GROUP);
         collider.setContactCallbackFilter(PLAYER_GROUP);
-        Gdx.app.debug("ContactCallback", collider.getContactCallbackFilter() + " filter " + collider.getContactCallbackFlag() + " flag");
 
-        //this.setModelAddress(upgrade.getModelAddress());
+        motionState.getWorldTransform(tmpMat);
+        tmpMat.rotateRad(Vector3.X, 0.4f);
+        motionState.setWorldTransform(tmpMat);
     }
 
     public Upgrade getUpgrade() {
@@ -39,30 +39,13 @@ public class UpgradeEntity extends Entity {
 
     public void update(float delta) {
         motionState.getWorldTransform(tmpMat);
-        direction = rotateAroundSphere(direction, delta * 0.0001f);
-        tmpMat.rotateTowardDirection(direction, Vector3.Y);
         tmpMat.getTranslation(tmp);
+        tmpMat.rotateRad(Vector3.Y, delta);
         tmp.x = Math.round(tmp.x);
         tmp.y = (float) Math.sin((double) Main.getTime()/300)/6 + Config.UPGRADE_HEIGHT;
         tmp.z = Math.round(tmp.z);
         tmpMat.setTranslation(tmp);
         motionState.setWorldTransform(tmpMat);
-    }
-
-    private Vector3 rotateAroundSphere(Vector3 vector, float angle){
-        // Convert to spherical coordinates
-        float inclination = (float) Math.acos(vector.z / vector.len());
-        float azimuth = (float) Math.atan2(vector.y, vector.x);
-
-        // Rotate
-        azimuth += angle;
-
-        // Convert to cartesian coordinates
-        float x = (float) Math.sin(inclination) * (float) Math.cos(azimuth);
-        float y = (float) Math.sin(inclination) * (float) Math.sin(azimuth);
-        float z = (float) Math.cos(inclination);
-
-        return new Vector3(x, y, z);
     }
 
     @Override

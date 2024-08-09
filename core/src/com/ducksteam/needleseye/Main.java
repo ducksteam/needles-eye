@@ -700,6 +700,9 @@ public class Main extends Game {
 	private void buildPauseMenu(){
 		pauseMenu = new Stage();
 
+		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/pausebackground.png")));
+		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+
 		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
 		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
 		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
@@ -715,6 +718,26 @@ public class Main extends Game {
 				return true;
 			}
 		});
+
+		ImageButton.ImageButtonStyle quitButtonStyle = new ImageButton.ImageButtonStyle();
+		quitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/quit1.png"))).getDrawable();
+		quitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
+		quitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
+
+		ImageButton quitButton = new ImageButton(quitButtonStyle);
+		quitButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 80/360);
+		quitButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
+		quitButton.addListener(new InputListener(){
+			@Override
+			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
+				resetGame();
+				setGameState(GameState.MAIN_MENU);
+				return true;
+			}
+		});
+
+		pauseMenu.addActor(background);
+		pauseMenu.addActor(quitButton);
 		pauseMenu.addActor(resumeButton);
 	}
 
@@ -835,9 +858,18 @@ public class Main extends Game {
 
 	/**
 	 * Called on the death of the player
-	 * Resets important information and sets the game state to the dead menu
+	 * Sets the game state to the dead menu
 	 * */
 	public static void onPlayerDeath() {
+		resetGame();
+		setGameState(GameState.DEAD_MENU);
+		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
+	}
+
+	/**
+	 * Resets important information about the game
+	 */
+	public static void resetGame() {
 		Gdx.app.log("Main", "Player died");
 
 		mapMan.levels.clear();
@@ -854,12 +886,8 @@ public class Main extends Game {
 		contactListener = new CollisionListener();
 		contactListener.enable();
 
-		Gdx.app.debug("contactListener death", contactListener.isOnAddedEnabled() + " added, " + contactListener.isOnEndedEnabled() + " ended");
-
 		threadAnimState = new int[]{0, 0, 0};
 		player.baseUpgrade = BaseUpgrade.NONE;
-		setGameState(GameState.DEAD_MENU);
-		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
 
 	/**
@@ -947,7 +975,9 @@ public class Main extends Game {
 		}
 
 		if(gameState == GameState.PAUSED_MENU) {
-			//renderGameOverlay();
+			batch.begin(camera);
+			entities.forEach((Integer id, Entity entity) -> { if (entity.isRenderable) batch.render(entity.getModelInstance(), environment); });
+			batch.end();
 			pauseMenu.act();
 			pauseMenu.draw();
 		}
