@@ -80,7 +80,7 @@ public class Player extends Entity implements IHasHealth {
         if (attackTimeout > 0) attackTimeout -= delta;
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
-        if (getHealth() <= 0) Main.onPlayerDeath();
+        if (getHealth() <= 0 && baseUpgrade != BaseUpgrade.NONE) Main.onPlayerDeath();
     }
 
     @Override
@@ -181,7 +181,6 @@ public class Player extends Entity implements IHasHealth {
         if (Math.random() < dodgeChance) return;
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
-        if (health <= 0) Main.setGameState(Main.GameState.DEAD_MENU);
         if (health > maxHealth) setHealth(maxHealth);
         upgrades.forEach((Upgrade::onDamage));
     }

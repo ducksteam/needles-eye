@@ -839,12 +839,13 @@ public class Main extends Game {
 	 * */
 	public static void onPlayerDeath() {
 		Gdx.app.log("Main", "Player died");
-		player.destroy();
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		mapMan.levels.clear();
 		mapMan.levelIndex = 1;
 		entities.clear();
+
+		player.destroy();
+		player = new Player(new Vector3(-5f,0.501f,2.5f));
 
 		batch.dispose();
 		batch = new ModelBatch();
