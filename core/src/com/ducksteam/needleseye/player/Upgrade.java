@@ -123,17 +123,23 @@ public class Upgrade {
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
-                null),
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_crack.png")), 640, 360)[0])),
         COAL_THREAD(5, CoalThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
-                null),
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_crack.png")), 640, 360)[0])),
         JOLT_THREAD(4, JoltThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_swing.png")), 640, 360)[0]),
-                null),
+                new Animation<>(
+                        Config.ATTACK_ANIM_SPEED,
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_crack.png")), 640, 360)[0])),
         THREADED_ROD(4, ThreadedRod.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
