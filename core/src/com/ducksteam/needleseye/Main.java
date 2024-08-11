@@ -672,6 +672,9 @@ public class Main extends Game {
 		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		labels.add(attackTime);
 
+		Label damageBoost = new Label("Damage boost: " + player.damageBoost, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		labels.add(damageBoost);
+
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
 		labels.add(mapSpace);
@@ -1037,7 +1040,7 @@ public class Main extends Game {
 
 			if (crackAnimTime > 0 && player.baseUpgrade.crackAnim != null) {
 				crackAnimTime += Gdx.graphics.getDeltaTime();
-				TextureRegion currentFrame = player.baseUpgrade.swingAnim.getKeyFrame(crackAnimTime);
+				TextureRegion currentFrame = player.baseUpgrade.crackAnim.getKeyFrame(crackAnimTime);
 				batch2d.begin();
 				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				batch2d.end();

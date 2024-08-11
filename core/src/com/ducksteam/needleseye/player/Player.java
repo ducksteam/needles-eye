@@ -17,6 +17,7 @@ import com.ducksteam.needleseye.entity.bullet.GenericMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -42,6 +43,7 @@ public class Player extends Entity implements IHasHealth {
     public static Matrix4 conePosition = new Matrix4();
 
     float damageTimeout = 0;
+    float abilityTimeout = 0;
     float attackTimeout = 0;
     float attackLength = 0.2f;
 
@@ -72,6 +74,7 @@ public class Player extends Entity implements IHasHealth {
         maxHealth = -1;
     }
 
+    @Override
     public void update(float delta) {
         if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH;
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
@@ -82,8 +85,13 @@ public class Player extends Entity implements IHasHealth {
                 damageTimeout = 0;
             }
         }
-        if (attackTimeout > 0) attackTimeout -= Math.abs(delta);
+        //Floors and regulates boost variables
+        if (attackTimeout > 0) attackTimeout -= delta;
         if(attackTimeout<0) attackTimeout = 0;
+        if (damageBoost > 0) damageBoost -= (float) (delta * 0.5f * Math.pow(10,-2));
+        if(playerSpeedMultiplier > 1) playerSpeedMultiplier -= (float) (delta * 0.5f * Math.pow(10,-2));
+        if(playerSpeedMultiplier < 1) playerSpeedMultiplier = 1;
+
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
     }
@@ -143,6 +151,20 @@ public class Player extends Entity implements IHasHealth {
      * The secondary attack of the player's whip
      * */
     public void ability() {
+        if (baseUpgrade == BaseUpgrade.NONE) return;
+        if (abilityTimeout > 0) return;
+        if (attackAnimTime != 0 || crackAnimTime != 0) return;
+        crackAnimTime = 0.01F;
+        switch (baseUpgrade) {
+            case SOUL_THREAD -> {
+            }
+            case COAL_THREAD -> {
+                damageBoost = 1;
+            }
+            case JOLT_THREAD -> {
+                playerSpeedMultiplier = 1.5f;
+            }
+        }
     }
 
 

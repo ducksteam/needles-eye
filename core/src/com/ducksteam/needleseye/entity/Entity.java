@@ -123,9 +123,9 @@ public abstract class Entity {
 		}
 	}
 
-	public void update(float dT){
+	public void update(float delta){
 		if (freezeTime > 0) {
-			freezeTime -= dT;
+			freezeTime -= delta;
 			if (freezeTime <= 0) {
 
 			} else {
