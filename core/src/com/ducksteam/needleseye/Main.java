@@ -669,6 +669,9 @@ public class Main extends Game {
 		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
 		labels.add(fps);
 
+		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		labels.add(attackTime);
+
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
 		labels.add(mapSpace);

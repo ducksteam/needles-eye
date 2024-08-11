@@ -82,7 +82,8 @@ public class Player extends Entity implements IHasHealth {
                 damageTimeout = 0;
             }
         }
-        if (attackTimeout > 0) attackTimeout -= delta;
+        if (attackTimeout > 0) attackTimeout -= Math.abs(delta);
+        if(attackTimeout<0) attackTimeout = 0;
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
     }
@@ -110,12 +111,15 @@ public class Player extends Entity implements IHasHealth {
         dynamicsWorld.addRigidBody(collider);
     }
 
+    /**
+     * The primary attack of the player's whip
+     * */
     public void primaryAttack() {
         if (baseUpgrade == BaseUpgrade.NONE) return;
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
-        setAttackTimeout(attackLength);
         attackAnimTime = 0.01F;
         player.whipAttack(3 + (int) damageBoost);
+        setAttackTimeout(attackLength);
         /*switch (baseUpgrade) {
             case SOUL_THREAD -> {
                 player.whipAttack(3 + (int) damageBoost;
@@ -135,15 +139,15 @@ public class Player extends Entity implements IHasHealth {
         }*/
     }
 
-//    public void secondaryAttack() {
-//        if (baseUpgrade == BaseUpgrade.NONE) return;
-//        if (attackAnimTime != 0 || crackAnimTime != 0) return;
-//        baseUpgrade.secondaryAttack();
-//        crackAnimTime = 0.01F;
-//    }
+    /**
+     * The secondary attack of the player's whip
+     * */
+    public void ability() {
+    }
+
 
     public void whipAttack(int damage){
-        whipAttack(damage, null);
+        whipAttack(damage, (Entity target) -> ((IHasHealth) target).damage(damage));
     }
 
     public void whipAttack(int damage, EntityRunnable enemyLogic) {
@@ -152,8 +156,8 @@ public class Player extends Entity implements IHasHealth {
         player.motionState.getWorldTransform(conePosition);
         conePosition.translate(0, 0.6f, 0);
         btCollisionObject attackCone = new btRigidBody(0, new GenericMotionState(conePosition), attackConeShape, Vector3.Zero);
-        Collection<? extends Entity> activeEntities = mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())).getEnemies().values();
-        Entity.runLogicOnCollision(attackCone, (ArrayList<? extends Entity>) activeEntities, (Entity target) -> {
+        Collection<EnemyEntity> activeEntities = mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())).getEnemies().values();
+        Entity.runLogicOnCollision(attackCone, new ArrayList<EnemyEntity>(activeEntities), (Entity target) -> {
             if (target instanceof EnemyEntity) {
                 ((IHasHealth) target).damage(damage);
                 if (enemyLogic != null) enemyLogic.run(target);
@@ -262,4 +266,6 @@ public class Player extends Entity implements IHasHealth {
         super.destroy();
         attackConeShape.dispose();
     }
+
+
 }

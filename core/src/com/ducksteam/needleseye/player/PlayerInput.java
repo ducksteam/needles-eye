@@ -143,7 +143,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
     @Override
     public boolean touchDown(int i, int i1, int i2, int i3) {
         if (i3 == Input.Buttons.LEFT && player.getAttackTimeout() <= 0) player.primaryAttack();
-//        if (i3 == Input.Buttons.RIGHT) player.secondaryAttack();
+        if (i3 == Input.Buttons.RIGHT) player.ability();
         return false;
     }
 
