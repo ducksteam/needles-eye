@@ -46,6 +46,7 @@ import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
@@ -83,7 +84,7 @@ public class Main extends Game {
 	public static MapManager mapMan;
 
 	// objects to be rendered
-	public static HashMap<Integer, Entity> entities = new HashMap<>(); // key = entity.id
+	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
 	//ArrayList<EnemyEntity> enemies = new ArrayList<>();
 	ArrayList<String> spriteAddresses = new ArrayList<>();
 
@@ -242,7 +243,9 @@ public class Main extends Game {
 		splash = new Splash();
 
 		//Establishes physics
-		Bullet.init(true);
+
+		Bullet.init(true, false);
+
 		contactListener = new CollisionListener();
 		contactListener.enable();
 		collisionConfig = new btDefaultCollisionConfiguration();
@@ -254,7 +257,7 @@ public class Main extends Game {
 		batch2d = new SpriteBatch();
 
 		debugDrawer = new DebugDrawer();
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_FastWireframe);
 
 		//Builds UI elements
 		buildFonts();
@@ -326,7 +329,7 @@ public class Main extends Game {
 		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
 		keysText.append(Input.Keys.toString(Config.keys.get("right")));
 
-		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use LMB to use your melee attack, and use RMB to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room, then defeat the boss at the end.", new Label.LabelStyle(debugFont, null));
+		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use LMB to use your melee attack, and use RMB to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.", new Label.LabelStyle(debugFont, null));
 		instructions.setBounds((float) (Gdx.graphics.getWidth() * 155) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 338) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
 		instructions.setWrap(true);
 
@@ -469,9 +472,12 @@ public class Main extends Game {
 		threadMenu.addActor(background);
 
 		//initialize textures
-		Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul"+(threadAnimState[0]+1)+".png"));
+		/*Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul"+(threadAnimState[0]+1)+".png"));
 		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal"+(threadAnimState[1]+1)+".png"));
-		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"));
+		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"));*/
+		Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul8.png"));
+		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal8.png"));
+		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt8.png"));
 		Texture tRodTexture = new Texture(Gdx.files.internal("ui/thread/threadedrod.png"));
 
 		ImageButton.ImageButtonStyle soulButtonStyle = new ImageButton.ImageButtonStyle();
@@ -492,6 +498,16 @@ public class Main extends Game {
 		// trod positioning
 		tRodButton.setPosition((float) Gdx.graphics.getWidth() * 220/640, (float) Gdx.graphics.getHeight() * 57/360);
 		tRodButton.setSize((float) Gdx.graphics.getWidth() * ((float) tRodTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) tRodTexture.getHeight())/360);
+
+		// other positioning
+		soulButton.setSize((float) Gdx.graphics.getWidth() * ((float) soulTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) soulTexture.getHeight())/360);
+		soulButton.setPosition((float) Gdx.graphics.getWidth() * (160 - (float) soulTexture.getWidth() /2)/640,(float) Gdx.graphics.getHeight() * 100/360);
+
+		coalButton.setSize((float) Gdx.graphics.getWidth() * ((float) coalTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) coalTexture.getHeight())/360);
+		coalButton.setPosition((float) Gdx.graphics.getWidth() * (320 - (float) coalTexture.getWidth()/2)/640,(float) Gdx.graphics.getHeight() * 100/360);
+
+		joltButton.setSize((float) Gdx.graphics.getWidth() * ((float) joltTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) joltTexture.getHeight())/360);
+		joltButton.setPosition((float) Gdx.graphics.getWidth() * (480 - (float) joltTexture.getWidth()/2)/640,(float) Gdx.graphics.getHeight() * 100/360);
 
 		// event listeners
 		soulButton.addListener(new InputListener(){
@@ -546,7 +562,7 @@ public class Main extends Game {
 			}
 		});
 
-		// updating animations
+		/*// updating animations
 		switch (player.baseUpgrade) {
 			case SOUL_THREAD:
 				if (threadAnimState[1] != 0) {
@@ -632,12 +648,7 @@ public class Main extends Game {
 
 			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
 			joltButton.setPosition((float) Gdx.graphics.getWidth() * 383/640, (float) Gdx.graphics.getHeight() * 100/360);
-		}
-
-		soulButton.debugAll();
-		coalButton.debugAll();
-		joltButton.debugAll();
-		tRodButton.debugAll();
+		}*/
 
 		// Adding buttons to stage
 		threadMenu.addActor(soulButton);
@@ -686,6 +697,10 @@ public class Main extends Game {
 				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
 				labels.add(roomName);
+				StringBuilder enemiesSB = new StringBuilder();
+				for (EnemyEntity enemy : currentRooms[0].getEnemies().values()) enemiesSB.append(enemy).append(", \n");
+				Label enemies = new Label("Enemies: " + enemiesSB, new Label.LabelStyle(debugFont, debugFont.getColor()));
+				labels.add(enemies);
 			}
 		}
 
@@ -859,6 +874,12 @@ public class Main extends Game {
 			}
 		});
 
+		if (Config.doRenderColliders) {
+			debugDrawer.begin(camera);
+			dynamicsWorld.debugDrawWorld();
+			debugDrawer.end();
+		}
+
 		batch2d.end();
 	}
 
@@ -894,35 +915,6 @@ public class Main extends Game {
 
 		threadAnimState = new int[]{0, 0, 0};
 		player.baseUpgrade = BaseUpgrade.NONE;
-	}
-
-	/**
-	 * Rebuilds the physics system
-	 * */
-	public static void rebuildDynamicsWorld() {
-		if (dynamicsWorld != null) dynamicsWorld.dispose();
-		if (constraintSolver != null) constraintSolver.dispose();
-		if (broadphase != null) broadphase.dispose();
-		if (collisionConfig != null) collisionConfig.dispose();
-		if (dispatcher != null) dispatcher.dispose();
-		if (debugDrawer != null) debugDrawer.dispose();
-
-		collisionConfig = new btDefaultCollisionConfiguration();
-		dispatcher = new btCollisionDispatcher(collisionConfig);
-		broadphase = new btDbvtBroadphase();
-		constraintSolver = new btSequentialImpulseConstraintSolver();
-
-		debugDrawer = new DebugDrawer();
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
-
-		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-		dynamicsWorld.setGravity(new Vector3(0, -10f, 0));
-		dynamicsWorld.setDebugDrawer(debugDrawer);
-
-		for (Entity entity : entities.values()) {
-			if (entity.collider == null) continue;
-			dynamicsWorld.addRigidBody(entity.collider);
-		}
 	}
 
 	/**
@@ -1002,10 +994,11 @@ public class Main extends Game {
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
 			camera.direction.set(player.getEulerRotation());
 
+//			camera.position.set(entities.values().stream().filter(e -> e instanceof EnemyEntity).findFirst().orElse(player).getPosition().add(0, 0.1f, 0));
+
 			playerLantern.set(playerLanternColour,player.getPosition().add(0, 0.5f, 0),10);
 
 			//Render the game contents
-			batch.begin(camera);
 
 			player.update(Gdx.graphics.getDeltaTime());
 
@@ -1017,11 +1010,13 @@ public class Main extends Game {
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 			});
 
+			batch.begin(camera);
+
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
-			batch.end();
 
+			batch.end();
 
 			renderGameOverlay();
 
@@ -1045,13 +1040,6 @@ public class Main extends Game {
 				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				batch2d.end();
 				if(player.baseUpgrade.crackAnim.isAnimationFinished(crackAnimTime)) crackAnimTime = 0;
-			}
-
-			if (Config.doRenderColliders) {
-				// Physics debugging
-				debugDrawer.begin(camera);
-				dynamicsWorld.debugDrawWorld();
-				debugDrawer.end();
 			}
 
 			camera.update();

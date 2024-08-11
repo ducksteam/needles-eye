@@ -37,6 +37,13 @@ public class MapManager {
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
     public final String DECO_TEMPLATE_PATH = "assets/data/decos/";
 
+    private final static Vector3[] enemyPositions = {
+            new Vector3(2f, 0.5f, 0f),
+            new Vector3(0f, 0.5f, -2f),
+            new Vector3(0f, 0.5f, 2f),
+            new Vector3(-2f, 0.5f, 0f)
+    };
+
     public MapManager() {
         roomTemplates = new ArrayList<>();
         decoTemplates = new ArrayList<>();
@@ -91,7 +98,7 @@ public class MapManager {
                 Class<? extends EnemyEntity> enemyClass = bagRandomiser.keySet().stream().skip((int) (bagRandomiser.size() * Math.random())).findFirst().orElse(null);
                 if(bagRandomiser.get(enemyClass)<=0) return;
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
-                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add((float) Math.random(), 2F, (float) Math.random()), new Quaternion(), room);
+                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(enemyPositions[(int) (Math.random() * enemyPositions.length)]), new Quaternion(), room);
 				assert enemy != null;
 				enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);

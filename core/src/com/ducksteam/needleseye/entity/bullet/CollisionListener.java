@@ -33,7 +33,7 @@ public class CollisionListener extends ContactListener {
 		Entity entity0 = Main.entities.get(userValue0);
 		Entity entity1 = Main.entities.get(userValue1);
 		if (entity0 == null || entity1 == null) return false;
-		Gdx.app.debug("CollisionListener", "Contact added between " + entity0 + " cf " + match0 + " and " + entity1 + " cf " + match1);
+		Gdx.app.debug("CollisionListener", "Contact added between " + entity0.getClass().getSimpleName() + " " + entity0.id + " cf " + match0 + " and " + entity1.getClass().getSimpleName() + " " + entity1.id + " cf " + match1);
 
 		if (entity1 instanceof Player) onContactAdded(userValue1, partId1, index1, match1, userValue0, partId0, index0, match0); // flip for convenience
 
@@ -62,6 +62,6 @@ public class CollisionListener extends ContactListener {
 		Entity entity0 = Main.entities.get(userValue0);
 		Entity entity1 = Main.entities.get(userValue1);
 		if (entity0 == null || entity1 == null) return;
-		Gdx.app.debug("CollisionListener", "Contact ended between " + entity0 + " cf " + match0 + " and " + entity1 + " cf " + match1);
+		Gdx.app.debug("CollisionListener", "Contact ended between " + entity0.getClass().getSimpleName() + " " + entity0.id + " cf " + match0 + " and " + entity1.getClass().getSimpleName() + " " + entity1.id + " cf " + match1);
 	}
 }

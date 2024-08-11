@@ -2,24 +2,21 @@ package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
-import com.ducksteam.needleseye.entity.bullet.GenericMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
-import java.util.Collection;
 
 import static com.ducksteam.needleseye.Main.*;
 import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
@@ -37,10 +34,10 @@ public class Player extends Entity implements IHasHealth {
     int maxHealth;
     private boolean grounded = false;
 
-    public static float attackConeRadius = 0.6f;
-    public static float attackConeHeight = 1.5f;
-    public static btCollisionShape attackConeShape = new btConeShape(attackConeRadius, attackConeHeight);
-    public static Matrix4 conePosition = new Matrix4();
+    private static final float playerBoxHalfSize = 0.25f;
+    private static final float playerBoxHalfHeight = 0.5f;
+
+    public static final float attackBoxDepth = 1.7f;
 
     float damageTimeout = 0;
     float abilityTimeout = 0;
@@ -101,7 +98,7 @@ public class Player extends Entity implements IHasHealth {
         if (collisionShape != null && !collisionShape.isDisposed()) collisionShape.dispose();
         if (collider != null && !collider.isDisposed()) collider.dispose();
 
-        collisionShape = new btBoxShape(new Vector3(0.25F, 0.5F, 0.25F));
+        collisionShape = new btBoxShape(new Vector3(playerBoxHalfSize, playerBoxHalfHeight, playerBoxHalfSize));
         collisionShape.obtain();
         motionState = new EntityMotionState(this);
         Vector3 inertia = new Vector3();
@@ -169,23 +166,22 @@ public class Player extends Entity implements IHasHealth {
 
 
     public void whipAttack(int damage){
-        whipAttack(damage, (Entity target) -> ((IHasHealth) target).damage(damage));
+        whipAttack((Entity target) -> ((IHasHealth) target).damage(damage));
     }
 
-    public void whipAttack(int damage, EntityRunnable enemyLogic) {
+    public void whipAttack(EntityRunnable enemyLogic) {
         if (attackTimeout > 0) return;
         if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return;
-        player.motionState.getWorldTransform(conePosition);
-        conePosition.translate(0, 0.6f, 0);
-        btCollisionObject attackCone = new btRigidBody(0, new GenericMotionState(conePosition), attackConeShape, Vector3.Zero);
-        Collection<EnemyEntity> activeEntities = mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())).getEnemies().values();
-        Entity.runLogicOnCollision(attackCone, new ArrayList<EnemyEntity>(activeEntities), (Entity target) -> {
-            if (target instanceof EnemyEntity) {
-                ((IHasHealth) target).damage(damage);
-                if (enemyLogic != null) enemyLogic.run(target);
+
+        for (Entity entity : Main.entities.values()) {
+            if (entity instanceof EnemyEntity) {
+                EnemyEntity enemy = (EnemyEntity) entity;
+                tmp = enemy.getPosition().sub(player.getPosition());
+                if (tmp.len() < attackBoxDepth) {
+                    enemyLogic.run(enemy);
+                }
             }
-        });
-        if (!attackCone.isDisposed()) attackCone.dispose();
+        }
     }
 
     public void setGrounded(boolean grounded) {
@@ -286,7 +282,6 @@ public class Player extends Entity implements IHasHealth {
     @Override
     public void destroy() {
         super.destroy();
-        attackConeShape.dispose();
     }
 
 

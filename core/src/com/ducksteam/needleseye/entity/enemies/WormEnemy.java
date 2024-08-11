@@ -16,12 +16,12 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
 public class WormEnemy extends EnemyEntity{
-    static final float moveSpeed = 1000f;
+    static final float moveSpeed = 35000f;
 
     public static String modelAddress = "models/enemies/worm.gltf";
 
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-        super(position, rotation, 8, (EnemyRegistry.loaded) ? new ModelInstance(((SceneAsset)Main.assMan.get(modelAddress)).scene.model):null, 5, room.getRoomSpacePos());
+        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new ModelInstance(((SceneAsset)Main.assMan.get(modelAddress)).scene.model):null, 5, room.getRoomSpacePos());
         setAi(new MeleeAI(this, moveSpeed));
 
         collider.dispose();
@@ -31,14 +31,15 @@ public class WormEnemy extends EnemyEntity{
         motionState = new EntityMotionState(this, transform);
 
         Vector3 inertia = new Vector3();
-        collisionShape.calculateLocalInertia(8, inertia);
+        collisionShape.calculateLocalInertia(4000, inertia);
 
-        collider = new btRigidBody(8000, motionState, collisionShape, inertia);
+        collider = new btRigidBody(4000, motionState, collisionShape, inertia);
         collider.obtain();
         collider.setCollisionFlags(collider.getCollisionFlags());
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
         collider.setUserValue(this.id);
         collider.setAngularFactor(Vector3.Y);
+        collider.setDamping(0.8f, 0.8f);
         dynamicsWorld.addRigidBody(collider);
     }
 
@@ -52,4 +53,13 @@ public class WormEnemy extends EnemyEntity{
         return modelAddress;
     }
 
+    @Override
+    public String toString() {
+        return "Worm{" +
+                "health=" + health +
+                ", position=" + getPosition() +
+                ", assignedRoom=" + assignedRoom +
+                ", chasing=" + ai.isChasing() +
+                '}';
+    }
 }

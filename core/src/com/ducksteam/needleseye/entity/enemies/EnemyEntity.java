@@ -34,6 +34,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     public void update(float delta) {
         if (ai != null) ai.update(delta);
         if (getDamageTimeout() > 0) damageTimeout -= delta;
+        if (health <= 0) this.destroy();
     }
 
     @Override
@@ -42,7 +43,6 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);
-        if (health <= 0) this.destroy();
     }
 
     @Override

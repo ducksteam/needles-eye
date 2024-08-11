@@ -13,8 +13,6 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
-import java.util.ArrayList;
-
 import static com.ducksteam.needleseye.Main.*;
 
 /**
@@ -55,7 +53,7 @@ public abstract class Entity {
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
-		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT | GROUND_GROUP);
+		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
 	}
 
 	/**
@@ -81,46 +79,6 @@ public abstract class Entity {
 		this.freezeTime = 0;
 
 		setModelInstance(modelInstance);
-	}
-
-	public static boolean checkCollision(btCollisionObject obj0, btCollisionObject obj1) {
-		CollisionObjectWrapper co0 = new CollisionObjectWrapper(obj0);
-		CollisionObjectWrapper co1 = new CollisionObjectWrapper(obj1);
-
-		btCollisionAlgorithm algorithm = Main.dispatcher.findAlgorithm(co0.wrapper, co1.wrapper, null, ebtDispatcherQueryType.BT_CONTACT_POINT_ALGORITHMS);
-
-		btDispatcherInfo info = new btDispatcherInfo();
-		btManifoldResult result = new btManifoldResult(co0.wrapper, co1.wrapper);
-
-		algorithm.processCollision(co0.wrapper, co1.wrapper, info, result);
-
-		boolean r = result.getPersistentManifold().getNumContacts() > 0;
-
-		Main.dispatcher.freeCollisionAlgorithm(algorithm.getCPointer());
-		result.dispose();
-		info.dispose();
-		co1.dispose();
-		co0.dispose();
-
-		return r;
-	}
-
-	public static boolean checkCollision(btCollisionObject obj, ArrayList<? extends btCollisionObject> entities) {
-		for (btCollisionObject entity : entities) {
-			if (entity == null) continue;
-			if (checkCollision(obj, entity)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static void runLogicOnCollision(btCollisionObject obj, ArrayList<? extends Entity> entities, EntityRunnable logic) {
-		for (Entity entity : entities) {
-			if (checkCollision(obj, entity.collider)) {
-				logic.run(entity);
-			}
-		}
 	}
 
 	public void update(float delta){

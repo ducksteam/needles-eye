@@ -100,7 +100,7 @@ public class RoomInstance extends Entity {
 
 
     public void addEnemy(EnemyEntity enemy) {
-        Gdx.app.debug("Population", "Added " + enemy.getClass().getSimpleName() + " to room " + room.getName() + " at " + roomSpacePos);
+        Gdx.app.debug("Population", "Added " + enemy.getClass().getSimpleName() + " to room " + room.getName() + " at " + enemy.getPosition());
         enemies.put(enemy.id, enemy);
     }
 
