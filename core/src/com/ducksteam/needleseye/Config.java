@@ -2,7 +2,6 @@ package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.math.Vector3;
 
 import java.util.HashMap;
 
@@ -27,7 +26,7 @@ public class Config {
     public static final float ASPECT_RATIO = (float) 16 / 9;
     public static final int ROOM_SCALE = 10;
     public static final float PLAYER_MASS = 10;
-    public static final float DAMAGE_TIMEOUT = 0.5f; // seconds
+    public static final float DAMAGE_TIMEOUT = 2.5f; // seconds
     public static final float UPGRADE_HEIGHT = 1.6f;
 
 

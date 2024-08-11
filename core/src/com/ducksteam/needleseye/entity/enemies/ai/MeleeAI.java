@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.enemies.ai;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
@@ -9,7 +10,7 @@ public class MeleeAI implements IHasAi {
 
 	Vector3 playerPos;
 	float detectionRange = 10;
-	float attackRange = 1;
+	float attackRange = 0.7f;
 	Entity target;
 	boolean chasing = false;
 	float moveSpeed;
@@ -42,11 +43,13 @@ public class MeleeAI implements IHasAi {
 		Vector3 direction = playerPos.cpy().sub(getTarget().getPosition());
 		direction.y = 0;
 		getTarget().collider.applyCentralImpulse(direction.nor().scl(moveSpeed * dT));
+		Gdx.app.debug("MeleeAI", "Chasing player " + playerPos.dst(getTarget().getPosition()));
 		if (playerPos.dst(getTarget().getPosition()) < attackRange) attack();
 	}
 
 	@Override
 	public void attack() {
+
 		getTarget().setAnimation("attack");
 		Main.player.damage(1);
 	}

@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
+import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,6 @@ public abstract class Entity {
 	public static final short ENEMY_GROUP = 1 << 10;
 	public static final short PROJECTILE_GROUP = 1 << 11;
 	public static final short PICKUP_GROUP = 1 << 12;
-	public static final short ALL = -1;
 
 	public Boolean isRenderable;
 	public Boolean isStatic;
@@ -153,7 +153,7 @@ public abstract class Entity {
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
 			collider.setUserValue(this.id);
 			if (this instanceof RoomInstance) collider.setFriction(0.2f);
-			dynamicsWorld.addRigidBody(collider);
+			if (!(this instanceof EnemyEntity)) dynamicsWorld.addRigidBody(collider);
 		}
 	}
 	public abstract String getModelAddress();

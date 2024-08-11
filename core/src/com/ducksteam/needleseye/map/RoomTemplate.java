@@ -22,10 +22,10 @@ public class RoomTemplate {
     private Model model;
 
     public enum RoomType {
-        SMALL(2, 0.9f), // 90% chance of being a small room
-        HALLWAY(1, 0.95f), // 5% chance of being a hallway
+        SMALL(2, 0.8f), // 80% chance of being a small room
+        HALLWAY(0, 0.85f), // 5% chance of being a hallway
         HALLWAY_PLACEHOLDER(0, 0), // represents the second tile of a hallway, purely for generation
-        BATTLE(3, 1f), // 5% chance of being a battle room
+        BATTLE(3, 1f), // 15% chance of being a battle room
         BOSS(0, 0), // boss rooms & treasure rooms are generated specially
         TREASURE(0, 0);
 

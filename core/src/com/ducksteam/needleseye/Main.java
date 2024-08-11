@@ -1015,7 +1015,7 @@ public class Main extends Game {
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 			});
 			batch.end();
-			camera.update();
+
 
 			renderGameOverlay();
 
@@ -1040,9 +1040,16 @@ public class Main extends Game {
 				batch2d.end();
 				if(player.baseUpgrade.crackAnim.isAnimationFinished(crackAnimTime)) crackAnimTime = 0;
 			}
+
+			if (Config.doRenderColliders) {
+				// Physics debugging
+				debugDrawer.begin(camera);
+				dynamicsWorld.debugDrawWorld();
+				debugDrawer.end();
+			}
+
+			camera.update();
 		}
-
-
 
 		if (Config.debugMenu) {
 			buildDebugMenu();
@@ -1050,12 +1057,7 @@ public class Main extends Game {
 			debug.draw();
 		}
 
-		if (Config.doRenderColliders) {
-			// Physics debugging
-			debugDrawer.begin(camera);
-			dynamicsWorld.debugDrawWorld();
-			debugDrawer.end();
-		}
+		if (player.getHealth() <= 0 && gameState == GameState.IN_GAME && player.baseUpgrade != BaseUpgrade.NONE) onPlayerDeath();
 	}
 
 	/**
@@ -1092,7 +1094,6 @@ public class Main extends Game {
 		super.dispose();
 		if (batch != null) batch.dispose();
 		if (batch2d != null) batch2d.dispose();
-		if (entities != null) entities.values().forEach(Entity::destroy);
 		if (menuMusic != null) menuMusic.dispose();
 		if (mainMenu != null) mainMenu.dispose();
 		if (threadMenu != null) threadMenu.dispose();
@@ -1107,5 +1108,6 @@ public class Main extends Game {
         if (collisionConfig != null && !collisionConfig.isDisposed()) collisionConfig.dispose();
         if (dispatcher != null && !dispatcher.isDisposed()) dispatcher.dispose();
         if (debugDrawer != null && !debugDrawer.isDisposed()) debugDrawer.dispose();
+		if (entities != null) entities.values().forEach(Entity::destroy);
     }
 }

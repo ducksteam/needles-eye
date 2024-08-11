@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
@@ -76,11 +75,16 @@ public class Player extends Entity implements IHasHealth {
     public void update(float delta) {
         if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH;
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
-        if (getDamageTimeout() > 0) damageTimeout -= delta;
+        if (getDamageTimeout() > 0) {
+            damageTimeout -= delta;
+            if (damageTimeout <= 0) {
+                collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);
+                damageTimeout = 0;
+            }
+        }
         if (attackTimeout > 0) attackTimeout -= delta;
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
-        if (getHealth() <= 0 && baseUpgrade != BaseUpgrade.NONE) Main.onPlayerDeath();
     }
 
     @Override
@@ -197,6 +201,7 @@ public class Player extends Entity implements IHasHealth {
     @Override
     public void setDamageTimeout(float timeout) {
         this.damageTimeout = timeout;
+        collider.setContactCallbackFilter(PICKUP_GROUP);
     }
 
     @Override

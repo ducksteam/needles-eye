@@ -5,8 +5,12 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
+import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.entity.enemies.WormEnemy;
+import com.ducksteam.needleseye.map.MapManager;
 
 import java.util.HashMap;
 
@@ -90,6 +94,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
+        if (i == Input.Keys.F6) new WormEnemy(player.getPosition().cpy().add(0, 1, 0), new Quaternion(), Main.mapMan.getCurrentLevel().getRoom(MapManager.getRoomSpacePos(player.getPosition())));
         KEYS.put(i, true);
         return true;
     }
