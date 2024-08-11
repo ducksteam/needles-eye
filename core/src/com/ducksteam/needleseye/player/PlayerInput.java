@@ -5,17 +5,16 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
-import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.entity.enemies.WormEnemy;
-import com.ducksteam.needleseye.map.MapManager;
+import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
-import static com.ducksteam.needleseye.Main.camera;
-import static com.ducksteam.needleseye.Main.player;
+import static com.ducksteam.needleseye.Main.*;
 
 /**
  * Handles player input
@@ -59,6 +58,12 @@ public class PlayerInput implements InputProcessor, ControllerListener {
             player.collider.applyCentralImpulse(new Vector3(0, 50, 0));
         }
 
+        if(KEYS.containsKey(Config.keys.get("advance")) && KEYS.get(Config.keys.get("advance"))){
+            if (entities.values().stream().filter(e -> e instanceof EnemyEntity).map(e -> (EnemyEntity) e).collect(Collectors.toCollection(ArrayList::new)).isEmpty()) {
+                Main.advanceLevel();
+            }
+        }
+
         forceDir.y = 0;
         forceDir.nor().scl(Config.MOVE_SPEED * delta);
 //        Gdx.app.debug("player velocity", player.getVelocity().toString());
@@ -94,7 +99,6 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      */
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.F6) new WormEnemy(player.getPosition().cpy().add(0, 1, 0), new Quaternion(), Main.mapMan.getCurrentLevel().getRoom(MapManager.getRoomSpacePos(player.getPosition())));
         KEYS.put(i, true);
         return true;
     }

@@ -48,6 +48,7 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 
 /**
@@ -118,6 +119,8 @@ public class Main extends Game {
 	//Runtime info
 	public static GameState gameState;
 	private static String gameStateCheck;
+
+	private static Matrix4 tmpMat;
 
 	/**
 	 * The enum for managing the game state
@@ -868,8 +871,10 @@ public class Main extends Game {
 				if(upgrade.getIcon() == null) upgrade.setIconFromMap(spriteAssets);
 				if(upgrade.getClass().equals(upgradeClass)){
 					try {
-						Vector2 pos = new Vector2(Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 16F) - (((float) (counter*Gdx.graphics.getWidth())) / 16F), Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 16F));
-						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getHeight()) / 30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
+						Vector2 pos = new Vector2(
+								Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 24F) - (((float) (counter*Gdx.graphics.getWidth())) / 24F),
+								Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 24F));
+						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getHeight()) / 30 * Config.ASPECT_RATIO, ((float) Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
 					}
@@ -891,7 +896,7 @@ public class Main extends Game {
 	 * Called on the death of the player
 	 * Sets the game state to the dead menu
 	 * */
-	public static void onPlayerDeath() {
+	public static void  onPlayerDeath() {
 		resetGame();
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
@@ -919,6 +924,17 @@ public class Main extends Game {
 
 		threadAnimState = new int[]{0, 0, 0};
 		player.baseUpgrade = BaseUpgrade.NONE;
+	}
+
+	public static void advanceLevel(){
+		entities.forEach((Integer i, Entity e) -> {
+			if (e instanceof Player) return;
+			entities.remove(i);
+		});
+		mapMan.generateLevel();
+		player.motionState.getWorldTransform(tmpMat);
+		tmpMat.setTranslation(new Vector3(-5, 0.501f, 2.5f));
+		player.motionState.setWorldTransform(tmpMat);
 	}
 
 	/**
@@ -1047,6 +1063,10 @@ public class Main extends Game {
 			}
 
 			camera.update();
+
+			if (entities.values().stream().filter(e -> e instanceof EnemyEntity).map(e -> (EnemyEntity) e).collect(Collectors.toCollection(ArrayList::new)).isEmpty()) {
+				drawAdvanceText();
+			}
 		}
 
 		if (Config.debugMenu) {
@@ -1056,6 +1076,12 @@ public class Main extends Game {
 		}
 
 		if (player.getHealth() <= 0 && gameState == GameState.IN_GAME && player.baseUpgrade != BaseUpgrade.NONE) onPlayerDeath();
+	}
+
+	private void drawAdvanceText() {
+		batch2d.begin();
+		debugFont.draw(batch2d, "Press " + Input.Keys.toString(Config.keys.get("advance")) + " to advance to the next level", 100, 100);
+		batch2d.end();
 	}
 
 	/**

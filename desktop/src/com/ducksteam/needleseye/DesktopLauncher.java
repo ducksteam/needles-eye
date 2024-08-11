@@ -16,8 +16,9 @@ public class DesktopLauncher {
         if (fullscreen) {
             config.setFullscreenMode(primaryDesktopMode);
         } else {
-            config.setWindowedMode(1920, 1080);
-        }
+//            config.setWindowedMode(640*2, 360*2);
+        	config.setWindowedMode(1920, 1080);
+		}
         config.setDecorated(true);
 		config.useVsync(false);
 		config.setHdpiMode(HdpiMode.Pixels);
