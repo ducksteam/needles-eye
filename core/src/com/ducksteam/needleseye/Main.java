@@ -34,6 +34,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
+import com.ducksteam.needleseye.entity.effect.SoulFireEntityEffect;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -818,6 +819,9 @@ public class Main extends Game {
 				assMan.load(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress(), SceneAsset.class);
 			} catch (NullPointerException ignored) {}
 		});
+
+		assMan.load(SoulFireEntityEffect.staticModelAddress, SceneAsset.class);
+
     
 		assMan.finishLoading();
 		UpgradeRegistry.iconsLoaded=true;
