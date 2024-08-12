@@ -120,7 +120,7 @@ public class Main extends Game {
 	public static GameState gameState;
 	private static String gameStateCheck;
 
-	private static Matrix4 tmpMat;
+	private static final Matrix4 tmpMat = new Matrix4();
 
 	/**
 	 * The enum for managing the game state
@@ -517,12 +517,9 @@ public class Main extends Game {
 		soulButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (player.baseUpgrade == BaseUpgrade.SOUL_THREAD) {
-					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					beginLoading();
-				} else {
-					player.setBaseUpgrade(BaseUpgrade.SOUL_THREAD);
-				}
+				player.setBaseUpgrade(BaseUpgrade.SOUL_THREAD);
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+				beginLoading();
 				return true;
 			}
 		});
@@ -530,12 +527,9 @@ public class Main extends Game {
 		coalButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (player.baseUpgrade == BaseUpgrade.COAL_THREAD) {
-					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					beginLoading();
-				} else {
-					player.setBaseUpgrade(BaseUpgrade.COAL_THREAD);
-				}
+				player.setBaseUpgrade(BaseUpgrade.COAL_THREAD);
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+				beginLoading();
 				return true;
 			}
 		});
@@ -543,12 +537,9 @@ public class Main extends Game {
 		joltButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (player.baseUpgrade == BaseUpgrade.JOLT_THREAD) {
-					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					beginLoading();
-				} else {
-					player.setBaseUpgrade(BaseUpgrade.JOLT_THREAD);
-				}
+				player.setBaseUpgrade(BaseUpgrade.JOLT_THREAD);
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+				beginLoading();
 				return true;
 			}
 		});
@@ -556,12 +547,9 @@ public class Main extends Game {
 		tRodButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (player.baseUpgrade == BaseUpgrade.THREADED_ROD) {
-					Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-					beginLoading();
-				} else {
-					player.setBaseUpgrade(BaseUpgrade.THREADED_ROD);
-				}
+				player.setBaseUpgrade(BaseUpgrade.THREADED_ROD);
+				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
+				beginLoading();
 				return true;
 			}
 		});
@@ -859,7 +847,7 @@ public class Main extends Game {
 		for(int i=0;i<player.getHealth();i++){
 			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) (Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
 		}
 
 		//Draws upgrades
@@ -927,6 +915,10 @@ public class Main extends Game {
 	}
 
 	public static void advanceLevel(){
+		dynamicsWorld.dispose();
+		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
+		dynamicsWorld.addRigidBody(player.collider);
+
 		entities.forEach((Integer i, Entity e) -> {
 			if (e instanceof Player) return;
 			entities.remove(i);
@@ -954,13 +946,6 @@ public class Main extends Game {
 				gameStateCheck = gameState.toString();
 			}
 		}
-
-		/*if(assMan.update()){
-			batch2d.begin();
-			batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-			batch2d.draw(new Texture("logo_temp.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
-			batch2d.end();
-		}*/
 
 		if(activeUIAnim != null){
 			if (animPreDraw != null) animPreDraw.run();
