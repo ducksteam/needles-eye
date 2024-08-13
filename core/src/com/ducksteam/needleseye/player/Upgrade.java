@@ -45,8 +45,8 @@ public class Upgrade {
     public static void registerUpgrades() {
         for(BaseUpgrade upgrade : BaseUpgrade.values()) {
             if(upgrade == BaseUpgrade.NONE) continue;
-            UpgradeRegistry.registerUpgrade(upgrade.name(), upgrade.upgradeClass);
-            Gdx.app.debug("UpgradeRegistry", "Registered upgrade: " + upgrade.name()+ " with class: " + upgrade.upgradeClass);
+            UpgradeRegistry.registerUpgrade(upgrade.name(), upgrade.UPGRADE_CLASS);
+            Gdx.app.debug("UpgradeRegistry", "Registered upgrade: " + upgrade.name()+ " with class: " + upgrade.UPGRADE_CLASS);
         }
         UpgradeRegistry.registerUpgrade("Lead", LeadUpgrade.class);
         UpgradeRegistry.registerUpgrade("Mercury", MercuryUpgrade.class);
@@ -125,38 +125,44 @@ public class Upgrade {
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_crack.png")), 640, 360)[0])),
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_crack.png")), 640, 360)[0]),
+                2),
         COAL_THREAD(5, CoalThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_crack.png")), 640, 360)[0])),
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_crack.png")), 640, 360)[0]),
+                2),
         JOLT_THREAD(4, JoltThread.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_swing.png")), 640, 360)[0]),
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_crack.png")), 640, 360)[0])),
+                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_crack.png")), 640, 360)[0]),
+                3),
         THREADED_ROD(4, ThreadedRod.class,
                 new Animation<>(
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/trod_swing.png")), 640, 360)[0]),
-                null),
-        NONE(-1, null, null, null);
+                null,
+                3),
+        NONE(-1, null, null, null, -1);
 
-        public final Class<? extends Upgrade> upgradeClass;
+        public final Class<? extends Upgrade> UPGRADE_CLASS;
         final int MAX_HEALTH;
-        public final Animation<TextureRegion> swingAnim;
-        public final Animation<TextureRegion> crackAnim;
+        public final Animation<TextureRegion> SWING_ANIM;
+        public final Animation<TextureRegion> CRACK_ANIM;
+        final int BASE_DAMAGE;
 
-        BaseUpgrade(int maxHealth, Class<? extends Upgrade> upgradeClass, Animation<TextureRegion> swingAnim, Animation<TextureRegion> crackAnim) {
+        BaseUpgrade(int maxHealth, Class<? extends Upgrade> upgradeClass, Animation<TextureRegion> swingAnim, Animation<TextureRegion> crackAnim, int baseDamage) {
             MAX_HEALTH = maxHealth;
-            this.upgradeClass = upgradeClass;
-            this.swingAnim = swingAnim;
-            this.crackAnim = crackAnim;
+            this.UPGRADE_CLASS = upgradeClass;
+            this.SWING_ANIM = swingAnim;
+            this.CRACK_ANIM = crackAnim;
+            this.BASE_DAMAGE = baseDamage;
         }
     }
 }

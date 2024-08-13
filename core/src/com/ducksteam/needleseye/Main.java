@@ -694,7 +694,7 @@ public class Main extends Game {
 		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(attackTime);
 
-		Label damageBoost = new Label("Damage boost: " + player.damageBoost, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label damageBoost = new Label("Coal damage boost: " + player.coalDamageBoost, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(damageBoost);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
@@ -1058,22 +1058,22 @@ public class Main extends Game {
 			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
 
 			// Update the attack display
-			if (attackAnimTime > 0 && player.baseUpgrade.swingAnim != null) {
+			if (attackAnimTime > 0 && player.baseUpgrade.SWING_ANIM != null) {
 				attackAnimTime += Gdx.graphics.getDeltaTime();
-				TextureRegion currentFrame = player.baseUpgrade.swingAnim.getKeyFrame(attackAnimTime);
+				TextureRegion currentFrame = player.baseUpgrade.SWING_ANIM.getKeyFrame(attackAnimTime);
 				batch2d.begin();
 				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				batch2d.end();
-				if(player.baseUpgrade.swingAnim.isAnimationFinished(attackAnimTime)) attackAnimTime = 0;
+				if(player.baseUpgrade.SWING_ANIM.isAnimationFinished(attackAnimTime)) attackAnimTime = 0;
 			}
 
-			if (crackAnimTime > 0 && player.baseUpgrade.crackAnim != null) {
+			if (crackAnimTime > 0 && player.baseUpgrade.CRACK_ANIM != null) {
 				crackAnimTime += Gdx.graphics.getDeltaTime();
-				TextureRegion currentFrame = player.baseUpgrade.crackAnim.getKeyFrame(crackAnimTime);
+				TextureRegion currentFrame = player.baseUpgrade.CRACK_ANIM.getKeyFrame(crackAnimTime);
 				batch2d.begin();
 				batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 				batch2d.end();
-				if(player.baseUpgrade.crackAnim.isAnimationFinished(crackAnimTime)) crackAnimTime = 0;
+				if(player.baseUpgrade.CRACK_ANIM.isAnimationFinished(crackAnimTime)) crackAnimTime = 0;
 			}
 
 			camera.update();

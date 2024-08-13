@@ -29,7 +29,7 @@ public class Config {
     public static final float DAMAGE_TIMEOUT = 2.5f; // seconds
     public static final float UPGRADE_HEIGHT = 1.6f;
     public static final float SOUL_FIRE_HEIGHT = 0f;
-    public static final float SOUL_FIRE_RANGE = 1f;
+    public static final float SOUL_FIRE_RANGE = 2f;
     public static final float SOUL_FIRE_THROW_DISTANCE = 2.5f;
 
     static {

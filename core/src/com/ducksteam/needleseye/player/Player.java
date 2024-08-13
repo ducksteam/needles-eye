@@ -53,6 +53,7 @@ public class Player extends Entity implements IHasHealth {
     public float playerSpeedMultiplier = 1;
     public float dodgeChance = 0f;
     public float damageBoost = 0f;
+    public float coalDamageBoost = 0f;
 
     Vector3 tmp = new Vector3();
 
@@ -88,7 +89,7 @@ public class Player extends Entity implements IHasHealth {
         //Floors and regulates boost variables
         if (attackTimeout > 0) attackTimeout -= delta;
         if(attackTimeout<0) attackTimeout = 0;
-        if (damageBoost > 0) damageBoost -= (float) (delta * 0.5f * Math.pow(10,-2));
+        if (coalDamageBoost > 0) coalDamageBoost -= (float) (0.43 * Math.pow(Math.E, coalDamageBoost/2) * delta);
         if(playerSpeedMultiplier > 1) playerSpeedMultiplier -= (float) (delta * 0.5f * Math.pow(10,-2));
         if(playerSpeedMultiplier < 1) playerSpeedMultiplier = 1;
 
@@ -102,7 +103,6 @@ public class Player extends Entity implements IHasHealth {
         if (collider != null && !collider.isDisposed()) collider.dispose();
 
         collisionShape = new btBoxShape(new Vector3(playerBoxHalfSize, playerBoxHalfHeight, playerBoxHalfSize));
-        collisionShape.obtain();
         motionState = new EntityMotionState(this);
         Vector3 inertia = new Vector3();
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
@@ -126,25 +126,8 @@ public class Player extends Entity implements IHasHealth {
         if (baseUpgrade == BaseUpgrade.NONE) return;
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
         attackAnimTime = 0.01F;
-        player.whipAttack(3 + (int) damageBoost);
+        player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
         setAttackTimeout(attackLength);
-        /*switch (baseUpgrade) {
-            case SOUL_THREAD -> {
-                player.whipAttack(3 + (int) damageBoost;
-            }
-            case COAL_THREAD -> {
-//                player.whipAttack(); // todo add warming temperature
-            }
-            case JOLT_THREAD -> {
-                player.whipAttack(3 + (int) damageBoost, (Entity target) -> {
-                    boolean freeze = Math.random() < 0.2;
-                    if (freeze) target.freeze(2);
-                });
-            }
-            case THREADED_ROD -> {
-
-            }
-        }*/
     }
 
     /**
@@ -160,7 +143,7 @@ public class Player extends Entity implements IHasHealth {
                 SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE)));
             }
             case COAL_THREAD -> {
-                damageBoost = 1;
+                coalDamageBoost = 3;
             }
             case JOLT_THREAD -> {
                 playerSpeedMultiplier = 1.5f;
@@ -261,7 +244,7 @@ public class Player extends Entity implements IHasHealth {
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true);
         try {
-            this.upgrades.add(UpgradeRegistry.getUpgradeInstance(baseUpgrade.upgradeClass));
+            this.upgrades.add(UpgradeRegistry.getUpgradeInstance(baseUpgrade.UPGRADE_CLASS));
         } catch (Exception e) {
             Gdx.app.error("Player", "Base upgrade not found: " + baseUpgrade.name(),e);
         }
