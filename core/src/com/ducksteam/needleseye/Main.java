@@ -13,6 +13,11 @@ import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
+import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -34,7 +39,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
-import com.ducksteam.needleseye.entity.effect.SoulFireEntityEffect;
+import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.map.MapManager;
@@ -58,26 +63,30 @@ import java.util.stream.Collectors;
  * */
 public class Main extends Game {
 	// 3d rendering utils
-	static ModelBatch batch;
-	public static PerspectiveCamera camera;
-	public static FitViewport viewport;
-	Environment environment;
-	PointLight playerLantern;
-	Color playerLanternColour;
+	static ModelBatch batch; // used for rendering 3d models
+	public static PerspectiveCamera camera; // the camera
+	public static FitViewport viewport; // the viewport
+	Environment environment; // stores lighting information
+	PointLight playerLantern; // the player's spotlight
+	Color playerLanternColour; // the colour for the light
+	public static ParticleSystem particleSystem; // the particle system
+	PointSpriteParticleBatch particleBatch; // the particle batch
 
-   static Music menuMusic;
-  
-	// 2d rendering utils
+   static Music menuMusic; // the music for the menu
+
+	// stages for 2d UI components
 	Stage mainMenu;
 	Stage instructionsMenu;
 	Stage threadMenu;
 	Stage pauseMenu;
 	Stage deathMenu;
 	Stage debug;
-	SpriteBatch batch2d;
-	HashMap<String,Texture> spriteAssets = new HashMap<>();
-	BitmapFont debugFont;
-	Splash splash;
+
+	// other 2d rendering utils
+	SpriteBatch batch2d; // used for rendering other 2d sprites
+	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
+	BitmapFont uiFont; // font for text
+	Splash splash; // splash screen for loading
 
 	// asset manager
 	public static AssetManager assMan;
@@ -87,11 +96,11 @@ public class Main extends Game {
 
 	// objects to be rendered
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
-	//ArrayList<EnemyEntity> enemies = new ArrayList<>();
+	// sprites to be loaded into asset manager
 	ArrayList<String> spriteAddresses = new ArrayList<>();
 
 	// physics utils
-	public static btDynamicsWorld dynamicsWorld;
+	public static btDynamicsWorld dynamicsWorld; //
 	public static btConstraintSolver constraintSolver;
 	public static btBroadphaseInterface broadphase;
 	public static btCollisionConfiguration collisionConfig;
@@ -257,8 +266,15 @@ public class Main extends Game {
 		broadphase = new btDbvtBroadphase();
 		constraintSolver = new btSequentialImpulseConstraintSolver();
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
+
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
+
 		batch2d = new SpriteBatch();
+
+		particleBatch = new PointSpriteParticleBatch();
+		particleSystem = new ParticleSystem();
+		particleBatch.setCamera(camera);
+		particleSystem.add(particleBatch);
 
 		debugDrawer = new DebugDrawer();
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_FastWireframe);
@@ -333,7 +349,7 @@ public class Main extends Game {
 		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
 		keysText.append(Input.Keys.toString(Config.keys.get("right")));
 
-		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.", new Label.LabelStyle(debugFont, null));
+		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.", new Label.LabelStyle(uiFont, null));
 		instructions.setBounds((float) (Gdx.graphics.getWidth() * 155) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 338) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
 		instructions.setWrap(true);
 
@@ -378,7 +394,7 @@ public class Main extends Game {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.02 * Gdx.graphics.getHeight());
-		debugFont = generator.generateFont(parameter);
+		uiFont = generator.generateFont(parameter);
 	}
 
 	/**
@@ -657,29 +673,29 @@ public class Main extends Game {
 		debug = new Stage();
 		ArrayList<Label> labels = new ArrayList<>();
 
-		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(coords);
 
-		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(rotation);
 
-		Label eulerAngles = new Label("Camera angle: " + player.eulerRotation, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label eulerAngles = new Label("Camera angle: " + player.eulerRotation, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(eulerAngles);
 
-		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(velocity);
 
-		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(fps);
 
-		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(attackTime);
 
-		Label damageBoost = new Label("Damage boost: " + player.damageBoost, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label damageBoost = new Label("Damage boost: " + player.damageBoost, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(damageBoost);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
-		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(debugFont, debugFont.getColor()));
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(mapSpace);
 
 		if (!mapMan.levels.isEmpty()) {
@@ -687,17 +703,17 @@ public class Main extends Game {
 			if (currentRooms.length != 0) {
 				StringBuilder names = new StringBuilder();
 				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
-				Label roomName = new Label("Room: " + names, new Label.LabelStyle(debugFont, debugFont.getColor()));
+				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));
 				labels.add(roomName);
 				StringBuilder enemiesSB = new StringBuilder();
 				for (EnemyEntity enemy : currentRooms[0].getEnemies().values()) enemiesSB.append(enemy).append(", \n");
-				Label enemies = new Label("Enemies: " + enemiesSB, new Label.LabelStyle(debugFont, debugFont.getColor()));
+				Label enemies = new Label("Enemies: " + enemiesSB, new Label.LabelStyle(uiFont, uiFont.getColor()));
 				labels.add(enemies);
 			}
 		}
 
 		if (player.isGrounded()) {
-			Label grounded = new Label("Grounded", new Label.LabelStyle(debugFont, debugFont.getColor()));
+			Label grounded = new Label("Grounded", new Label.LabelStyle(uiFont, uiFont.getColor()));
 			labels.add(grounded);
 		}
 
@@ -811,11 +827,13 @@ public class Main extends Game {
 			} catch (NullPointerException ignored) {}
 		});
 
-		assMan.load(SoulFireEntityEffect.staticModelAddress, SceneAsset.class);
-
+		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
+		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
     
 		assMan.finishLoading();
 		UpgradeRegistry.iconsLoaded=true;
+
+		SoulFireEffectManager.loadStaticEffect();
 
 		Gdx.app.debug("Loader thread", "Loading finished");
 
@@ -1007,6 +1025,8 @@ public class Main extends Game {
 
 			player.update(Gdx.graphics.getDeltaTime());
 
+			SoulFireEffectManager.update();
+
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
 					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
@@ -1016,6 +1036,13 @@ public class Main extends Game {
 			});
 
 			batch.begin(camera);
+
+			particleSystem.add(particleBatch);
+			particleSystem.update();
+			particleSystem.begin();
+			particleSystem.draw();
+			particleSystem.end();
+			batch.render(particleSystem);
 
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
@@ -1065,7 +1092,7 @@ public class Main extends Game {
 
 	private void drawAdvanceText() {
 		batch2d.begin();
-		debugFont.draw(batch2d, "Press " + Input.Keys.toString(Config.keys.get("advance")) + " to advance to the next level", 100, 100);
+		uiFont.draw(batch2d, "Press " + Input.Keys.toString(Config.keys.get("advance")) + " to advance to the next level", 100, 100);
 		batch2d.end();
 	}
 
@@ -1110,7 +1137,7 @@ public class Main extends Game {
 		if (deathMenu != null) deathMenu.dispose();
 		if (debug != null) debug.dispose();
 		if (assMan != null) assMan.dispose();
-		if (debugFont != null) debugFont.dispose();
+		if (uiFont != null) uiFont.dispose();
         if (dynamicsWorld != null  && !dynamicsWorld.isDisposed()) dynamicsWorld.dispose();
         if (constraintSolver != null && !constraintSolver.isDisposed()) constraintSolver.dispose();
         if (broadphase != null && !broadphase.isDisposed()) broadphase.dispose();

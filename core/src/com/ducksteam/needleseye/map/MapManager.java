@@ -38,10 +38,10 @@ public class MapManager {
     public final String DECO_TEMPLATE_PATH = "assets/data/decos/";
 
     private final static Vector3[] enemyPositions = {
-            new Vector3(2f, 0.5f, 0f),
-            new Vector3(0f, 0.5f, -2f),
-            new Vector3(0f, 0.5f, 2f),
-            new Vector3(-2f, 0.5f, 0f)
+            new Vector3(2f, 0.7f, 0f),
+            new Vector3(0f, 0.7f, -2f),
+            new Vector3(0f, 0.7f, 2f),
+            new Vector3(-2f, 0.7f, 0f)
     };
 
     public MapManager() {

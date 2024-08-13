@@ -14,7 +14,7 @@ import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
-import com.ducksteam.needleseye.entity.effect.SoulFireEntityEffect;
+import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -157,7 +157,7 @@ public class Player extends Entity implements IHasHealth {
         crackAnimTime = 0.01F;
         switch (baseUpgrade) {
             case SOUL_THREAD -> {
-                spawnSoulFire(player.getPosition().add(player.eulerRotation.cpy().nor().scl(1.5f)));
+                SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(1.5f)));
             }
             case COAL_THREAD -> {
                 damageBoost = 1;
@@ -169,7 +169,6 @@ public class Player extends Entity implements IHasHealth {
     }
 
     public void spawnSoulFire(Vector3 pos){
-        entities.put(id, new SoulFireEntityEffect(pos,new Quaternion(),new ModelInstance(((SceneAsset) assMan.get(SoulFireEntityEffect.staticModelAddress)).scene.model)));
     }
 
 
