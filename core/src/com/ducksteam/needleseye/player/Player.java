@@ -1,11 +1,12 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
@@ -17,7 +18,6 @@ import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
-import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.ArrayList;
 
@@ -157,7 +157,7 @@ public class Player extends Entity implements IHasHealth {
         crackAnimTime = 0.01F;
         switch (baseUpgrade) {
             case SOUL_THREAD -> {
-                SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(1.5f)));
+                SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE)));
             }
             case COAL_THREAD -> {
                 damageBoost = 1;

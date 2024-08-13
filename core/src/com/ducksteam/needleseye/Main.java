@@ -17,7 +17,6 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
-import com.badlogic.gdx.graphics.g3d.particles.batches.PointSpriteParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -51,7 +50,10 @@ import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -70,7 +72,7 @@ public class Main extends Game {
 	PointLight playerLantern; // the player's spotlight
 	Color playerLanternColour; // the colour for the light
 	public static ParticleSystem particleSystem; // the particle system
-	PointSpriteParticleBatch particleBatch; // the particle batch
+	BillboardParticleBatch particleBatch; // the particle batch
 
    static Music menuMusic; // the music for the menu
 
@@ -271,11 +273,6 @@ public class Main extends Game {
 
 		batch2d = new SpriteBatch();
 
-		particleBatch = new PointSpriteParticleBatch();
-		particleSystem = new ParticleSystem();
-		particleBatch.setCamera(camera);
-		particleSystem.add(particleBatch);
-
 		debugDrawer = new DebugDrawer();
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_FastWireframe);
 
@@ -297,6 +294,12 @@ public class Main extends Game {
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.globalLightColour));
 		environment.add(playerLantern);
 		camera.near = 0.1f;
+
+		// init particles
+		particleBatch = new BillboardParticleBatch();
+		particleSystem = new ParticleSystem();
+		particleBatch.setCamera(camera);
+		particleSystem.add(particleBatch);
 
 		//Sets up game managers
 		assMan = new AssetManager();
@@ -1037,7 +1040,6 @@ public class Main extends Game {
 
 			batch.begin(camera);
 
-			particleSystem.add(particleBatch);
 			particleSystem.update();
 			particleSystem.begin();
 			particleSystem.draw();
