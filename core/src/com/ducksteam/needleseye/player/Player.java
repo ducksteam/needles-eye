@@ -30,9 +30,7 @@ import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
  */
 public class Player extends Entity implements IHasHealth {
     public BaseUpgrade baseUpgrade;
-
     public ArrayList<Upgrade> upgrades;
-
     int health;
     int maxHealth;
     private boolean grounded = false;
@@ -54,7 +52,9 @@ public class Player extends Entity implements IHasHealth {
     public float dodgeChance = 0f;
     public float damageBoost = 0f;
     public float coalDamageBoost = 0f;
-
+    public boolean isJumping;
+    //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
+    public boolean[] jumpFlags = new boolean[2];
     Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
@@ -94,6 +94,24 @@ public class Player extends Entity implements IHasHealth {
         if(playerSpeedMultiplier < 1) playerSpeedMultiplier = 1;
 
         motionState.getWorldTransform(tmpMat);
+
+        float velY = Math.round(getVelocity().y);
+
+        if(!jumpFlags[0] && !jumpFlags[1]) {
+            jumpFlags[0] = velY > 0;
+            jumpFlags[1] = velY < 0;
+        }
+        if(jumpFlags[0] && velY<0){
+            jumpFlags[0] = false;
+            jumpFlags[1] = true;
+        }
+        if(jumpFlags[1] && velY==0){
+            jumpFlags[1] = false;
+        }
+        isJumping = jumpFlags[0] || jumpFlags[1];
+
+
+
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
     }
 

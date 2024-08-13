@@ -204,9 +204,9 @@ public class Main extends Game {
 	public static void setGameState(GameState gameState){
 		Main.gameState = gameState;
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
+		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		if(menuMusic!=null) {
-			if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
-			if (gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING) menuMusic.play();
+			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME)&& !menuMusic.isPlaying()) menuMusic.play();
 			else menuMusic.pause();
 		}
 		gameStateCheck = gameState.toString();
@@ -696,6 +696,9 @@ public class Main extends Game {
 
 		Label damageBoost = new Label("Coal damage boost: " + player.coalDamageBoost, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(damageBoost);
+
+		Label isJumping = new Label("Jumping: " + player.isJumping, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		labels.add(isJumping);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
 		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));

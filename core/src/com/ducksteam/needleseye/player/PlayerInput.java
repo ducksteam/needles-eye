@@ -54,7 +54,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
             forceDir.add(tmp);
         }
 
-        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.1 && player.getPosition().y < 1){
+        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.5 && !player.isJumping){
             player.collider.applyCentralImpulse(new Vector3(0, 50, 0));
         }
 
