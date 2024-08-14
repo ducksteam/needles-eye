@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye;
 
+import com.badlogic.gdx.Gdx;
 import com.ducksteam.needleseye.player.Upgrade;
 
 import java.lang.reflect.InvocationTargetException;
@@ -27,6 +28,7 @@ public class UpgradeRegistry {
     }
 
     public static Upgrade getUpgradeInstance(String id) {
+        Gdx.app.debug("UpgradeRegistry", "Getting upgrade instance for: " + id);
         try {
             return registeredUpgrades.get(id).getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {

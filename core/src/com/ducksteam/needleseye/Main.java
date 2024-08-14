@@ -930,22 +930,18 @@ public class Main extends Game {
 	}
 
 	public static void advanceLevel(){
-		dynamicsWorld.dispose();
-		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
-		dynamicsWorld.addRigidBody(player.collider);
-		dynamicsWorld.setDebugDrawer(debugDrawer);
-
-		entities.forEach((Integer i, Entity e) -> {
-			if (e instanceof Player) return;
-			entities.remove(i);
-		});
-		mapMan.generateLevel();
-
 		String playerSerial = player.serialize();
 		player.destroy();
 
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
 		player.setFromSerial(playerSerial);
+
+		entities.forEach((Integer i, Entity e) -> {
+			if (e instanceof Player) return;
+			entities.remove(i);
+		});
+
+		mapMan.generateLevel();
 	}
 
 	/**

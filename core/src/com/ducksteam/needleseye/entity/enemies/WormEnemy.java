@@ -16,13 +16,15 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
 public class WormEnemy extends EnemyEntity{
-    static final float moveSpeed = 35000f;
+    static final float MASS = 4000f;
+    static final float IDLE_SPEED = 2000f;
+    static final float CHASE_SPEED = 30000f;
 
     public static String modelAddress = "models/enemies/worm.gltf";
 
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
         super(position, rotation, 4000, (EnemyRegistry.loaded) ? new ModelInstance(((SceneAsset)Main.assMan.get(modelAddress)).scene.model):null, 5, room.getRoomSpacePos());
-        setAi(new MeleeAI(this, moveSpeed));
+        setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED));
 
         collider.dispose();
         collisionShape.dispose();
@@ -31,9 +33,9 @@ public class WormEnemy extends EnemyEntity{
         motionState = new EntityMotionState(this, transform);
 
         Vector3 inertia = new Vector3();
-        collisionShape.calculateLocalInertia(4000, inertia);
+        collisionShape.calculateLocalInertia(MASS, inertia);
 
-        collider = new btRigidBody(4000, motionState, collisionShape, inertia);
+        collider = new btRigidBody(MASS, motionState, collisionShape, inertia);
         collider.obtain();
         collider.setCollisionFlags(collider.getCollisionFlags());
         collider.setActivationState(Collision.DISABLE_DEACTIVATION);
