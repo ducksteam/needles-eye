@@ -131,8 +131,6 @@ public class Main extends Game {
 	public static GameState gameState;
 	private static String gameStateCheck;
 
-	private static final Matrix4 tmpMat = new Matrix4();
-
 	/**
 	 * The enum for managing the game state
 	 * */
@@ -153,13 +151,6 @@ public class Main extends Game {
 		 * */
 		GameState(int id){
 			this.id=id;
-		}
-
-		/**
-		 * @return the id of the current state
-		 * */
-		int getId(){
-			return this.id;
 		}
 
 		/**
@@ -291,7 +282,7 @@ public class Main extends Game {
 		batch = new ModelBatch();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.globalLightColour));
+		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
 		environment.add(playerLantern);
 		camera.near = 0.1f;
 
@@ -942,15 +933,19 @@ public class Main extends Game {
 		dynamicsWorld.dispose();
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 		dynamicsWorld.addRigidBody(player.collider);
+		dynamicsWorld.setDebugDrawer(debugDrawer);
 
 		entities.forEach((Integer i, Entity e) -> {
 			if (e instanceof Player) return;
 			entities.remove(i);
 		});
 		mapMan.generateLevel();
-		player.motionState.getWorldTransform(tmpMat);
-		tmpMat.setTranslation(new Vector3(-5, 0.501f, 2.5f));
-		player.motionState.setWorldTransform(tmpMat);
+
+		String playerSerial = player.serialize();
+		player.destroy();
+
+		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player.setFromSerial(playerSerial);
 	}
 
 	/**

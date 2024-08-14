@@ -169,10 +169,6 @@ public class Player extends Entity implements IHasHealth {
         }
     }
 
-    public void spawnSoulFire(Vector3 pos){
-    }
-
-
     public void whipAttack(int damage){
         whipAttack((Entity target) -> ((IHasHealth) target).damage(damage));
     }
@@ -292,5 +288,30 @@ public class Player extends Entity implements IHasHealth {
         super.destroy();
     }
 
+    public String serialize(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(baseUpgrade.name()).append(",");
+        sb.append(health).append(",");
+        sb.append(maxHealth).append(",");
+        for(Upgrade upgrade : upgrades){
+            sb.append(upgrade.getName()).append(",");
+        }
 
+        return sb.toString();
+    }
+
+    public void setFromSerial(String serial){
+        String[] parts = serial.split(",");
+        baseUpgrade = BaseUpgrade.valueOf(parts[0]);
+        health = Integer.parseInt(parts[1]);
+        maxHealth = Integer.parseInt(parts[2]);
+        for(int i = 3; i < parts.length; i++){
+            if (parts[i].isEmpty()) continue;
+            try {
+                upgrades.add(UpgradeRegistry.getUpgradeInstance(parts[i]));
+            } catch (Exception e) {
+                Gdx.app.error("Player", "Upgrade not found: " + parts[i],e);
+            }
+        }
+    }
 }

@@ -92,10 +92,6 @@ public abstract class Entity {
 		}
 	}
 
-	public static Vector3 quatToEuler(Quaternion quat) {
-		return new Vector3(quat.getPitch(), quat.getYaw(), quat.getRoll());
-	}
-
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {

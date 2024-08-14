@@ -35,7 +35,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (ai != null) ai.update(delta);
         if (getDamageTimeout() > 0) damageTimeout -= delta;
         if (health <= 0) this.destroy();
-        if (getPosition().y < -0.1f) this.destroy();
+        if (getPosition().y < -10) this.destroy();
     }
 
     @Override

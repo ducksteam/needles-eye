@@ -32,12 +32,12 @@ public class PlayerInput implements InputProcessor, ControllerListener {
      * Updates the player's velocity based on the keys pressed.
      */
     public static void update(float delta) {
-        Config.MOVE_SPEED = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? 300f : 220f;
-        Config.MOVE_SPEED *= player.playerSpeedMultiplier;
+        Config.moveSpeed = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? 300f : 220f;
+        Config.moveSpeed *= player.playerSpeedMultiplier;
 
         Vector3 forceDir = new Vector3();
 
-        Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.MOVE_SPEED);
+        Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.moveSpeed);
 
         if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
             forceDir.add(moveVec);
@@ -65,7 +65,7 @@ public class PlayerInput implements InputProcessor, ControllerListener {
         }
 
         forceDir.y = 0;
-        forceDir.nor().scl(Config.MOVE_SPEED * delta);
+        forceDir.nor().scl(Config.moveSpeed * delta);
 //        Gdx.app.debug("player velocity", player.getVelocity().toString());
         player.collider.applyCentralImpulse(forceDir);
     }
