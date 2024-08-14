@@ -670,6 +670,9 @@ public class Main extends Game {
 		debug = new Stage();
 		ArrayList<Label> labels = new ArrayList<>();
 
+		Label gameState = new Label("Game state: " + gameStateCheck, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		labels.add(gameState);
+
 		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(coords);
 
