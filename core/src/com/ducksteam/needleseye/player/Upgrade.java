@@ -50,6 +50,7 @@ public class Upgrade {
         }
         UpgradeRegistry.registerUpgrade("Lead", LeadUpgrade.class);
         UpgradeRegistry.registerUpgrade("Mercury", MercuryUpgrade.class);
+        UpgradeRegistry.registerUpgrade("Gold", GoldUpgrade.class);
     }
 
     public void onPickup() {

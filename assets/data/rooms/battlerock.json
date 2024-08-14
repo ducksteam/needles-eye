@@ -1,8 +1,8 @@
 {
-  "name": "fakebattle",
+  "name": "battlerock",
   "type": "battle",
   "spawn": true,
-  "modelPath": "models/rooms/pedestal.gltf",
+  "modelPath": "models/rooms/battlerock.gltf",
   "texturePath": "",
   "width": 1,
   "height": 1,
