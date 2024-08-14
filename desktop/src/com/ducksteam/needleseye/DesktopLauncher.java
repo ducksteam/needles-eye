@@ -24,7 +24,9 @@ public class DesktopLauncher {
 		config.setHdpiMode(HdpiMode.Pixels);
 		config.setWindowIcon("icon/icon_128.png", "icon/icon_64.png", "icon/icon_32.png", "icon/icon_16.png");
 
+		Main main = new Main();
+		main.setSplashWorker(new DesktopSplashWorker());
 
-		new Lwjgl3Application(new Main(), config);
+		new Lwjgl3Application(main, config);
 	}
 }

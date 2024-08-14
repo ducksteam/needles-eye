@@ -124,12 +124,14 @@ public class Main extends Game {
 	Runnable animPreDraw;
 	Runnable animFinished;
 	static int[] threadAnimState = {0, 0, 0};
-
 	Animation<TextureRegion> transitionAnimation;
 
 	//Runtime info
 	public static GameState gameState;
 	private static String gameStateCheck;
+
+	//Runtime utils
+	private SplashWorker splashWorker;
 
 	/**
 	 * The enum for managing the game state
@@ -222,6 +224,7 @@ public class Main extends Game {
 	 * */
 	@Override
 	public void create () {
+		splashWorker.closeSplashScreen();
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
 		//Runs registries
@@ -1142,4 +1145,12 @@ public class Main extends Game {
         if (debugDrawer != null && !debugDrawer.isDisposed()) debugDrawer.dispose();
 		if (entities != null) entities.values().forEach(Entity::destroy);
     }
+
+	public SplashWorker getSplashWorker() {
+		return splashWorker;
+	}
+
+	public void setSplashWorker(SplashWorker splashWorker) {
+		this.splashWorker = splashWorker;
+	}
 }
