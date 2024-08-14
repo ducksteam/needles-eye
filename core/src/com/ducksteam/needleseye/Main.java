@@ -88,7 +88,6 @@ public class Main extends Game {
 	SpriteBatch batch2d; // used for rendering other 2d sprites
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
 	BitmapFont uiFont; // font for text
-	Splash splash; // splash screen for loading
 
 	// asset manager
 	public static AssetManager assMan;
@@ -214,7 +213,6 @@ public class Main extends Game {
 	 * */
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
-		setScreen(splash);
 		loadAssets();
         setGameState(GameState.IN_GAME);
 	}
@@ -249,8 +247,6 @@ public class Main extends Game {
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
-		splash = new Splash();
-
 		//Establishes physics
 
 		Bullet.init(true, false);
