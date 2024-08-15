@@ -2,7 +2,11 @@ package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.SoundLoader;
+import com.badlogic.gdx.assets.loaders.resolvers.ExternalFileHandleResolver;
+import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -75,7 +79,9 @@ public class Main extends Game {
 	public static ParticleSystem particleSystem; // the particle system
 	BillboardParticleBatch particleBatch; // the particle batch
 
-   static Music menuMusic; // the music for the menu
+    static Music menuMusic; // the music for the menu
+	public static HashMap<String, Sound> sounds; // the sound for walking
+
 
 	// stages for 2d UI components
 	Stage mainMenu;
@@ -248,6 +254,12 @@ public class Main extends Game {
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
+
+		sounds = new HashMap<String,Sound>();
+		sounds.put("sounds/player/walking_2.mp3",null);
+		sounds.put("sounds/player/whip_crack_1.mp3",null);
+		sounds.put("sounds/player/whip_lash_1.mp3",null);
+
 		//Establishes physics
 
 		Bullet.init(true, false);
@@ -800,9 +812,9 @@ public class Main extends Game {
 		//Enemies
 		EnemyRegistry.loadEnemyAssets(assMan);
 		//Rooms
+		assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
-			assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
 			assMan.load(room.getModelPath(), SceneAsset.class);
 			assMan.finishLoadingAsset(room.getModelPath());
 			room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
@@ -819,14 +831,23 @@ public class Main extends Game {
 			spriteAssets.put(address,assMan.get(address));
 		});
 		//Upgrade sprites
+		assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 		UpgradeRegistry.registeredUpgrades.values().forEach((upgradeClass) -> {
-			assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
 			if (Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress() == null) return;
 			try {
 				assMan.load(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress(), SceneAsset.class);
 			} catch (NullPointerException ignored) {}
 		});
 
+		assMan.setLoader(Sound.class,".mp3",new SoundLoader(new InternalFileHandleResolver()));
+        for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
+            String address = entry.getKey();
+            assMan.load(address, Sound.class);
+            assMan.finishLoadingAsset(address);
+            entry.setValue(assMan.get(address, Sound.class));
+        }
+
+        //Particle effects
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
 		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);

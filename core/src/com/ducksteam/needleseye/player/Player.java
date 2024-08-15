@@ -56,6 +56,8 @@ public class Player extends Entity implements IHasHealth {
     public boolean isJumping;
     //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
     public boolean[] jumpFlags = new boolean[2];
+
+    public long walkingSoundId;
     Vector3 tmp = new Vector3();
 
     public Player(Vector3 pos) {
@@ -111,6 +113,12 @@ public class Player extends Entity implements IHasHealth {
         }
         isJumping = jumpFlags[0] || jumpFlags[1];
 
+        if (Math.abs(Math.round(getVelocity().x))>0||Math.abs(Math.round(getVelocity().z))>0){
+            if (sounds.get("sounds/player/walking_2.mp3")!=null){
+                long id = sounds.get("sounds/player/walking_2.mp3").play();
+                sounds.get("sounds/player/walking_2.mp3").setVolume(id,0.5f);
+            }
+        }
 
 
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
@@ -146,6 +154,11 @@ public class Player extends Entity implements IHasHealth {
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
         attackAnimTime = 0.01F;
         player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
+        /*if(sounds.get("sounds/player/whip_lash_1.mp3")!=null) {
+            sounds.get("sounds/player/whip_lash_1.mp3").stop(walkingSoundId);
+            walkingSoundId = sounds.get("sounds/player/whip_lash_1.mp3").play();
+            sounds.get("sounds/player/whip_lash_1.mp3").setVolume(walkingSoundId,0.5f);
+        }*/
         setAttackTimeout(attackLength);
     }
 
@@ -167,6 +180,10 @@ public class Player extends Entity implements IHasHealth {
             case JOLT_THREAD -> {
                 playerSpeedMultiplier = 1.5f;
             }
+        }
+        if(sounds.get("sounds/player/whip_crack_1.mp3")!=null) {
+            long id = sounds.get("sounds/player/whip_crack_1.mp3").play();
+            sounds.get("sounds/player/whip_crack_1.mp3").setVolume(id,0.5f);
         }
     }
 
