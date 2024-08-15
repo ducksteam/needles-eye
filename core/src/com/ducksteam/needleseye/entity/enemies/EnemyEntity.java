@@ -14,8 +14,13 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 
+/**
+ * Entity class to represent enemies in the game
+ * @author skysourced
+ * */
 public abstract class EnemyEntity extends Entity implements IHasHealth {
 
+    //Health and interaction data
     int health;
     int maxHealth;
     Vector2 assignedRoom;
@@ -23,6 +28,15 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     float damageTimeout = 0;
     static Vector3 tmp = new Vector3();
 
+    /**
+     * Constructor for Enemy
+     * @param position Vector3 position of the enemy
+     * @param rotation Quaternion rotation of the enemy
+     * @param mass float mass of the enemy
+     * @param modelInstance ModelInstance of the enemy
+     * @param maxHealth int max health of the enemy
+     * @param assignedRoom Vector2 room space position of the enemy
+     * */
     public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
         super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
 
@@ -32,7 +46,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         setMaxHealth(maxHealth, true);
         this.assignedRoom = assignedRoom;
     }
-
+    /**
+     * Update method for the enemy
+     * @param delta float delta time
+     * */
     @Override
     public void update(float delta) {
         if (ai != null) ai.update(delta);
@@ -41,6 +58,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (getPosition().y < -10) this.destroy();
     }
 
+    /**
+     * Method to apply damage to the enemy
+     * @param damage int damage to apply
+     * */
     @Override
     public void damage(int damage) {
         if (damageTimeout > 0) return;
@@ -53,6 +74,9 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (health > maxHealth) setHealth(maxHealth);
     }
 
+    /**
+     * Sets health of the enemy
+     * */
     @Override
     public void setHealth(int health) {
         this.health = health;

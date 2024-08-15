@@ -227,7 +227,6 @@ public class Main extends Game {
 	public void beginLoading(){
 		setGameState(GameState.LOADING);
 		loadAssets();
-        setGameState(GameState.IN_GAME);
 	}
 
 	/**
@@ -836,72 +835,74 @@ public class Main extends Game {
 	/**
 	 * Performs any post level loading tasks
 	 * */
-	private void postLevelLoad(){
+	private void postLevelLoad() {
+		EnemyRegistry.postLoadEnemyAssets(assMan);
+		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
+			if (room.getModelPath() == null) return;
+			room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
+		});
+		spriteAddresses.forEach((String address)->{
+			spriteAssets.put(address,assMan.get(address));
+		});
+		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
+			String address = entry.getKey();
+			entry.setValue(assMan.get(address, Sound.class));
+		}
+		// Tell the particle managers to load the effect
+		SoulFireEffectManager.loadStaticEffect();
+		DamageEffectManager.loadStaticEffect();
+
+		UpgradeRegistry.iconsLoaded = true;
+		mapMan.generateLevel();
 		spawnEnemies();
 	}
 
 	/**
 	 * Loads all models and sprites to the game
 	 * */
-	private void loadAssets(){
+	private void loadAssets() {
 		Gdx.app.debug("Loader thread", "Loading started");
 		// Load enemy models
 		EnemyRegistry.loadEnemyAssets(assMan);
 		// Load room models
-		assMan.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
+		assMan.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
 			assMan.load(room.getModelPath(), SceneAsset.class);
-			assMan.finishLoadingAsset(room.getModelPath());
-			room.setModel(((SceneAsset)assMan.get(room.getModelPath())).scene.model);
 		});
 		//Walls
-		assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+		assMan.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 		assMan.load(WallObject.modelAddress, SceneAsset.class);
 		assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
 		//Sprites
-		spriteAddresses.forEach((String address)->{
-			if(address == null) return;
+		spriteAddresses.forEach((String address) -> {
+			if (address == null) return;
 			assMan.load(address, Texture.class);
-			assMan.finishLoadingAsset(address);
-			spriteAssets.put(address,assMan.get(address));
 		});
 		//Upgrade sprites
-		assMan.setLoader(SceneAsset.class,".gltf", new GLTFAssetLoader());
+		assMan.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 		UpgradeRegistry.registeredUpgrades.values().forEach((upgradeClass) -> {
-			if (Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress() == null) return;
+			if (Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress() == null)
+				return;
 			try {
 				assMan.load(Objects.requireNonNull(UpgradeRegistry.getUpgradeInstance(upgradeClass)).getModelAddress(), SceneAsset.class);
-			} catch (NullPointerException ignored) {}
+			} catch (NullPointerException ignored) {
+			}
 		});
 
 		// Sounds
-		assMan.setLoader(Sound.class,".mp3",new SoundLoader(new InternalFileHandleResolver()));
-        for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
-            String address = entry.getKey();
-            assMan.load(address, Sound.class);
-            assMan.finishLoadingAsset(address);
-            entry.setValue(assMan.get(address, Sound.class));
-        }
+		assMan.setLoader(Sound.class, ".mp3", new SoundLoader(new InternalFileHandleResolver()));
+		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
+			String address = entry.getKey();
+			assMan.load(address, Sound.class);
+		}
 
-        //Particle effects
+		//Particle effects
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
 		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
 
-		assMan.finishLoading();
-		UpgradeRegistry.iconsLoaded=true;
 
-		// Tell the particle managers to load the effect
-		SoulFireEffectManager.loadStaticEffect();
-		DamageEffectManager.loadStaticEffect();
-
-		Gdx.app.debug("Loader thread", "Loading finished");
-
-		// Continue generation
-		mapMan.generateLevel();
-		postLevelLoad();
-		setGameState(GameState.IN_GAME);
 	}
 
 	/**
@@ -1047,6 +1048,18 @@ public class Main extends Game {
 				gameStateCheck = gameState.toString();
 			}
 		}
+		if(gameState==GameState.LOADING){
+			float progress = assMan.getProgress();
+			renderLoadingFrame(progress);
+			if(assMan.update()){
+				assMan.finishLoading();
+				postLevelLoad();
+				setGameState(GameState.IN_GAME);
+			}
+			return;
+		}
+
+
 
 		// update UI animation
 		if(activeUIAnim != null){
@@ -1186,6 +1199,13 @@ public class Main extends Game {
 
 		// check if player has died, and send to death menu
 		if (player.getHealth() <= 0 && gameState == GameState.IN_GAME && player.baseUpgrade != BaseUpgrade.NONE) onPlayerDeath();
+	}
+
+	private void renderLoadingFrame(float progress) {
+		batch2d.begin();
+		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch2d.draw(new Texture("splash.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+		batch2d.end();
 	}
 
 	/**
