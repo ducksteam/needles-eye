@@ -16,9 +16,9 @@ import java.util.HashMap;
  * @author SkySourced
  */
 public class Level {
-    private final ArrayList<RoomInstance> rooms;
-    public HashMap<Vector2,WallObject> walls;
-    private final int levelNo;
+    private final ArrayList<RoomInstance> rooms; // rooms in the level
+    public HashMap<Vector2,WallObject> walls; // walls in the level
+    private final int levelNo; // the level number
 
 
     public Level(int levelNo) {
@@ -31,14 +31,15 @@ public class Level {
      * @param room the room to add
      */
     public void addRoom(RoomInstance room) {
-        rooms.add(room);
+        rooms.add(room); // add room to the level
+
         Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getRoomSpacePos());
-        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) {
+
+        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) { // add a placeholder to prevent generation in the second position of a hallway
             rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getRoomSpacePos().cpy().add(0, 1)));
-//            Gdx.app.debug("MapManager", "Added hallway placeholder at " + room.getRoomSpacePos().add(0, 1).rotateDeg(room.getRot()));
         }
 
-        if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) {
+        if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) { // add an upgrade entity to any treasure rooms
             Upgrade upgrade = UpgradeRegistry.getRandomUpgrade();
             new UpgradeEntity(room.getPosition().add(0,1.5f,0), upgrade);
             Gdx.app.debug("MapManager", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
@@ -53,6 +54,11 @@ public class Level {
         return rooms;
     }
 
+    /**
+     * Get a room at a position
+     * @param pos the position to get the room at
+     * @return the room at the position
+     */
     public RoomInstance getRoom(Vector2 pos) {
         for (RoomInstance room : rooms) {
             if (room.getRoomSpacePos().equals(pos)) return room;
@@ -68,6 +74,10 @@ public class Level {
         return levelNo;
     }
 
+    /**
+     * Get a string representation of the level
+     * @return the string representation
+     */
     @Override
     public String toString() {
         return "Level{" +

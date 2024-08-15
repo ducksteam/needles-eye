@@ -10,6 +10,7 @@ import java.io.FileReader;
  * Represents a template for a decoration in the world
  * @author SkySourced
  */
+@Deprecated
 public class DecoTemplate {
     private String name;
     private String modelPath;

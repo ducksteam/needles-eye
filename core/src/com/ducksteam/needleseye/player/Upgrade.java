@@ -16,13 +16,12 @@ import java.util.HashMap;
  */
 public class Upgrade {
 
-    public Boolean isIconLoaded;
-    String name;
-    String description;
-    Texture icon;
-    String iconAddress;
-    String modelAddress;
-    public boolean isBaseUpgrade;
+    String name; // name of the upgrade
+    String description; // flavour text for upgrade
+    Texture icon; // icon for the upgrade
+    String iconAddress; // file path to icon
+    String modelAddress; // file path to model
+    public boolean isBaseUpgrade; // whether the upgrade is a base upgrade
 
     public Upgrade() {
         this.name = "Upgrade";
@@ -42,67 +41,80 @@ public class Upgrade {
         this.isBaseUpgrade = isBaseUpgrade;
     }
 
+    /**
+     * Add all upgrades to the UpgradeRegistry
+     */
     public static void registerUpgrades() {
+        // Register all base upgrades
         for(BaseUpgrade upgrade : BaseUpgrade.values()) {
             if(upgrade == BaseUpgrade.NONE) continue;
             UpgradeRegistry.registerUpgrade(upgrade.NAME, upgrade.UPGRADE_CLASS);
             Gdx.app.debug("UpgradeRegistry", "Registered upgrade: " + upgrade.name()+ " with class: " + upgrade.UPGRADE_CLASS);
         }
+        // Register other upgrades
         UpgradeRegistry.registerUpgrade("Lead", LeadUpgrade.class);
         UpgradeRegistry.registerUpgrade("Mercury", MercuryUpgrade.class);
         UpgradeRegistry.registerUpgrade("Gold", GoldUpgrade.class);
     }
 
+    /**
+     * Method to be overridden for each upgrade, triggered on pickup
+     */
     public void onPickup() {
         Gdx.app.debug("Upgrade", "Picked up upgrade: " + name);
     }
 
-    public void onAttack() {
-        Gdx.app.debug("Upgrade", "Attacked with upgrade: " + name);
-    }
-
+    /**
+     * Method to be overridden for each upgrade, triggered on damage
+     */
     public void onDamage() {
         Gdx.app.debug("Upgrade", "Damaged with upgrade: " + name);
     }
 
-    /*
-    * Accessor/mutator methods ______.
-    *                                |
-    *                                V
-    * */
-
+    /**
+     * Get the name of the upgrade
+     * @return name of the upgrade
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set the name of the upgrade
+     * @param name the name of the upgrade
+     */
     public void setName(String name) {
         this.name = name;
     }
 
+    /**
+     * Get the address of the icon
+     * @return the address of the icon
+     */
     public String getIconAddress() {
         return iconAddress;
     }
 
-    public void setIconAddress(String iconAddress) {
-        this.iconAddress = iconAddress;
-    }
-
+    /**
+     * Get the description of the upgrade
+     * @return the description of the upgrade
+     */
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
+    /**
+     * Get the icon of the upgrade
+     * @return the icon of the upgrade
+     */
     public Texture getIcon() {
         return icon;
     }
 
-    public void setIcon(Texture icon) {
-        this.icon = icon;
-    }
-
+    /**
+     * Set the icon of the upgrade
+     * @param map a map with upgrade name keys and upgrade icon values
+     */
     public void setIconFromMap(HashMap<String,Texture> map){
         if(map.containsKey(iconAddress)) {
             icon = map.get(iconAddress);
@@ -111,14 +123,17 @@ public class Upgrade {
         }
     }
 
+    /**
+     * Get the address of the model
+     * @return the address of the model
+     */
     public String getModelAddress() {
         return modelAddress;
     }
 
-    public void setModelAddress(String modelAddress) {
-        this.modelAddress = modelAddress;
-    }
-
+    /**
+     * Base upgrade enum
+     */
     public enum BaseUpgrade {
         SOUL_THREAD("Soul Thread", 3, SoulThread.class,
                 new Animation<>(
@@ -152,12 +167,12 @@ public class Upgrade {
                 3),
         NONE(null, -1, null, null, null, -1);
 
-        public final String NAME;
-        public final Class<? extends Upgrade> UPGRADE_CLASS;
-        final int MAX_HEALTH;
-        public final Animation<TextureRegion> SWING_ANIM;
-        public final Animation<TextureRegion> CRACK_ANIM;
-        final int BASE_DAMAGE;
+        public final String NAME; // name of the upgrade
+        public final Class<? extends Upgrade> UPGRADE_CLASS; // class of the upgrade
+        final int MAX_HEALTH; // max health of the upgrade
+        public final Animation<TextureRegion> SWING_ANIM; // swing animation of the upgrade
+        public final Animation<TextureRegion> CRACK_ANIM; // crack animation of the upgrade
+        final int BASE_DAMAGE; // base damage for the upgrade
 
         BaseUpgrade(String name, int maxHealth, Class<? extends Upgrade> upgradeClass, Animation<TextureRegion> swingAnim, Animation<TextureRegion> crackAnim, int baseDamage) {
             this.NAME = name;

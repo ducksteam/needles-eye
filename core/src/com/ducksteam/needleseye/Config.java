@@ -32,6 +32,8 @@ public class Config {
     private static final float LIGHT_INTENSITY = 0.03f;
     public static Color LIGHT_COLOUR = new Color(0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1);
     public static final float KNOCKBACK_FORCE = 1000;
+    public static final float WALK_SPEED = 220f;
+    public static final float RUN_SPEED = 300f;
 
     static {
         keys.put("forward", Input.Keys.W);

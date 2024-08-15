@@ -7,48 +7,53 @@ import com.badlogic.gdx.math.Vector3;
 
 import static com.ducksteam.needleseye.Main.player;
 
+/**
+ * An input processor that is always active, regardless of the current game state
+ * @author SkySourced
+ * @author thechiefpotatopeeler
+ */
 public class GlobalInput implements InputProcessor {
+
+    /**
+     * Called when a key is pressed
+     * @param i the key code
+     * @return whether the input was handled
+     */
+
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.F8) {
+        if (i == Input.Keys.F8) { // enable/disable collider rendering
             Config.doRenderColliders = !Config.doRenderColliders;
             return true;
         }
-        if (i == Input.Keys.F9) {
+        if (i == Input.Keys.F9) { // enable/disable debug menu
             Config.debugMenu = !Config.debugMenu;
             return true;
         }
-        if (i == Input.Keys.ESCAPE) {
-            if(!(Main.gameState == Main.GameState.IN_GAME || Main.gameState == Main.GameState.PAUSED_MENU)) return true;
-            if(Main.gameState == Main.GameState.PAUSED_MENU) Main.gameState = Main.GameState.IN_GAME;
+        if (i == Input.Keys.ESCAPE) { // pause the game
+            if (!(Main.gameState == Main.GameState.IN_GAME || Main.gameState == Main.GameState.PAUSED_MENU)) return true;
+            if (Main.gameState == Main.GameState.PAUSED_MENU) Main.gameState = Main.GameState.IN_GAME;
             else Main.setGameState(Main.GameState.PAUSED_MENU);
-            Gdx.app.debug("GameState", Main.gameState.toString());
-            return true;
-        }
-
-        if (i == Input.Keys.F10) {
-            float gravity = Main.dynamicsWorld.getGravity().y;
-            Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
-        }
-
-        if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(50));
-
-        if (i == Input.Keys.NUMPAD_ADD) {
-            Main.player.damage(-1);
-            return true;
-        }
-        if (i == Input.Keys.NUMPAD_SUBTRACT) {
-            Main.player.damage(1);
             return true;
         }
         return false;
     }
 
+    /**
+     * Called when the mouse is clicked
+     * @param x the x coordinate of the mouse
+     * @param y the y coordinate of the mouse
+     * @param pointer the pointer
+     * @param button the button pressed
+     * @return false, as the event will be finally handled by the player input
+     */
     @Override
-    public boolean touchDown(int i, int i1, int i2, int i3) {
-        if (Main.gameState == Main.GameState.IN_GAME) Gdx.input.setCursorCatched(true);
+    public boolean touchDown(int x, int y, int pointer, int button) {
+        if (Main.gameState == Main.GameState.IN_GAME) Gdx.input.setCursorCatched(true); // if in game, catch the cursor
         return false;
     }
+
+    // Unused methods overridden from InputProcessor
 
     @Override
     public boolean keyUp(int i) {

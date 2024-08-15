@@ -19,8 +19,9 @@ import java.util.Map;
  */
 public class RoomTemplate {
 
-    private Model model;
+    private Model model; // the model of the room
 
+    // Represents the type of room
     public enum RoomType {
         SMALL(2, 0.8f), // 80% chance of being a small room
         HALLWAY(0, 0.85f), // 5% chance of being a hallway
@@ -29,8 +30,8 @@ public class RoomTemplate {
         BOSS(0, 0), // boss rooms & treasure rooms are generated specially
         TREASURE(0, 0);
 
-        final int difficulty;
-        final float normalChance;
+        final int difficulty; // the difficulty of the room, or how many enemies it should spawn
+        final float normalChance; // the chance of this room type being generated
 
         RoomType(int difficulty, float normalChance) {
             this.difficulty = difficulty;
@@ -67,20 +68,23 @@ public class RoomTemplate {
             return null;
         }
 
+        /**
+         * Get the difficulty of the room type
+         * @return the difficulty
+         */
         public int getDifficulty() {
             return difficulty;
         }
     }
 
-    private RoomType type;
-    private int width;
-    private int height;
-    private boolean spawn;
-    private String modelPath;
-    private String name;
-    private ArrayList<DecoInstance> decos;
-    private HashMap<Integer, Boolean> doors;
-    private Vector3 centreOffset;
+    private RoomType type; // the type of room
+    private int width; // the width of the room
+    private int height; // the height of the room
+    private boolean spawn; // whether enemies can spawn in this room
+    private String modelPath; // the path to the model of the room
+    private String name; // the name of the room (only used internally)
+    private HashMap<Integer, Boolean> doors; // the doors of the room and whether they are compatible with the model
+    private Vector3 centreOffset; // the offset of the centre of the room
 
     public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, String texturePath, Vector3 centreOffset) {
         this.type = roomType;
@@ -91,8 +95,6 @@ public class RoomTemplate {
         this.centreOffset = centreOffset;
     }
 
-
-
     public RoomTemplate() {}
 
     /** Load a room template from a file
@@ -100,8 +102,8 @@ public class RoomTemplate {
      * @return the room template
      */
     public static RoomTemplate loadRoomTemplate(File file) {
-        Gson gson = new Gson();
-        Map<?, ?> map;
+        Gson gson = new Gson(); // start json reader
+        Map<?, ?> map; // create map to store values
         try {
             map = gson.fromJson(new FileReader(file), Map.class); // read the file to a map
         } catch (Exception e) { // file not found
@@ -130,112 +132,157 @@ public class RoomTemplate {
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
         }
 
-        /*// Read decos
-        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> decos = (ArrayList<LinkedTreeMap<String, Object>>) map.get("decos");
-        rt.setDecos(new ArrayList<>());
-
-        for(LinkedTreeMap<String, Object> entry : decos) { // Read decos from GSON map
-            DecoTemplate template = null;
-            Vector3 position = null;
-            for(Map.Entry<String, Object> e : entry.entrySet()) { // For each deco in the JSON array
-                switch (e.getKey()) { // Read values from GSON map
-                    case "name" -> template = MapManager.decoTemplates.stream().filter(d -> d.getName().equals(e.getValue())).findFirst().orElse(null);
-                    case "position" -> //noinspection unchecked
-							position = MapManager.vector3FromArray((ArrayList<Double>) e.getValue());
-
-                }
-                if (template == null || position == null) {
-                    Gdx.app.error(rt.getName(),"Deco template not found: " + e.getValue());
-                } else {
-                    DecoInstance deco = new DecoInstance(template, position);
-                    rt.getDecos().add(deco);
-                }
-            }
-        }*/
-
         return rt;
     }
 
+    /**
+     * Get the model of the room
+     * @return the model
+     */
     public Model getModel() {
         return this.model;
     }
 
+    /**
+     * Set the model of the room
+     * @param model the model
+     */
     public void setModel(Model model) {
         this.model = model;
     }
 
+    /**
+     * Get the type of the room
+     * @return the type
+     */
     public RoomType getType() {
         return type;
     }
 
+    /**
+     * Set the type of the room
+     * @param type the type
+     */
     public void setType(RoomType type) {
         this.type = type;
     }
 
+    /**
+     * Get the width of the room
+     * @return the width
+     */
     public int getWidth() {
         return width;
     }
 
+    /**
+     * Set the width of the room
+     * @param width the width
+     */
     public void setWidth(int width) {
         this.width = width;
     }
 
+    /**
+     * Get the height of the room
+     * @return the height
+     */
     public int getHeight() {
         return height;
     }
 
+    /**
+     * Set the height of the room
+     * @param height the height
+     */
     public void setHeight(int height) {
         this.height = height;
     }
 
+    /**
+     * Check if enemies can spawn in the room
+     * @return true if enemies can spawn
+     */
     public boolean canSpawn() {
         return spawn;
     }
 
+    /**
+     * Set whether enemies can spawn in the room
+     * @param spawn true if enemies can spawn
+     */
     public void setSpawn(boolean spawn) {
         this.spawn = spawn;
     }
 
+    /**
+     * Get the path to the model of the room
+     * @return the path
+     */
     public String getModelPath() {
         return modelPath;
     }
 
+    /**
+     * Set the path to the model of the room
+     * @param modelPath the path
+     */
     public void setModelPath(String modelPath) {
         this.modelPath = modelPath;
     }
 
+    /**
+     * Get the name of the room
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Set the name of the room
+     * @param name the name
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    public ArrayList<DecoInstance> getDecos() {
-        return decos;
-    }
-
-    public void setDecos(ArrayList<DecoInstance> decos) {
-        this.decos = decos;
-    }
-
+    /**
+     * Get the state of the doors enabled in the room
+     * @return the doors map
+     */
     public HashMap<Integer, Boolean> getDoors() {
         return doors;
     }
 
+    /**
+     * Set the state of the doors enabled in the room
+     * @param doors the doors map
+     */
     public void setDoors(HashMap<Integer, Boolean> doors) {
         this.doors = doors;
     }
 
+    /**
+     * Get the offset of the centre of the room
+     * @return the offset
+     */
     public Vector3 getCentreOffset() {
         return centreOffset;
     }
 
+    /**
+     * Set the offset of the centre of the room
+     * @param centreOffset the offset
+     */
     public void setCentreOffset(Vector3 centreOffset) {
         this.centreOffset = centreOffset;
     }
 
+    /**
+     * Get the string representation of the room template for debugging
+     * @return the string
+     */
     @Override
     public String toString() {
         return "RoomTemplate{" +
@@ -245,7 +292,6 @@ public class RoomTemplate {
                 ", spawn=" + spawn +
                 ", modelPath='" + modelPath + '\'' +
                 ", name='" + name + '\'' +
-                ", decos=" + decos +
                 '}';
     }
 }

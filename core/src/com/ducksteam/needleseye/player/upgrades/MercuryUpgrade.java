@@ -15,7 +15,7 @@ public class MercuryUpgrade extends Upgrade {
 
 	@Override
 	public void onPickup() {
-		Main.player.playerSpeedMultiplier += 0.1f;
-		Main.player.dodgeChance += 0.1f;
+		Main.player.playerSpeedMultiplier += 0.1f; // Increase speed by 0.1x
+		Main.player.dodgeChance += 0.1f; // Increase dodge chance by 10%
 	}
 }

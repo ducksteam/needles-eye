@@ -15,12 +15,19 @@ public class DamageEffectManager {
 	private static final String staticEffectAddress = "models/effects/bleed.pfx"; // file path to the effect
 	private static ParticleEffect staticEffect; // the original copy of the effect
 
-	private static final Matrix4 tmpMat = new Matrix4();
+	private static final Matrix4 tmpMat = new Matrix4(); // temporary matrix for effect positioning
 
+	/**
+	 * Load the static effect from the asset manager
+	 */
 	public static void loadStaticEffect(){ // load the effect from the asset manager
 		staticEffect = Main.assMan.get(getStaticEffectAddress());
 	}
 
+	/**
+	 * Create a new copy of the effect
+	 * @param position the position where the effect should be created
+	 */
 	public static void create(Vector3 position) {
 		// generate copy of effect
 		ParticleEffect tmpEffect = staticEffect.copy();
@@ -34,9 +41,12 @@ public class DamageEffectManager {
 		particleSystem.add(tmpEffect);
 	}
 
+	/**
+	 * Remove any expiring particles
+	 */
 	public static void update(){
 		times.forEach((ParticleEffect effect, Long time) -> {
-			if (Main.getTime() > time) {
+			if (Main.getTime() > time) { // for each effect, remove if it's expired
 				times.remove(effect);
 				particleSystem.remove(effect);
 			}

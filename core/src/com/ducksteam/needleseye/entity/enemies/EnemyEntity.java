@@ -48,7 +48,6 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         tmp.set(Main.player.getPosition().sub(getPosition())).nor();
         tmp.y = 0;
         collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));
-        Gdx.app.debug("EnemyEntity", "Tmp " + tmp);
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);

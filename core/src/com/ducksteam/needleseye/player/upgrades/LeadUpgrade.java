@@ -16,7 +16,7 @@ public class LeadUpgrade extends Upgrade {
 
 	@Override
 	public void onPickup() {
-		Main.player.damageBoost += 1;
-		Main.player.setAttackTimeout(Main.player.getAttackTimeout() + 0.05f);
+		Main.player.damageBoost += 1; // Increase damage by 1
+		Main.player.setAttackTimeout(Main.player.getAttackTimeout() + 0.05f); // slow down attack speed by 0.05 seconds
 	}
 }

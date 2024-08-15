@@ -11,6 +11,7 @@ import com.ducksteam.needleseye.map.DecoTemplate;
  * Represents an instance of a decoration in the world
  * @author SkySourced
  */
+@Deprecated
 public class DecoInstance extends Entity {
 
     private DecoTemplate template;

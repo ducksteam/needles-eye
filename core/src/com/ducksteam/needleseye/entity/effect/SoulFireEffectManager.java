@@ -36,7 +36,7 @@ public class SoulFireEffectManager {
     }
 
     public static void create(Vector3 position) {
-        // lock y
+        // lock y to specified height
         position.y = Config.SOUL_FIRE_HEIGHT;
 
         // generate copy of effect
@@ -54,13 +54,13 @@ public class SoulFireEffectManager {
 
     public static void update(){
          times.forEach((ParticleEffect effect, Long time) -> {
-             if (Main.getTime() > time) {
+             if (Main.getTime() > time) { // remove the effect if its expiry time has passed
                  times.remove(effect);
                  particleSystem.remove(effect);
                  positions.remove(effect);
                  return;
              }
-             entities.values().forEach((Entity e) -> {
+             entities.values().forEach((Entity e) -> { // for each entity
                  // only check positions of enemies
                  if (!(e instanceof EnemyEntity)) return;
 
@@ -80,10 +80,18 @@ public class SoulFireEffectManager {
          });
     }
 
+    /**
+     * Get the path where the effect is stored
+     * @return the path to the effect
+     */
     public static String getStaticEffectAddress() {
         return staticEffectAddress;
     }
 
+    /**
+     * Get the damage dealt by the effect
+     * @return the damage dealt
+     */
     private static int getContactDamage() {
         return 1;
     }

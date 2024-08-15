@@ -23,20 +23,20 @@ import java.util.Objects;
  */
 public class MapManager {
 
-    public static ArrayList<RoomTemplate> roomTemplates;
-    public static ArrayList<DecoTemplate> decoTemplates;
-    public final ArrayList<Level> levels;
+    public static ArrayList<RoomTemplate> roomTemplates; // all room templates
+    public final ArrayList<Level> levels; // the levels in this run of the game
 
-    public static HashMap<Class<?extends EnemyEntity>,Integer> bagRandomiser = new HashMap<>();
+    public static HashMap<Class<?extends EnemyEntity>,Integer> bagRandomiser = new HashMap<>(); // the bag of enemies to spawn
     public int levelIndex; // number of levels generated
 
     // placeholder room for hallways
     public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
 
-    // paths (these could be wrong, maybe change to just data/rooms/?)
+    // paths
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
     public final String DECO_TEMPLATE_PATH = "assets/data/decos/";
 
+    // the different positions in the room for enemies to spawn
     private final static Vector3[] enemyPositions = {
             new Vector3(2f, 0.7f, 0f),
             new Vector3(0f, 0.7f, -2f),
@@ -46,32 +46,8 @@ public class MapManager {
 
     public MapManager() {
         roomTemplates = new ArrayList<>();
-        decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
         levelIndex = 1;
-
-        // load deco templates
-        File decoDir = new File(DECO_TEMPLATE_PATH);
-        if (!decoDir.exists()) { // check if the deco template directory exists
-            Gdx.app.error("MapManager", "Deco template directory not found: " + DECO_TEMPLATE_PATH);
-            return;
-        } else {
-            for (File file : Objects.requireNonNull(decoDir.listFiles())) { // load all deco templates
-                if (file.getName().endsWith(".json")) { // only load json files
-                    decoTemplates.add(DecoTemplate.loadDecoTemplate(file)); // load the deco template
-                    Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": \n" + decoTemplates.getLast().toString());
-                }
-            }
-        }
-        Gdx.app.debug("MapManager", "Loaded data for " + decoTemplates.size() + " deco templates");
-
-
-        MapManager.decoTemplates.forEach((DecoTemplate deco) -> {
-            if (deco.getModelPath() == null) return;
-            Gdx.app.debug("MapManager", "Loaded model for deco " + deco.getName());
-            //Main.assMan.load(deco.getModelPath(), Model.class);
-        });
-        //Main.assMan.finishLoading(); // finish loading elements in rooms so room gen will proceed smoothly
 
         // load room templates
         File roomDir = new File(ROOM_TEMPLATE_PATH);
@@ -88,24 +64,36 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
     }
 
+    /**
+     * Add enemies to the level
+     * @param level the level to be populated
+     */
     public void populateLevel(Level level){
         level.getRooms().forEach((RoomInstance room)->{
-            for(int i=0;i<room.getRoom().getType().getDifficulty();i++) {
-                int bagSize = bagRandomiser.values().stream().reduce(0, Integer::sum);
-                if (bagRandomiser.isEmpty() || bagSize == 0) {
+            for(int i=0;i<room.getRoom().getType().getDifficulty();i++) { // for each enemy to spawn in the room
+                int bagSize = bagRandomiser.values().stream().reduce(0, Integer::sum); // get the total number of enemies in the bag
+                if (bagRandomiser.isEmpty() || bagSize == 0) { // if the bag is empty, refill it
                     fillBagRandomiser();
                 }
+                // get a random enemy from the bag
                 Class<? extends EnemyEntity> enemyClass = bagRandomiser.keySet().stream().skip((int) (bagRandomiser.size() * Math.random())).findFirst().orElse(null);
+                // if the enemy has no entries left, return
                 if(bagRandomiser.get(enemyClass)<=0) return;
+                // update the bag
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
+                // create the enemy
                 EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(enemyPositions[(int) (Math.random() * enemyPositions.length)]), new Quaternion(), room);
 				assert enemy != null;
+                // set the room and add the enemy to the room
 				enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
             }
         });
     }
 
+    /**
+     * Fill the bag of enemies with all enemy types
+     */
     private void fillBagRandomiser() {
         if(bagRandomiser==null){
             bagRandomiser = new HashMap<>();
@@ -117,40 +105,8 @@ public class MapManager {
      * Generate a new level
      */
 
-    public void generateTestLevel() {
-        Level level = new Level(levelIndex);
-
-        RoomInstance room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0));
-        level.addRoom(room);
-        /*room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(1, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(2, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(3, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(4, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(5, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(6, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(7, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(8, 0));
-        level.addRoom(room);
-        room = new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(9, 0));
-        level.addRoom(room);*/
-
-        addWalls(level);
-        populateLevel(level);
-
-        levels.add(level);
-    }
-
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
-
-//        HALLWAY_PLACEHOLDER.setModel(((SceneAsset)assMan.get(HALLWAY_PLACEHOLDER.getModelPath())).scene.model);
 
         RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector3(-5, 0, 0), new Vector2(0,0), 0); // build a base hallway
         level.addRoom(room);
@@ -179,6 +135,7 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
+        // add walls and enemies
         addWalls(level);
         populateLevel(level);
 
@@ -189,12 +146,13 @@ public class MapManager {
     public void addWalls(Level level){
         level.walls = new HashMap<>();
 
+        // parameters for the four different wall types
         Vector2[] translations = new Vector2[]{new Vector2(0, -0.5f), new Vector2(-0.5f, 0), new Vector2(-0.5f, -1), new Vector2(-1, -0.5f)};
         int[] rotations = new int[]{0, 90, 270, 180};
         Vector2[] roomOffsets = {new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 0)};
 
         level.getRooms().forEach(roomInstance -> {
-            RoomTemplate.RoomType type = roomInstance.getRoom().getType();
+            RoomTemplate.RoomType type = roomInstance.getRoom().getType(); // store type to save memories
 
             int possibleDoors = 4;
 
@@ -205,6 +163,7 @@ public class MapManager {
 
                 boolean adjacentRoomExists;
 
+                // select the correct translation, rotation, and position for the wall number
                 Vector2 translation = translations[i];
                 Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
 
@@ -213,13 +172,20 @@ public class MapManager {
 
                 // check if the corresponding room exists
                 Vector2 adjacentRoomOffset = roomOffsets[i];
+                // if an adjacent room exists
                 adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset)));
 
+                // create wall
                 WallObject wall = new WallObject(position, rotation, adjacentRoomExists);
                 level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
             }
         });
     }
+
+    /**
+     * Get the current level
+     * @return the last level
+     */
     public Level getCurrentLevel(){
         return levels.getLast();
     }
@@ -229,14 +195,13 @@ public class MapManager {
      * @param level the level to generate the room in
      */
     private void generateRoom(Level level, RoomTemplate.RoomType type) {
-        RoomTemplate template = getRandomRoomTemplate(type);
-        Vector2 pos = generateRoomPos(template, level.getRooms());
-        //int rot = (int) Math.floor(Math.random() * 4) * 90;
+        RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
+        Vector2 pos = generateRoomPos(template, level.getRooms()); // generate a valid position for the room
         int rot = 0;
         RoomInstance room;
-        if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).sub(new Vector3(5, 0, 0)), pos, rot);
+        if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).sub(new Vector3(5, 0, 0)), pos, rot); // create instance
         else room = new RoomInstance(template, pos, rot);
-        level.addRoom(room);
+        level.addRoom(room); // add to level
     }
 
     /**
@@ -283,7 +248,6 @@ public class MapManager {
         };
 
         Vector2 pos = room.getRoomSpacePos().cpy().add(offset.scl(rot)); // add offset to room position
-        //Gdx.app.debug("Door" + door, "Offset: " + offset + " Pos: " + pos);
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy

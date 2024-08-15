@@ -196,7 +196,7 @@ public class Main extends Game {
 		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, threadMenu));
 		GameState.LOADING.setInputProcessor(globalInput);
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
-		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(globalInput, deathMenu));
+		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, deathMenu));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, instructionsMenu));
 	}
 
@@ -385,6 +385,11 @@ public class Main extends Game {
 	private void buildDeathMenu() {
 		deathMenu = new Stage();
 
+		// add background
+		Image background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
+		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		deathMenu.addActor(background);
+
 		// add main menu button
 		ImageButton.ImageButtonStyle exitButtonStyle = new ImageButton.ImageButtonStyle();
 		exitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png"))).getDrawable();
@@ -402,11 +407,6 @@ public class Main extends Game {
 			}
 		});
 		deathMenu.addActor(exitButton);
-
-		// add background
-		Image background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		deathMenu.addActor(background);
 
 		// add title
 		Image title = new Image(new Texture(Gdx.files.internal("ui/death/title.png")));

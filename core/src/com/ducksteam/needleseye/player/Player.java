@@ -28,6 +28,7 @@ import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
 /**
  * Represents the player in the game
  * @author SkySourced
+ * @author thechiefpotatopeeler
  */
 public class Player extends Entity implements IHasHealth {
     public BaseUpgrade baseUpgrade; // the player's selected base upgrade
@@ -184,109 +185,166 @@ public class Player extends Entity implements IHasHealth {
      * The secondary attack of the player's whip
      * */
     public void ability() {
-        if (baseUpgrade == BaseUpgrade.NONE || baseUpgrade == BaseUpgrade.THREADED_ROD) return;
+        if (baseUpgrade == BaseUpgrade.NONE || baseUpgrade == BaseUpgrade.THREADED_ROD) return; // no upgrade for trod
         if (abilityTimeout > 0) return;
-        if (attackAnimTime != 0 || crackAnimTime != 0) return;
-        crackAnimTime = 0.01F;
+        if (attackAnimTime != 0 || crackAnimTime != 0) return; // if an animation is currently playing
+
+        crackAnimTime = 0.01F; // begin animation
+
+        // run ability logic
         switch (baseUpgrade) {
-            case SOUL_THREAD -> {
-                SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE)));
-            }
-            case COAL_THREAD -> {
-                coalDamageBoost = 3;
-            }
-            case JOLT_THREAD -> {
-                playerSpeedMultiplier = 1.5f;
-            }
+            case SOUL_THREAD -> SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE))); // create a new effect
+            case COAL_THREAD -> coalDamageBoost = 3;
+            case JOLT_THREAD -> playerSpeedMultiplier = 1.5f;
         }
+
+        // play sounds
         if(sounds.get("sounds/player/whip_crack_1.mp3")!=null) {
             long id = sounds.get("sounds/player/whip_crack_1.mp3").play();
             sounds.get("sounds/player/whip_crack_1.mp3").setVolume(id,0.5f);
         }
     }
 
+    /**
+     * Run a whip attack with no custom logic, only damage
+     * @param damage the damage value
+     */
     public void whipAttack(int damage){
         whipAttack((Entity target) -> ((IHasHealth) target).damage(damage));
     }
 
+    /**
+     * Run a whip attack with custom logic
+     * @param enemyLogic the logic to run on each enemy hit
+     */
     public void whipAttack(EntityRunnable enemyLogic) {
-        if (attackTimeout > 0) return;
-        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return;
+        if (attackTimeout > 0) return; // if already attacking, don't
+        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
 
         for (Entity entity : Main.entities.values()) {
-            if (entity instanceof EnemyEntity) {
+            if (entity instanceof EnemyEntity) { // for each enemy
                 EnemyEntity enemy = (EnemyEntity) entity;
-                tmp = enemy.getPosition().sub(player.getPosition());
-                if (tmp.len() < ATTACK_BOX_DEPTH) {
+                tmp = enemy.getPosition().sub(player.getPosition()); // get distance
+                if (tmp.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
                     enemyLogic.run(enemy);
                 }
             }
         }
     }
 
+    /**
+     * Gets player health
+     * @return player health
+     */
     public int getHealth() {
         return health;
     }
 
+    /**
+     * Set the player's maximum health
+     * @param maxHealth new maximum health
+     * @param heal if true, sets the health to new max health
+     */
     @Override
     public void setMaxHealth(int maxHealth, boolean heal) {
         this.maxHealth = maxHealth;
         if (heal) setHealth(maxHealth);
     }
 
+    /**
+     * Damages the player
+     * @param damage the amount of damage
+     */
     public void damage(int damage) {
-        if (damageTimeout > 0) return;
-        if (Math.random() < dodgeChance) return;
-        DamageEffectManager.create(getPosition());
+        if (damageTimeout > 0) return; // if damaged recently, don't
+        if (Math.random() < dodgeChance) return; // if player has dodged, skip damage
+        DamageEffectManager.create(getPosition()); // create particle effect
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
-        if (health > maxHealth) setHealth(maxHealth);
-        upgrades.forEach((Upgrade::onDamage));
+        if (health > maxHealth) setHealth(maxHealth); // if negative damage, cap health at max
+        upgrades.forEach((Upgrade::onDamage)); // run upgrade logic for after damage
     }
 
+    /**
+     * Sets the player's health
+     * @param health the new health value
+     */
     @Override
     public void setHealth(int health) {
         this.health = health;
     }
 
+    /**
+     * Gets the player's maximum health
+     * @return the player's maximum health
+     */
     public int getMaxHealth() {
         return maxHealth;
     }
 
+    /**
+     * Sets the player's damage timeout
+     * @param timeout the new timeout value
+     */
     @Override
     public void setDamageTimeout(float timeout) {
         this.damageTimeout = timeout;
-        collider.setContactCallbackFilter(PICKUP_GROUP);
+        collider.setContactCallbackFilter(PICKUP_GROUP); // set collision filter to prevent damage
     }
 
+    /**
+     * Gets the player's damage timeout
+     * @return the player's damage timeout
+     */
     @Override
     public float getDamageTimeout() {
         return damageTimeout;
     }
 
+    /**
+     * Sets the player's attack timeout
+     * @param timeout the new timeout value
+     */
     public void setAttackTimeout(float timeout) {
         this.attackTimeout = timeout;
     }
 
+    /**
+     * Gets the player's attack timeout
+     * @return the player's attack timeout
+     */
     public float getAttackTimeout() {
         return attackTimeout;
     }
 
+    /**
+     * Gets the player's camera rotation
+     * @return the player's camera rotation
+     */
     public Vector3 getEulerRotation() {
         return eulerRotation;
     }
 
+    /**
+     * Sets the player's camera rotation
+     * @param rot the new camera rotation
+     */
     public void setEulerRotation(Vector3 rot) {
         this.eulerRotation = rot;
+        // update the transformation matrix
         transform.getTranslation(tmp);
         transform.setFromEulerAnglesRad(rot.x, rot.y, rot.z);
         transform.setTranslation(tmp);
     }
 
+    /**
+     * Sets the player's base upgrade
+     * @param baseUpgrade the new base upgrade
+     */
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         this.baseUpgrade = baseUpgrade;
-        this.setMaxHealth(baseUpgrade.MAX_HEALTH, true);
-        try {
+        this.setMaxHealth(baseUpgrade.MAX_HEALTH, true); // set max health to that determined by the upgrade
+        try { // add the upgrade to the player's list
             this.upgrades.add(UpgradeRegistry.getUpgradeInstance(baseUpgrade.UPGRADE_CLASS));
         } catch (Exception e) {
             Gdx.app.error("Player", "Base upgrade not found: " + baseUpgrade.name(),e);
@@ -294,6 +352,10 @@ public class Player extends Entity implements IHasHealth {
 
     }
 
+    /**
+     * toString for debug
+     * @return a string with important information about the player
+     */
     @Override
     public String toString() {
         return "Player{" +
@@ -306,16 +368,28 @@ public class Player extends Entity implements IHasHealth {
                 '}';
     }
 
+    /**
+     * Gets the player's model address, which is null because they don't have a model
+     * This is just from extending entity
+     * @return null
+     */
     @Override
     public String getModelAddress() {
         return null;
     }
 
+    /**
+     * Destroys the player
+     */
     @Override
     public void destroy() {
         super.destroy();
     }
 
+    /**
+     * Serializes the player's data
+     * @return a string with the player's data
+     */
     public String serialize(){
         StringBuilder sb = new StringBuilder();
         sb.append(baseUpgrade.name()).append(",");
@@ -328,6 +402,10 @@ public class Player extends Entity implements IHasHealth {
         return sb.toString();
     }
 
+    /**
+     * Deserializes the player's data
+     * @param serial the serialized data to be parsed
+     */
     public void setFromSerial(String serial){
         String[] parts = serial.split(",");
         baseUpgrade = BaseUpgrade.valueOf(parts[0]);

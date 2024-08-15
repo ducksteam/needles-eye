@@ -4,7 +4,7 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.player.Upgrade;
 
 /**
- * Gain dodge chance and a speed boost
+ * Gain 1 max health
  * @author SkySourced
  */
 

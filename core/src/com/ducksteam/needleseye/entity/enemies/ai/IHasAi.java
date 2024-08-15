@@ -3,6 +3,10 @@ package com.ducksteam.needleseye.entity.enemies.ai;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
+/**
+ * An interface containing methods for updating an AI algorithm
+ * @author SkySourced
+ */
 public interface IHasAi {
 	void update(float dT);
 
