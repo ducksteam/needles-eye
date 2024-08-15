@@ -943,6 +943,10 @@ public class Main extends Game {
 			entities.remove(i);
 		});
 
+		SoulFireEffectManager.positions.clear();
+		SoulFireEffectManager.times.clear();
+		particleSystem.removeAll();
+
 		mapMan.generateLevel();
 	}
 
