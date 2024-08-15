@@ -82,7 +82,7 @@ public class Player extends Entity implements IHasHealth {
     public void update(float delta) {
         if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH;
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
-        if (getDamageTimeout() > 0) {
+        if (damageTimeout > 0) {
             damageTimeout -= delta;
             if (damageTimeout <= 0) {
                 collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);

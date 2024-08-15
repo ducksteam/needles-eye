@@ -3,7 +3,6 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.SoundLoader;
-import com.badlogic.gdx.assets.loaders.resolvers.ExternalFileHandleResolver;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
@@ -254,6 +253,8 @@ public class Main extends Game {
 
 		//Registers other assets
 		spriteAddresses.add("ui/icons/heart.png");
+		spriteAddresses.add("ui/ingame/damage.png");
+
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
 			menuMusic.setLooping(true);
@@ -261,7 +262,7 @@ public class Main extends Game {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
 
-		sounds = new HashMap<String,Sound>();
+		sounds = new HashMap<>();
 		sounds.put("sounds/player/walking_2.mp3",null);
 		sounds.put("sounds/player/whip_crack_1.mp3",null);
 		sounds.put("sounds/player/whip_lash_1.mp3",null);
@@ -886,8 +887,14 @@ public class Main extends Game {
 	 * Game overlay rendering protocol
 	 * */
 	private void renderGameOverlay(){
-		//Draws health
 		batch2d.begin();
+
+		// Draws damage filter
+		if (player.getDamageTimeout() > Config.DAMAGE_TIMEOUT - Config.DAMAGE_SCREEN_FLASH) {
+			batch2d.draw(spriteAssets.get("ui/ingame/damage.png"), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		}
+
+		//Draws health
 		for(int i=0;i<player.getHealth();i++){
 			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
