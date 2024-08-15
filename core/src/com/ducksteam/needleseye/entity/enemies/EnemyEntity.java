@@ -19,6 +19,7 @@ import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
  * */
 public abstract class EnemyEntity extends Entity implements IHasHealth {
 
+    //Health and interaction data
     int health;
     int maxHealth;
     Vector2 assignedRoom; // the room the enemy spawned in
