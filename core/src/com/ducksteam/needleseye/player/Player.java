@@ -15,6 +15,7 @@ import com.ducksteam.needleseye.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
+import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
@@ -209,6 +210,7 @@ public class Player extends Entity implements IHasHealth {
     public void damage(int damage) {
         if (damageTimeout > 0) return;
         if (Math.random() < dodgeChance) return;
+        DamageEffectManager.create(getPosition());
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);

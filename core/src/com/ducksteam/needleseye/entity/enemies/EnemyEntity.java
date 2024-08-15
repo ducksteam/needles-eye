@@ -11,6 +11,7 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.RoomInstance;
+import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 
 public abstract class EnemyEntity extends Entity implements IHasHealth {
@@ -43,6 +44,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     @Override
     public void damage(int damage) {
         if (damageTimeout > 0) return;
+        DamageEffectManager.create(getPosition());
         tmp.set(Main.player.getPosition().sub(getPosition())).nor();
         tmp.y = 0;
         collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));

@@ -38,6 +38,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
+import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
@@ -828,11 +829,13 @@ public class Main extends Game {
 
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
+		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
     
 		assMan.finishLoading();
 		UpgradeRegistry.iconsLoaded=true;
 
 		SoulFireEffectManager.loadStaticEffect();
+		DamageEffectManager.loadStaticEffect();
 
 		Gdx.app.debug("Loader thread", "Loading finished");
 
@@ -1029,6 +1032,7 @@ public class Main extends Game {
 			player.update(Gdx.graphics.getDeltaTime());
 
 			SoulFireEffectManager.update();
+			DamageEffectManager.update();
 
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
