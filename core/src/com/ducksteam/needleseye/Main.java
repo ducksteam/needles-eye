@@ -175,6 +175,9 @@ public class Main extends Game {
 		}
 	}
 
+	/**
+	 * Sets the input processor assigned to each GameState
+	 * */
 	public void initialiseInputProcessors(){
 		InputAdapter menuEscape = new InputAdapter(){
 			@Override
@@ -204,10 +207,12 @@ public class Main extends Game {
 		Main.gameState = gameState;
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
+		//Switches music
 		if(menuMusic!=null) {
 			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME)&& !menuMusic.isPlaying()) menuMusic.play();
 			else menuMusic.pause();
 		}
+		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
 			Gdx.input.setCursorCatched(true);
@@ -251,6 +256,7 @@ public class Main extends Game {
 		spriteAddresses.add("ui/icons/heart.png");
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
+			menuMusic.setLooping(true);
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
@@ -800,6 +806,9 @@ public class Main extends Game {
 		});
 	}
 
+	/**
+	 * Performs any post level loading tasks
+	 * */
 	private void postLevelLoad(){
 		spawnEnemies();
 	}
@@ -863,12 +872,6 @@ public class Main extends Game {
 		mapMan.generateLevel();
 		postLevelLoad();
 		setGameState(GameState.IN_GAME);
-	}
-	/**
-	 * Renders the loading screen while the assets are loading
-	 * */
-	private void renderLoadingFrame(){
-
 	}
 
 	/**
@@ -955,6 +958,9 @@ public class Main extends Game {
 		player.baseUpgrade = BaseUpgrade.NONE;
 	}
 
+	/**
+	 * Moves the player to a new level
+	 * */
 	public static void advanceLevel(){
 		String playerSerial = player.serialize();
 		player.destroy();
@@ -1117,6 +1123,9 @@ public class Main extends Game {
 		if (player.getHealth() <= 0 && gameState == GameState.IN_GAME && player.baseUpgrade != BaseUpgrade.NONE) onPlayerDeath();
 	}
 
+	/**
+	 * Draws the advance text for level progression
+	 * */
 	private void drawAdvanceText() {
 		batch2d.begin();
 		uiFont.draw(batch2d, "Press " + Input.Keys.toString(Config.keys.get("advance")) + " to advance to the next level", 100, 100);
@@ -1174,10 +1183,16 @@ public class Main extends Game {
 		if (entities != null) entities.values().forEach(Entity::destroy);
     }
 
+	/**
+	 * @return SplashWorker the splashworker instance
+	 * */
 	public SplashWorker getSplashWorker() {
 		return splashWorker;
 	}
 
+	/**
+	 * @param splashWorker Target SplashWorker to run game
+	 * */
 	public void setSplashWorker(SplashWorker splashWorker) {
 		this.splashWorker = splashWorker;
 	}
