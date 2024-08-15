@@ -1051,7 +1051,7 @@ public class Main extends Game {
 			renderGameOverlay();
 
 			//Update physics
-			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 5, 1/60f);
+			dynamicsWorld.stepSimulation(Gdx.graphics.getDeltaTime(), 15, 1/180f);
 
 			// Update the attack display
 			if (attackAnimTime > 0 && player.baseUpgrade.SWING_ANIM != null) {

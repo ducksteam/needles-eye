@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.enemies;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -19,6 +20,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     Vector2 assignedRoom;
     IHasAi ai;
     float damageTimeout = 0;
+    static Vector3 tmp = new Vector3();
 
     public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
         super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
@@ -41,6 +43,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     @Override
     public void damage(int damage) {
         if (damageTimeout > 0) return;
+        tmp.set(Main.player.getPosition().sub(getPosition())).nor();
+        tmp.y = 0;
+        collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));
+        Gdx.app.debug("EnemyEntity", "Tmp " + tmp);
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);
