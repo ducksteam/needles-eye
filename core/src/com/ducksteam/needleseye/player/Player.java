@@ -30,35 +30,37 @@ import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
  * @author SkySourced
  */
 public class Player extends Entity implements IHasHealth {
-    public BaseUpgrade baseUpgrade;
-    public ArrayList<Upgrade> upgrades;
-    int health;
-    int maxHealth;
-    private boolean grounded = false;
+    public BaseUpgrade baseUpgrade; // the player's selected base upgrade
+    public ArrayList<Upgrade> upgrades; // the player's upgrades
+    int health; // the player's current health
+    int maxHealth; // the player's maximum health
 
-    private static final float playerBoxHalfSize = 0.25f;
-    private static final float playerBoxHalfHeight = 0.5f;
+    // collision constants
+    private static final float PLAYER_BOX_HALF_SIZE = 0.25f;
+    private static final float PLAYER_BOX_HALF_HEIGHT = 0.5f;
+    public static final float ATTACK_BOX_DEPTH = 1.7f;
 
-    public static final float attackBoxDepth = 1.7f;
-
+    // timeout variables
     float damageTimeout = 0;
     float abilityTimeout = 0;
     float attackTimeout = 0;
-    float attackLength = 0.2f;
 
+    // camera rotation
     public Vector3 eulerRotation; // rads
 
     // Upgrade properties
-    public float playerSpeedMultiplier = 1;
-    public float dodgeChance = 0f;
-    public float damageBoost = 0f;
-    public float coalDamageBoost = 0f;
-    public boolean isJumping;
-    //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
-    public boolean[] jumpFlags = new boolean[2];
+    public float playerSpeedMultiplier = 1; // speed multiplier
+    public float dodgeChance = 0f; // 0-1 chance to dodge an attack
+    public float damageBoost = 0f; // constant damage boost
+    public float coalDamageBoost = 0f; // a quickly decaying boost from coal thread right click
+    public float attackLength = 0.2f; // the length of the attack animation
 
-    public long walkingSoundId;
-    Vector3 tmp = new Vector3();
+    public boolean isJumping; //Flag for jumping
+    public boolean[] jumpFlags = new boolean[2]; //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
+
+    public long walkingSoundId; // walking sound identifier
+
+    Vector3 tmp = new Vector3(); // temporary vector for calculations
 
     public Player(Vector3 pos) {
         super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null, Entity.PLAYER_GROUP);
@@ -66,13 +68,16 @@ public class Player extends Entity implements IHasHealth {
 
         eulerRotation = new Vector3(0,0,1);
 
+        // regenerate physics world for player
         dynamicsWorld.dispose();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
         dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
         dynamicsWorld.setDebugDrawer(debugDrawer);
 
+        // build the player's model
         setModelInstance(null);
 
+        // reset other player info
         this.upgrades = new ArrayList<>();
         health = -1;
         maxHealth = -1;
@@ -80,11 +85,11 @@ public class Player extends Entity implements IHasHealth {
 
     @Override
     public void update(float delta) {
-        if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH;
+        if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH; // this will only be called on the first in-game frame
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
-        if (damageTimeout > 0) {
+        if (damageTimeout > 0) { // update damage timeout
             damageTimeout -= delta;
-            if (damageTimeout <= 0) {
+            if (damageTimeout <= 0) { // reset collision filter
                 collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);
                 damageTimeout = 0;
             }
@@ -96,8 +101,7 @@ public class Player extends Entity implements IHasHealth {
         if(playerSpeedMultiplier > 1) playerSpeedMultiplier -= (float) (delta * 0.5f * Math.pow(10,-2));
         if(playerSpeedMultiplier < 1) playerSpeedMultiplier = 1;
 
-        motionState.getWorldTransform(tmpMat);
-
+        // calculate jumping flags
         float velY = Math.round(getVelocity().y);
 
         if(!jumpFlags[0] && !jumpFlags[1]) {
@@ -120,29 +124,36 @@ public class Player extends Entity implements IHasHealth {
             }
         }*/
 
-
+        // kill player if they have fallen out of the map
+        motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
     }
 
     @Override
     public void setModelInstance(ModelInstance modelInstance) {
+        // delete old collision shape and rigid body
         if (collisionShape != null && !collisionShape.isDisposed()) collisionShape.dispose();
         if (collider != null && !collider.isDisposed()) collider.dispose();
 
-        collisionShape = new btBoxShape(new Vector3(playerBoxHalfSize, playerBoxHalfHeight, playerBoxHalfSize));
+        // create new collision shape and motion state
+        collisionShape = new btBoxShape(new Vector3(PLAYER_BOX_HALF_SIZE, PLAYER_BOX_HALF_HEIGHT, PLAYER_BOX_HALF_SIZE));
         motionState = new EntityMotionState(this);
+        // calculate inertia
         Vector3 inertia = new Vector3();
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
+        // create rigid body
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
         collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP);
-        collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-        collider.setDamping(0.95f, 1f);
-        collider.setAngularFactor(Vector3.Y);
-        collider.setUserValue(this.id);
+        collider.setActivationState(Collision.DISABLE_DEACTIVATION); // player should never deactivate
+        collider.setDamping(0.95f, 1f); // set damping
+        collider.setAngularFactor(Vector3.Y); // lock x/z rotation
+        collider.setUserValue(this.id); // set user value to entity id
 
+        // set filters for custom collision
         collider.setContactCallbackFlag(PLAYER_GROUP);
         collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);
 
+        // add rigid body to the physics world
         dynamicsWorld.addRigidBody(collider);
     }
 
@@ -152,13 +163,20 @@ public class Player extends Entity implements IHasHealth {
     public void primaryAttack() {
         if (baseUpgrade == BaseUpgrade.NONE) return;
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
+
+        // start animation
         attackAnimTime = 0.01F;
+
+        // run damage logic
         player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
+
+        // play sounds
         if(sounds.get("sounds/player/whip_lash_1.mp3")!=null) {
             sounds.get("sounds/player/whip_lash_1.mp3").stop(walkingSoundId);
             walkingSoundId = sounds.get("sounds/player/whip_lash_1.mp3").play();
             sounds.get("sounds/player/whip_lash_1.mp3").setVolume(walkingSoundId,0.5f);
         }
+
         setAttackTimeout(attackLength);
     }
 
@@ -199,19 +217,11 @@ public class Player extends Entity implements IHasHealth {
             if (entity instanceof EnemyEntity) {
                 EnemyEntity enemy = (EnemyEntity) entity;
                 tmp = enemy.getPosition().sub(player.getPosition());
-                if (tmp.len() < attackBoxDepth) {
+                if (tmp.len() < ATTACK_BOX_DEPTH) {
                     enemyLogic.run(enemy);
                 }
             }
         }
-    }
-
-    public void setGrounded(boolean grounded) {
-        this.grounded = grounded;
-    }
-
-    public boolean isGrounded() {
-        return grounded;
     }
 
     public int getHealth() {
@@ -289,7 +299,6 @@ public class Player extends Entity implements IHasHealth {
         return "Player{" +
                 "baseUpgrade=" + baseUpgrade +
                 ", id=" + id +
-                ", grounded=" + grounded +
                 ", transform=" + transform +
                 ", upgrades=" + upgrades +
                 ", health=" + health +
