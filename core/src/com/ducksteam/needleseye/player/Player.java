@@ -152,7 +152,7 @@ public class Player extends Entity implements IHasHealth {
      * The secondary attack of the player's whip
      * */
     public void ability() {
-        if (baseUpgrade == BaseUpgrade.NONE) return;
+        if (baseUpgrade == BaseUpgrade.NONE || baseUpgrade == BaseUpgrade.THREADED_ROD) return;
         if (abilityTimeout > 0) return;
         if (attackAnimTime != 0 || crackAnimTime != 0) return;
         crackAnimTime = 0.01F;
