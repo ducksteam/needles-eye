@@ -12,6 +12,10 @@ import com.ducksteam.needleseye.player.Upgrade;
 
 import java.util.ArrayList;
 
+/**
+ * A listener of collisions between entities.
+ * @author skysourced
+ * */
 public class CollisionListener extends ContactListener {
 
 	public static final ArrayList<Integer> playerGroundContacts = new ArrayList<>();
@@ -34,6 +38,7 @@ public class CollisionListener extends ContactListener {
 
 		if (entity1 instanceof Player) onContactStarted(userValue1, match1, userValue0, match0); // flip for convenience
 
+		//Handles cases for player, enemy, room, and upgrade collisions
 		if (entity0 instanceof Player) {
 			if (entity1 instanceof EnemyEntity) {
 				((Player) entity0).damage(((EnemyEntity) entity1).getContactDamage());

@@ -8,6 +8,7 @@ import java.util.HashMap;
 /**
  * Configuration class for the game
  * @author SkySourced
+ * @author thechiefpotatopeeler
  */
 public class Config {
     // Modifiable
