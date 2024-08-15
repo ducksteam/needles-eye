@@ -125,7 +125,7 @@ public class Upgrade {
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
                 new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
+                        Config.ATTACK_ANIM_SPEED*3,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_crack.png")), 640, 360)[0]),
                 2),
         COAL_THREAD("Coal Thread", 5, CoalThread.class,
@@ -133,7 +133,7 @@ public class Upgrade {
                         Config.ATTACK_ANIM_SPEED,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
                 new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
+                        Config.ATTACK_ANIM_SPEED*1.5f,
                         TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_crack.png")), 640, 360)[0]),
                 2),
         JOLT_THREAD("Jolt Thread", 4, JoltThread.class,

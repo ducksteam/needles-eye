@@ -30,7 +30,7 @@ public class DamageEffectManager {
 		tmpEffect.start();
 
 		// add effect to world
-		times.put(tmpEffect, Main.getTime() + 1000);
+		times.put(tmpEffect, Main.getTime() + 300);
 		particleSystem.add(tmpEffect);
 	}
 

@@ -47,7 +47,7 @@ public class SoulFireEffectManager {
         tmpEffect.start();
 
         // add effect to world
-        times.put(tmpEffect, Main.getTime() + 3000);
+        times.put(tmpEffect, Main.getTime() + 1000);
         positions.put(tmpEffect, position);
         particleSystem.add(tmpEffect);
     }
