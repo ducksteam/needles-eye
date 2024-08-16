@@ -1093,9 +1093,12 @@ public class Main extends Game {
 	}
 
 	private void renderLoadingFrame(float progress) {
+		Texture loadingItem = new Texture("ui/menu/loading-item.png");
 		batch2d.begin();
-		batch2d.draw(new Texture("loading_background.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		batch2d.draw(new Texture("splash.png"), (float) Gdx.graphics.getWidth()/4, (float) Gdx.graphics.getHeight()/4, (float) Gdx.graphics.getWidth() /2, (float) Gdx.graphics.getHeight() /2);
+		batch2d.draw(new Texture("ui/menu/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
+			batch2d.draw(loadingItem, (float) ((171 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
+		}
 		batch2d.end();
 	}
 
