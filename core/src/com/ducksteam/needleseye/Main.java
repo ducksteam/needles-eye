@@ -210,7 +210,7 @@ public class Main extends Game {
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
 		if(menuMusic!=null) {
-			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME)&& !menuMusic.isPlaying()) menuMusic.play();
+			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME)) menuMusic.play();
 			else menuMusic.pause();
 		}
 		//Checks against previous state
