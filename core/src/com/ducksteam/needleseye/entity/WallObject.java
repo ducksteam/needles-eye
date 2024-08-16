@@ -7,21 +7,24 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.assMan;
 
+/**
+ * A wall entity in the world
+ * @author thechiefpotatopeeler
+ */
 public class WallObject extends Entity {
 
-    public boolean hasDoor = false;
+    public boolean hasDoor;
 
-    public static String modelAddress = "models/rooms/wall.gltf";
-    public static String modelAddressDoor = "models/rooms/door.gltf";
-
+    public static final String MODEL_ADDRESS = "models/rooms/wall.gltf";
+    public static final String MODEL_ADDRESS_DOOR = "models/rooms/door.gltf";
 
     public WallObject(Vector3 position, Quaternion rotation, boolean hasDoor) {
-        super(position, rotation, new ModelInstance(((SceneAsset) assMan.get((hasDoor)?modelAddressDoor:modelAddress)).scene.model));
-        this.hasDoor=hasDoor;
+        super(position, rotation, new ModelInstance(((SceneAsset) assMan.get((hasDoor) ? MODEL_ADDRESS_DOOR : MODEL_ADDRESS)).scene.model));
+        this.hasDoor = hasDoor;
     }
 
     @Override
     public String getModelAddress() {
-        return modelAddress;
+        return MODEL_ADDRESS;
     }
 }

@@ -3,9 +3,6 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.math.Vector3;
-
-import static com.ducksteam.needleseye.Main.player;
 
 /**
  * An input processor that is always active, regardless of the current game state

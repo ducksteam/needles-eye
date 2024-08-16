@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye;
 
-import com.badlogic.gdx.Gdx;
 import com.ducksteam.needleseye.player.Upgrade;
 
 import java.lang.reflect.InvocationTargetException;
