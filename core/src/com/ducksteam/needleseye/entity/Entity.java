@@ -38,13 +38,14 @@ public abstract class Entity {
 	public EntityMotionState motionState;
 	private ModelInstance modelInstance;
 	private float mass = 0f;
-	private float freezeTime = 0f;
 	private final int flags;
+
+	// temp variables for calculations
 	protected static final Matrix4 tmpMat = new Matrix4();
 
 	//Id data
 	public static int currentId = 1;
-	public int id;
+	public final int id;
 
 	/**
 	 * Creates a static entity with mass 0
@@ -78,7 +79,6 @@ public abstract class Entity {
 
 		this.mass = mass;
 		this.flags = flags;
-		this.freezeTime = 0;
 
 		setModelInstance(modelInstance);
 	}
@@ -88,14 +88,7 @@ public abstract class Entity {
 	 * @param delta the time since the last frame
 	 * */
 	public void update(float delta){
-		if (freezeTime > 0) {
-			freezeTime -= delta;
-			if (freezeTime <= 0) {
 
-			} else {
-
-			}
-		}
 	}
 
 	/**
@@ -105,20 +98,21 @@ public abstract class Entity {
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
-			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes);
-			motionState = new EntityMotionState(this, transform);
+			collisionShape = Bullet.obtainStaticNodeShape(modelInstance.nodes); // set collision shape to model
+			motionState = new EntityMotionState(this, transform); // set motion state to entity
 
+			// calculate inertia
 			Vector3 inertia = new Vector3();
 			collisionShape.calculateLocalInertia(mass, inertia);
 
-			//Modifies collider for the modelInstance
+			// Creates rigid body
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.obtain();
 			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
-			collider.setActivationState(Collision.DISABLE_DEACTIVATION);
-			collider.setUserValue(this.id);
-			if (this instanceof RoomInstance) collider.setFriction(0.2f);
-			if (!(this instanceof EnemyEntity)) dynamicsWorld.addRigidBody(collider);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
+			collider.setUserValue(this.id); // set user value to entity id
+			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
+			if (!(this instanceof EnemyEntity)) dynamicsWorld.addRigidBody(collider); // enemy entities get modified more before being added to physics world
 		}
 	}
 	/**
@@ -132,7 +126,7 @@ public abstract class Entity {
 	 * @return the model instance
 	 * */
 	public ModelInstance getModelInstance() {
-		motionState.getWorldTransform(modelInstance.transform); // i suppose this does save a little bit of memory
+		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
 	}
 
@@ -152,7 +146,6 @@ public abstract class Entity {
 	public void setPosition(Vector3 position) {
 		transform.setTranslation(position);
 		motionState.setWorldTransform(transform);
-//		if (isStatic) rebuildDynamicsWorld();
 	}
 
 	/**
@@ -173,14 +166,6 @@ public abstract class Entity {
 	}
 
 	/**
-	 * Sets the velocity of the entity
-	 * @param velocity the velocity to set
-	 * */
-	public void setVelocity(Vector3 velocity) {
-		collider.setLinearVelocity(velocity);
-	}
-
-	/**
 	 * Gets the rotation of the entity
 	 * @return the rotation of the entity
 	 * */
@@ -189,24 +174,8 @@ public abstract class Entity {
 	}
 
 	/**
-	 * Sets the rotation of the entity
-	 * @param axis the rotation axis to set
-	 * @param angle the rotation angle to set
-	 * */
-	public void setRotation(Vector3 axis, float angle) {
-		transform.rotateRad(axis, angle);
-	}
-
-	/**
-	 * Rotates the entity by a quaternion
-	 * @param rotation the quaternion to rotate by
-	 * */
-	public void rotate(Quaternion rotation) {
-		transform.rotate(rotation);
-	}
-
-	/**
 	 * Sets the animation of the entity
+	 * This is not implemented in our current model batch
 	 * @param animationName the animation to set
 	 * */
 	public void setAnimation(String animationName) {
@@ -224,21 +193,10 @@ public abstract class Entity {
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
 		entities.remove(id);
-//		collisionShape.release();
-//		motionState.release();
-//		collider.release();
-//		collider.dispose();
 	}
 
 	/**
-	 * Freezes the entitu for a certain amount of time
-	 * */
-	public void freeze(int time) {
-		freezeTime = time;
-	}
-
-	/**
-	 * Runs a function on an entity
+	 * A runnable interface that can be passed an entity to run code on
 	 * */
 	@FunctionalInterface
 	public interface EntityRunnable {

@@ -7,5 +7,5 @@ public interface SplashWorker {
     /**
      * Closes the splash screen
      * */
-    public void closeSplashScreen();
+    void closeSplashScreen();
 }

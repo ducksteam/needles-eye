@@ -475,22 +475,6 @@ public class Main extends Game {
 		});
 		mainMenu.addActor(instructionsButton);
 
-		/*ImageButton.ImageButtonStyle optionsButtonStyle = new ImageButton.ImageButtonStyle();
-		optionsButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/options1.png"))).getDrawable();
-		optionsButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/options2.png"))).getDrawable();
-		optionsButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/options2.png"))).getDrawable();
-
-		ImageButton optionsButton = new ImageButton(optionsButtonStyle);
-		optionsButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 158/360);
-		optionsButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		optionsButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				return true;
-			}
-		});
-		mainMenu.addActor(optionsButton);*/
-
 		// add quit button
 		ImageButton.ImageButtonStyle quitButtonStyle = new ImageButton.ImageButtonStyle();
 		quitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/quit1.png"))).getDrawable();
@@ -522,10 +506,7 @@ public class Main extends Game {
 		threadMenu.addActor(background);
 
 		//initialize textures
-		/*Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul"+(threadAnimState[0]+1)+".png"));
-		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal"+(threadAnimState[1]+1)+".png"));
-		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt"+(threadAnimState[2]+1)+".png"));*/
-		Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul8.png"));
+        Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul8.png"));
 		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal8.png"));
 		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt8.png"));
 		Texture tRodTexture = new Texture(Gdx.files.internal("ui/thread/threadedrod.png"));
@@ -599,95 +580,7 @@ public class Main extends Game {
 			}
 		});
 
-		/*// updating animations
-		switch (player.baseUpgrade) {
-			case SOUL_THREAD:
-				if (threadAnimState[1] != 0) {
-					threadAnimState[1]--;
-				} else if (threadAnimState[2] != 0) {
-					threadAnimState[2]--;
-				} else if (threadAnimState[0] < 7) {
-					threadAnimState[0]++;
-				}
-				break;
-			case COAL_THREAD:
-				if (threadAnimState[0] != 0) {
-					threadAnimState[0]--;
-				} else if (threadAnimState[2] != 0) {
-					threadAnimState[2]--;
-				} else if (threadAnimState[1] < 7) {
-					threadAnimState[1]++;
-				}
-				break;
-			case JOLT_THREAD:
-				if (threadAnimState[0] != 0) {
-					threadAnimState[0]--;
-				} else if (threadAnimState[1] != 0) {
-					threadAnimState[1]--;
-				} else if (threadAnimState[2] < 7) {
-					threadAnimState[2]++;
-				}
-				break;
-			case THREADED_ROD, NONE:
-				if (threadAnimState[0] != 0) {
-					threadAnimState[0]--;
-				} else if (threadAnimState[1] != 0) {
-					threadAnimState[1]--;
-				} else if (threadAnimState[2] != 0) {
-					threadAnimState[2]--;
-				}
-				break;
-        }
-
-		// positioning animated buttons
-		if (threadAnimState[0] > 0) { // soul anim
-			threadAnimState[1] = 0;
-			threadAnimState[2] = 0;
-
-			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
-			soulButton.setPosition((float) Gdx.graphics.getWidth() * 193/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
-			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 + threadAnimState[0] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
-			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 + threadAnimState[0] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
-		} else if (threadAnimState[1] > 0) { // coal anim
-			threadAnimState[0] = 0;
-			threadAnimState[2] = 0;
-
-			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
-			soulButton.setPosition((float) Gdx.graphics.getWidth() * (193 - threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
-			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 - threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
-			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 + threadAnimState[1] * 5)/640, (float) Gdx.graphics.getHeight() * 100/360);
-		} else if (threadAnimState[2] > 0) { // jolt anim
-			threadAnimState[0] = 0;
-			threadAnimState[1] = 0;
-
-			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
-			soulButton.setPosition((float) Gdx.graphics.getWidth() * (193 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
-			coalButton.setPosition((float) Gdx.graphics.getWidth() * (288 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
-			joltButton.setPosition((float) Gdx.graphics.getWidth() * (383 - threadAnimState[2] * 10)/640, (float) Gdx.graphics.getHeight() * 100/360);
-		} else { // no anim
-			soulButton.setSize((float) Gdx.graphics.getWidth() * soulTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * soulTexture.getHeight()/360);
-			soulButton.setPosition((float) Gdx.graphics.getWidth() * 193/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			coalButton.setSize((float) Gdx.graphics.getWidth() * coalTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * coalTexture.getHeight()/360);
-			coalButton.setPosition((float) Gdx.graphics.getWidth() * 288/640, (float) Gdx.graphics.getHeight() * 100/360);
-
-			joltButton.setSize((float) Gdx.graphics.getWidth() * joltTexture.getWidth()/640, (float) Gdx.graphics.getHeight() * joltTexture.getHeight()/360);
-			joltButton.setPosition((float) Gdx.graphics.getWidth() * 383/640, (float) Gdx.graphics.getHeight() * 100/360);
-		}*/
-
-		// Adding buttons to stage
+        // Adding buttons to stage
 		threadMenu.addActor(soulButton);
 		threadMenu.addActor(coalButton);
 		threadMenu.addActor(joltButton);
@@ -841,9 +734,7 @@ public class Main extends Game {
 			if (room.getModelPath() == null) return;
 			room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
 		});
-		spriteAddresses.forEach((String address)->{
-			spriteAssets.put(address,assMan.get(address));
-		});
+		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
 			String address = entry.getKey();
 			entry.setValue(assMan.get(address, Sound.class));
@@ -872,8 +763,8 @@ public class Main extends Game {
 		});
 		//Walls
 		assMan.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
-		assMan.load(WallObject.modelAddress, SceneAsset.class);
-		assMan.load(WallObject.modelAddressDoor, SceneAsset.class);
+		assMan.load(WallObject.MODEL_ADDRESS, SceneAsset.class);
+		assMan.load(WallObject.MODEL_ADDRESS_DOOR, SceneAsset.class);
 		//Sprites
 		spriteAddresses.forEach((String address) -> {
 			if (address == null) return;
