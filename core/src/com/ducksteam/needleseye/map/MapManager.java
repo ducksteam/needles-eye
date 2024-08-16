@@ -34,10 +34,9 @@ public class MapManager {
 
     // paths
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
-    public final String DECO_TEMPLATE_PATH = "assets/data/decos/";
 
     // the different positions in the room for enemies to spawn
-    private final static Vector3[] enemyPositions = {
+    private final static Vector3[] ENEMY_POSITIONS = {
             new Vector3(2f, 0.7f, 0f),
             new Vector3(0f, 0.7f, -2f),
             new Vector3(0f, 0.7f, 2f),
@@ -82,7 +81,7 @@ public class MapManager {
                 // update the bag
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
                 // create the enemy
-                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(enemyPositions[(int) (Math.random() * enemyPositions.length)]), new Quaternion(), room);
+                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]), new Quaternion(), room);
 				assert enemy != null;
                 // set the room and add the enemy to the room
 				enemy.setAssignedRoom(room);
@@ -219,12 +218,13 @@ public class MapManager {
         int door = (int) Math.floor(Math.random() * doorCount);
         while ((doorCount == 7 && door == 3) || !room.getRoom().getDoors().get(door)) door = (int) Math.floor(Math.random() * doorCount); // but door 3 isn't used in hallways and doors can be disabled
 
+        // Door id reference
         /*   6
-         *   _
-         * 4|3|5
-         *  |_|
-         * 1| |2
-         *  |_|
+         *   __
+         * 4|3 |5
+         *  |__|
+         * 1|  |2
+         *  |__|
          *   0
          */
 
@@ -275,6 +275,8 @@ public class MapManager {
             return getRandomRoomTemplate(type);
         }
     }
+
+    // Static utility methods follow
 
     /**
      * Get a random element from a list

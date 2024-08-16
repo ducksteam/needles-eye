@@ -40,19 +40,23 @@ public class CollisionListener extends ContactListener {
 
 		//Handles cases for player, enemy, room, and upgrade collisions
 		if (entity0 instanceof Player) {
-			if (entity1 instanceof EnemyEntity) {
-				((Player) entity0).damage(((EnemyEntity) entity1).getContactDamage());
-			} else if (entity1 instanceof RoomInstance) {
-				if (!playerGroundContacts.contains(userValue1)) {
-					playerGroundContacts.add(userValue1);
-				}
-			} else if (entity1 instanceof UpgradeEntity) {
-				entity1.collider.setContactCallbackFilter(0);
-				Upgrade pickup = ((UpgradeEntity) entity1).getUpgrade();
-				((Player) entity0).upgrades.add(pickup);
-				((UpgradeEntity) entity1).getUpgrade().onPickup();
-				entity1.destroy();
-			}
+            switch (entity1) {
+                case EnemyEntity enemyEntity -> ((Player) entity0).damage(enemyEntity.getContactDamage());
+                case RoomInstance roomInstance -> {
+                    if (!playerGroundContacts.contains(userValue1)) {
+                        playerGroundContacts.add(userValue1);
+                    }
+                }
+                case UpgradeEntity upgradeEntity -> {
+                    entity1.collider.setContactCallbackFilter(0);
+                    Upgrade pickup = upgradeEntity.getUpgrade();
+                    ((Player) entity0).upgrades.add(pickup);
+                    upgradeEntity.getUpgrade().onPickup();
+                    entity1.destroy();
+                }
+                default -> {
+                }
+            }
 		}
 	}
 

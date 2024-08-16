@@ -118,13 +118,6 @@ public class Player extends Entity implements IHasHealth {
         }
         isJumping = jumpFlags[0] || jumpFlags[1];
 
-        /*if (Math.abs(Math.round(getVelocity().x))>0||Math.abs(Math.round(getVelocity().z))>0){
-            if (sounds.get("sounds/player/walking_2.mp3")!=null){
-                long id = sounds.get("sounds/player/walking_2.mp3").play();
-                sounds.get("sounds/player/walking_2.mp3").setVolume(id,0.5f);
-            }
-        }*/
-
         // kill player if they have fallen out of the map
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
@@ -222,8 +215,7 @@ public class Player extends Entity implements IHasHealth {
         if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
 
         for (Entity entity : Main.entities.values()) {
-            if (entity instanceof EnemyEntity) { // for each enemy
-                EnemyEntity enemy = (EnemyEntity) entity;
+            if (entity instanceof EnemyEntity enemy) { // for each enemy
                 tmp = enemy.getPosition().sub(player.getPosition()); // get distance
                 if (tmp.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
                     enemyLogic.run(enemy);
@@ -376,14 +368,6 @@ public class Player extends Entity implements IHasHealth {
     @Override
     public String getModelAddress() {
         return null;
-    }
-
-    /**
-     * Destroys the player
-     */
-    @Override
-    public void destroy() {
-        super.destroy();
     }
 
     /**

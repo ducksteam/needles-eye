@@ -3,7 +3,6 @@ package com.ducksteam.needleseye.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
-import com.ducksteam.needleseye.entity.DecoInstance;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 

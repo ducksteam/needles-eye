@@ -18,11 +18,11 @@ import java.util.HashMap;
  */
 
 public class RoomInstance extends Entity {
-    RoomTemplate room;
-    Vector2 roomSpacePos;
-    int rot;//IN DEGREES
+    RoomTemplate room; // template for the room
+    Vector2 roomSpacePos; // 2d position on room grid
+    int rot; //IN DEGREES
 
-    HashMap<Integer, EnemyEntity> enemies = new HashMap<>();
+    HashMap<Integer, EnemyEntity> enemies = new HashMap<>(); // enemies in the room
 
     public RoomInstance(RoomTemplate room, Vector3 drawPos, Vector2 roomSpacePos, int rot){
         super(drawPos, new Quaternion().setEulerAngles(0, rot, 0), new ModelInstance(room.getModel()));
@@ -37,27 +37,6 @@ public class RoomInstance extends Entity {
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
-
-//        if (room.getType() == RoomTemplate.RoomType.HALLWAY) this.setPosition(getPosition().add(0, 20, 10));
-
-//        if (room.getCollider() == null) return;
-//        this.collider = room.getCollider().copy();
-
-//        // move collider to correct position
-//        assert collider != null;
-
-//        Vector3 offset = MapManager.getRoomPos(roomSpacePos).sub(new Vector3(10,0,10));
-//        Gdx.app.log("Offset for " + roomSpacePos, "Offset: " + offset);
-//        collider.move(offset, true);
-
-//        assert collider != null;
-//        Vector3 colliderCentreOffset = MapManager.getRoomPos(roomSpacePos.cpy().sub(new Vector2(1,1))).add(room.getCentreOffset().cpy());
-//        Gdx.app.debug("RoomInstance", "Moving " + room.getName() + "@" + getRoomSpacePos() + " by " + colliderCentreOffset.cpy());
-//        for (IHasCollision c : collider.colliders) {
-//            c.setCentre(c.getCentre().add(colliderCentreOffset), true);
-//            if (!room.getName().equals("brokenceiling")) continue;
-//            Gdx.app.debug(c.getClass().getSimpleName() + " moving " + room.getName() + "@" + getRoomSpacePos(), "From: " + c.getCentre().cpy() + " To: " + c.getCentre().cpy().add(colliderCentreOffset.cpy()));
-//        }
     }
 
     public RoomInstance(RoomTemplate room, Vector2 pos) {
@@ -72,38 +51,23 @@ public class RoomInstance extends Entity {
         return roomSpacePos;
     }
 
-    public boolean isAdjacent(RoomInstance other) {
-        return roomSpacePos.dst(other.roomSpacePos) == 1;
-    }
-
-    /*public boolean hasCommonDoor(RoomInstance other) {
-        return (isAdjacent(other) &&
-    }*/
-
     public int getRot() {
         return rot;
     }
 
     /**
-     * Lock the room (for when the player is inside)
+     * Add an enemy entity to the room list
+     * @param enemy the entity to add
      */
-    public void lock(){
-
-    }
-
-    /**
-     * Unlock the room (for when the player defeats all enemies)
-     */
-    public void unlock(){
-
-    }
-
-
     public void addEnemy(EnemyEntity enemy) {
         Gdx.app.debug("Population", "Added " + enemy.getClass().getSimpleName() + " to room " + room.getName() + " at " + enemy.getPosition());
         enemies.put(enemy.id, enemy);
     }
 
+    /**
+     * Add an enemy entity to the room list based on its id
+     * @param id the id of the entity to add
+     */
     public void addEnemy(int id){
         try {
             enemies.put(id, (EnemyEntity) Main.entities.get(id));
@@ -112,20 +76,34 @@ public class RoomInstance extends Entity {
         }
     }
 
+    /**
+     * Removes an enemy entity from the room
+     * @param enemy the enemy to remove
+     */
     public void removeEnemy(Entity enemy) {
         enemies.remove(enemy.id);
-        if (enemies.isEmpty()) unlock();
     }
 
+    /**
+     * Removes an enemy entity from the room based on its id
+     * @param id the id of the enemy to remove
+     */
     public void removeEnemy(int id) {
         enemies.remove(id);
-        if (enemies.isEmpty()) unlock();
     }
 
+    /**
+     * Returns the map of enemies in the room
+     * @return the map of enemies
+     */
     public HashMap<Integer, EnemyEntity> getEnemies() {
         return enemies;
     }
 
+    /**
+     * Returns a string representation of the room instance
+     * @return the room as a string
+     */
     @Override
     public String toString() {
         return "RoomInstance{" +
@@ -136,6 +114,10 @@ public class RoomInstance extends Entity {
                 '}';
     }
 
+    /**
+     * Returns the address of the model of the template
+     * @return the file path to the model
+     */
     @Override
     public String getModelAddress() {
         return room.getModelPath();

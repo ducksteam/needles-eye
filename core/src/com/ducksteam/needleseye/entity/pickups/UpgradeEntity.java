@@ -16,27 +16,38 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
  * @author SkySourced
  */
 public class UpgradeEntity extends Entity {
-    Upgrade upgrade;
-    Matrix4 tmpMat = new Matrix4();
-    Vector3 direction = new Vector3(0, 0.4f, 0.9f).nor();
+    Upgrade upgrade; // contained upgrade
+
+    // temp variables for calculations
     Vector3 tmp = new Vector3();
+    Matrix4 tmpMat = new Matrix4();
 
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
         super(position, new Quaternion(), 0f, new ModelInstance(((SceneAsset) Main.assMan.get(upgrade.getModelAddress())).scene.model), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
         this.upgrade = upgrade;
 
+        // set collision filters to only respond to player
         collider.setContactCallbackFlag(PICKUP_GROUP);
         collider.setContactCallbackFilter(PLAYER_GROUP);
 
+        // set initial rotation
         motionState.getWorldTransform(tmpMat);
         tmpMat.rotateRad(Vector3.X, 0.4f);
         motionState.setWorldTransform(tmpMat);
     }
 
+    /**
+     * get the upgrade contained within the entity
+     * @return the entity's upgrade
+     */
     public Upgrade getUpgrade() {
         return upgrade;
     }
 
+    /**
+     * update position and rotation
+     * @param delta the time since the last frame
+     */
     public void update(float delta) {
         motionState.getWorldTransform(tmpMat);
         tmpMat.getTranslation(tmp);
@@ -48,6 +59,10 @@ public class UpgradeEntity extends Entity {
         motionState.setWorldTransform(tmpMat);
     }
 
+    /**
+     * get the model address of the upgrade
+     * @return the model address
+     */
     @Override
     public String getModelAddress() {
         return upgrade.getModelAddress();
