@@ -15,6 +15,7 @@ import java.util.Map;
 
 /**
  * Registry for all enemy types in the game
+ * @author thechiefpotatopeeler
  * */
 public class EnemyRegistry {
     //Utility data for enemy registration
@@ -69,7 +70,7 @@ public class EnemyRegistry {
      * Enacts all actions to initialise enemies
      * */
     public static void initEnemies(){
-        registerEnemy(WormEnemy.modelAddress, WormEnemy.class);
+        registerEnemy(WormEnemy.MODEL_ADDRESS, WormEnemy.class);
     }
 
     /**

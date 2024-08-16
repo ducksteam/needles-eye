@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
@@ -20,12 +19,13 @@ import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
  * */
 public abstract class EnemyEntity extends Entity implements IHasHealth {
 
-    //Health and interaction data
     int health;
     int maxHealth;
-    Vector2 assignedRoom;
-    IHasAi ai;
+    Vector2 assignedRoom; // the room the enemy spawned in
+    IHasAi ai; // the AI algorithm for the enemy
     float damageTimeout = 0;
+
+    // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
 
     /**
@@ -43,7 +43,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
         collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
 
-        setMaxHealth(maxHealth, true);
+        setMaxHealth(maxHealth, true); // Set the max health and heal the enemy
         this.assignedRoom = assignedRoom;
     }
     /**
@@ -54,6 +54,8 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     public void update(float delta) {
         if (ai != null) ai.update(delta);
         if (getDamageTimeout() > 0) damageTimeout -= delta;
+
+        // delete the enemy if health is 0 or below, or if position is <-10
         if (health <= 0) this.destroy();
         if (getPosition().y < -10) this.destroy();
     }
@@ -65,10 +67,12 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     @Override
     public void damage(int damage) {
         if (damageTimeout > 0) return;
-        DamageEffectManager.create(getPosition());
+        DamageEffectManager.create(getPosition()); // create effect
+
         tmp.set(Main.player.getPosition().sub(getPosition())).nor();
         tmp.y = 0;
         collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));
+
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);
@@ -82,52 +86,96 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         this.health = health;
     }
 
+    /**
+     * Gets health of the enemy
+     * @return int health of the enemy
+     */
     @Override
     public int getHealth() {
         return health;
     }
 
+    /**
+     * Sets the max health of the enemy
+     * @param maxHealth int max health of the enemy
+     * @param heal boolean whether to heal the enemy
+     */
     @Override
     public void setMaxHealth(int maxHealth, boolean heal) {
         this.maxHealth = maxHealth;
         if (heal) setHealth(maxHealth);
     }
 
+    /**
+     * Gets the max health of the enemy
+     * @return int max health of the enemy
+     */
     @Override
     public int getMaxHealth() {
         return maxHealth;
     }
 
+    /**
+     * Sets the damage timeout of the enemy
+     * @param timeout float timeout of the enemy
+     */
     @Override
     public void setDamageTimeout(float timeout) {
         this.damageTimeout = timeout;
     }
 
+    /**
+     * Gets the damage timeout of the enemy
+     * @return float damage timeout of the enemy
+     */
     @Override
     public float getDamageTimeout() {
         return damageTimeout;
     }
 
+    /**
+     * Gets the AI of the enemy
+     * @return IHasAi AI of the enemy
+     */
     public IHasAi getAi() {
         return ai;
     }
 
+    /**
+     * Sets the AI of the enemy
+     * @param ai IHasAi AI of the enemy
+     */
     public void setAi(IHasAi ai) {
         this.ai = ai;
     }
 
+    /**
+     * Gets the damage of the enemy
+     * @return int damage of the enemy
+     */
     public int getContactDamage(){
         return 0;
     }
 
+    /**
+     * Sets the room of the enemy
+     * @param room RoomInstance room of the enemy
+     */
     public void setAssignedRoom(RoomInstance room){
         assignedRoom = room.getRoomSpacePos();
     }
 
+    /**
+     * Gets the room of the enemy
+     * @return Vector2 room of the enemy
+     */
     public Vector2 getAssignedRoom(){
         return assignedRoom;
     }
 
+    /**
+     * Destroys the entity
+     */
     @Override
     public void destroy() {
         super.destroy();

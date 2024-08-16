@@ -20,7 +20,6 @@ public class Level {
     public HashMap<Vector2,WallObject> walls; // walls in the level
     private final int levelNo; // the level number
 
-
     public Level(int levelNo) {
         this.levelNo = levelNo;
         rooms = new ArrayList<>();

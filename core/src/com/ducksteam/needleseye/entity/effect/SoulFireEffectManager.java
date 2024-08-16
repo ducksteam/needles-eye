@@ -23,7 +23,7 @@ public class SoulFireEffectManager {
     public static ConcurrentHashMap<ParticleEffect, Long> times = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<ParticleEffect, Vector3> positions = new ConcurrentHashMap<>();
 
-    private static final String staticEffectAddress = "models/effects/soulfire.pfx"; // file path to the effect
+    private static final String STATIC_EFFECT_ADDRESS = "models/effects/soulfire.pfx"; // file path to the effect
     private static ParticleEffect staticEffect; // the original copy of the effect
 
 	// used for various calculations
@@ -35,6 +35,10 @@ public class SoulFireEffectManager {
         staticEffect = Main.assMan.get(getStaticEffectAddress());
     }
 
+    /**
+     * Create copy of effect
+     * @param position position to create the effect at
+     */
     public static void create(Vector3 position) {
         // lock y to specified height
         position.y = Config.SOUL_FIRE_HEIGHT;
@@ -85,7 +89,7 @@ public class SoulFireEffectManager {
      * @return the path to the effect
      */
     public static String getStaticEffectAddress() {
-        return staticEffectAddress;
+        return STATIC_EFFECT_ADDRESS;
     }
 
     /**

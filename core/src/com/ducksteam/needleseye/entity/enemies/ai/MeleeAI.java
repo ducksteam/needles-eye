@@ -5,7 +5,6 @@ import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
-import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.player.Player;
 
 /**
@@ -14,8 +13,8 @@ import com.ducksteam.needleseye.player.Player;
 public class MeleeAI implements IHasAi {
 
 	Vector3 playerPos; // position of the player
-	float detectionRange = 5; // range of detection
-	float attackRange = 0.7f; // range of attack
+	static final float DETECTION_RANGE = 5; // range of detection
+	static final float ATTACK_RANGE = 0.7f; // range of attack
 	EnemyEntity target; // the enemy entity this AI is controlling
 	boolean chasing = false; // whether the enemy is chasing the player
 	float idleSpeed; // speed of the enemy when idling
@@ -23,7 +22,6 @@ public class MeleeAI implements IHasAi {
 
 	// temporary variables for calculation
 	Matrix4 tmpMat = new Matrix4();
-	Vector3 tmp = new Vector3();
 
 	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed) {
 		setTarget(target);
@@ -39,7 +37,7 @@ public class MeleeAI implements IHasAi {
 	public void update(float dT) {
 		if (getTarget() == null) return; // ensure target exists
 		playerPos = Main.player.getPosition(); // update player position
-		setChasing(playerPos.dst(getTarget().getPosition()) < detectionRange); // update chasing status
+		setChasing(playerPos.dst(getTarget().getPosition()) < DETECTION_RANGE); // update chasing status
 		if (isChasing()) chase(dT); // run corresponding method
 		else idle(dT);
 
@@ -78,20 +76,31 @@ public class MeleeAI implements IHasAi {
 		Vector3 direction = playerPos.cpy().sub(getTarget().getPosition());
 		direction.y = 0;
 		getTarget().collider.applyCentralImpulse(direction.nor().scl(chaseSpeed * dT));// move in a random direction
-		if (playerPos.dst(getTarget().getPosition()) < attackRange) attack(); // attack if within range
+		if (playerPos.dst(getTarget().getPosition()) < ATTACK_RANGE) attack(); // attack if within range
 	}
 
+	/**
+	 * Attack behaviour
+	 */
 	@Override
 	public void attack() {
 		getTarget().setAnimation("attack");
 		Main.player.damage(1);
 	}
 
+	/**
+	 * Sets the target of the AI
+	 * @param target the target to set
+	 */
 	@Override
 	public void setTarget(EnemyEntity target) {
 		this.target = target;
 	}
 
+	/**
+	 * Gets the target of the AI
+	 * @return the target
+	 */
 	@Override
 	public EnemyEntity getTarget() {
 		return target;

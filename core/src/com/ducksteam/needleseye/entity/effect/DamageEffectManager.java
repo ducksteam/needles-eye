@@ -9,6 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.ducksteam.needleseye.Main.particleSystem;
 
+/**
+ * Manages the creation and removal of damage effects in the game world.
+ * @author SkySourced
+ */
 public class DamageEffectManager {
 	public static ConcurrentHashMap<ParticleEffect, Long> times = new ConcurrentHashMap<>(); // stores the expiration times of each effect
 
