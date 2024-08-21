@@ -7,10 +7,7 @@ import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
@@ -94,6 +91,7 @@ public class Main extends Game {
 	SpriteBatch batch2d; // used for rendering other 2d sprites
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
 	BitmapFont uiFont; // font for text
+	GlyphLayout layout; // layout for text
 
 	// asset manager
 	public static AssetManager assMan;
@@ -289,6 +287,7 @@ public class Main extends Game {
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch();
+		layout = new GlyphLayout();
 
 		debugDrawer = new DebugDrawer();
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_FastWireframe);
@@ -1080,6 +1079,15 @@ public class Main extends Game {
 			// if enemies are all dead, tell the player they can advance
 			if (entities.values().stream().filter(e -> e instanceof EnemyEntity).map(e -> (EnemyEntity) e).collect(Collectors.toCollection(ArrayList::new)).isEmpty()) {
 				drawAdvanceText();
+			}
+
+			if (Player.timeSincePickup < Config.UPGRADE_TEXT_DISPLAY_TIMEOUT){
+				batch2d.begin();
+				layout.setText(uiFont, player.upgrades.getLast().getName());
+				uiFont.draw(batch2d, player.upgrades.getLast().getName(), (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, 150);
+				layout.setText(uiFont, player.upgrades.getLast().getDescription());
+				uiFont.draw(batch2d, player.upgrades.getLast().getDescription(), (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, 100);
+				batch2d.end();
 			}
 		}
 

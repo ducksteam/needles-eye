@@ -51,6 +51,7 @@ public class CollisionListener extends ContactListener {
                     entity1.collider.setContactCallbackFilter(0);
                     Upgrade pickup = upgradeEntity.getUpgrade();
                     ((Player) entity0).upgrades.add(pickup);
+					Player.timeSincePickup = 0;
                     upgradeEntity.getUpgrade().onPickup();
                     entity1.destroy();
                 }

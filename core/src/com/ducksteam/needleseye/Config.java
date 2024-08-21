@@ -35,6 +35,7 @@ public class Config {
     public static final float KNOCKBACK_FORCE = 1000;
     public static final float WALK_SPEED = 220f;
     public static final float RUN_SPEED = 300f;
+    public static final float UPGRADE_TEXT_DISPLAY_TIMEOUT = 3f;
 
     static {
         keys.put("forward", Input.Keys.W);

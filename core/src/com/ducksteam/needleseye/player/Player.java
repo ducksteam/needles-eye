@@ -45,6 +45,7 @@ public class Player extends Entity implements IHasHealth {
     float damageTimeout = 0;
     float abilityTimeout = 0;
     float attackTimeout = 0;
+    public static float timeSincePickup = Config.UPGRADE_TEXT_DISPLAY_TIMEOUT; // time since the last upgrade was picked up
 
     // camera rotation
     public Vector3 eulerRotation; // rads
@@ -95,6 +96,9 @@ public class Player extends Entity implements IHasHealth {
                 damageTimeout = 0;
             }
         }
+
+        timeSincePickup += delta; // update time since last pickup
+
         //Floors and regulates boost variables
         if (attackTimeout > 0) attackTimeout -= delta;
         if(attackTimeout<0) attackTimeout = 0;
