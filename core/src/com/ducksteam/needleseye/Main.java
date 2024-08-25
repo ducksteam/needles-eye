@@ -411,7 +411,12 @@ public class Main extends Game {
 		});
 		deathMenu.addActor(exitButton);
 
-
+		if (mapMan != null){
+			Label levelText = new Label("You reached level " + mapMan.levelIndex, new Label.LabelStyle(uiFont, uiFont.getColor()));
+			layout.setText(uiFont, levelText.getText());
+			levelText.setPosition((float) Gdx.graphics.getWidth() * 320 / 640 - layout.width / 2, (float) Gdx.graphics.getHeight() * 220 / 360);
+			deathMenu.addActor(levelText);
+		}
 	}
 
 	/**
@@ -858,7 +863,7 @@ public class Main extends Game {
 	 * Called on the death of the player
 	 * Sets the game state to the dead menu
 	 * */
-	public static void  onPlayerDeath() {
+	public static void onPlayerDeath() {
 		resetGame();
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
