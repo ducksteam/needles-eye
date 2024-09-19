@@ -49,9 +49,10 @@ public class MeleeAI implements IHasAi {
 		});
 
 		// rotate towards player
-		getTarget().motionState.getWorldTransform(tmpMat);
+		/*getTarget().motionState.getWorldTransform(tmpMat);
 		tmpMat.rotateTowardTarget(playerPos, Vector3.Y);
 		getTarget().motionState.setWorldTransform(tmpMat);
+		*/
 	}
 
 	/**
