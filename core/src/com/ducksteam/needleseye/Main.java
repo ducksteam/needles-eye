@@ -239,7 +239,6 @@ public class Main extends Game {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
-		sceneMan = new SceneManager();
 		//Runs registries
 		Upgrade.registerUpgrades();
 		EnemyRegistry.initEnemies();
@@ -308,11 +307,14 @@ public class Main extends Game {
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
 		environment = new Environment();
 		batch = new ModelBatch();
+		sceneMan = new SceneManager();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
 		environment.add(playerLantern);
 		camera.near = 0.1f;
+		sceneMan.setCamera(camera);
+		sceneMan.environment = environment;
 
 		// init particles
 		particleBatch = new BillboardParticleBatch();
@@ -1035,7 +1037,7 @@ public class Main extends Game {
 			});
 
 			// begin 3d drawing
-			batch.begin(camera);
+			/*batch.begin(camera);
 
 			// draw particles
 			particleSystem.update();
@@ -1044,13 +1046,18 @@ public class Main extends Game {
 			particleSystem.end();
 			batch.render(particleSystem);
 
+
+
 			// draw entities
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
-			});
+			});*/
+
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
 
 			// finish 3d drawing
-			batch.end();
+			//batch.end();
 
 			renderGameOverlay();
 
