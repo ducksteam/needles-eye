@@ -1,4 +1,4 @@
-The Needles eye; a 3D game made with LibGDX and Bullet physics engine.
+The Needle's eye; a 3D game made with LibGDX and Bullet physics engine.
 
 Here's some helpful links:
 
