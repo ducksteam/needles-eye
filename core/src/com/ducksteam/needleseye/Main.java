@@ -322,6 +322,7 @@ public class Main extends Game {
 		particleBatch.setCamera(camera);
 		particleSystem.add(particleBatch);
 
+
 		//Sets up game managers
 		assMan = new AssetManager();
 		mapMan = new MapManager();
@@ -1040,18 +1041,24 @@ public class Main extends Game {
 			/*batch.begin(camera);
 
 			// draw particles
-			particleSystem.update();
-			particleSystem.begin();
-			particleSystem.draw();
-			particleSystem.end();
+
 			batch.render(particleSystem);
 
 
 
 			// draw entities
+			*/
 			entities.forEach((Integer id, Entity entity) -> {
-				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
-			});*/
+				//if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
+				if (entity.isRenderable){
+					sceneMan.addScene(entity.getScene());
+				}
+			});
+
+			particleSystem.update();
+			particleSystem.begin();
+			particleSystem.draw();
+			particleSystem.end();
 
 			sceneMan.update(Gdx.graphics.getDeltaTime());
 			sceneMan.render();

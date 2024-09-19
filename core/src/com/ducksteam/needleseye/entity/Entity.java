@@ -12,6 +12,8 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -37,6 +39,7 @@ public abstract class Entity {
 	public btCollisionShape collisionShape;
 	public EntityMotionState motionState;
 	private ModelInstance modelInstance;
+	private Scene scene;
 	private float mass = 0f;
 	private final int flags;
 
@@ -128,6 +131,22 @@ public abstract class Entity {
 	public ModelInstance getModelInstance() {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
+	}
+
+	/**
+	 * Returns the scene asset of the entity
+	 * @return the scene asset
+	 * */
+	public Scene getScene() {
+		return scene;
+	}
+
+	/**
+	 * Sets the scene asset of the entity
+	 * @param scene the scene asset to set
+	 * */
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 	/**
