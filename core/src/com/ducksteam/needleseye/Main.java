@@ -50,6 +50,7 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,6 +101,7 @@ public class Main extends Game {
 	public static MapManager mapMan;
 
 	// objects to be rendered
+	public static SceneManager sceneMan;
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
 	// sprites to be loaded into asset manager
 	ArrayList<String> spriteAddresses = new ArrayList<>();
@@ -237,6 +239,7 @@ public class Main extends Game {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+		sceneMan = new SceneManager();
 		//Runs registries
 		Upgrade.registerUpgrades();
 		EnemyRegistry.initEnemies();
