@@ -744,7 +744,7 @@ public class Main extends Game {
 		EnemyRegistry.postLoadEnemyAssets(assMan);
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
-			room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
+			//room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
 		});
 		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {

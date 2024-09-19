@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.WormEnemy;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class EnemyRegistry {
     public static HashMap<String, Class<? extends EnemyEntity>> registeredEnemies = new HashMap<>();
     public static boolean loaded = false;
     public static HashMap<Class<? extends EnemyEntity>, ModelInstance> enemyModelInstances = new HashMap<>();
+    public static HashMap<Class<? extends EnemyEntity>, Scene> enemyScenes = new HashMap<>();
 
     /**
      * Register an enemy type
