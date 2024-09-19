@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.ducksteam.needleseye.UpgradeRegistry;
+import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
@@ -35,7 +36,8 @@ public class Level {
         Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getRoomSpacePos());
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) { // add a placeholder to prevent generation in the second position of a hallway
-            rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getRoomSpacePos().cpy().add(0, 1)));
+            rooms.add(new HallwayPlaceholderRoom(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot())), room.getRoomSpacePos()));
+            Gdx.app.debug("MapManager", "plink plonko added placeholder room at " + room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot())) + " for " + room.getRoomSpacePos());
         }
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) { // add an upgrade entity to any treasure rooms

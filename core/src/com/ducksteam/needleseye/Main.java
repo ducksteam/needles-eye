@@ -639,7 +639,13 @@ public class Main extends Game {
 			if (currentRooms.length != 0) {
 				// get names of room(s) the player is standing in
 				StringBuilder names = new StringBuilder();
-				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
+				for (RoomInstance room : currentRooms) {
+                    if (!(room instanceof HallwayPlaceholderRoom)) {
+                        names.append(room.getRoom().getName()).append(room.getRot()).append(", ");
+                    } else {
+                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append("-assoc, ");
+                    }
+                }
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));
 				labels.add(roomName);
 

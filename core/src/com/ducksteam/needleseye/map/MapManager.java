@@ -196,7 +196,7 @@ public class MapManager {
     private void generateRoom(Level level, RoomTemplate.RoomType type) {
         RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
         Vector2 pos = generateRoomPos(template, level.getRooms()); // generate a valid position for the room
-        int rot = 0;
+        int rot = (int) (Math.random()*4) * 90;
         RoomInstance room;
         if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).sub(new Vector3(5, 0, 0)), pos, rot); // create instance
         else room = new RoomInstance(template, pos, rot);
