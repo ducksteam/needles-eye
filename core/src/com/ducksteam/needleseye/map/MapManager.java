@@ -29,9 +29,6 @@ public class MapManager {
     public static HashMap<Class<?extends EnemyEntity>,Integer> bagRandomiser = new HashMap<>(); // the bag of enemies to spawn
     public int levelIndex; // number of levels generated
 
-    // placeholder room for hallways
-    public static final RoomTemplate HALLWAY_PLACEHOLDER = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
-
     // paths
     public final String ROOM_TEMPLATE_PATH = "assets/data/rooms/";
 
@@ -41,6 +38,14 @@ public class MapManager {
             new Vector3(0f, 0.7f, -2f),
             new Vector3(0f, 0.7f, 2f),
             new Vector3(-2f, 0.7f, 0f)
+    };
+
+    // different translations for various rotations of hallway models
+    private final static Vector3[] hallwayModelTranslations = new Vector3[]{
+            new Vector3(-5, 0, 0), // 0 deg
+            new Vector3(-10, 0, -5), // 90 deg
+            new Vector3(-5, 0, -10), // 180 deg
+            new Vector3(0, 0, -5) // 270 deg
     };
 
     public MapManager() {
@@ -107,7 +112,10 @@ public class MapManager {
     public void generateLevel() {
         Level level = new Level(levelIndex); // create an empty level object
 
-        RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), new Vector3(-5, 0, 0), new Vector2(0,0), 0); // build a base hallway
+        int rot = randomRotation();
+
+        RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), hallwayModelTranslations[rot/90], new Vector2(0,0), rot); // build a base hallway
+
         level.addRoom(room);
         int battleRoomCount = 0;
 
@@ -145,7 +153,7 @@ public class MapManager {
     public void addWalls(Level level){
         level.walls = new HashMap<>();
 
-        // parameters for the four different wall types
+        /*// parameters for the four different wall types
         Vector2[] translations = new Vector2[]{new Vector2(0, -0.5f), new Vector2(-0.5f, 0), new Vector2(-0.5f, -1), new Vector2(-1, -0.5f)};
         int[] rotations = new int[]{0, 90, 270, 180};
         Vector2[] roomOffsets = {new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 0)};
@@ -178,7 +186,7 @@ public class MapManager {
                 WallObject wall = new WallObject(position, rotation, adjacentRoomExists);
                 level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
             }
-        });
+        });*/
     }
 
     /**
@@ -196,9 +204,9 @@ public class MapManager {
     private void generateRoom(Level level, RoomTemplate.RoomType type) {
         RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
         Vector2 pos = generateRoomPos(template, level.getRooms()); // generate a valid position for the room
-        int rot = (int) (Math.random()*4) * 90;
+        int rot = randomRotation(); // generate a random rotation
         RoomInstance room;
-        if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).sub(new Vector3(5, 0, 0)), pos, rot); // create instance
+        if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).add(hallwayModelTranslations[rot/90]), pos, rot); // create instance
         else room = new RoomInstance(template, pos, rot);
         level.addRoom(room); // add to level
     }
@@ -295,6 +303,24 @@ public class MapManager {
      */
     public static Vector3 vector3FromArray(ArrayList<Double> array) {
         return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
+    }
+
+    /**
+     * Generate random rotation
+     * @return a random rotation
+     */
+    public static int randomRotation() {
+        return (int) (Math.random() * 4) * 90;
+    }
+
+    /**
+     * Rounds a Vector2 to nearest int values
+     * @param vec the vector to round
+     *   @return the rounded vector
+     */
+    public static Vector2 roundVector2(Vector2 vec) {
+        Gdx.app.debug("MapManager", "Rounding " + vec + " to " + new Vector2(Math.round(vec.x), Math.round(vec.y)));
+        return new Vector2(Math.round(vec.x), Math.round(vec.y));
     }
 
     /**

@@ -33,17 +33,17 @@ public class Level {
     public void addRoom(RoomInstance room) {
         rooms.add(room); // add room to the level
 
-        Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getRoomSpacePos());
+        Gdx.app.debug("Level", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ", " + room.getRot() + ") at " + room.getRoomSpacePos());
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) { // add a placeholder to prevent generation in the second position of a hallway
-            rooms.add(new HallwayPlaceholderRoom(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot())), room.getRoomSpacePos()));
-            Gdx.app.debug("MapManager", "plink plonko added placeholder room at " + room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot())) + " for " + room.getRoomSpacePos());
+            rooms.add(new HallwayPlaceholderRoom(MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))), room.getRoomSpacePos()));
+            Gdx.app.debug("Level", "plink plonko added placeholder room at " + MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))) + " for " + room.getRoomSpacePos());
         }
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) { // add an upgrade entity to any treasure rooms
             Upgrade upgrade = UpgradeRegistry.getRandomUpgrade();
             new UpgradeEntity(room.getPosition().add(0,1.5f,0), upgrade);
-            Gdx.app.debug("MapManager", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
+            Gdx.app.debug("Level", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
         }
     }
 

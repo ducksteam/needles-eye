@@ -283,7 +283,7 @@ public class Main extends Game {
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 
 		// create player
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch();
@@ -890,7 +890,7 @@ public class Main extends Game {
 
 		// reinit player
 		player.destroy();
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.baseUpgrade = BaseUpgrade.NONE;
 
 		// recreate drawing utils
@@ -912,7 +912,7 @@ public class Main extends Game {
 		player.destroy(); // delete player
 
 		// restore information to new player instance
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.setFromSerial(playerSerial);
 
 		// clear non-player entities
@@ -1147,8 +1147,8 @@ public class Main extends Game {
 	@Override
 	public void resize(int width, int height) {
 		// update cameras
-		super.resize(width, height);
-		viewport.update(width, height);
+		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
+		viewport.update(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
 
 		// update menus
 		buildPauseMenu();
@@ -1157,7 +1157,6 @@ public class Main extends Game {
 		buildThreadMenu();
 		buildDeathMenu();
 		buildInstructionsMenu();
-		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
 	}
 
 	/**
