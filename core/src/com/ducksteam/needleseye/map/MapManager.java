@@ -203,8 +203,8 @@ public class MapManager {
      */
     private void generateRoom(Level level, RoomTemplate.RoomType type) {
         RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
-        Vector2 pos = generateRoomPos(template, level.getRooms()); // generate a valid position for the room
         int rot = randomRotation(); // generate a random rotation
+        Vector2 pos = generateRoomPos(template, level.getRooms(), rot); // generate a valid position for the room
         RoomInstance room;
         if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).add(hallwayModelTranslations[rot/90]), pos, rot); // create instance
         else room = new RoomInstance(template, pos, rot);
@@ -217,9 +217,9 @@ public class MapManager {
      * @param rooms the rooms already placed in the level
      * @return a valid position for the room
      */
-    private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms) {
+    private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms, int rot) {
         RoomInstance room = getRandomElement(rooms); // get a random room to attach to
-        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return generateRoomPos(template, rooms); // if the room is a placeholder, try again
+        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return generateRoomPos(template, rooms, rot); // if the room is a placeholder, try again
 
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
 
@@ -247,7 +247,7 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + door);
         };
 
-        Vector2 rot = switch (room.getRot()) { // room rotation
+        Vector2 adjacentRoomOffset = switch (room.getRot()) { // room rotation
             case 0 -> new Vector2(1, 1);
             case 90 -> new Vector2(1, -1);
             case 180 -> new Vector2(-1, -1);
@@ -255,13 +255,13 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
-        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.scl(rot)); // add offset to room position
+        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.scl(adjacentRoomOffset)); // add offset to room position
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
-                    if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h)))) { // if the position is already taken
-                        return generateRoomPos(template, rooms); // try again
+                    if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
+                        return generateRoomPos(template, rooms, rot); // try again
                     }
                 }
             }
