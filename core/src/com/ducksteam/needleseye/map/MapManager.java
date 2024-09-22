@@ -153,6 +153,18 @@ public class MapManager {
     public void addWalls(Level level){
         level.walls = new HashMap<>();
 
+        level.getRooms().forEach(roomInstance -> {
+            RoomTemplate.RoomType type = roomInstance.getRoom().getType();
+            int possibleDoors = type == RoomTemplate.RoomType.HALLWAY ? 7 : 4;
+            if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
+
+            for (int i = 0; i < possibleDoors; i++) {
+                if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
+                Vector2 doorPosition = roomInstance.getRoomSpacePos().cpy().add();
+                if (level.walls.get(doorPosition) != null) continue; // if there's already a wall there, skip it
+            }
+        });
+
         /*// parameters for the four different wall types
         Vector2[] translations = new Vector2[]{new Vector2(0, -0.5f), new Vector2(-0.5f, 0), new Vector2(-0.5f, -1), new Vector2(-1, -0.5f)};
         int[] rotations = new int[]{0, 90, 270, 180};
