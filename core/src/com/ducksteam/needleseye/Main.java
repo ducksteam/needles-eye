@@ -301,7 +301,7 @@ public class Main extends Game {
 		buildInstructionsMenu();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.8f, 0.8f, 0.8f, 1f);
+		playerLanternColour = new Color(0.9f, 0.85f, 0.8f, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
 		environment = new Environment();
 		batch = new ModelBatch();
