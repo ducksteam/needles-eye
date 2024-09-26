@@ -48,6 +48,16 @@ public class MapManager {
             new Vector3(0, 0, -5) // 270 deg
     };
 
+    private final static Vector2[] roomSpaceDoorTransformations = new Vector2[]{
+            new Vector2(-0.5f, -1f),
+            new Vector2(0, -0.5f),
+            new Vector2(-1, -0.5f),
+            new Vector2(-0.5f, 0),
+            new Vector2(0, 0.5f),
+            new Vector2(-1, 0.5f),
+            new Vector2(-0.5f, 1)
+    };
+
     public MapManager() {
         roomTemplates = new ArrayList<>();
         levels = new ArrayList<>();
@@ -105,6 +115,17 @@ public class MapManager {
         bagRandomiser.put(WormEnemy.class,7);
     }
 
+    public void generateTestLevel() {
+        Level level = new Level(levelIndex); // create an empty level object
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
+
+        addWalls(level);
+        populateLevel(level);
+
+        levels.add(level); // add the level to the list
+        levelIndex++; // increment the level index
+    }
+
     /**
      * Generate a new level
      */
@@ -159,9 +180,12 @@ public class MapManager {
             if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
 
             for (int i = 0; i < possibleDoors; i++) {
+//                if (i != 1) continue;
                 if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
-                Vector2 doorPosition = roomInstance.getRoomSpacePos().cpy().add();
+                Vector2 doorPosition = roomInstance.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[i].cpy().rotateDeg(roomInstance.getRot()));
+
                 if (level.walls.get(doorPosition) != null) continue; // if there's already a wall there, skip it
+                level.walls.put(doorPosition, new WallObject(getRoomPos(doorPosition), new Quaternion().setEulerAngles(((i % 3 == 0) ? 90 : 0)+roomInstance.getRot(), 0, 0), true));
             }
         });
 
