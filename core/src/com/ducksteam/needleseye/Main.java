@@ -303,7 +303,7 @@ public class Main extends Game {
 		buildInstructionsMenu();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.8f, 0.8f, 0.8f, 1f);
+		playerLanternColour = new Color(0.85f, 0.85f, 0.6f, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
 		environment = new Environment();
 		batch = new ModelBatch();
@@ -724,7 +724,7 @@ public class Main extends Game {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
 				if(entry.getValue().getModelInstance()==null){
-					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass().toString()));
+					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass().toString()));
 				}
 				// position the enemy
 				EnemyEntity enemy = entry.getValue();
@@ -745,6 +745,7 @@ public class Main extends Game {
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
 			//room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
+			room.setScene(assMan.get(room.getModelPath()));
 		});
 		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
@@ -792,6 +793,8 @@ public class Main extends Game {
 			} catch (NullPointerException ignored) {
 			}
 		});
+		//Temporary:
+		player.sceneModel = assMan.get("models/upgrades/gold.gltf");
 
 		// Sounds
 		assMan.setLoader(Sound.class, ".mp3", new SoundLoader(new InternalFileHandleResolver()));
@@ -1129,7 +1132,7 @@ public class Main extends Game {
 		batch2d.begin();
 		batch2d.draw(new Texture("ui/menu/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
-			batch2d.draw(loadingItem, (float) ((171 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
+			batch2d.draw(loadingItem, (float) ((170 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
 		}
 		batch2d.end();
 	}

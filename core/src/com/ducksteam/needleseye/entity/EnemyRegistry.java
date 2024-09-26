@@ -103,7 +103,8 @@ public class EnemyRegistry {
             try {
                 Class<? extends EnemyEntity> enemyClass = enemyEntry.getValue();
                 String address = enemyEntry.getKey();
-                enemyModelInstances.put(enemyClass, new ModelInstance(new ModelInstance(new ModelInstance(((SceneAsset)assetManager.get(address)).scene.model))));
+                //enemyModelInstances.put(enemyClass, new ModelInstance(new ModelInstance(new ModelInstance(((SceneAsset)assetManager.get(address)).scene.model))));
+                enemyScenes.put(enemyClass, assetManager.get(address));
             } catch (Exception e){
                 Gdx.app.error("EnemyRegistry", "Error loading enemy assets", e);
             }

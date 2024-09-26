@@ -63,6 +63,18 @@ public abstract class Entity {
 	}
 
 	/**
+	 * Creates a static entity with mass 0
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
+		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+	}
+
+	/**
 	 * Creates a dynamic entity
 	 *
 	 * @param position      the initial position
@@ -84,6 +96,30 @@ public abstract class Entity {
 		this.flags = flags;
 
 		setModelInstance(modelInstance);
+	}
+
+	/**
+	 * Creates a dynamic entity
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param mass          the mass of the entity
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
+		transform.idt().translate(position).rotate(rotation);
+
+		id = currentId++;
+		Main.entities.put(id, this);
+
+		isStatic = mass == 0;
+		isRenderable = modelInstance != null;
+
+		this.mass = mass;
+		this.flags = flags;
+
+		setScene(scene);
 	}
 
 	/**
