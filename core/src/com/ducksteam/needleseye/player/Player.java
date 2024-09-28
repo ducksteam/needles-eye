@@ -253,7 +253,7 @@ public class Player extends Entity implements IHasHealth {
      */
     public void damage(int damage) {
         if (damageTimeout > 0) return; // if damaged recently, don't
-        if (Math.random() < dodgeChance) return; // if player has dodged, skip damage
+        if (Math.random() < dodgeChance && damage > 0) return; // if player has dodged, skip damage
         DamageEffectManager.create(getPosition()); // create particle effect
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
