@@ -643,7 +643,7 @@ public class Main extends Game {
                     if (!(room instanceof HallwayPlaceholderRoom)) {
                         names.append(room.getRoom().getName()).append(room.getRot()).append(", ");
                     } else {
-                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append("-assoc, ");
+                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
                     }
                 }
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));

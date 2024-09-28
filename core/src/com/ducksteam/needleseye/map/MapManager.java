@@ -43,9 +43,9 @@ public class MapManager {
     // different translations for various rotations of hallway models
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
             new Vector3(-5, 0, 0), // 0 deg
-            new Vector3(-10, 0, -5), // 90 deg
+            new Vector3(0, 0, -5), // 90 deg
             new Vector3(-5, 0, -10), // 180 deg
-            new Vector3(0, 0, -5) // 270 deg
+            new Vector3(-10, 0, -5) // 270 deg
     };
 
     private final static Vector2[] roomSpaceDoorTransformations = new Vector2[]{
@@ -118,6 +118,9 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[1].cpy().add(10, 0, 0), new Vector2(1, 0), 90));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[2].cpy().add(0, 0, -10), new Vector2(0, -1), 180));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[3].cpy().add(-10, 0, 0), new Vector2(-1, 0), 270));
 
         addWalls(level);
         populateLevel(level);
@@ -285,9 +288,9 @@ public class MapManager {
 
         Vector2 adjacentRoomOffset = switch (room.getRot()) { // room rotation
             case 0 -> new Vector2(1, 1);
-            case 90 -> new Vector2(1, -1);
+            case 90 -> new Vector2(-1, 1);
             case 180 -> new Vector2(-1, -1);
-            case 270 -> new Vector2(-1, 1);
+            case 270 -> new Vector2(1, -1);
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
