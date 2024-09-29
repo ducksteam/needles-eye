@@ -11,8 +11,8 @@ public class HallwayPlaceholderRoom extends RoomInstance {
 
     public static final RoomTemplate HALLWAY_PLACEHOLDER_TEMPLATE = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, null, new Vector3(0, 0, 0));
 
-    public HallwayPlaceholderRoom(Vector2 position, Vector2 associatedRoom) {
-        super(HALLWAY_PLACEHOLDER_TEMPLATE, position);
+    public HallwayPlaceholderRoom(Vector2 position, Vector2 associatedRoom, int rot) {
+        super(HALLWAY_PLACEHOLDER_TEMPLATE, position, rot);
         this.associatedRoom = associatedRoom;
     }
 

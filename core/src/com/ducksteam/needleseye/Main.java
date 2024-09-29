@@ -629,8 +629,9 @@ public class Main extends Game {
 		Label isJumping = new Label("Jumping: " + player.isJumping, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(isJumping);
 
-		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
-		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition(), true);
+		Vector2 mapSpaceRealCoords = MapManager.getRoomSpacePos(player.getPosition(), false);
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords + " " + mapSpaceRealCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(mapSpace);
 
 		if (!mapMan.levels.isEmpty()) {
@@ -643,7 +644,7 @@ public class Main extends Game {
                     if (!(room instanceof HallwayPlaceholderRoom)) {
                         names.append(room.getRoom().getName()).append(room.getRot()).append(", ");
                     } else {
-                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append("-assoc, ");
+                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
                     }
                 }
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));

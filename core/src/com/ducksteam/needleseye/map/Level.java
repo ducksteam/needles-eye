@@ -36,7 +36,7 @@ public class Level {
         Gdx.app.debug("Level", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ", " + room.getRot() + ") at " + room.getRoomSpacePos());
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) { // add a placeholder to prevent generation in the second position of a hallway
-            rooms.add(new HallwayPlaceholderRoom(MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))), room.getRoomSpacePos()));
+            rooms.add(new HallwayPlaceholderRoom(MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))), room.getRoomSpacePos(), room.getRot()));
             Gdx.app.debug("Level", "plink plonko added placeholder room at " + MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))) + " for " + room.getRoomSpacePos());
         }
 

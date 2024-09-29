@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.entity.EnemyRegistry;
+import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
@@ -43,19 +44,29 @@ public class MapManager {
     // different translations for various rotations of hallway models
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
             new Vector3(-5, 0, 0), // 0 deg
-            new Vector3(-10, 0, -5), // 90 deg
+            new Vector3(0, 0, -5), // 90 deg
             new Vector3(-5, 0, -10), // 180 deg
-            new Vector3(0, 0, -5) // 270 deg
+            new Vector3(-10, 0, -5) // 270 deg
     };
 
     private final static Vector2[] roomSpaceDoorTransformations = new Vector2[]{
-            new Vector2(-0.5f, -1f),
-            new Vector2(0, -0.5f),
-            new Vector2(-1, -0.5f),
+            new Vector2(0f, -0.5f),
+            new Vector2(0.5f, 0),
             new Vector2(-0.5f, 0),
             new Vector2(0, 0.5f),
-            new Vector2(-1, 0.5f),
-            new Vector2(-0.5f, 1)
+            new Vector2(0.5f, 1f),
+            new Vector2(-0.5f, 1f),
+            new Vector2(0f, 1.5f)
+    };
+
+    private final static Vector2[] roomSpaceAdjacentRoomTransformations = new Vector2[]{
+            new Vector2(0, -1),
+            new Vector2(1, 0),
+            new Vector2(-1, 0),
+            new Vector2(0, 1),
+            new Vector2(1, 1),
+            new Vector2(-1, 1),
+            new Vector2(0, 2)
     };
 
     public MapManager() {
@@ -118,6 +129,9 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[3].cpy().add(20, 0, 0), new Vector2(-1, 0), 90));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[2].cpy().add(0, 0, -10), new Vector2(0, -1), 180));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[1].cpy().add(-20, 0, 0), new Vector2(1, 0), 270));
 
         addWalls(level);
         populateLevel(level);
@@ -180,12 +194,64 @@ public class MapManager {
             if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
 
             for (int i = 0; i < possibleDoors; i++) {
-//                if (i != 1) continue;
+//                if (i != 0) continue;
                 if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
-                Vector2 doorPosition = roomInstance.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[i].cpy().rotateDeg(roomInstance.getRot()));
 
-                if (level.walls.get(doorPosition) != null) continue; // if there's already a wall there, skip it
-                level.walls.put(doorPosition, new WallObject(getRoomPos(doorPosition), new Quaternion().setEulerAngles(((i % 3 == 0) ? 90 : 0)+roomInstance.getRot(), 0, 0), true));
+                Vector2 doorTransformation = MapManager.roundVector2(roomSpaceDoorTransformations[i].cpy().rotateDeg(roomInstance.getRot()), 2).sub(0.5f, 0.5f);
+                Vector2 currentRoomDoorPosition = roomInstance.getRoomSpacePos().cpy().add(doorTransformation);
+                Gdx.app.debug("MapManager", roomInstance.getRoom().getName() + " " + roomInstance.getRot() + " " + roomInstance.getRoomSpacePos() + " " + i + " " + currentRoomDoorPosition + " " + doorTransformation);
+
+                if (level.walls.get(currentRoomDoorPosition) != null) continue; // if there's already a wall there, skip it
+
+                boolean adjacentRoomExists, adjacentRoomIsHallwayPlaceholder, currentRoomDoorEnabled, adjacentRoomDoorEnabled, wallHasDoor;
+                int currentRoomDoor, adjacentRoomDoor, currentRoomRot, adjacentRoomRot;
+
+                adjacentRoomDoor = -1;
+                adjacentRoomDoorEnabled = false;
+
+                currentRoomDoor = i;
+                currentRoomDoorEnabled = roomInstance.getRoom().getDoors().get(currentRoomDoor);
+                currentRoomRot = roomInstance.getRot();
+
+                Vector2 adjacentRoomOffset = MapManager.roundVector2(roomSpaceAdjacentRoomTransformations[i].cpy().rotateDeg(currentRoomRot));
+                Vector2 adjacentRoomPosition = roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset);
+                adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(adjacentRoomPosition));
+                if (adjacentRoomExists) {
+                    RoomInstance adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(adjacentRoomPosition)).findFirst().orElse(null);
+                    if (adjacentRoom == null) {
+						Gdx.app.error("MapManager", "Adjacent room found but not found");
+                        return;
+                    }
+                    adjacentRoomIsHallwayPlaceholder = adjacentRoom.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER;
+                    adjacentRoomRot = adjacentRoom.getRot();
+
+                    // try to find correct door
+                    if (adjacentRoomIsHallwayPlaceholder) {
+                        for (int j = 4; j < 7; j++) {
+                            if (adjacentRoomDoor != -1) break;
+                            HallwayPlaceholderRoom placeholderRoom = (HallwayPlaceholderRoom) adjacentRoom;
+                            RoomInstance associatedRoom = placeholderRoom.getAssociatedRoom();
+                            Vector2 adjacentRoomDoorPosition = associatedRoom.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[j]).cpy().rotateDeg(adjacentRoom.getRot());
+                            if (adjacentRoomDoorPosition.equals(currentRoomDoorPosition)) {
+                                adjacentRoomDoor = j;
+                                adjacentRoomDoorEnabled = associatedRoom.getRoom().getDoors().get(adjacentRoomDoor);
+                            }
+                        }
+                    } else {
+                        for (int j = 0; j < 4; j++) {
+                            if (adjacentRoomDoor != -1) break;
+                            Vector2 adjacentRoomDoorPosition = adjacentRoom.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[j].cpy().rotateDeg(adjacentRoomRot));
+                            if (adjacentRoomDoorPosition.equals(currentRoomDoorPosition)) {
+                                adjacentRoomDoor = j;
+                                adjacentRoomDoorEnabled = adjacentRoom.getRoom().getDoors().get(adjacentRoomDoor);
+                            }
+                        }
+                    }
+                }
+
+                wallHasDoor = adjacentRoomExists/* && currentRoomDoorEnabled && adjacentRoomDoorEnabled*/;
+                Gdx.app.debug("MapManager", "running off " + roomInstance.getRoom().getName() + "@" + roomInstance.getRot() + " at " + roomInstance.getRoomSpacePos() + " " + adjacentRoomExists + " " + currentRoomDoorEnabled + " " + adjacentRoomDoorEnabled + " placing at " + currentRoomDoorPosition);
+                level.walls.put(currentRoomDoorPosition, new WallObject(getRoomPos(currentRoomDoorPosition), new Quaternion().setEulerAngles(((i % 3 == 0) ? 90 : 0)+roomInstance.getRot(), 0, 0), wallHasDoor));
             }
         });
 
@@ -285,9 +351,9 @@ public class MapManager {
 
         Vector2 adjacentRoomOffset = switch (room.getRot()) { // room rotation
             case 0 -> new Vector2(1, 1);
-            case 90 -> new Vector2(1, -1);
+            case 90 -> new Vector2(-1, 1);
             case 180 -> new Vector2(-1, -1);
-            case 270 -> new Vector2(-1, 1);
+            case 270 -> new Vector2(1, -1);
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
@@ -296,7 +362,7 @@ public class MapManager {
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
-                    if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
+                    if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(-rot)))) { // if the position is already taken
                         return generateRoomPos(template, rooms, rot); // try again
                     }
                 }
@@ -355,8 +421,18 @@ public class MapManager {
      *   @return the rounded vector
      */
     public static Vector2 roundVector2(Vector2 vec) {
-        Gdx.app.debug("MapManager", "Rounding " + vec + " to " + new Vector2(Math.round(vec.x), Math.round(vec.y)));
         return new Vector2(Math.round(vec.x), Math.round(vec.y));
+    }
+
+    /**
+     * Rounds a Vector2 to nearest values divisible by a denominator
+     * @param vec the vector to round
+     * @param denominator the denominator to round to
+     * @return the rounded vector
+     */
+    public static Vector2 roundVector2(Vector2 vec, int denominator) {
+        vec.scl(denominator);
+        return new Vector2((float) Math.round(vec.x) /denominator, (float) Math.round(vec.y) /denominator);
     }
 
     /**
@@ -371,10 +447,12 @@ public class MapManager {
     /**
      * Get the room space position of a world space position
      * @param pos the world space position
+     * @param round whether to round the position to nearest ints
      * @return the room space position
      */
-    public static Vector2 getRoomSpacePos (Vector3 pos) {
-        return new Vector2((int) Math.ceil(pos.x / Config.ROOM_SCALE), (int) Math.ceil(pos.z / Config.ROOM_SCALE));
+    public static Vector2 getRoomSpacePos (Vector3 pos, boolean round) {
+        if (round) return new Vector2((int) Math.ceil(pos.x / Config.ROOM_SCALE), (int) Math.ceil(pos.z / Config.ROOM_SCALE));
+        else return new Vector2(pos.x / Config.ROOM_SCALE, pos.z / Config.ROOM_SCALE);
     }
 
     /**
