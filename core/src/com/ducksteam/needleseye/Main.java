@@ -757,7 +757,7 @@ public class Main extends Game {
 		DamageEffectManager.loadStaticEffect();
 
 		UpgradeRegistry.iconsLoaded = true;
-		mapMan.generateTestLevel();
+		mapMan.generateLevel();
 		spawnEnemies();
 	}
 
