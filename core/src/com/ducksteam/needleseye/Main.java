@@ -285,7 +285,7 @@ public class Main extends Game {
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 
 		// create player
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch();
@@ -635,8 +635,9 @@ public class Main extends Game {
 		Label isJumping = new Label("Jumping: " + player.isJumping, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(isJumping);
 
-		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
-		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition(), true);
+		Vector2 mapSpaceRealCoords = MapManager.getRoomSpacePos(player.getPosition(), false);
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords + " " + mapSpaceRealCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(mapSpace);
 
 		if (!mapMan.levels.isEmpty()) {
@@ -645,7 +646,13 @@ public class Main extends Game {
 			if (currentRooms.length != 0) {
 				// get names of room(s) the player is standing in
 				StringBuilder names = new StringBuilder();
-				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
+				for (RoomInstance room : currentRooms) {
+                    if (!(room instanceof HallwayPlaceholderRoom)) {
+                        names.append(room.getRoom().getName()).append(room.getRot()).append(", ");
+                    } else {
+                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
+                    }
+                }
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));
 				labels.add(roomName);
 
@@ -893,7 +900,7 @@ public class Main extends Game {
 
 		// reinit player
 		player.destroy();
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.baseUpgrade = BaseUpgrade.NONE;
 
 		// recreate drawing utils
@@ -915,7 +922,7 @@ public class Main extends Game {
 		player.destroy(); // delete player
 
 		// restore information to new player instance
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.setFromSerial(playerSerial);
 
 		// clear non-player entities
@@ -1161,8 +1168,8 @@ public class Main extends Game {
 	@Override
 	public void resize(int width, int height) {
 		// update cameras
-		super.resize(width, height);
-		viewport.update(width, height);
+		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
+		viewport.update(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
 
 		// update menus
 		buildPauseMenu();
@@ -1171,7 +1178,6 @@ public class Main extends Game {
 		buildThreadMenu();
 		buildDeathMenu();
 		buildInstructionsMenu();
-		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
 	}
 
 	/**

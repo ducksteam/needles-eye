@@ -26,14 +26,17 @@ public class RoomInstance extends Entity {
     HashMap<Integer, EnemyEntity> enemies = new HashMap<>(); // enemies in the room
 
     public RoomInstance(RoomTemplate room, Vector3 drawPos, Vector2 roomSpacePos, int rot){
-        super(drawPos, new Quaternion().setEulerAngles(0, rot, 0), room.getScene());
+        super(drawPos, new Quaternion().setEulerAngles(rot, 0, 0), room.getScene());
+        if (rot % 90 != 0) throw new IllegalArgumentException("Rotation must be a multiple of 90 degrees");
+      
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;
     }
 
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
-        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion(), (room.getScene() == null) ? null : room.getScene());
+        super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion().setEulerAngles(rot, 0, 0), (room.getScene() == null) ? null : room.getScene());
+        if (rot % 90 != 0) throw new IllegalArgumentException("Rotation must be a multiple of 90 degrees");
 
         this.room = room;
         this.roomSpacePos = roomSpacePos;
@@ -50,6 +53,10 @@ public class RoomInstance extends Entity {
 
     public Vector2 getRoomSpacePos() {
         return roomSpacePos;
+    }
+
+    public Vector2 getCentreRoomSpacePos() {
+        return roomSpacePos.cpy().sub(0.5f, 0.5f);
     }
 
     public int getRot() {
@@ -73,7 +80,7 @@ public class RoomInstance extends Entity {
         try {
             enemies.put(id, (EnemyEntity) Main.entities.get(id));
         } catch (Exception e) {
-            e.printStackTrace();
+            Gdx.app.error("RoomInstance", "Failed to add enemy with id " + id + " to room " + room.getName(), e);
         }
     }
 
