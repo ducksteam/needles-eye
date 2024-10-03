@@ -36,7 +36,7 @@ allprojects {
         ashleyVersion = '1.7.4'
         aiVersion = '1.8.2'
         gdxControllersVersion = '2.2.1'
-        gltfVersion = '-SNAPSHOT'
+        gltfVersion = '2.2.1'
     }
 
     repositories {
