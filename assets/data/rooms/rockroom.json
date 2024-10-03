@@ -3,14 +3,12 @@
   "type": "small",
   "spawn": true,
   "modelPath": "models/rooms/rockroom.gltf",
-  "texturePath": "",
   "width": 1,
   "height": 1,
   "decos": [
     {
       "name": "pot",
-      "position": [0, 0, 0],
-      "scale": [1, 1, 1]
+      "position": [0, 0, 0]
     }
   ],
   "doors": {
@@ -18,22 +16,5 @@
     "1": true,
     "2": true,
     "3": true
-  },
-  "collision": [
-    {
-      "type": "box",
-      "position1": [0, 0, 0],
-      "position2": [10, 0, 10]
-    },
-    {
-      "type": "box",
-      "position1": [5.1, 0, 6.6],
-      "position2": [4.1, 0.9, 5.6]
-    },
-    {
-      "type": "box",
-      "position1": [6.2, 0, 4.1],
-      "position2": [4.2, 1.65, 6]
-    }
-  ]
+  }
 }
