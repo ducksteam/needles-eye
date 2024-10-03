@@ -255,6 +255,8 @@ public class Main extends Game {
 
 		//Registers other assets
 		spriteAddresses.add("ui/icons/heart.png");
+		spriteAddresses.add("ui/icons/empty_heart.png");
+		spriteAddresses.add("ui/icons/first_heart.png");
 		spriteAddresses.add("ui/ingame/damage.png");
 
 		// load music/sfx
@@ -718,7 +720,7 @@ public class Main extends Game {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
 				if(entry.getValue().getModelInstance()==null){
-					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass().toString()));
+					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass()));
 				}
 				// position the enemy
 				EnemyEntity enemy = entry.getValue();
@@ -732,7 +734,7 @@ public class Main extends Game {
 	}
 
 	/**
-	 * Performs any post level loading tasks
+	 * Performs any post room loading tasks
 	 * */
 	private void postLevelLoad() {
 		EnemyRegistry.postLoadEnemyAssets(assMan);
@@ -822,10 +824,18 @@ public class Main extends Game {
 		}
 
 		//Draws health
-		for(int i=0;i<player.getHealth();i++){
+		for (int i = player.getMaxHealth() - 1; i>=0; i--){
 			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			if (i < player.getHealth()) {
+				if (i == 0) {
+					batch2d.draw(spriteAssets.get("ui/icons/first_heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+				} else {
+					batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
+				}
+			} else {
+				batch2d.draw(spriteAssets.get("ui/icons/empty_heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			}
 		}
 
 		//Draws upgrades
@@ -1180,7 +1190,7 @@ public class Main extends Game {
     }
 
 	/**
-	 * @return SplashWorker the splashworker instance
+	 * @return SplashWorker the splash worker instance
 	 * */
 	public SplashWorker getSplashWorker() {
 		return splashWorker;
