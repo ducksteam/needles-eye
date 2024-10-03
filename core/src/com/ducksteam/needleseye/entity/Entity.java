@@ -12,6 +12,8 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -37,6 +39,7 @@ public abstract class Entity {
 	public btCollisionShape collisionShape;
 	public EntityMotionState motionState;
 	private ModelInstance modelInstance;
+	private Scene scene;
 	private float mass = 0f;
 	private final int flags;
 
@@ -57,6 +60,18 @@ public abstract class Entity {
 
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
 		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+	}
+
+	/**
+	 * Creates a static entity with mass 0
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
+		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
 	}
 
 	/**
@@ -81,6 +96,30 @@ public abstract class Entity {
 		this.flags = flags;
 
 		setModelInstance(modelInstance);
+	}
+
+	/**
+	 * Creates a dynamic entity
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param mass          the mass of the entity
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
+		transform.idt().translate(position).rotate(rotation);
+
+		id = currentId++;
+		Main.entities.put(id, this);
+
+		isStatic = mass == 0;
+		isRenderable = modelInstance != null;
+
+		this.mass = mass;
+		this.flags = flags;
+
+		setScene(scene);
 	}
 
 	/**
@@ -128,6 +167,22 @@ public abstract class Entity {
 	public ModelInstance getModelInstance() {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
+	}
+
+	/**
+	 * Returns the scene asset of the entity
+	 * @return the scene asset
+	 * */
+	public Scene getScene() {
+		return scene;
+	}
+
+	/**
+	 * Sets the scene asset of the entity
+	 * @param scene the scene asset to set
+	 * */
+	public void setScene(Scene scene) {
+		this.scene = scene;
 	}
 
 	/**

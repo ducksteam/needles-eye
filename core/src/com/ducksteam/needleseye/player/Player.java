@@ -19,6 +19,8 @@ import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
+import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 
@@ -64,8 +66,11 @@ public class Player extends Entity implements IHasHealth {
 
     Vector3 tmp = new Vector3(); // temporary vector for calculations
 
+    //Temporary:
+    public Scene sceneModel;
+
     public Player(Vector3 pos) {
-        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null, Entity.PLAYER_GROUP);
+        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP);
         baseUpgrade = BaseUpgrade.NONE;
 
         eulerRotation = new Vector3(0,0,1);

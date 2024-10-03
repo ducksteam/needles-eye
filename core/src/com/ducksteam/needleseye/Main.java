@@ -50,6 +50,7 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -100,6 +101,7 @@ public class Main extends Game {
 	public static MapManager mapMan;
 
 	// objects to be rendered
+	public static SceneManager sceneMan;
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
 	// sprites to be loaded into asset manager
 	ArrayList<String> spriteAddresses = new ArrayList<>();
@@ -301,21 +303,25 @@ public class Main extends Game {
 		buildInstructionsMenu();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.8f, 0.8f, 0.8f, 1f);
+		playerLanternColour = new Color(0.85f, 0.85f, 0.6f, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
 		environment = new Environment();
 		batch = new ModelBatch();
+		sceneMan = new SceneManager();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
 		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
 		environment.add(playerLantern);
 		camera.near = 0.1f;
+		sceneMan.setCamera(camera);
+		sceneMan.environment = environment;
 
 		// init particles
 		particleBatch = new BillboardParticleBatch();
 		particleSystem = new ParticleSystem();
 		particleBatch.setCamera(camera);
 		particleSystem.add(particleBatch);
+
 
 		//Sets up game managers
 		assMan = new AssetManager();
@@ -725,7 +731,7 @@ public class Main extends Game {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
 				if(entry.getValue().getModelInstance()==null){
-					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass().toString()));
+					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass().toString()));
 				}
 				// position the enemy
 				EnemyEntity enemy = entry.getValue();
@@ -745,7 +751,8 @@ public class Main extends Game {
 		EnemyRegistry.postLoadEnemyAssets(assMan);
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
-			room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
+			//room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
+			room.setScene(assMan.get(room.getModelPath()));
 		});
 		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
@@ -793,6 +800,8 @@ public class Main extends Game {
 			} catch (NullPointerException ignored) {
 			}
 		});
+		//Temporary:
+		player.sceneModel = assMan.get("models/upgrades/gold.gltf");
 
 		// Sounds
 		assMan.setLoader(Sound.class, ".mp3", new SoundLoader(new InternalFileHandleResolver()));
@@ -1039,22 +1048,33 @@ public class Main extends Game {
 			});
 
 			// begin 3d drawing
-			batch.begin(camera);
+			/*batch.begin(camera);
 
 			// draw particles
+
+			batch.render(particleSystem);
+
+
+
+			// draw entities
+			*/
+			entities.forEach((Integer id, Entity entity) -> {
+				//if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
+				if (entity.isRenderable){
+					sceneMan.addScene(entity.getScene());
+				}
+			});
+
 			particleSystem.update();
 			particleSystem.begin();
 			particleSystem.draw();
 			particleSystem.end();
-			batch.render(particleSystem);
 
-			// draw entities
-			entities.forEach((Integer id, Entity entity) -> {
-				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
-			});
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
 
 			// finish 3d drawing
-			batch.end();
+			//batch.end();
 
 			renderGameOverlay();
 
@@ -1119,7 +1139,7 @@ public class Main extends Game {
 		batch2d.begin();
 		batch2d.draw(new Texture("ui/menu/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
-			batch2d.draw(loadingItem, (float) ((171 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
+			batch2d.draw(loadingItem, (float) ((170 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
 		}
 		batch2d.end();
 	}
