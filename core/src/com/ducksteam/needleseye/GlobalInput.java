@@ -42,7 +42,7 @@ public class GlobalInput implements InputProcessor {
             Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
         }
 
-        if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(50)); // move player up
+        if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(20)); // move player up
 
         if (i == Input.Keys.NUMPAD_ADD) { // heal the player
             player.damage(-1);

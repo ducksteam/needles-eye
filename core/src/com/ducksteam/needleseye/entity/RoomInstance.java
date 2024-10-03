@@ -52,6 +52,10 @@ public class RoomInstance extends Entity {
         return roomSpacePos;
     }
 
+    public Vector2 getCentreRoomSpacePos() {
+        return roomSpacePos.cpy().sub(0.5f, 0.5f);
+    }
+
     public int getRot() {
         return rot;
     }
@@ -73,7 +77,7 @@ public class RoomInstance extends Entity {
         try {
             enemies.put(id, (EnemyEntity) Main.entities.get(id));
         } catch (Exception e) {
-            e.printStackTrace();
+            Gdx.app.error("RoomInstance", "Failed to add enemy with id " + id + " to room " + room.getName(), e);
         }
     }
 

@@ -129,9 +129,9 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[3].cpy().add(20, 0, 0), new Vector2(-1, 0), 90));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[3].cpy().add(10, 0, 0), new Vector2(-1, 0), 90));
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[2].cpy().add(0, 0, -10), new Vector2(0, -1), 180));
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[1].cpy().add(-20, 0, 0), new Vector2(1, 0), 270));
+        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[1].cpy().add(-10, 0, 0), new Vector2(1, 0), 270));
 
         addWalls(level);
         populateLevel(level);
@@ -194,12 +194,10 @@ public class MapManager {
             if (type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
 
             for (int i = 0; i < possibleDoors; i++) {
-//                if (i != 0) continue;
                 if (i == 3 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
 
                 Vector2 doorTransformation = MapManager.roundVector2(roomSpaceDoorTransformations[i].cpy().rotateDeg(roomInstance.getRot()), 2).sub(0.5f, 0.5f);
                 Vector2 currentRoomDoorPosition = roomInstance.getRoomSpacePos().cpy().add(doorTransformation);
-//                Gdx.app.debug("MapManager", roomInstance.getRoom().getName() + " " + roomInstance.getRot() + " " + roomInstance.getRoomSpacePos() + " " + i + " " + currentRoomDoorPosition + " " + doorTransformation);
 
                 if (level.walls.get(currentRoomDoorPosition) != null) continue; // if there's already a wall there, skip it
 
@@ -209,13 +207,15 @@ public class MapManager {
                 adjacentRoomDoor = -1;
                 adjacentRoomDoorEnabled = false;
 
-                currentRoomDoor = i;
+				currentRoomDoor = i;
                 currentRoomDoorEnabled = roomInstance.getRoom().getDoors().get(currentRoomDoor);
                 currentRoomRot = roomInstance.getRot();
 
+                // check if the corresponding room exists
                 Vector2 adjacentRoomOffset = MapManager.roundVector2(roomSpaceAdjacentRoomTransformations[i].cpy().rotateDeg(currentRoomRot));
                 Vector2 adjacentRoomPosition = roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset);
                 adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(adjacentRoomPosition));
+
                 if (adjacentRoomExists) {
                     RoomInstance adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(adjacentRoomPosition)).findFirst().orElse(null);
                     if (adjacentRoom == null) {
@@ -235,8 +235,8 @@ public class MapManager {
                                 Gdx.app.error("MapManager", "Associated room not found");
                                 return;
                             }
-                            Vector2 adjacentRoomDoorPosition = associatedRoom.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[j]).cpy().rotateDeg(adjacentRoom.getRot());
-                            if (adjacentRoomDoorPosition.equals(currentRoomDoorPosition)) {
+                            Vector2 adjacentRoomDoorPosition = associatedRoom.getCentreRoomSpacePos().add(roomSpaceDoorTransformations[j].cpy().rotateDeg(adjacentRoom.getRot()));
+                            if (adjacentRoomDoorPosition.epsilonEquals(currentRoomDoorPosition, 0.25f)) {
                                 adjacentRoomDoor = j;
                                 adjacentRoomDoorEnabled = associatedRoom.getRoom().getDoors().get(adjacentRoomDoor);
                             }
@@ -244,8 +244,8 @@ public class MapManager {
                     } else {
                         for (int j = 0; j < 4; j++) {
                             if (adjacentRoomDoor != -1) break;
-                            Vector2 adjacentRoomDoorPosition = adjacentRoom.getRoomSpacePos().cpy().add(roomSpaceDoorTransformations[j].cpy().rotateDeg(adjacentRoomRot));
-                            if (adjacentRoomDoorPosition.equals(currentRoomDoorPosition)) {
+                            Vector2 adjacentRoomDoorPosition = adjacentRoom.getCentreRoomSpacePos().add(roomSpaceDoorTransformations[j].cpy().rotateDeg(adjacentRoomRot));
+                            if (adjacentRoomDoorPosition.epsilonEquals(currentRoomDoorPosition, 0.25f)) {
                                 adjacentRoomDoor = j;
                                 adjacentRoomDoorEnabled = adjacentRoom.getRoom().getDoors().get(adjacentRoomDoor);
                             }
@@ -253,8 +253,7 @@ public class MapManager {
                     }
                 }
 
-                wallHasDoor = adjacentRoomExists/* && currentRoomDoorEnabled && adjacentRoomDoorEnabled*/;
-                Gdx.app.debug("MapManager", "running off " + roomInstance.getRoom().getName() + "@" + roomInstance.getRot() + " at " + roomInstance.getRoomSpacePos() + " " + adjacentRoomExists + " " + currentRoomDoorEnabled + " " + adjacentRoomDoorEnabled + " placing at " + currentRoomDoorPosition);
+                wallHasDoor = adjacentRoomExists && currentRoomDoorEnabled && adjacentRoomDoorEnabled;
                 level.walls.put(currentRoomDoorPosition, new WallObject(getRoomPos(currentRoomDoorPosition), new Quaternion().setEulerAngles(((i % 3 == 0) ? 90 : 0)+roomInstance.getRot(), 0, 0), wallHasDoor));
             }
         });
@@ -357,7 +356,6 @@ public class MapManager {
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
-                    Gdx.app.debug("MapManager", "Checking " + ri.getRoomSpacePos() + " against " + pos.cpy().add(new Vector2(w, h).rotateDeg(rot)));
                     if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
                         return generateRoomPos(template, rooms, rot); // try again
                     }
