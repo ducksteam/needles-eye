@@ -84,14 +84,14 @@ public class Main extends Game {
 	Stage instructionsMenu;
 	Stage threadMenu;
 	Stage pauseMenu;
-	Stage deathMenu;
+	static Stage deathMenu;
 	Stage debug;
 
 	// other 2d rendering utils
 	SpriteBatch batch2d; // used for rendering other 2d sprites
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
-	BitmapFont uiFont; // font for text
-	GlyphLayout layout; // layout for text
+	static BitmapFont uiFont; // font for text
+	static GlyphLayout layout; // layout for text
 
 	// asset manager
 	public static AssetManager assMan;
@@ -382,7 +382,7 @@ public class Main extends Game {
 	/**
 	 * Construct death menu from actors
 	 * */
-	private void buildDeathMenu() {
+	private static void buildDeathMenu() {
 		deathMenu = new Stage();
 
 		// add background
@@ -414,7 +414,7 @@ public class Main extends Game {
 		deathMenu.addActor(exitButton);
 
 		if (mapMan != null){
-			Label levelText = new Label("You reached level " + mapMan.levelIndex, new Label.LabelStyle(uiFont, uiFont.getColor()));
+			Label levelText = new Label("You reached level " + (mapMan.levelIndex - 1), new Label.LabelStyle(uiFont, uiFont.getColor()));
 			layout.setText(uiFont, levelText.getText());
 			levelText.setPosition((float) Gdx.graphics.getWidth() * 320 / 640 - layout.width / 2, (float) Gdx.graphics.getHeight() * 220 / 360);
 			deathMenu.addActor(levelText);
@@ -752,6 +752,8 @@ public class Main extends Game {
 		DamageEffectManager.loadStaticEffect();
 
 		UpgradeRegistry.iconsLoaded = true;
+
+		mapMan.levelIndex = 1;
 		mapMan.generateLevel();
 		spawnEnemies();
 	}
@@ -874,6 +876,7 @@ public class Main extends Game {
 	 * Sets the game state to the dead menu
 	 * */
 	public static void onPlayerDeath() {
+		buildDeathMenu();
 		resetGame();
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
@@ -887,7 +890,6 @@ public class Main extends Game {
 
 		// reset levels
 		mapMan.levels.clear();
-		mapMan.levelIndex = 1;
 
 		// reset entities map
 		entities.clear();
