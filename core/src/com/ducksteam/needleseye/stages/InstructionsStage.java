@@ -80,7 +80,7 @@ public class InstructionsStage extends StageTemplate {
 		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
 		keysText.append(Input.Keys.toString(Config.keys.get("right")));
 
-		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
+		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" to jump and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
 		instructions.setBounds((getWidth() * 155) /640, (getHeight() * 113) /360, (getWidth() * 338) /640, (getHeight() * 148) /360);
 		instructions.setWrap(true);
 

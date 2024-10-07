@@ -224,10 +224,7 @@ public class Main extends Game {
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
-		if(menuMusic!=null) {/*
-			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME|| gameState == GameState.DEAD_MENU)) menuMusic.play();
-			else menuMusic.pause();*/
-		}
+		if(menuMusic!=null) menuMusic.play();
 		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
