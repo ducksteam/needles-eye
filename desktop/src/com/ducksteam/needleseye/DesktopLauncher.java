@@ -15,6 +15,7 @@ public class DesktopLauncher {
 		config.useVsync(false); // disable vsync
 		config.setHdpiMode(HdpiMode.Pixels); // use actual pixels for resolution
 		config.setWindowIcon("icon/icon_128.png", "icon/icon_64.png", "icon/icon_32.png", "icon/icon_16.png"); // application icon
+//		config.setResizable(false);
 
 		Main main = new Main(); // create the main game object
 		main.setSplashWorker(new DesktopSplashWorker()); // set the splash screen

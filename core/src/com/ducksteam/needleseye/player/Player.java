@@ -338,6 +338,7 @@ public class Player extends Entity implements IHasHealth {
      * @param baseUpgrade the new base upgrade
      */
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
+        Gdx.app.log("Player", "Setting base upgrade to " + baseUpgrade.name());
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true); // set max health to that determined by the upgrade
         try { // add the upgrade to the player's list
