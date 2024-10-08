@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.setGameState;
@@ -29,6 +30,8 @@ public class PauseStage extends StageTemplate {
 	ImageButton resumeButton;
 	ImageButton exitButton;
 
+	Table buttons;
+
 	@Override
 	public void build() {
 		background = new Image(new Texture("ui/menu/pausebackground.png"));
@@ -50,6 +53,8 @@ public class PauseStage extends StageTemplate {
 		resumeButton = new ImageButton(resumeButtonStyle);
 		exitButton = new ImageButton(exitButtonStyle);
 
+		buttons = new Table();
+
 		rebuild();
 
 		isBuilt = true;
@@ -57,15 +62,24 @@ public class PauseStage extends StageTemplate {
 
 	@Override
 	public void rebuild() {
-		clear();
+		super.rebuild(); // atm just clears root table
+		clear(); // clears the stage
 
-		getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		// Update the viewport
+		this.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
+		// clear sub-table
+		buttons.clear();
+
+		// background is not in the table because it should be behind everything
 		background.setBounds(0, 0, getWidth(), getHeight());
 		addActor(background);
 
-		resumeButton.setPosition(getWidth() * 36/640, getHeight() * 228/360);
-		resumeButton.setSize(getWidth() * 129/640, getHeight() * 30/360);
+		root.setFillParent(true);
+		addActor(root);
+
+		/*resumeButton.setPosition(getWidth() * 36/640, getHeight() * 228/360);
+		resumeButton.setSize(getWidth() * 129/640, getHeight() * 30/360);*/
 		resumeButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -74,8 +88,8 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
-		exitButton.setPosition(getWidth() * 36/640, getHeight() * 80/360);
-		exitButton.setSize(getWidth() * 129/640, getHeight() * 30/360);
+		/*exitButton.setPosition(getWidth() * 36/640, getHeight() * 80/360);
+		exitButton.setSize(getWidth() * 129/640, getHeight() * 30/360);*/
 		exitButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -85,11 +99,8 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
-		resumeButton.getImage().setFillParent(true);
-		exitButton.getImage().setFillParent(true);
-
-		addActor(background);
-		addActor(exitButton);
-		addActor(resumeButton);
+		buttons.add(resumeButton).prefSize(400, 90).growX().padBottom(220).row();
+		buttons.add(exitButton).prefSize(400, 90).growX().spaceTop(250).row();
+		root.add(buttons).pad(100).left();
 	}
 }

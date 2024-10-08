@@ -7,10 +7,13 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.player.Upgrade;
 
-import static com.ducksteam.needleseye.Main.player;
+import static com.ducksteam.needleseye.Main.*;
 
 /**
  * The screen where the player can choose their base upgrade.
@@ -34,6 +37,8 @@ public class ThreadStage extends StageTemplate {
 	ImageButton joltButton;
 	ImageButton tRodButton;
 
+	Label header;
+
 	@Override
 	public void build() {
 		background = new Image(new Texture("ui/thread/background.png"));
@@ -41,6 +46,12 @@ public class ThreadStage extends StageTemplate {
 		coal = new Image(new Texture("ui/thread/coal8.png"));
 		jolt = new Image(new Texture("ui/thread/jolt8.png"));
 		tRod = new Image(new Texture("ui/thread/threadedrod.png"));
+
+		// Set the scaling behaviour
+		soul.setScaling(Scaling.fit);
+		coal.setScaling(Scaling.fit);
+		jolt.setScaling(Scaling.fit);
+		tRod.setScaling(Scaling.fit);
 
 		soulStyle = new ImageButton.ImageButtonStyle();
 		soulStyle.imageUp = soul.getDrawable();
@@ -58,6 +69,8 @@ public class ThreadStage extends StageTemplate {
 		tRodStyle.imageUp = tRod.getDrawable();
 		tRodButton = new ImageButton(tRodStyle);
 
+		header = new Label("~ CHOOSE YOUR THREAD ~", new Label.LabelStyle(titleFont, null));
+
 		rebuild();
 
 		isBuilt = true;
@@ -65,15 +78,21 @@ public class ThreadStage extends StageTemplate {
 
 	@Override
 	public void rebuild() {
-		clear();
+		super.rebuild(); // atm just clears root table
+		clear(); // clears the stage
 
-		getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		// Update the viewport
+		this.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
+		// background is not in the table because it should be behind everything
 		background.setBounds(0, 0, getWidth(), getHeight());
 		addActor(background);
 
-		tRodButton.setPosition(getWidth() * 220/640, getHeight() * 57/360);
-		tRodButton.setSize(getWidth() * (tRod.getWidth() / 640), getHeight() * tRod.getHeight() /360);
+		root.setFillParent(true);
+		addActor(root);
+
+//		tRodButton.setPosition(getWidth() * 220/640, getHeight() * 57/360);
+//		tRodButton.setSize(getWidth() * (tRod.getWidth() / 640), getHeight() * tRod.getHeight() /360);
 
 		tRodButton.addListener(new InputListener(){
 			@Override
@@ -85,8 +104,8 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-		soulButton.setSize(getWidth() * (soul.getWidth() / 640), getHeight() * soul.getHeight() /360);
-		soulButton.setPosition(getWidth() * (160 - soul.getWidth() /2)/640, getHeight() * 100/360);
+//		soulButton.setSize(getWidth() * (soul.getWidth() / 640), getHeight() * soul.getHeight() /360);
+//		soulButton.setPosition(getWidth() * (160 - soul.getWidth() /2)/640, getHeight() * 100/360);
 
 		soulButton.addListener(new InputListener(){
 			@Override
@@ -98,8 +117,8 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-		coalButton.setSize(getWidth() * (coal.getWidth() / 640), getHeight() * coal.getHeight() /360);
-		coalButton.setPosition(getWidth() * (320 - coal.getWidth() /2)/640, getHeight() * 100/360);
+//		coalButton.setSize(getWidth() * (coal.getWidth() / 640), getHeight() * coal.getHeight() /360);
+//		coalButton.setPosition(getWidth() * (320 - coal.getWidth() /2)/640, getHeight() * 100/360);
 
 		coalButton.addListener(new InputListener(){
 			@Override
@@ -111,8 +130,8 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-		joltButton.setSize(getWidth() * (jolt.getWidth() / 640), getHeight() * jolt.getHeight() /360);
-		joltButton.setPosition(getWidth() * (480 - jolt.getWidth() /2)/640, getHeight() * 100/360);
+//		joltButton.setSize(getWidth() * (jolt.getWidth() / 640), getHeight() * jolt.getHeight() /360);
+//		joltButton.setPosition(getWidth() * (480 - jolt.getWidth() /2)/640, getHeight() * 100/360);
 
 		joltButton.addListener(new InputListener(){
 			@Override
@@ -124,14 +143,10 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-		tRodButton.getImage().setFillParent(true);
-		soulButton.getImage().setFillParent(true);
-		coalButton.getImage().setFillParent(true);
-		joltButton.getImage().setFillParent(true);
-
-		addActor(tRodButton);
-		addActor(soulButton);
-		addActor(coalButton);
-		addActor(joltButton);
+		root.add(header).colspan(3).spaceBottom(Value.percentHeight(0.1f, background)).row();
+		root.add(soulButton).prefSize(Value.percentHeight(0.312f, background), Value.percentHeight(0.4f, background)).padRight(Value.percentWidth(0.1f, background));
+		root.add(coalButton).prefSize(Value.percentHeight(0.312f, background), Value.percentHeight(0.4f, background)).padRight(Value.percentWidth(0.1f, background));
+		root.add(joltButton).prefSize(Value.percentHeight(0.312f, background), Value.percentHeight(0.4f, background)).row();
+		root.add(tRodButton).prefSize(Value.percentHeight(0.66f, background), Value.percentHeight(0.1f, background)).colspan(3).spaceTop(Value.percentHeight(0.1f, background));
 	}
 }

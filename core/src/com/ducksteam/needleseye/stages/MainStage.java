@@ -7,7 +7,6 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
 
@@ -49,6 +48,8 @@ public class MainStage extends StageTemplate {
 
 	@Override
 	public void build() {
+		// Load the images
+		// This is in build so it doesn't kill performance
 		background = new Image(new Texture("ui/menu/background.png"));
 		logo = new Image(new Texture("ui/menu/logo.png"));
 		playButtonUnpressed = new Image(new Texture("ui/menu/play1.png"));
@@ -60,6 +61,7 @@ public class MainStage extends StageTemplate {
 		exitButtonUnpressed = new Image(new Texture("ui/menu/quit1.png"));
 		exitButtonPressed = new Image(new Texture("ui/menu/quit2.png"));
 
+		// Set the scaling behaviour
 		logo.setScaling(Scaling.fit);
 		playButtonUnpressed.setScaling(Scaling.fit);
 		playButtonPressed.setScaling(Scaling.fit);
@@ -70,6 +72,7 @@ public class MainStage extends StageTemplate {
 		exitButtonUnpressed.setScaling(Scaling.fit);
 		exitButtonPressed.setScaling(Scaling.fit);
 
+		// Create the button styles & buttons
 		playButtonStyle = new ImageButton.ImageButtonStyle();
 		playButtonStyle.imageUp = playButtonUnpressed.getDrawable();
 		playButtonStyle.imageDown = playButtonPressed.getDrawable();
@@ -98,8 +101,10 @@ public class MainStage extends StageTemplate {
 
 		exitButton = new ImageButton(exitButtonStyle);
 
+		// Create the table for the buttons
 		buttons = new Table();
 
+		// Rebuild the stage, positioning the actors
 		rebuild();
 
 		isBuilt = true;
@@ -107,19 +112,23 @@ public class MainStage extends StageTemplate {
 
 	@Override
 	public void rebuild() {
-		super.rebuild();
-		clear();
+		super.rebuild(); // atm just clears root table
+		clear(); // clears the stage
 
+		// Update the viewport
 		this.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
+		// clear sub-table
 		buttons.clear();
 
+		// background is not in the table because it should be behind everything
 		background.setBounds(0, 0, getWidth(), getHeight());
 		addActor(background);
 
 		root.setFillParent(true);
 		addActor(root);
 
+		// event listeners
 		playButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -153,6 +162,8 @@ public class MainStage extends StageTemplate {
 				return true;
 			}
 		});
+
+		// scene2d magic
 
 		buttons.add(playButton).prefSize(400, 90).growX().spaceBottom(20).row();
 		buttons.add(instructionsButton).prefSize(400, 90).growX().spaceBottom(20).row();

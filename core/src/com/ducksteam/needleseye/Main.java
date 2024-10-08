@@ -83,6 +83,7 @@ public class Main extends Game {
 	SpriteBatch batch2d; // used for rendering other 2d sprites
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
 	public static BitmapFont uiFont; // font for text
+	public static BitmapFont titleFont; // font for titles
 	public static GlyphLayout layout; // layout for text
 
 	// asset manager
@@ -224,7 +225,7 @@ public class Main extends Game {
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
-		if(menuMusic!=null) menuMusic.play();
+//		if(menuMusic!=null) menuMusic.play();
 		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
@@ -363,6 +364,8 @@ public class Main extends Game {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.02 * Gdx.graphics.getHeight()); // scale font to window size
 		uiFont = generator.generateFont(parameter);
+		parameter.size = (int) (0.08 * Gdx.graphics.getHeight());
+		titleFont = generator.generateFont(parameter);
 	}
 
 	/**
@@ -847,6 +850,9 @@ public class Main extends Game {
 		super.resize(width, height);
 		viewport.update(width, height);
 
+		// update fonts
+		buildFonts();
+
 		// update menus
 		for (GameState state : GameState.values()) {
 			if (state.getStage() != null && state.getStage().isBuilt) state.getStage().rebuild();
@@ -871,6 +877,7 @@ public class Main extends Game {
 		if (debug != null) debug.dispose();
 		if (assMan != null) assMan.dispose();
 		if (uiFont != null) uiFont.dispose();
+		if (titleFont != null) titleFont.dispose();
         if (dynamicsWorld != null  && !dynamicsWorld.isDisposed()) dynamicsWorld.dispose();
         if (constraintSolver != null && !constraintSolver.isDisposed()) constraintSolver.dispose();
         if (broadphase != null && !broadphase.isDisposed()) broadphase.dispose();
