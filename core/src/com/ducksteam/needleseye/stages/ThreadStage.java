@@ -143,6 +143,11 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
+		tRodButton.getCell(tRodButton.getImage()).grow();
+		soulButton.getCell(soulButton.getImage()).grow();
+		coalButton.getCell(coalButton.getImage()).grow();
+		joltButton.getCell(joltButton.getImage()).grow();
+
 		root.add(header).colspan(3).spaceBottom(Value.percentHeight(0.1f, background)).row();
 		root.add(soulButton).prefSize(Value.percentHeight(0.312f, background), Value.percentHeight(0.4f, background)).padRight(Value.percentWidth(0.1f, background));
 		root.add(coalButton).prefSize(Value.percentHeight(0.312f, background), Value.percentHeight(0.4f, background)).padRight(Value.percentWidth(0.1f, background));

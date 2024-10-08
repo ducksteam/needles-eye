@@ -99,6 +99,9 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
+		resumeButton.getCell(resumeButton.getImage()).grow();
+		exitButton.getCell(exitButton.getImage()).grow();
+
 		buttons.add(resumeButton).prefSize(400, 90).growX().padBottom(220).row();
 		buttons.add(exitButton).prefSize(400, 90).growX().spaceTop(250).row();
 		root.add(buttons).pad(100).left();

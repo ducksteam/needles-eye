@@ -164,6 +164,10 @@ public class MainStage extends StageTemplate {
 		});
 
 		// scene2d magic
+		playButton.getCell(playButton.getImage()).grow();
+		instructionsButton.getCell(instructionsButton.getImage()).grow();
+		optionsButton.getCell(optionsButton.getImage()).grow();
+		exitButton.getCell(exitButton.getImage()).grow();
 
 		buttons.add(playButton).prefSize(400, 90).growX().spaceBottom(20).row();
 		buttons.add(instructionsButton).prefSize(400, 90).growX().spaceBottom(20).row();

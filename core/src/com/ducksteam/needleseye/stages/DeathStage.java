@@ -76,6 +76,8 @@ public class DeathStage extends StageTemplate {
 			layout.setText(titleFont, levelText.getText());
 		}
 
+		exitButton.getCell(exitButton.getImage()).grow();
+
 		root.add(levelText).prefHeight(Value.percentHeight(0.08f, background)).row();
 		root.add(upgradeIcons).maxWidth(Value.percentWidth(0.41875f, background)).prefHeight(Value.percentHeight(0.325f, background)).spaceTop(Value.percentHeight(0.225f, background)).row();
 		root.add(exitButton).prefSize(Value.percentWidth(0.2f, background), Value.percentHeight(0.083f, background)).spaceTop(Value.percentHeight(0.05f, background));
