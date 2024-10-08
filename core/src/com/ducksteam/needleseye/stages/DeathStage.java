@@ -4,9 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -27,6 +25,8 @@ public class DeathStage extends StageTemplate {
 	ImageButton exitButton;
 	Label levelText;
 
+	Table upgradeIcons;
+
 	@Override
 	public void build() {
 		background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
@@ -41,7 +41,7 @@ public class DeathStage extends StageTemplate {
 
 		exitButton = new ImageButton(exitButtonStyle);
 
-		levelText = new Label("", new Label.LabelStyle(uiFont, null));
+		levelText = new Label("", new Label.LabelStyle(titleFont, null));
 
 		rebuild();
 
@@ -50,18 +50,19 @@ public class DeathStage extends StageTemplate {
 
 	@Override
 	public void rebuild() {
-		clear();
+		super.rebuild(); // atm just clears root table
+		clear(); // clears the stage
 
-		getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+		// Update the viewport
+		this.getViewport().update(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
 
+		// background is not in the table because it should be behind everything
 		background.setBounds(0, 0, getWidth(), getHeight());
 		addActor(background);
 
-		title.setBounds(0, 0, getWidth(), getHeight());
-		addActor(title);
+		root.setFillParent(true);
+		addActor(root);
 
-		exitButton.setPosition(getWidth() * 237 / 640, getHeight() * 34 / 360);
-		exitButton.setSize(getWidth() * 167 / 640, getHeight() * 32 / 360);
 		exitButton.addListener(new InputListener() {
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
@@ -69,14 +70,14 @@ public class DeathStage extends StageTemplate {
 				return true;
 			}
 		});
-		exitButton.getImage().setFillParent(true);
-		addActor(exitButton);
 
 		if (mapMan != null){
 			levelText.setText("You reached level " + (mapMan.levelIndex - 1));
-			layout.setText(uiFont, levelText.getText());
-			levelText.setPosition((float) getWidth() * 320 / 640 - layout.width / 2, (float) getHeight() * 220 / 360);
-			addActor(levelText);
+			layout.setText(titleFont, levelText.getText());
 		}
+
+		root.add(levelText).prefHeight(Value.percentHeight(0.08f, background)).row();
+		root.add(upgradeIcons).maxWidth(Value.percentWidth(0.41875f, background)).prefHeight(Value.percentHeight(0.325f, background)).spaceTop(Value.percentHeight(0.225f, background)).row();
+		root.add(exitButton).prefSize(Value.percentWidth(0.2f, background), Value.percentHeight(0.083f, background)).spaceTop(Value.percentHeight(0.05f, background));
 	}
 }
