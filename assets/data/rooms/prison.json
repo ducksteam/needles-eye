@@ -3,7 +3,6 @@
   "type": "hallway",
   "spawn": false,
   "modelPath": "models/rooms/prison.gltf",
-  "texturePath": "",
   "width": 1,
   "height": 2,
   "decos": [],
@@ -16,6 +15,5 @@
     "5": true,
     "6": true,
     "7": true
-  },
-  "collision": []
+  }
 }

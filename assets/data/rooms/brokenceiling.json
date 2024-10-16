@@ -3,7 +3,6 @@
   "type": "small",
   "spawn": true,
   "modelPath": "models/rooms/brokenceiling.gltf",
-  "texturePath": "",
   "width": 1,
   "height": 1,
   "decos": [],
@@ -12,18 +11,5 @@
     "1": true,
     "2": true,
     "3": true
-  },
-  "centre_offset": [0, 0, 0],
-  "collision": [
-    {
-      "type": "box",
-      "position1": [0, 0, 0],
-      "position2": [10, 0, 10]
-    },
-    {
-      "type": "sphere",
-      "position1": [5, -0.9, 5],
-      "radius": 1.5
-    }
-  ]
+  }
 }

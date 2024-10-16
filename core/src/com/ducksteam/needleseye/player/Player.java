@@ -253,10 +253,10 @@ public class Player extends Entity implements IHasHealth {
      */
     public void damage(int damage) {
         if (damageTimeout > 0) return; // if damaged recently, don't
-        if (Math.random() < dodgeChance) return; // if player has dodged, skip damage
+        setDamageTimeout(Config.DAMAGE_TIMEOUT);
+        if (Math.random() < dodgeChance && damage > 0) return; // if player has dodged, skip damage
         DamageEffectManager.create(getPosition()); // create particle effect
         health -= damage;
-        setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth); // if negative damage, cap health at max
         upgrades.forEach((Upgrade::onDamage)); // run upgrade logic for after damage
     }
@@ -338,6 +338,7 @@ public class Player extends Entity implements IHasHealth {
      * @param baseUpgrade the new base upgrade
      */
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
+        Gdx.app.log("Player", "Setting base upgrade to " + baseUpgrade.name());
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true); // set max health to that determined by the upgrade
         try { // add the upgrade to the player's list

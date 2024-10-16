@@ -1,6 +1,5 @@
 {
   "name": "pot",
   "modelPath": "models/decos/pot.gltf",
-  "texturePath": "",
   "destructible": false
 }

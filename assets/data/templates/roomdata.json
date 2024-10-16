@@ -6,12 +6,10 @@
     "type",
     "spawn",
     "modelPath",
-    "texturePath",
     "width",
     "height",
     "decos",
-    "doors",
-    "collision"
+    "doors"
   ],
   "properties": {
     "name": {
@@ -48,45 +46,13 @@
       },
       "default": [0, 0, 0]
     },
-    "collision": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "type",
-          "position1"
-        ],
-        "properties": {
-          "type": {
-            "type": "string",
-            "enum": ["box", "sphere", "ray", "plane"]
-          },
-          "position1": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "position2": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            }
-          },
-          "radius": {
-            "type": "number"
-          }
-        }
-      }
-    },
     "decos": {
       "type": "array",
       "items": {
         "type": "object",
         "required": [
           "name",
-          "position",
-          "scale"
+          "position"
         ],
         "properties": {
           "name": {
@@ -98,13 +64,6 @@
               "type": "number"
             },
             "default": [0, 0, 0]
-          },
-          "scale": {
-            "type": "array",
-            "items": {
-              "type": "number"
-            },
-            "default": [1, 1, 1]
           }
         }
       }

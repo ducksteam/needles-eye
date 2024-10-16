@@ -3,17 +3,14 @@
   "type": "hallway",
   "spawn": false,
   "modelPath": "models/rooms/pillars.gltf",
-  "texturePath": "",
   "width": 1,
   "height": 2,
   "decos": [
     {
       "name": "pot",
-      "position": [0, 0, 0],
-      "scale": [1, 1, 1]
+      "position": [0, 0, 0]
     }
   ],
-  "centre_offset": [0, 0, 0],
   "doors": {
     "0": true,
     "1": true,
@@ -22,12 +19,5 @@
     "4": true,
     "5": true,
     "6": true
-  },
-  "collision": [
-    {
-      "type": "box",
-      "position1": [0, 2, 0],
-      "position2": [10, 2, 20]
-    }
-  ]
+  }
 }
