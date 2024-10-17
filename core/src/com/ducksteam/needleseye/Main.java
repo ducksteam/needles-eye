@@ -49,6 +49,7 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 
@@ -745,13 +746,16 @@ public class Main extends Game {
 		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
 			if (room.getModelPath() == null) return;
 			//room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
-			room.setScene(assMan.get(room.getModelPath()));
+			room.setScene(new Scene(((SceneAsset)assMan.get(room.getModelPath())).scene));
 		});
 		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
 			String address = entry.getKey();
 			entry.setValue(assMan.get(address, Sound.class));
 		}
+
+		Player.sceneModel = new Scene(((SceneAsset)assMan.get("models/upgrades/gold.gltf")).scene);
+
 		// Tell the particle managers to load the effect
 		SoulFireEffectManager.loadStaticEffect();
 		DamageEffectManager.loadStaticEffect();
@@ -793,8 +797,6 @@ public class Main extends Game {
 			} catch (NullPointerException ignored) {
 			}
 		});
-		//Temporary:
-		player.sceneModel = assMan.get("models/upgrades/gold.gltf");
 
 		// Sounds
 		assMan.setLoader(Sound.class, ".mp3", new SoundLoader(new InternalFileHandleResolver()));

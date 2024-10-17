@@ -114,7 +114,7 @@ public abstract class Entity {
 		Main.entities.put(id, this);
 
 		isStatic = mass == 0;
-		isRenderable = modelInstance != null;
+		isRenderable = scene != null;
 
 		this.mass = mass;
 		this.flags = flags;

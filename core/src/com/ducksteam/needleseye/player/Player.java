@@ -67,7 +67,7 @@ public class Player extends Entity implements IHasHealth {
     Vector3 tmp = new Vector3(); // temporary vector for calculations
 
     //Temporary:
-    public Scene sceneModel;
+    public static Scene sceneModel;
 
     public Player(Vector3 pos) {
         super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP);

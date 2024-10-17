@@ -9,6 +9,7 @@ import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.player.Upgrade;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 /**
@@ -23,7 +24,7 @@ public class UpgradeEntity extends Entity {
     Matrix4 tmpMat = new Matrix4();
 
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
-        super(position, new Quaternion(), 0f, new ModelInstance(((SceneAsset) Main.assMan.get(upgrade.getModelAddress())).scene.model), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
+        super(position, new Quaternion(), 0f, ((Scene) Main.assMan.get(upgrade.getModelAddress())), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
         this.upgrade = upgrade;
 
         // set collision filters to only respond to player
