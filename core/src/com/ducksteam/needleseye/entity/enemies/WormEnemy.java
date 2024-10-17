@@ -11,6 +11,7 @@ import com.ducksteam.needleseye.entity.EnemyRegistry;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.ai.MeleeAI;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
@@ -28,7 +29,7 @@ public class WormEnemy extends EnemyEntity{
     public static final String MODEL_ADDRESS = "models/enemies/worm.gltf";
 
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new ModelInstance(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene.model):null, 5, room.getRoomSpacePos());
+        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());
         // initialise ai
         setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED));
 

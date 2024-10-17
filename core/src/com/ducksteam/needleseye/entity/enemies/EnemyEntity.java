@@ -12,6 +12,7 @@ import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
+import net.mgsx.gltf.scene3d.scene.Scene;
 
 /**
  * Entity class to represent enemies in the game
@@ -33,12 +34,12 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
      * @param position Vector3 position of the enemy
      * @param rotation Quaternion rotation of the enemy
      * @param mass float mass of the enemy
-     * @param modelInstance ModelInstance of the enemy
+     * @param scene ModelInstance of the enemy
      * @param maxHealth int max health of the enemy
      * @param assignedRoom Vector2 room space position of the enemy
      * */
-    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
-        super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, Scene scene, int maxHealth, Vector2 assignedRoom) {
+        super(position, rotation, mass, scene, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
 
         collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
         collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
