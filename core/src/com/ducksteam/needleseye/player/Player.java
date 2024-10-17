@@ -146,7 +146,7 @@ public class Player extends Entity implements IHasHealth {
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         // create rigid body
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP);
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP); // the cf custom material callback flag is required for custom collision
         collider.setActivationState(Collision.DISABLE_DEACTIVATION); // player should never deactivate
         collider.setDamping(0.95f, 1f); // set damping
         collider.setAngularFactor(Vector3.Y); // lock x/z rotation
@@ -221,7 +221,7 @@ public class Player extends Entity implements IHasHealth {
      */
     public void whipAttack(EntityRunnable enemyLogic) {
         if (attackTimeout > 0) return; // if already attacking, don't
-        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
+        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition(), true)) == null) return; // don't attack if not in a room
 
         for (Entity entity : Main.entities.values()) {
             if (entity instanceof EnemyEntity enemy) { // for each enemy
