@@ -134,6 +134,7 @@ public abstract class Entity {
 	 * Sets the model instance of the entity
 	 * @param modelInstance the model instance to set
 	 * */
+	@Deprecated
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
@@ -164,6 +165,7 @@ public abstract class Entity {
 	 * Returns the model instance of the entity
 	 * @return the model instance
 	 * */
+	@Deprecated
 	public ModelInstance getModelInstance() {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
@@ -183,6 +185,23 @@ public abstract class Entity {
 	 * */
 	public void setScene(Scene scene) {
 		this.scene = scene;
+		if (isRenderable) {
+			collisionShape = Bullet.obtainStaticNodeShape(scene.modelInstance.nodes); // set collision shape to model
+			motionState = new EntityMotionState(this, transform); // set motion state to entity
+
+			// calculate inertia
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
+
+			// Creates rigid body
+			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.obtain();
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
+			collider.setUserValue(this.id); // set user value to entity id
+			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
+			if (!(this instanceof EnemyEntity)) dynamicsWorld.addRigidBody(collider); // enemy entities get modified more before being added to physics world
+		}
 	}
 
 	/**
@@ -228,19 +247,19 @@ public abstract class Entity {
 		return transform.getRotation(new Quaternion());
 	}
 
-	/**
+	/*/**
 	 * Sets the animation of the entity
 	 * This is not implemented in our current model batch
 	 * @param animationName the animation to set
 	 * */
-	public void setAnimation(String animationName) {
+	/*public void setAnimation(String animationName) {
 		if (isRenderable) {
 			Animation animation = modelInstance.getAnimation(animationName);
 			if (animation != null) {
 				Gdx.app.debug("Entity", "Setting animation: " + animationName);
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Disposes all relevant data from the entity

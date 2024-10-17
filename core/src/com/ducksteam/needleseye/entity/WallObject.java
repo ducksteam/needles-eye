@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.entity;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.assMan;
@@ -19,7 +20,7 @@ public class WallObject extends Entity {
     public static final String MODEL_ADDRESS_DOOR = "models/rooms/door.gltf";
 
     public WallObject(Vector3 position, Quaternion rotation, boolean hasDoor) {
-        super(position, rotation, new ModelInstance(((SceneAsset) assMan.get((hasDoor) ? MODEL_ADDRESS_DOOR : MODEL_ADDRESS)).scene.model));
+        super(position, rotation, new Scene(((SceneAsset) assMan.get((hasDoor) ? MODEL_ADDRESS_DOOR : MODEL_ADDRESS)).scene));
         this.hasDoor = hasDoor;
     }
 

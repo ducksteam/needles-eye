@@ -731,7 +731,7 @@ public class Main extends Game {
 			// for each assigned enemy
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
-				if(entry.getValue().getModelInstance()==null){
+				if(entry.getValue().getScene()==null){
 					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass().toString()));
 				}
 				// position the enemy
@@ -1012,9 +1012,9 @@ public class Main extends Game {
 
 		if(gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics
-			batch.begin(camera);
+			/*batch.begin(camera);
 			entities.forEach((Integer id, Entity entity) -> { if (entity.isRenderable) batch.render(entity.getModelInstance(), environment); });
-			batch.end();
+			batch.end();*/
 			// draw the pause menu
 			pauseMenu.act();
 			pauseMenu.draw();

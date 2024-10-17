@@ -24,7 +24,7 @@ public class UpgradeEntity extends Entity {
     Matrix4 tmpMat = new Matrix4();
 
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
-        super(position, new Quaternion(), 0f, ((Scene) Main.assMan.get(upgrade.getModelAddress())), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
+        super(position, new Quaternion(), 0f, new Scene(((SceneAsset) Main.assMan.get(upgrade.getModelAddress())).scene), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
         this.upgrade = upgrade;
 
         // set collision filters to only respond to player
