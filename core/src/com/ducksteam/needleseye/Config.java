@@ -31,7 +31,7 @@ public class Config {
     public static final float SOUL_FIRE_RANGE = 2f;
     public static final float SOUL_FIRE_THROW_DISTANCE = 2.5f;
     private static final float LIGHT_INTENSITY = 0.03f;
-    public static final Color LIGHT_COLOUR = new Color(0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1);
+    public static final Color LIGHT_COLOUR = new Color(0.5f* LIGHT_INTENSITY, 0.3f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1);
     public static final float KNOCKBACK_FORCE = 1000;
     public static final float WALK_SPEED = 220f;
     public static final float RUN_SPEED = 300f;
