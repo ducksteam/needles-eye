@@ -635,6 +635,7 @@ public class Main extends Game {
 		// restore information to new player instance
 		player = new Player(new Vector3(-5f,0.501f,2.5f));
 		player.setFromSerial(playerSerial);
+		player.heal(1);
 
 		// clear non-player entities
 		entities.forEach((Integer i, Entity e) -> {
