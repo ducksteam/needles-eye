@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -268,12 +269,8 @@ public class MapManager {
      * @return a random room template
      */
     private RoomTemplate getRandomRoomTemplate(RoomTemplate.RoomType type){
-        RoomTemplate template = getRandomElement(roomTemplates);
-        if (template.getType() == type || type == null) { // if the template is the correct type
-            return template;
-        } else { // if the template is the wrong type, try again
-            return getRandomRoomTemplate(type);
-        }
+        ArrayList<RoomTemplate> templates = roomTemplates.stream().filter(t -> t.getType() == type).collect(Collectors.toCollection(ArrayList::new));
+        return getRandomElement(templates);
     }
 
     // Static utility methods follow
