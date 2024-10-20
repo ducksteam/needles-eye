@@ -1041,14 +1041,7 @@ public class Main extends Game {
 			SoulFireEffectManager.update();
 			DamageEffectManager.update();
 
-			//Update dynamic entities
-			entities.forEach((Integer id, Entity entity) -> {
-				if (entity instanceof RoomInstance) {
-					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
-				}
-				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
-				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
-			});
+
 
 			// begin 3d drawing
 			/*batch.begin(camera);
@@ -1058,11 +1051,16 @@ public class Main extends Game {
 			batch.render(particleSystem);
 
 
-
+			//Update dynamic entities
 			// draw entities
 			*/
 			entities.forEach((Integer id, Entity entity) -> {
 				//if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
+				if (entity instanceof RoomInstance) {
+					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
+				}
+				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
+				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 				boolean flag = false;
 				for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
 					if (renderableProvider.equals(entity.getScene())) {
