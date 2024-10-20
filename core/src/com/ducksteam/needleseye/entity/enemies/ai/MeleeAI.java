@@ -20,9 +20,6 @@ public class MeleeAI implements IHasAi {
 	float idleSpeed; // speed of the enemy when idling
 	float chaseSpeed; // speed of the enemy when chasing
 
-	// temporary variables for calculation
-	Matrix4 tmpMat = new Matrix4();
-
 	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed) {
 		setTarget(target);
 		this.idleSpeed = idleSpeed;
@@ -47,12 +44,6 @@ public class MeleeAI implements IHasAi {
 				getTarget().collider.applyCentralImpulse(repulsionForce.scl(dT)); // apply force
 			}
 		});
-
-		// rotate towards player
-		/*getTarget().motionState.getWorldTransform(tmpMat);
-		tmpMat.rotateTowardTarget(playerPos, Vector3.Y);
-		getTarget().motionState.setWorldTransform(tmpMat);
-		*/
 	}
 
 	/**

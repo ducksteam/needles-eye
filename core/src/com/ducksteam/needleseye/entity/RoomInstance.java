@@ -72,7 +72,7 @@ public class RoomInstance extends Entity {
         try {
             enemies.put(id, (EnemyEntity) Main.entities.get(id));
         } catch (Exception e) {
-            e.printStackTrace();
+            Gdx.app.error("RoomInstance", "Failed to add enemy to a room", e);
         }
     }
 
