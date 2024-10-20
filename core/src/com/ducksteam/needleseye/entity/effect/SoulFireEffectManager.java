@@ -10,8 +10,7 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.ducksteam.needleseye.Main.entities;
-import static com.ducksteam.needleseye.Main.particleSystem;
+import static com.ducksteam.needleseye.Main.*;
 
 /**
  * Manages the right click ability for soul thread
@@ -81,6 +80,17 @@ public class SoulFireEffectManager {
                       ((EnemyEntity) e).damage(getContactDamage());
                  }
              });
+
+             // Damage player
+             tmp = player.getPosition().cpy();
+             tmp2 = positions.get(effect);
+
+             tmp.y = 0;
+             tmp2.y = 0;
+
+             if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
+                 player.damage(1);
+             }
          });
     }
 
@@ -97,6 +107,6 @@ public class SoulFireEffectManager {
      * @return the damage dealt
      */
     private static int getContactDamage() {
-        return 1;
+        return 2;
     }
 }
