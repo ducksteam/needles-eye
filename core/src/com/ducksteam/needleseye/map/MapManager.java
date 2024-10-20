@@ -70,7 +70,8 @@ public class MapManager {
      */
     public void populateLevel(Level level){
         level.getRooms().forEach((RoomInstance room)->{
-            for(int i=0;i<room.getRoom().getType().getDifficulty();i++) { // for each enemy to spawn in the room
+            int numEnemy = randomEnemyNumberGenerator(room.getRoom().getType().getDifficulty());
+            for(int i=0;i<numEnemy;i++) { // for each enemy to spawn in the room
                 int bagSize = bagRandomiser.values().stream().reduce(0, Integer::sum); // get the total number of enemies in the bag
                 if (bagRandomiser.isEmpty() || bagSize == 0) { // if the bag is empty, refill it
                     fillBagRandomiser();
@@ -89,6 +90,32 @@ public class MapManager {
                 room.addEnemy(enemy);
             }
         });
+    }
+
+    /**
+     * 20% chance of 1 less than the given number of enemies
+     * 55% chance of the given number of enemies
+     * 20% chance of 1 more than the given number of enemies
+     * 5% chance of 2 more than the given number of enemies
+     * @param diff
+     * @return
+     */
+    private int randomEnemyNumberGenerator(int diff){
+        if (diff == 0){
+            return 0;
+        }
+        int enemies;
+        double r = Math.random();
+        if (r<0.2){
+            enemies = diff-1;
+        } else if (r<.75){
+            enemies = diff;
+        } else if (r<.95){
+            enemies = diff+1;
+        }else{
+            enemies = diff + 2;
+        }
+        return enemies;
     }
 
     /**
