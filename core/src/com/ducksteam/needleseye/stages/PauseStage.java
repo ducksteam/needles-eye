@@ -78,8 +78,6 @@ public class PauseStage extends StageTemplate {
 		root.setFillParent(true);
 		addActor(root);
 
-		/*resumeButton.setPosition(getWidth() * 36/640, getHeight() * 228/360);
-		resumeButton.setSize(getWidth() * 129/640, getHeight() * 30/360);*/
 		resumeButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -88,8 +86,6 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
-		/*exitButton.setPosition(getWidth() * 36/640, getHeight() * 80/360);
-		exitButton.setSize(getWidth() * 129/640, getHeight() * 30/360);*/
 		exitButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {

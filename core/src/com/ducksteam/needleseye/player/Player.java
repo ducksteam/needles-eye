@@ -252,13 +252,37 @@ public class Player extends Entity implements IHasHealth {
      * @param damage the amount of damage
      */
     public void damage(int damage) {
+        if (damage < 0) {
+            heal(damage);
+            return;
+        }
+        if (damage == 0) return;
+
         if (damageTimeout > 0) return; // if damaged recently, don't
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
-        if (Math.random() < dodgeChance && damage > 0) return; // if player has dodged, skip damage
+
+        if (Math.random() < dodgeChance) return; // if player has dodged, skip damage
+
         DamageEffectManager.create(getPosition()); // create particle effect
         health -= damage;
+
         if (health > maxHealth) setHealth(maxHealth); // if negative damage, cap health at max
         upgrades.forEach((Upgrade::onDamage)); // run upgrade logic for after damage
+    }
+
+    /**
+     * Heals  the  player
+     * @param damage the amount of health to heal
+     */
+    public void heal(int damage) {
+        if (damage < 0) {
+            damage(damage);
+            return;
+        }
+        if (damage == 0) return;
+
+        if (health + damage <= maxHealth) setHealth(getHealth() + damage);
+        if (health + damage > maxHealth) setHealth(maxHealth);
     }
 
     /**

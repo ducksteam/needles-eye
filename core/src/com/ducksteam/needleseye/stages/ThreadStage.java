@@ -91,10 +91,7 @@ public class ThreadStage extends StageTemplate {
 		root.setFillParent(true);
 		addActor(root);
 
-//		tRodButton.setPosition(getWidth() * 220/640, getHeight() * 57/360);
-//		tRodButton.setSize(getWidth() * (tRod.getWidth() / 640), getHeight() * tRod.getHeight() /360);
-
-		tRodButton.addListener(new InputListener(){
+        tRodButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.THREADED_ROD);
@@ -104,10 +101,7 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-//		soulButton.setSize(getWidth() * (soul.getWidth() / 640), getHeight() * soul.getHeight() /360);
-//		soulButton.setPosition(getWidth() * (160 - soul.getWidth() /2)/640, getHeight() * 100/360);
-
-		soulButton.addListener(new InputListener(){
+        soulButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.SOUL_THREAD);
@@ -117,10 +111,7 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-//		coalButton.setSize(getWidth() * (coal.getWidth() / 640), getHeight() * coal.getHeight() /360);
-//		coalButton.setPosition(getWidth() * (320 - coal.getWidth() /2)/640, getHeight() * 100/360);
-
-		coalButton.addListener(new InputListener(){
+        coalButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.COAL_THREAD);
@@ -130,10 +121,7 @@ public class ThreadStage extends StageTemplate {
 			}
 		});
 
-//		joltButton.setSize(getWidth() * (jolt.getWidth() / 640), getHeight() * jolt.getHeight() /360);
-//		joltButton.setPosition(getWidth() * (480 - jolt.getWidth() /2)/640, getHeight() * 100/360);
-
-		joltButton.addListener(new InputListener(){
+        joltButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.JOLT_THREAD);
