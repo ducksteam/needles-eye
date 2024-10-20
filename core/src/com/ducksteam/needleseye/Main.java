@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
@@ -1062,8 +1063,19 @@ public class Main extends Game {
 			*/
 			entities.forEach((Integer id, Entity entity) -> {
 				//if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
-				if (entity.isRenderable){
+				boolean flag = false;
+				for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
+					if (renderableProvider.equals(entity.getScene())) {
+						flag = true;
+						break;
+					}
+				}
+
+				if (entity.isRenderable&&(!flag)){
 					sceneMan.addScene(entity.getScene());
+				}
+				if((!entity.isRenderable)&&flag) {
+					sceneMan.removeScene(entity.getScene());
 				}
 			});
 
