@@ -94,9 +94,9 @@ public class MapManager {
 
     /**
      * 20% chance of 1 less than the given number of enemies
-     * 55% chance of the given number of enemies
      * 20% chance of 1 more than the given number of enemies
      * 5% chance of 2 more than the given number of enemies
+     * 55% chance of the given number of enemies
      * @param diff
      * @return
      */
@@ -104,16 +104,14 @@ public class MapManager {
         if (diff == 0){
             return 0;
         }
-        int enemies;
+        int enemies = diff;
         double r = Math.random();
         if (r<0.2){
-            enemies = diff-1;
-        } else if (r<.75){
-            enemies = diff;
-        } else if (r<.95){
-            enemies = diff+1;
-        }else{
-            enemies = diff + 2;
+            enemies--;
+        } else if (r<.4){
+            enemies++;
+        } else if (r<.45){
+            enemies += 2;
         }
         return enemies;
     }
