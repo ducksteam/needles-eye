@@ -6,6 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.UpgradeRegistry;
+import com.ducksteam.needleseye.player.Upgrade;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -43,6 +45,8 @@ public class DeathStage extends StageTemplate {
 
 		levelText = new Label("", new Label.LabelStyle(titleFont, null));
 
+		upgradeIcons = new Table();
+
 		rebuild();
 
 		isBuilt = true;
@@ -74,6 +78,11 @@ public class DeathStage extends StageTemplate {
 		if (mapMan != null){
 			levelText.setText("You reached level " + (mapMan.levelIndex - 1));
 			layout.setText(titleFont, levelText.getText());
+		}
+
+		for(int i=0; i < player.upgrades.size(); i++) { // draws upgrade icons
+			if(i*0.05f > 0.41875f) upgradeIcons.row();
+			upgradeIcons.add(new Image(player.upgrades.get(i).getIcon())).prefSize(Value.percentWidth(0.03f, background)).space(Value.percentWidth(0.02f, background));
 		}
 
 		exitButton.getCell(exitButton.getImage()).grow();

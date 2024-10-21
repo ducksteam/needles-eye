@@ -58,6 +58,9 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         // delete the enemy if health is 0 or below, or if position is <-10
         if (health <= 0) this.destroy();
         if (getPosition().y < -10) this.destroy();
+
+        // if the enemy's y pos is above 5, set it to 2
+        if (getPosition().y > 5) this.setPosition(new Vector3(getPosition().x, 2, getPosition().z));
     }
 
     /**

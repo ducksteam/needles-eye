@@ -21,6 +21,7 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static com.ducksteam.needleseye.Main.*;
 import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
@@ -363,6 +364,9 @@ public class Player extends Entity implements IHasHealth {
      */
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         Gdx.app.log("Player", "Setting base upgrade to " + baseUpgrade.name());
+        if(this.baseUpgrade != BaseUpgrade.NONE) { // removes any old base upgrade
+            this.upgrades.removeIf(upgrade -> upgrade.getName().equals(this.baseUpgrade.NAME));
+        }
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true); // set max health to that determined by the upgrade
         try { // add the upgrade to the player's list
