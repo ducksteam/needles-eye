@@ -135,37 +135,11 @@ public class Upgrade {
      * Base upgrade enum
      */
     public enum BaseUpgrade {
-        SOUL_THREAD("Soul Thread", 3, SoulThread.class,
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_swing.png")), 640, 360)[0]),
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED*3,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/soul_crack.png")), 640, 360)[0]),
-                2),
-        COAL_THREAD("Coal Thread", 5, CoalThread.class,
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_swing.png")), 640, 360)[0]),
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED*1.5f,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/coal_crack.png")), 640, 360)[0]),
-                2),
-        JOLT_THREAD("Jolt Thread", 4, JoltThread.class,
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_swing.png")), 640, 360)[0]),
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/jolt_crack.png")), 640, 360)[0]),
-                3),
-        THREADED_ROD("Threaded Rod", 4, ThreadedRod.class,
-                new Animation<>(
-                        Config.ATTACK_ANIM_SPEED,
-                        TextureRegion.split(new Texture(Gdx.files.internal("ui/ingame/trod_swing.png")), 640, 360)[0]),
-                null,
-                3),
-        NONE(null, -1, null, null, null, -1);
+        SOUL_THREAD("Soul Thread", 3, SoulThread.class,"ui/ingame/soul_swing.png", "ui/ingame/soul_crack.png", 3, 2),
+        COAL_THREAD("Coal Thread", 5, CoalThread.class, "ui/ingame/coal_swing.png", "ui/ingame/coal_crack.png", 1.5f, 2),
+        JOLT_THREAD("Jolt Thread", 4, JoltThread.class, "ui/ingame/jolt_swing.png", "ui/ingame/jolt_crack.png", 1, 3),
+        THREADED_ROD("Threaded Rod", 4, ThreadedRod.class, "ui/ingame/trod_swing.png", null, 1, 3),
+        NONE(null, -1, null, null, null, 1, -1);
 
         public final String NAME; // name of the upgrade
         public final Class<? extends Upgrade> UPGRADE_CLASS; // class of the upgrade
@@ -174,12 +148,18 @@ public class Upgrade {
         public final Animation<TextureRegion> CRACK_ANIM; // crack animation of the upgrade
         final int BASE_DAMAGE; // base damage for the upgrade
 
-        BaseUpgrade(String name, int maxHealth, Class<? extends Upgrade> upgradeClass, Animation<TextureRegion> swingAnim, Animation<TextureRegion> crackAnim, int baseDamage) {
+        BaseUpgrade(String name, int maxHealth, Class<? extends Upgrade> upgradeClass, String swingAnimPath, String crackAnimPath, float crackAnimMult, int baseDamage) {
             this.NAME = name;
             this.MAX_HEALTH = maxHealth;
             this.UPGRADE_CLASS = upgradeClass;
-            this.SWING_ANIM = swingAnim;
-            this.CRACK_ANIM = crackAnim;
+            if(swingAnimPath != null) this.SWING_ANIM = new Animation<>(
+                    Config.ATTACK_ANIM_SPEED,
+                    TextureRegion.split(new Texture(Gdx.files.internal(swingAnimPath)), 640, 360)[0]);
+            else this.SWING_ANIM = null;
+            if(crackAnimPath != null) this.CRACK_ANIM = new Animation<>(
+                    Config.ATTACK_ANIM_SPEED*crackAnimMult,
+                    TextureRegion.split(new Texture(Gdx.files.internal(crackAnimPath)), 640, 360)[0]);
+            else this.CRACK_ANIM = null;
             this.BASE_DAMAGE = baseDamage;
         }
     }
