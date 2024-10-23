@@ -2,6 +2,7 @@ package com.ducksteam.needleseye.stages;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
@@ -14,6 +15,7 @@ import static com.ducksteam.needleseye.Main.*;
 /**
  * The screen after the player dies.
  * @author SkySourced
+ * @author themoonboyx
  */
 public class DeathStage extends StageTemplate {
 
@@ -80,15 +82,17 @@ public class DeathStage extends StageTemplate {
 			layout.setText(titleFont, levelText.getText());
 		}
 
+		upgradeIcons.clear();
 		for(int i=0; i < player.upgrades.size(); i++) { // draws upgrade icons
-			if(i*0.05f > 0.41875f) upgradeIcons.row();
-			upgradeIcons.add(new Image(player.upgrades.get(i).getIcon())).prefSize(Value.percentWidth(0.03f, background)).space(Value.percentWidth(0.02f, background));
+			if(i*0.05f +0.07f > 0.41875f) upgradeIcons.row();
+			upgradeIcons.add(new Image(player.upgrades.get(i).getIcon())).size(Value.percentWidth(0.03f, background)).pad(Value.percentWidth(0.01f, background)).top();
 		}
+		upgradeIcons.add(new Actor()).expand(); // pushes everything to the left
 
 		exitButton.getCell(exitButton.getImage()).grow();
 
 		root.add(levelText).prefHeight(Value.percentHeight(0.08f, background)).row();
-		root.add(upgradeIcons).maxWidth(Value.percentWidth(0.41875f, background)).prefHeight(Value.percentHeight(0.325f, background)).spaceTop(Value.percentHeight(0.225f, background)).row();
+		root.add(upgradeIcons).prefWidth(Value.percentWidth(0.41875f, background)).prefHeight(Value.percentHeight(0.325f, background)).spaceTop(Value.percentHeight(0.225f, background)).row();
 		root.add(exitButton).prefSize(Value.percentWidth(0.2f, background), Value.percentHeight(0.083f, background)).spaceTop(Value.percentHeight(0.05f, background));
 	}
 }
