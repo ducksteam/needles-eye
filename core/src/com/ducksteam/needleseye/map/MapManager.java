@@ -82,8 +82,15 @@ public class MapManager {
                 if(bagRandomiser.get(enemyClass)<=0) return;
                 // update the bag
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
+                // get a random position in the room that isn't already taken
+                Vector3 enemyPos = room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]);
+                for(EnemyEntity otherEnemy : room.getEnemies().values()){
+                    if(otherEnemy.getPosition() == enemyPos){
+                        enemyPos = new Vector3(enemyPos.x, enemyPos.y+0.2f, enemyPos.z);
+                    }
+                }
                 // create the enemy
-                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]), new Quaternion(), room);
+                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
 				assert enemy != null;
                 // set the room and add the enemy to the room
 				enemy.setAssignedRoom(room);
