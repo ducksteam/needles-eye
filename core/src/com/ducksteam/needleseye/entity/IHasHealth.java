@@ -6,6 +6,8 @@ package com.ducksteam.needleseye.entity;
 public interface IHasHealth {
 	void update(float delta);
 	void damage(int damage);
+	float getParalyseTime();
+	void setParalyseTime(float paralyseTime);
 	void setHealth(int health);
 	int getHealth();
 	void setMaxHealth(int maxHealth, boolean heal);
