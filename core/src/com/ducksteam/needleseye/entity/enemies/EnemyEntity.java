@@ -11,6 +11,7 @@ import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
+import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 
 /**
@@ -94,6 +95,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     @Override
     public void setParalyseTime(float duration){
         paralyseTime = duration;
+        if (duration > 0) ParalysisEffectManager.create(this);
     }
 
     /**
