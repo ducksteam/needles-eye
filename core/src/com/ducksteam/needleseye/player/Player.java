@@ -22,6 +22,7 @@ import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
 
+import static com.ducksteam.needleseye.Config.JOLT_PARALYSE_TIME;
 import static com.ducksteam.needleseye.Main.*;
 import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
 
@@ -164,9 +165,12 @@ public class Player extends Entity implements IHasHealth {
 
         // start animation
         attackAnimTime = 0.01F;
-
         // run damage logic
-        player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
+        if (baseUpgrade == BaseUpgrade.JOLT_THREAD) player.whipAttack((entity -> {
+            ((IHasHealth) entity).damage(baseUpgrade.BASE_DAMAGE + (int) damageBoost);
+            if (Math.random()<0.2) ((IHasHealth) entity).setParalyseTime(JOLT_PARALYSE_TIME);
+        }));
+        else player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
 
         // play sounds
         if(sounds.get("sounds/player/whip_lash_1.mp3")!=null) {
@@ -192,10 +196,7 @@ public class Player extends Entity implements IHasHealth {
         switch (baseUpgrade) {
             case SOUL_THREAD -> SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE))); // create a new effect
             case COAL_THREAD -> coalDamageBoost = 3;
-            case JOLT_THREAD -> {
-                joltSpeedBoost = 1.5f;
-                paralyse();
-            }
+            case JOLT_THREAD -> joltSpeedBoost = 1.5f;
         }
 
         // play sounds
@@ -218,22 +219,6 @@ public class Player extends Entity implements IHasHealth {
      * @param enemyLogic the logic to run on each enemy hit
      */
     public void whipAttack(EntityRunnable enemyLogic) {
-        if (attackTimeout > 0) return; // if already attacking, don't
-        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
-
-        for (Entity entity : Main.entities.values()) {
-            if (entity instanceof EnemyEntity enemy) { // for each enemy
-                tempVec = enemy.getPosition().sub(player.getPosition()); // get distance
-                if (tempVec.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
-                    enemyLogic.run(enemy);
-                }
-            }
-        }
-    }
-    public void paralyse(){
-        paralyse((Entity target) -> ((IHasHealth) target).pauseAI());
-    }
-    public void paralyse(EntityRunnable something) {
         if (attackTimeout > 0) return; // if already attacking, don't
         if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
 

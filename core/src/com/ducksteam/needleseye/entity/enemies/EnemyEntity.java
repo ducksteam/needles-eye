@@ -53,7 +53,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
      * */
     @Override
     public void update(float delta) {
-        if (paralyseTime != 0) {
+        if (paralyseTime <= 0) {
             if (ai != null) ai.update(delta);
         }
         if (getDamageTimeout() > 0) damageTimeout -= delta;
