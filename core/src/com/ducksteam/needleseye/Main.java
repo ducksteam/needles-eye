@@ -305,18 +305,21 @@ public class Main extends Game {
 		buildInstructionsMenu();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.85f, 0.85f, 0.6f, 1f);
+		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.6f*Config.LIGHT_INTENSITY, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
-		environment = new Environment();
+		//environment = new Environment();
 		batch = new ModelBatch();
 		sceneMan = new SceneManager();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
-		environment.add(playerLantern);
+		//environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
+		//environment.add(playerLantern);
 		camera.near = 0.1f;
 		sceneMan.setCamera(camera);
-		sceneMan.environment = environment;
+		//sceneMan.environment = environment;
+
+		sceneMan.setAmbientLight(0.4f);
+		sceneMan.environment.add(playerLantern);
 
 		// init particles
 		particleBatch = new BillboardParticleBatch();
