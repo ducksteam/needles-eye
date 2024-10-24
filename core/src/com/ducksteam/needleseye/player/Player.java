@@ -22,6 +22,7 @@ import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
 
+import static com.ducksteam.needleseye.Config.JOLT_PARALYSE_TIME;
 import static com.ducksteam.needleseye.Main.*;
 import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
 
@@ -164,9 +165,12 @@ public class Player extends Entity implements IHasHealth {
 
         // start animation
         attackAnimTime = 0.01F;
-
         // run damage logic
-        player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
+        if (baseUpgrade == BaseUpgrade.JOLT_THREAD) player.whipAttack((entity -> {
+            ((IHasHealth) entity).damage(baseUpgrade.BASE_DAMAGE + (int) damageBoost);
+            if (Math.random()<0.2) ((IHasHealth) entity).setParalyseTime(JOLT_PARALYSE_TIME);
+        }));
+        else player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
 
         // play sounds
         if(sounds.get("sounds/player/whip_lash_1.mp3")!=null) {

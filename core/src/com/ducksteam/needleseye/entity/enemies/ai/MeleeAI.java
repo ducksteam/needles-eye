@@ -11,7 +11,6 @@ import com.ducksteam.needleseye.player.Player;
  * An AI algorithm for melee enemies that chases the player and attacks when in range
  */
 public class MeleeAI implements IHasAi {
-
 	Vector3 playerPos; // position of the player
 	static final float DETECTION_RANGE = 5; // range of detection
 	static final float ATTACK_RANGE = 0.7f; // range of attack

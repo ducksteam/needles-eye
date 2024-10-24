@@ -24,6 +24,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     Vector2 assignedRoom; // the room the enemy spawned in
     IHasAi ai; // the AI algorithm for the enemy
     float damageTimeout = 0;
+    float paralyseTime = 0;
 
     // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
@@ -52,7 +53,9 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
      * */
     @Override
     public void update(float delta) {
-        if (ai != null) ai.update(delta);
+        if (paralyseTime <= 0) {
+            if (ai != null) ai.update(delta);
+        }
         if (getDamageTimeout() > 0) damageTimeout -= delta;
 
         // delete the enemy if health is 0 or below, or if position is <-10
@@ -61,6 +64,10 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
         // if the enemy's y pos is above 5, set it to 2
         if (getPosition().y > 5) this.setPosition(new Vector3(getPosition().x, 2, getPosition().z));
+
+        // if the enemy is paralysed, reduce the time it will be paralysed for
+        if (paralyseTime > 0) paralyseTime -= (float) (0.43 * Math.pow(Math.E, paralyseTime/2) * delta);
+        if (paralyseTime <= 0) paralyseTime = 0;
     }
 
     /**
@@ -80,10 +87,27 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);
     }
+    /**
+     * Method
+     * @param duration float duration of paralysis
+     */
+    @Override
+    public void setParalyseTime(float duration){
+        paralyseTime = duration;
+    }
+
+    /**
+     * Method
+     * @return float
+     */
+    @Override
+    public float getParalyseTime(){
+        return paralyseTime;
+    }
 
     /**
      * Sets health of the enemy
-     * */
+     */
     @Override
     public void setHealth(int health) {
         this.health = health;
