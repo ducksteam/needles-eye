@@ -153,8 +153,11 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
+        if (button == Input.Buttons.RIGHT || button == Input.Buttons.LEFT && KEYS.containsKey(Config.keys.get("ability")) && KEYS.get(Config.keys.get("ability"))) {
+            player.ability();
+            return true;
+        }
         if (button == Input.Buttons.LEFT && player.getAttackTimeout() <= 0) player.primaryAttack();
-        if (button == Input.Buttons.RIGHT) player.ability();
         return true;
     }
 
