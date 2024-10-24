@@ -33,7 +33,8 @@ public class PlayerInput implements InputProcessor {
     public static void update(float delta) {
         // update player speed by sprinting & multiplier
         Config.moveSpeed = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? Config.RUN_SPEED : Config.WALK_SPEED;
-        Config.moveSpeed *= player.playerSpeedMultiplier;
+        Config.moveSpeed *= (player.playerSpeedMultiplier + player.joltSpeedBoost);
+
 
         Vector3 forceDir = new Vector3(); // the direction the player should move in
 
@@ -153,8 +154,11 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
+        if (button == Input.Buttons.RIGHT || button == Input.Buttons.LEFT && KEYS.containsKey(Config.keys.get("ability")) && KEYS.get(Config.keys.get("ability"))) {
+            player.ability();
+            return true;
+        }
         if (button == Input.Buttons.LEFT && player.getAttackTimeout() <= 0) player.primaryAttack();
-        if (button == Input.Buttons.RIGHT) player.ability();
         return true;
     }
 

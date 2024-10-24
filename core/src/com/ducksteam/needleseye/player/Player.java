@@ -21,7 +21,6 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 import static com.ducksteam.needleseye.Main.*;
 import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
@@ -56,14 +55,15 @@ public class Player extends Entity implements IHasHealth {
     public float dodgeChance = 0f; // 0-1 chance to dodge an attack
     public float damageBoost = 0f; // constant damage boost
     public float coalDamageBoost = 0f; // a quickly decaying boost from coal thread right click
+    public float joltSpeedBoost = 0f; // a speed boost from jolt thread right click
     public float attackLength = 0.2f; // the length of the attack animation
 
-    public boolean isJumping; //Flag for jumping
+    public boolean isJumping; // Flag for jumping
     public boolean[] jumpFlags = new boolean[2]; //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
 
     public long walkingSoundId; // walking sound identifier
 
-    Vector3 tmp = new Vector3(); // temporary vector for calculations
+    Vector3 tempVec = new Vector3(); // temporary vector for calculations
 
     public Player(Vector3 pos) {
         super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null, Entity.PLAYER_GROUP);
@@ -102,10 +102,9 @@ public class Player extends Entity implements IHasHealth {
 
         //Floors and regulates boost variables
         if (attackTimeout > 0) attackTimeout -= delta;
-        if(attackTimeout<0) attackTimeout = 0;
+        if (attackTimeout < 0) attackTimeout = 0;
         if (coalDamageBoost > 0) coalDamageBoost -= (float) (0.43 * Math.pow(Math.E, coalDamageBoost/2) * delta);
-        if(playerSpeedMultiplier > 1) playerSpeedMultiplier -= (float) (delta * 0.5f * Math.pow(10,-2));
-        if(playerSpeedMultiplier < 1) playerSpeedMultiplier = 1;
+        if (joltSpeedBoost > 0) joltSpeedBoost -= (float) (0.43 * Math.pow(Math.E, joltSpeedBoost/2) * delta);
 
         // calculate jumping flags
         float velY = Math.round(getVelocity().y);
@@ -125,7 +124,7 @@ public class Player extends Entity implements IHasHealth {
 
         // kill player if they have fallen out of the map
         motionState.getWorldTransform(tmpMat);
-        if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
+        if (tmpMat.getTranslation(tempVec).y < -10) setHealth(0);
     }
 
     @Override
@@ -193,7 +192,7 @@ public class Player extends Entity implements IHasHealth {
         switch (baseUpgrade) {
             case SOUL_THREAD -> SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE))); // create a new effect
             case COAL_THREAD -> coalDamageBoost = 3;
-            case JOLT_THREAD -> playerSpeedMultiplier = 1.5f;
+            case JOLT_THREAD -> joltSpeedBoost = 1.5f;
         }
 
         // play sounds
@@ -221,8 +220,8 @@ public class Player extends Entity implements IHasHealth {
 
         for (Entity entity : Main.entities.values()) {
             if (entity instanceof EnemyEntity enemy) { // for each enemy
-                tmp = enemy.getPosition().sub(player.getPosition()); // get distance
-                if (tmp.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
+                tempVec = enemy.getPosition().sub(player.getPosition()); // get distance
+                if (tempVec.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
                     enemyLogic.run(enemy);
                 }
             }
@@ -252,6 +251,7 @@ public class Player extends Entity implements IHasHealth {
      * Damages the player
      * @param damage the amount of damage
      */
+    @Override
     public void damage(int damage) {
         if (damage < 0) {
             heal(damage);
@@ -269,6 +269,14 @@ public class Player extends Entity implements IHasHealth {
 
         if (health > maxHealth) setHealth(maxHealth); // if negative damage, cap health at max
         upgrades.forEach((Upgrade::onDamage)); // run upgrade logic for after damage
+    }
+    @Override
+    public float getParalyseTime(){
+        return 0;
+    }
+    @Override
+    public void setParalyseTime(float paralyseTime){
+        return;
     }
 
     /**
@@ -353,9 +361,9 @@ public class Player extends Entity implements IHasHealth {
     public void setEulerRotation(Vector3 rot) {
         this.eulerRotation = rot;
         // update the transformation matrix
-        transform.getTranslation(tmp);
+        transform.getTranslation(tempVec);
         transform.setFromEulerAnglesRad(rot.x, rot.y, rot.z);
-        transform.setTranslation(tmp);
+        transform.setTranslation(tempVec);
     }
 
     /**
