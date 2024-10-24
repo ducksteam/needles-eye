@@ -2,7 +2,6 @@ package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Model;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
@@ -21,7 +20,6 @@ import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.scene3d.scene.Scene;
-import net.mgsx.gltf.scene3d.scene.SceneModel;
 
 import java.util.ArrayList;
 
@@ -132,34 +130,6 @@ public class Player extends Entity implements IHasHealth {
         // kill player if they have fallen out of the map
         motionState.getWorldTransform(tmpMat);
         if (tmpMat.getTranslation(tmp).y < -10) setHealth(0);
-    }
-
-    @Override
-    public void setModelInstance(ModelInstance modelInstance) {
-        // delete old collision shape and rigid body
-        if (collisionShape != null && !collisionShape.isDisposed()) collisionShape.dispose();
-        if (collider != null && !collider.isDisposed()) collider.dispose();
-
-        // create new collision shape and motion state
-        collisionShape = new btBoxShape(new Vector3(PLAYER_BOX_HALF_SIZE, PLAYER_BOX_HALF_HEIGHT, PLAYER_BOX_HALF_SIZE));
-        motionState = new EntityMotionState(this);
-        // calculate inertia
-        Vector3 inertia = new Vector3();
-        collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
-        // create rigid body
-        collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP); // the cf custom material callback flag is required for custom collision
-        collider.setActivationState(Collision.DISABLE_DEACTIVATION); // player should never deactivate
-        collider.setDamping(0.95f, 1f); // set damping
-        collider.setAngularFactor(Vector3.Y); // lock x/z rotation
-        collider.setUserValue(this.id); // set user value to entity id
-
-        // set filters for custom collision
-        collider.setContactCallbackFlag(PLAYER_GROUP);
-        collider.setContactCallbackFilter(ENEMY_GROUP | PROJECTILE_GROUP | PICKUP_GROUP);
-
-        // add rigid body to the physics world
-        dynamicsWorld.addRigidBody(collider);
     }
 
     @Override
