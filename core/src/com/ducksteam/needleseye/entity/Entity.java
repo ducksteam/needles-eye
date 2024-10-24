@@ -176,6 +176,11 @@ public abstract class Entity {
 	 * @return the scene asset
 	 * */
 	public Scene getScene() {
+		try {
+			motionState.getWorldTransform(scene.modelInstance.transform);
+		} catch (Exception e) {
+			Gdx.app.error("Entity", "Failed to get scene", e);
+		}
 		return scene;
 	}
 
