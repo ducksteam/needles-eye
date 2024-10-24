@@ -58,7 +58,7 @@ public class Player extends Entity implements IHasHealth {
     public float joltSpeedBoost = 0f; // a speed boost from jolt thread right click
     public float attackLength = 0.2f; // the length of the attack animation
 
-    public boolean isJumping; //Flag for jumping
+    public boolean isJumping; // Flag for jumping
     public boolean[] jumpFlags = new boolean[2]; //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
 
     public long walkingSoundId; // walking sound identifier
@@ -192,7 +192,7 @@ public class Player extends Entity implements IHasHealth {
         switch (baseUpgrade) {
             case SOUL_THREAD -> SoulFireEffectManager.create(player.getPosition().add(player.eulerRotation.cpy().nor().scl(Config.SOUL_FIRE_THROW_DISTANCE))); // create a new effect
             case COAL_THREAD -> coalDamageBoost = 3;
-            case JOLT_THREAD -> playerSpeedMultiplier = 1.5f;
+            case JOLT_THREAD -> joltSpeedBoost = 1.5f;
         }
 
         // play sounds
@@ -269,6 +269,14 @@ public class Player extends Entity implements IHasHealth {
 
         if (health > maxHealth) setHealth(maxHealth); // if negative damage, cap health at max
         upgrades.forEach((Upgrade::onDamage)); // run upgrade logic for after damage
+    }
+    @Override
+    public float getParalyseTime(){
+        return 0;
+    }
+    @Override
+    public void setParalyseTime(float paralyseTime){
+        return;
     }
 
     /**
