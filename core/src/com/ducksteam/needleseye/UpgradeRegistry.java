@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye;
 
+import com.badlogic.gdx.Gdx;
 import com.ducksteam.needleseye.player.Upgrade;
 
 import java.lang.reflect.InvocationTargetException;
@@ -32,10 +33,10 @@ public class UpgradeRegistry {
             try {
                 return upgradeClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
-                e.printStackTrace();
+                Gdx.app.error("UpgradeRegistry", "Failed to get upgrade instance", e);
             }
         }
-        return null;
+        return new Upgrade();
     }
     /**
      * Gets an instance of an upgrade with the given class
@@ -46,11 +47,11 @@ public class UpgradeRegistry {
         try {
             return registeredUpgrades.get(id).getDeclaredConstructor().newInstance();
         } catch (InstantiationException | IllegalAccessException | NoSuchMethodException e) {
-            e.printStackTrace();
+            Gdx.app.error("UpgradeRegistry", "Failed to get upgrade instance", e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return new Upgrade();
     }
 
     /**

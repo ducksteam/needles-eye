@@ -35,6 +35,7 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
+import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
@@ -473,6 +474,7 @@ public class Main extends Game {
 		// Tell the particle managers to load the effect
 		SoulFireEffectManager.loadStaticEffect();
 		DamageEffectManager.loadStaticEffect();
+		ParalysisEffectManager.loadStaticEffect();
 
 		UpgradeRegistry.iconsLoaded = true;
 
@@ -525,6 +527,7 @@ public class Main extends Game {
 		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
 		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
 		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
+		assMan.load(ParalysisEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
 	}
 
 	/**
@@ -647,6 +650,7 @@ public class Main extends Game {
 		SoulFireEffectManager.positions.clear();
 		SoulFireEffectManager.times.clear();
 		DamageEffectManager.times.clear();
+		ParalysisEffectManager.particles.clear();
 		particleSystem.removeAll();
 
 		// generate new level
@@ -728,6 +732,7 @@ public class Main extends Game {
 			// Update particles
 			SoulFireEffectManager.update();
 			DamageEffectManager.update();
+			ParalysisEffectManager.update();
 
 			//Update dynamic entities
 			entities.forEach((Integer id, Entity entity) -> {
