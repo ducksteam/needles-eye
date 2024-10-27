@@ -438,15 +438,16 @@ public class Player extends Entity implements IHasHealth {
     public void setFromSerial(String serial){
         String[] parts = serial.split(",");
         baseUpgrade = BaseUpgrade.valueOf(parts[0]);
-        health = Integer.parseInt(parts[1]);
-        maxHealth = Integer.parseInt(parts[2]);
         for(int i = 3; i < parts.length; i++){
             if (parts[i].isEmpty()) continue;
             try {
                 upgrades.add(UpgradeRegistry.getUpgradeInstance(parts[i]));
+                UpgradeRegistry.getUpgradeInstance(parts[i]).onPickup();
             } catch (Exception e) {
                 Gdx.app.error("Player", "Upgrade not found: " + parts[i],e);
             }
         }
+        health = Integer.parseInt(parts[1]);
+        maxHealth = Integer.parseInt(parts[2]);
     }
 }
