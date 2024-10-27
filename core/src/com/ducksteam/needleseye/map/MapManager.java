@@ -85,7 +85,7 @@ public class MapManager {
                 // get a random position in the room that isn't already taken
                 Vector3 enemyPos = room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]);
                 for(EnemyEntity otherEnemy : room.getEnemies().values()){
-                    if(otherEnemy.getPosition() == enemyPos){
+                    if(otherEnemy.getPosition().x == enemyPos.x && otherEnemy.getPosition().z == enemyPos.z){
                         enemyPos = new Vector3(enemyPos.x, enemyPos.y+0.2f, enemyPos.z);
                     }
                 }

@@ -84,7 +84,7 @@ public class DeathStage extends StageTemplate {
 
 		upgradeIcons.clear();
 		for(int i=0; i < player.upgrades.size(); i++) { // draws upgrade icons
-			if(i*0.05f +0.07f > 0.41875f) upgradeIcons.row();
+			if((i*0.05f)%0.4f == 0 && i!=0) upgradeIcons.row();
 			upgradeIcons.add(new Image(player.upgrades.get(i).getIcon())).size(Value.percentWidth(0.03f, background)).pad(Value.percentWidth(0.01f, background)).top();
 		}
 		upgradeIcons.add(new Actor()).expand(); // pushes everything to the left
