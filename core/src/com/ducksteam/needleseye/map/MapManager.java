@@ -10,6 +10,7 @@ import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.entity.enemies.OrbulonEnemy;
 import com.ducksteam.needleseye.entity.enemies.WormEnemy;
 
 import java.io.File;
@@ -124,6 +125,7 @@ public class MapManager {
             bagRandomiser = new HashMap<>();
         }
         bagRandomiser.put(WormEnemy.class,7);
+        bagRandomiser.put(OrbulonEnemy.class,4);
     }
 
     public void generateTestLevel() {

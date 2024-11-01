@@ -9,10 +9,8 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
@@ -72,7 +70,6 @@ public class Main extends Game {
 	static ModelBatch batch; // used for rendering 3d models
 	public static PerspectiveCamera camera; // the camera
 	public static FitViewport viewport; // the viewport
-	Environment environment; // stores lighting information
 	PointLight playerLantern; // the player's spotlight
 	Color playerLanternColour; // the colour for the light
 	public static ParticleSystem particleSystem; // the particle system
@@ -1074,6 +1071,7 @@ public class Main extends Game {
 				}
 
 				if (entity.isRenderable&&(!flag)){
+					if (entity instanceof IHasHealth && ((IHasHealth) entity).getHealth() <= 0) return; // don't render dead entities
 					sceneMan.addScene(entity.getScene());
 				}
 				if((!entity.isRenderable)&&flag) {

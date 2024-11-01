@@ -19,4 +19,10 @@ public interface IHasAi {
 
 	void setChasing(boolean chasing);
 	boolean isChasing();
+
+	void setWindup(boolean windup);
+	boolean isWindup();
+
+	void setIdling(boolean idling);
+	boolean isIdling();
 }

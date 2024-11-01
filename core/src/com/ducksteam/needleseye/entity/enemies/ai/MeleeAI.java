@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.enemies.ai;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
@@ -114,6 +115,27 @@ public class MeleeAI implements IHasAi {
 	@Override
 	public boolean isChasing() {
 		return chasing;
+	}
+
+	@Override
+	public void setWindup(boolean windup) {
+		Gdx.app.debug("MeleeAI", "setWindup() called on MeleeAI");
+	}
+
+	@Override
+	public boolean isWindup() {
+		Gdx.app.debug("MeleeAI", "isWindup() called on MeleeAI");
+		return false;
+	}
+
+	@Override
+	public void setIdling(boolean idling) {
+
+	}
+
+	@Override
+	public boolean isIdling() {
+		return false;
 	}
 
 	private Vector3 calculateRepulsionForce(Entity entity1, Entity entity2, float repulsionStrength) {

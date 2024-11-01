@@ -2,7 +2,8 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationListener;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -13,7 +14,6 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import net.mgsx.gltf.scene3d.scene.Scene;
-import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -23,7 +23,7 @@ import static com.ducksteam.needleseye.Main.*;
  * @author thechiefpotatopeeler
  * @author skysourced
  */
-public abstract class Entity {
+public abstract class Entity implements AnimationListener {
 
 	// collision group flags
 	public static final short GROUND_GROUP = 1 << 8;
@@ -179,7 +179,7 @@ public abstract class Entity {
 		try {
 			motionState.getWorldTransform(scene.modelInstance.transform);
 		} catch (Exception e) {
-			Gdx.app.error("Entity", "Failed to get scene", e);
+//			Gdx.app.error("Entity", "Failed to get scene", e);
 		}
 		return scene;
 	}
@@ -252,19 +252,40 @@ public abstract class Entity {
 		return transform.getRotation(new Quaternion());
 	}
 
-	/*/**
-	 * Sets the animation of the entity
-	 * This is not implemented in our current model batch
+	/**
+	 * Immediately changes the animation of the entity
 	 * @param animationName the animation to set
+	 * @param loopCount the number of times to loop the animation, -1 for infinite, 0 for run once, 1 for twice, etc.
 	 * */
-	/*public void setAnimation(String animationName) {
+	public void setAnimation(String animationName, int loopCount) {
 		if (isRenderable) {
-			Animation animation = modelInstance.getAnimation(animationName);
-			if (animation != null) {
-				Gdx.app.debug("Entity", "Setting animation: " + animationName);
+			try {
+				scene.animationController.setAnimation(animationName, loopCount, this);
+			} catch (Exception e) {
+				Gdx.app.error("Entity", "Failed to set animation", e);
 			}
+		} else {
+			Gdx.app.log("Entity", "Tried to set animation on non-renderable entity "+ id);
 		}
-	}*/
+	}
+
+	/**
+	 * Blends the animation of the entity to a new one
+	 * @param animationName the animation to blend to
+	 * @param loopCount the number of times to loop the animation, -1 for infinite, 1 for run once
+	 * @param blendTime the time to blend the animation over
+	 */
+	public void blendAnimation(String animationName, int loopCount, float blendTime) {
+		if (isRenderable) {
+			try {
+				scene.animationController.action(animationName, loopCount, 1f, this, blendTime);
+			} catch (Exception e) {
+				Gdx.app.error("Entity", "Failed to blend animation", e);
+			}
+		} else {
+			Gdx.app.log("Entity", "Tried to blend animation on non-renderable entity "+ id);
+		}
+	}
 
 	/**
 	 * Disposes all relevant data from the entity
@@ -272,6 +293,7 @@ public abstract class Entity {
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
 		entities.remove(id);
+		sceneMan.removeScene(scene);
 	}
 
 	/**
@@ -280,5 +302,15 @@ public abstract class Entity {
 	@FunctionalInterface
 	public interface EntityRunnable {
 		void run(Entity entity);
+	}
+
+	@Override
+	public void onEnd(AnimationController.AnimationDesc animation) {
+		Gdx.app.debug("Entity", "Animation ended: " + animation.animation.id);
+	}
+
+	@Override
+	public void onLoop(AnimationController.AnimationDesc animation) {
+		Gdx.app.debug("Entity", "Animation looped: " + animation.animation.id);
 	}
 }
