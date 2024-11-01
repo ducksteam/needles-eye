@@ -293,7 +293,7 @@ public abstract class Entity implements AnimationListener {
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
 		entities.remove(id);
-		sceneMan.removeScene(scene);
+		if (isRenderable) sceneMan.removeScene(scene);
 	}
 
 	/**
