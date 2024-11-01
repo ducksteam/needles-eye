@@ -23,7 +23,7 @@ public class OrbulonEnemy extends EnemyEntity {
 	public static final String MODEL_ADDRESS = "models/enemies/gemorb.gltf";
 
 	public OrbulonEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-		super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());
+		super(position, rotation, MASS, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 15, room.getRoomSpacePos());
 		// initialise ai
 		setAi(new OrbulonAI(this));
 
@@ -50,13 +50,14 @@ public class OrbulonEnemy extends EnemyEntity {
 		dynamicsWorld.addRigidBody(collider); // add to world
 	}
 
-	/**
-	 * Defines damage
-	 * @return contact damage
-	 */
 	@Override
 	public int getContactDamage() {
 		return 0;
+	}
+
+	@Override
+	public int getDamage() {
+		return 2;
 	}
 
 	/**
@@ -75,19 +76,19 @@ public class OrbulonEnemy extends EnemyEntity {
 	@Override
 	public String toString() {
 		return "Orbulon{" +
-				"health=" + health +
+				"health=" + getHealth() +
 				", position=" + getPosition() +
-				", assignedRoom=" + assignedRoom +
-				", chasing=" + ai.isChasing() +
-				", windup=" + ai.isWindup() +
-				", idling=" + ai.isIdling() +
+				", assignedRoom=" + getAssignedRoom() +
+				", chasing=" + getAi().isChasing() +
+				", windup=" + getAi().isWindup() +
+				", idling=" + getAi().isIdling() +
 				'}';
 	}
 
 	@Override
 	public void onEnd(AnimationController.AnimationDesc animation) {
-		if (animation.animation.id.equals("windup")) ai.attack();
-		else if (animation.animation.id.equals("shoot")) ai.setWindup(false);
-		else if (animation.animation.id.startsWith("idle")) ai.setIdling(true);
+		if (animation.animation.id.equals("windup")) getAi().attack();
+		else if (animation.animation.id.equals("shoot")) getAi().setWindup(false);
+		else if (animation.animation.id.startsWith("idle")) getAi().setIdling(false);
 	}
 }

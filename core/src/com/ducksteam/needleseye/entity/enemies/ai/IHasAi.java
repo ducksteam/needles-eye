@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies.ai;
 
-import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 /**
@@ -15,7 +14,7 @@ public interface IHasAi {
 	void attack();
 
 	void setTarget(EnemyEntity target);
-	Entity getTarget();
+	EnemyEntity getTarget();
 
 	void setChasing(boolean chasing);
 	boolean isChasing();

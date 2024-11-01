@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -20,11 +19,11 @@ import net.mgsx.gltf.scene3d.scene.Scene;
  * */
 public abstract class EnemyEntity extends Entity implements IHasHealth {
 
-    int health;
-    int maxHealth;
-    Vector2 assignedRoom; // the room the enemy spawned in
-    IHasAi ai; // the AI algorithm for the enemy
-    float damageTimeout = 0;
+    private int health;
+    private int maxHealth;
+    private Vector2 assignedRoom; // the room the enemy spawned in
+    private IHasAi ai; // the AI algorithm for the enemy
+    private float damageTimeout = 0;
 
     // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
@@ -151,12 +150,16 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     }
 
     /**
-     * Gets the damage of the enemy
-     * @return int damage of the enemy
+     * Gets the contact damage for the enemy
+     * @return contact damage for the enemy
      */
-    public int getContactDamage(){
-        return 0;
-    }
+    public abstract int getContactDamage();
+
+    /**
+     * Gets the regular attack damage for the enemy
+     * @return regular attack damage for the enemy
+     */
+    public abstract int getDamage();
 
     /**
      * Sets the room of the enemy

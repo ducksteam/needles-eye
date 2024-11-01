@@ -1055,13 +1055,16 @@ public class Main extends Game {
 			//Update dynamic entities
 			// draw entities
 			*/
+
 			entities.forEach((Integer id, Entity entity) -> {
-				//if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
 				if (entity instanceof RoomInstance) {
 					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
 				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
+			});
+
+			entities.forEach((Integer id, Entity entity) -> {
 				boolean flag = false;
 				for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
 					if (renderableProvider.equals(entity.getScene())) {
@@ -1071,7 +1074,6 @@ public class Main extends Game {
 				}
 
 				if (entity.isRenderable&&(!flag)){
-					if (entity instanceof IHasHealth && ((IHasHealth) entity).getHealth() <= 0) return; // don't render dead entities
 					sceneMan.addScene(entity.getScene());
 				}
 				if((!entity.isRenderable)&&flag) {

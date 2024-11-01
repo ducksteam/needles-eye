@@ -255,7 +255,7 @@ public abstract class Entity implements AnimationListener {
 	/**
 	 * Immediately changes the animation of the entity
 	 * @param animationName the animation to set
-	 * @param loopCount the number of times to loop the animation, -1 for infinite, 0 for run once, 1 for twice, etc.
+	 * @param loopCount the number of times to play the animation, -1 for infinite
 	 * */
 	public void setAnimation(String animationName, int loopCount) {
 		if (isRenderable) {
@@ -272,7 +272,7 @@ public abstract class Entity implements AnimationListener {
 	/**
 	 * Blends the animation of the entity to a new one
 	 * @param animationName the animation to blend to
-	 * @param loopCount the number of times to loop the animation, -1 for infinite, 1 for run once
+	 * @param loopCount the number of times to play the animation, -1 for infinite
 	 * @param blendTime the time to blend the animation over
 	 */
 	public void blendAnimation(String animationName, int loopCount, float blendTime) {

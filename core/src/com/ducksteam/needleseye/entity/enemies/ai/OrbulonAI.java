@@ -4,9 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.ClosestNotMeRayResultCallback;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+
+import static com.ducksteam.needleseye.Main.dynamicsWorld;
+import static com.ducksteam.needleseye.Main.entities;
 
 public class OrbulonAI implements IHasAi {
 
@@ -15,11 +20,14 @@ public class OrbulonAI implements IHasAi {
 
 	static final float DETECTION_RANGE = 8; // range of detection
 	static final float ROTATION_SPEED = 25f; // speed of rotation (deg s^-1)
-	static final float ATTACK_ACCURACY = 2; // accuracy of attack (deg)
+	static final float ATTACK_ACCURACY = 0.01f; // accuracy of attack (deg)
+
+	private static final Vector3 PROJECTILE_POSITION = new Vector3(0, 0, -0.5f);
+	private static final Vector3 PROJECTILE_RAY = new Vector3(0, 0, -10f);
 
 	EnemyEntity target; // the enemy entity this AI is controlling
 	boolean chasing = false; // whether the enemy is chasing the player
-	boolean windup = false; // whether the enemy is winding up an attack
+	boolean windup = false; // whether the enemy is winding up an attack / attack is in progress
 	boolean idling = false; // if the idle animation is playing
 	float idleTargetAngle = 0;
 
@@ -27,6 +35,9 @@ public class OrbulonAI implements IHasAi {
 	Matrix4 tmpMat = new Matrix4();
 	Quaternion tmpQuat = new Quaternion();
 	Vector3 tmpVec = new Vector3();
+
+	Vector3 rayFrom = new Vector3();
+	Vector3 rayTo = new Vector3();
 
 	public OrbulonAI(EnemyEntity target) {
 		setTarget(target);
@@ -61,14 +72,16 @@ public class OrbulonAI implements IHasAi {
 					idleTargetAngle = (float) ((Math.random() - 0.5f) * 360);
 					break;
 				case 1:
-					getTarget().setAnimation("idle1", 0);
+					getTarget().setAnimation("idle1", 1);
 					setIdling(true);
 					break;
 				case 2:
-					getTarget().setAnimation("idle2", 0);
+					getTarget().setAnimation("idle2", 1);
 					setIdling(true);
 					break;
 			}
+		} else {
+			rotateToAngle(idleTargetAngle, dT);
 		}
 	}
 
@@ -94,6 +107,23 @@ public class OrbulonAI implements IHasAi {
 	@Override
 	public void attack() {
 		getTarget().setAnimation("shoot", 1);
+		ClosestNotMeRayResultCallback rayResult = new ClosestNotMeRayResultCallback(getTarget().collider);
+
+		tmpMat.getRotation(tmpQuat);
+		tmpMat.getTranslation(tmpVec);
+
+		rayFrom = PROJECTILE_POSITION.cpy().mul(tmpQuat).add(tmpVec);
+		rayTo = PROJECTILE_RAY.cpy().mul(tmpQuat).add(rayFrom);
+
+		dynamicsWorld.rayTest(rayFrom, rayTo, rayResult);
+
+		if (rayResult.hasHit()) {
+			Entity hitEntity = entities.get(rayResult.getCollisionObject().getUserValue());
+			Gdx.app.log("OrbulonAI", "Hit " + hitEntity.getClass().getSimpleName());
+			if (hitEntity instanceof IHasHealth) {
+				((IHasHealth) hitEntity).damage(getTarget().getDamage());
+			}
+		}
 	}
 
 	private void rotateToAngle(float angle, float dT) {
@@ -103,7 +133,6 @@ public class OrbulonAI implements IHasAi {
 		float difference = angle - currentAngle; // calculate the difference between the angles
 		if (difference > 180) difference -= 360; // ensure the difference is the shortest path
 		if (difference < -180) difference += 360; // ensure the difference is the shortest path
-		Gdx.app.debug("OrbulonAI", "target: " + angle + ", current: " + currentAngle + ", difference: " + difference);
 
 		getTarget().motionState.getWorldTransform(tmpMat); // get the world transform of the target
 
@@ -120,7 +149,7 @@ public class OrbulonAI implements IHasAi {
 	}
 
 	@Override
-	public Entity getTarget() {
+	public EnemyEntity getTarget() {
 		return target;
 	}
 

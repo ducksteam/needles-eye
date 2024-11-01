@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
@@ -21,9 +20,9 @@ import static com.ducksteam.needleseye.Main.dynamicsWorld;
  * @author SkySourced
  */
 public class WormEnemy extends EnemyEntity{
-    static final float MASS = 4000f;
-    static final float IDLE_SPEED = 2000f;
-    static final float CHASE_SPEED = 30000f;
+    static final float MASS = 40f;
+    static final float IDLE_SPEED = 20f;
+    static final float CHASE_SPEED = 300f;
     static final Vector3 COLLIDER_SIZE = new Vector3(0.1f, 0.09f, 0.27f);
 
     public static final String MODEL_ADDRESS = "models/enemies/worm.gltf";
@@ -66,6 +65,15 @@ public class WormEnemy extends EnemyEntity{
     }
 
     /**
+     * Worm does not have a special attack, only deals damage on contact
+     * @return 0
+     */
+    @Override
+    public int getDamage() {
+        return 0;
+    }
+
+    /**
      * Get the model address
      * @return the model address
      */
@@ -81,10 +89,10 @@ public class WormEnemy extends EnemyEntity{
     @Override
     public String toString() {
         return "Worm{" +
-                "health=" + health +
+                "health=" + getHealth() +
                 ", position=" + getPosition() +
-                ", assignedRoom=" + assignedRoom +
-                ", chasing=" + ai.isChasing() +
+                ", assignedRoom=" + getAssignedRoom() +
+                ", chasing=" + getAi().isChasing() +
                 '}';
     }
 }
