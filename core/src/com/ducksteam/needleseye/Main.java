@@ -265,6 +265,7 @@ public class Main extends Game {
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
 			menuMusic.setLooping(true);
+			menuMusic.setVolume(0f);
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}

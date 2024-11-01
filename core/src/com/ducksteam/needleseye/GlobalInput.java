@@ -23,7 +23,7 @@ public class GlobalInput implements InputProcessor {
     @Override
     public boolean keyDown(int i) {
         if (i == Input.Keys.F5) { // toggle music
-            if (Main.menuMusic.getVolume() == 0) Main.menuMusic.setVolume(1);
+            if (Main.menuMusic.getVolume() == 0) Main.menuMusic.setVolume(0.3f);
             else Main.menuMusic.setVolume(0);
         }
 
