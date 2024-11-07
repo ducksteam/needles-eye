@@ -4,7 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.bullet.collision.ClosestNotMeRayResultCallback;
+import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
@@ -107,19 +107,20 @@ public class OrbulonAI implements IHasAi {
 	@Override
 	public void attack() {
 		getTarget().setAnimation("shoot", 1);
-		ClosestNotMeRayResultCallback rayResult = new ClosestNotMeRayResultCallback(getTarget().collider);
-
 		tmpMat.getRotation(tmpQuat);
 		tmpMat.getTranslation(tmpVec);
 
 		rayFrom = PROJECTILE_POSITION.cpy().mul(tmpQuat).add(tmpVec);
 		rayTo = PROJECTILE_RAY.cpy().mul(tmpQuat).add(rayFrom);
 
+		ClosestRayResultCallback rayResult = new ClosestRayResultCallback(rayFrom, rayTo);
+
 		dynamicsWorld.rayTest(rayFrom, rayTo, rayResult);
 
 		if (rayResult.hasHit()) {
 			Entity hitEntity = entities.get(rayResult.getCollisionObject().getUserValue());
-			Gdx.app.log("OrbulonAI", "Hit " + hitEntity.getClass().getSimpleName());
+			rayResult.getHitPointWorld(tmpVec);
+			Gdx.app.log("OrbulonAI", "Hit " + hitEntity.getClass().getSimpleName() + " at " + tmpVec );
 			if (hitEntity instanceof IHasHealth) {
 				((IHasHealth) hitEntity).damage(getTarget().getDamage());
 			}
