@@ -56,8 +56,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (getDamageTimeout() > 0) damageTimeout -= delta;
 
         // delete the enemy if health is 0 or below, or if position is <-10
-        if (health <= 0) this.destroy();
-        if (getPosition().y < -10) this.destroy();
+        if (health <= 0 || getPosition().y < -10) this.destroy();
     }
 
     /**

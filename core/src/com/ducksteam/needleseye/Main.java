@@ -651,7 +651,7 @@ public class Main extends Game {
 				StringBuilder names = new StringBuilder();
 				for (RoomInstance room : currentRooms) {
                     if (!(room instanceof HallwayPlaceholderRoom)) {
-                        names.append(room.getRoom().getName()).append(room.getRot()).append(", ");
+                        names.append(room.getRoom().getName()).append(room.getRot()).append(" ").append(room.transform.getTranslation(new Vector3())).append(", ");
                     } else {
                         names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
                     }

@@ -127,7 +127,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param delta the time since the last frame
 	 * */
 	public void update(float delta){
-
+		motionState.setWorldTransform(transform);
 	}
 
 	/**
@@ -178,6 +178,8 @@ public abstract class Entity implements AnimationListener {
 	public Scene getScene() {
 		try {
 			motionState.getWorldTransform(scene.modelInstance.transform);
+			scene.modelInstance.transform.set(transform);
+			if (!transform.equals(scene.modelInstance.transform)) Gdx.app.debug("Entity", "Transforms are not equal");
 		} catch (Exception e) {
 //			Gdx.app.error("Entity", "Failed to get scene", e);
 		}
