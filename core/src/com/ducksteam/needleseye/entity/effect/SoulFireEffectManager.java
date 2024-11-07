@@ -1,14 +1,16 @@
 package com.ducksteam.needleseye.entity.effect;
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
+import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -18,12 +20,16 @@ import static com.ducksteam.needleseye.Main.*;
  */
 public class SoulFireEffectManager {
 
+    public record SoulFireEffect(ParticleEffect effect, Vector3 position, Long expiryTime) {}
+
     // the effects and their expiry times
-    public static ConcurrentHashMap<ParticleEffect, Long> times = new ConcurrentHashMap<>();
-    public static ConcurrentHashMap<ParticleEffect, Vector3> positions = new ConcurrentHashMap<>();
+    public static ArrayList<SoulFireEffect> effects = new ArrayList<>();
+    public static ArrayList<SoulFireEffect> effectsForDisposal = new ArrayList<>();
 
     private static final String STATIC_EFFECT_ADDRESS = "models/effects/soulfire.pfx"; // file path to the effect
     private static ParticleEffect staticEffect; // the original copy of the effect
+    private static final int LIFETIME = 3000; // the lifetime of the effect in milliseconds
+	private static Array<ParticleBatch<?>> generalBatches;
 
 	// used for various calculations
     private static final Matrix4 tmpMat = new Matrix4();
@@ -31,6 +37,8 @@ public class SoulFireEffectManager {
     private static Vector3 tmp2 = new Vector3();
 
     public static void loadStaticEffect(){ // load the effect from the asset manager
+		generalBatches = new Array<>();
+		generalBatches.add(generalBBParticleBatch);
         staticEffect = Main.assMan.get(getStaticEffectAddress());
     }
 
@@ -44,54 +52,56 @@ public class SoulFireEffectManager {
 
         // generate copy of effect
 		ParticleEffect tmpEffect = staticEffect.copy();
-        tmpEffect.setBatch(particleSystem.getBatches());
+        tmpEffect.setBatch(generalBatches);
         tmpEffect.setTransform(tmpMat.setToTranslation(position));
         tmpEffect.init();
         tmpEffect.start();
 
-        // add effect to world
-        times.put(tmpEffect, Main.getTime() + 1000);
-        positions.put(tmpEffect, position);
+        effects.add(new SoulFireEffect(tmpEffect, position, Main.getTime() + LIFETIME));
         particleSystem.add(tmpEffect);
     }
 
     public static void update(){
-         times.forEach((ParticleEffect effect, Long time) -> {
-             if (Main.getTime() > time) { // remove the effect if its expiry time has passed
-                 times.remove(effect);
-                 particleSystem.remove(effect);
-                 positions.remove(effect);
-                 return;
-             }
-             entities.values().forEach((Entity e) -> { // for each entity
-                 // only check positions of enemies
-                 if (!(e instanceof EnemyEntity)) return;
+        effectsForDisposal.clear();
 
-                 // get positions to compare
-                 tmp = e.getPosition();
-                 tmp2 = positions.get(effect);
+		for (SoulFireEffect record : effects) {
+			if (Main.getTime() > record.expiryTime()) {
+				record.effect().end(); // stop effect playing
+				particleSystem.remove(record.effect()); // remove from world
+				effectsForDisposal.add(record);
+				continue;
+			}
+			entities.values().forEach((Entity e) -> { // for each entity
+				// only check positions of enemies
+				if (!(e instanceof EnemyEntity)) return;
 
-                 // only compare x-z distances
-                 tmp.y = 0;
-                 tmp2.y = 0;
+				// get positions to compare
+				tmp = e.getPosition();
+				tmp2 = record.position();
 
-                 // if within range apply damage
-                 if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
-                      ((EnemyEntity) e).damage(getContactDamage());
-                 }
-             });
+				// only compare x-z distances
+				tmp.y = 0;
+				tmp2.y = 0;
 
-             // Damage player
-             tmp = player.getPosition().cpy();
-             tmp2 = positions.get(effect);
+				// if within range apply damage
+				if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
+					((EnemyEntity) e).damage(getContactDamage());
+				}
+			});
 
-             tmp.y = 0;
-             tmp2.y = 0;
+			// Damage player
+			tmp = player.getPosition().cpy();
+			tmp2 = record.position().cpy();
 
-             if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
-                 player.damage(1);
-             }
-         });
+			tmp.y = 0;
+			tmp2.y = 0;
+
+			if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
+				player.damage(1);
+			}
+		}
+
+        effects.removeAll(effectsForDisposal);
     }
 
     /**

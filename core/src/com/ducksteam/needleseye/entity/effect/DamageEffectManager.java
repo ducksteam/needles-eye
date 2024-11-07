@@ -1,23 +1,32 @@
 package com.ducksteam.needleseye.entity.effect;
 
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
+import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.ducksteam.needleseye.Main;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
 
-import static com.ducksteam.needleseye.Main.particleSystem;
+import static com.ducksteam.needleseye.Main.*;
 
 /**
  * Manages the creation and removal of damage effects in the game world.
  * @author SkySourced
  */
 public class DamageEffectManager {
-	public static ConcurrentHashMap<ParticleEffect, Long> times = new ConcurrentHashMap<>(); // stores the expiration times of each effect
 
-	private static final String staticEffectAddress = "models/effects/bleed.pfx"; // file path to the effect
+	public record DamageEffect(ParticleEffect effect, Long expiryTime) {}
+
+	// the effects and their expiry times
+	public static ArrayList<DamageEffect> effects = new ArrayList<>();
+	public static ArrayList<DamageEffect> effectsForDisposal = new ArrayList<>();
+
+	private static final String STATIC_EFFECT_ADDRESS = "models/effects/bleed.pfx"; // file path to the effect
 	private static ParticleEffect staticEffect; // the original copy of the effect
+	private static final int LIFETIME = 1000; // the lifetime of the effect in milliseconds
+	private static Array<ParticleBatch<?>> generalBatches;
 
 	private static final Matrix4 tmpMat = new Matrix4(); // temporary matrix for effect positioning
 
@@ -25,6 +34,8 @@ public class DamageEffectManager {
 	 * Load the static effect from the asset manager
 	 */
 	public static void loadStaticEffect(){ // load the effect from the asset manager
+		generalBatches = new Array<>();
+		generalBatches.add(generalBBParticleBatch);
 		staticEffect = Main.assMan.get(getStaticEffectAddress());
 	}
 
@@ -35,13 +46,12 @@ public class DamageEffectManager {
 	public static void create(Vector3 position) {
 		// generate copy of effect
 		ParticleEffect tmpEffect = staticEffect.copy();
-		tmpEffect.setBatch(particleSystem.getBatches());
+		tmpEffect.setBatch(generalBatches);
 		tmpEffect.setTransform(tmpMat.setToTranslation(position));
 		tmpEffect.init();
 		tmpEffect.start();
 
-		// add effect to world
-		times.put(tmpEffect, Main.getTime() + 300);
+		effects.add(new DamageEffect(tmpEffect, Main.getTime() + LIFETIME));
 		particleSystem.add(tmpEffect);
 	}
 
@@ -49,15 +59,20 @@ public class DamageEffectManager {
 	 * Remove any expiring particles
 	 */
 	public static void update(){
-		times.forEach((ParticleEffect effect, Long time) -> {
-			if (Main.getTime() > time) { // for each effect, remove if it's expired
-				times.remove(effect);
-				particleSystem.remove(effect);
+		effectsForDisposal.clear();
+
+		for (DamageEffect record : effects) {
+			if (Main.getTime() > record.expiryTime()) {
+				record.effect().end(); // stop effect playing
+				particleSystem.remove(record.effect()); // remove from world
+				effectsForDisposal.add(record);
 			}
-		});
+		}
+
+		effects.removeAll(effectsForDisposal);
 	}
 
 	public static String getStaticEffectAddress() {
-		return staticEffectAddress;
+		return STATIC_EFFECT_ADDRESS;
 	}
 }

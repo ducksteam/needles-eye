@@ -64,7 +64,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (getPosition().y < -10) this.destroy();
 
         // if the enemy is paralysed, reduce the time it will be paralysed for
-        if (paralyseTime > 0) paralyseTime -= (float) (0.43 * Math.pow(Math.E, paralyseTime/2) * delta);
+        if (paralyseTime > 0) paralyseTime -= delta;
         if (paralyseTime <= 0) paralyseTime = 0;
     }
 

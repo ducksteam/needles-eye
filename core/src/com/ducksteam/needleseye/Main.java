@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -30,6 +31,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSol
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
@@ -71,7 +73,8 @@ public class Main extends Game {
 	PointLight playerLantern; // the player's spotlight
 	Color playerLanternColour; // the colour for the light
 	public static ParticleSystem particleSystem; // the particle system
-	BillboardParticleBatch particleBatch; // the particle batch
+	public static BillboardParticleBatch generalBBParticleBatch; // the particle batch for billboards that use the general_particle
+	public static BillboardParticleBatch paralyseBBParticleBatch; // the particle batch for billboards that use the paralyse_particle
 
     static Music menuMusic; // the music for the menu
 	public static HashMap<String, Sound> sounds; // the sound for walking
@@ -107,7 +110,11 @@ public class Main extends Game {
 	public static DebugDrawer debugDrawer;
 	public static CollisionListener contactListener; // custom collision event listener
 
+	@Deprecated
 	static long time = 0; // ms since first render
+
+	static long timeAtLastRender;
+	float dT;
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
@@ -230,6 +237,7 @@ public class Main extends Game {
 		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
+			timeAtLastRender = System.currentTimeMillis();
 			Gdx.input.setCursorCatched(true);
 			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
 		}
@@ -337,10 +345,13 @@ public class Main extends Game {
 		camera.near = 0.1f;
 
 		// init particles
-		particleBatch = new BillboardParticleBatch();
+		generalBBParticleBatch = new BillboardParticleBatch();
+		paralyseBBParticleBatch = new BillboardParticleBatch();
 		particleSystem = new ParticleSystem();
-		particleBatch.setCamera(camera);
-		particleSystem.add(particleBatch);
+		generalBBParticleBatch.setCamera(camera);
+		paralyseBBParticleBatch.setCamera(camera);
+		particleSystem.add(generalBBParticleBatch);
+		particleSystem.add(paralyseBBParticleBatch);
 
 		//Sets up game managers
 		assMan = new AssetManager();
@@ -426,6 +437,9 @@ public class Main extends Game {
 				labels.add(enemies);
 			}
 		}
+
+		Label mainTime = new Label("Time: " + getTime(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		labels.add(mainTime);
 
 		// set positions of labels
 		labels.forEach(label -> {
@@ -524,10 +538,17 @@ public class Main extends Game {
 		}
 
 		//Particle effects
-		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
-		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
-		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
-		assMan.load(ParalysisEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
+		Array<ParticleBatch<?>> generalBatches = new Array<>();
+		generalBatches.add(generalBBParticleBatch);
+		ParticleEffectLoader.ParticleEffectLoadParameter generalLoadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(generalBatches);
+
+		Array<ParticleBatch<?>> paralyseBatches = new Array<>();
+		paralyseBatches.add(paralyseBBParticleBatch);
+		ParticleEffectLoader.ParticleEffectLoadParameter paralyseLoadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(paralyseBatches);
+
+		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
+		assMan.load(ParalysisEffectManager.getStaticEffectAddress(), ParticleEffect.class, paralyseLoadParameter);
+		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
 	}
 
 	/**
@@ -647,10 +668,9 @@ public class Main extends Game {
 		});
 
 		// clear active particles
-		SoulFireEffectManager.positions.clear();
-		SoulFireEffectManager.times.clear();
-		DamageEffectManager.times.clear();
-		ParalysisEffectManager.particles.clear();
+		SoulFireEffectManager.effects.clear();
+		DamageEffectManager.effects.clear();
+		ParalysisEffectManager.effects.clear();
 		particleSystem.removeAll();
 
 		// generate new level
@@ -668,7 +688,10 @@ public class Main extends Game {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		// increment system time
-		time += (long) (Gdx.graphics.getDeltaTime()*1000);
+		dT = (System.currentTimeMillis() - timeAtLastRender) / 1000f;
+		timeAtLastRender = System.currentTimeMillis();
+
+//		time += (long) (Gdx.graphics.getDeltaTime()*1000);
 
 		// ensure the game state matches
 		if(gameState!=null) {
@@ -720,7 +743,7 @@ public class Main extends Game {
 
 		if (gameState == GameState.IN_GAME){
 			// Update player input
-			PlayerInput.update(Gdx.graphics.getDeltaTime());
+			PlayerInput.update(dT);
 
 			// Update camera pos
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
@@ -747,7 +770,7 @@ public class Main extends Game {
 			batch.begin(camera);
 
 			// draw particles
-			particleSystem.update();
+			particleSystem.update(dT);
 			particleSystem.begin();
 			particleSystem.draw();
 			particleSystem.end();
@@ -842,7 +865,8 @@ public class Main extends Game {
 	 * Returns the current tracking time in milliseconds
 	 * */
 	public static long getTime() {
-		return time;
+		return System.currentTimeMillis();
+//		return time; // this is so incredibly wrong it only counts the frames where render is called so if you're standing still without debug menu open it will run 10x slower than if you do have it open. debug menu essentially forces incredibly quick updates because it has the bullet vectors that are always changing slightly
 	}
 
 	/**
