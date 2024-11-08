@@ -316,7 +316,7 @@ public class Main extends Game {
 		sceneMan.setCamera(camera);
 		//sceneMan.environment = environment;
 
-		sceneMan.setAmbientLight(0.4f);
+		sceneMan.setAmbientLight(0.0001f);
 		sceneMan.environment.add(playerLantern);
 
 		// init particles
