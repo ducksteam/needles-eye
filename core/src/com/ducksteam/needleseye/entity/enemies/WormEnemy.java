@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
@@ -11,6 +10,7 @@ import com.ducksteam.needleseye.entity.EnemyRegistry;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.ai.MeleeAI;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
@@ -20,15 +20,15 @@ import static com.ducksteam.needleseye.Main.dynamicsWorld;
  * @author SkySourced
  */
 public class WormEnemy extends EnemyEntity{
-    static final float MASS = 4000f;
-    static final float IDLE_SPEED = 2000f;
-    static final float CHASE_SPEED = 30000f;
+    static final float MASS = 40f;
+    static final float IDLE_SPEED = 20f;
+    static final float CHASE_SPEED = 300f;
     static final Vector3 COLLIDER_SIZE = new Vector3(0.1f, 0.09f, 0.27f);
 
     public static final String MODEL_ADDRESS = "models/enemies/worm.gltf";
 
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new ModelInstance(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene.model):null, 5, room.getRoomSpacePos());
+        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());
         // initialise ai
         setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED));
 
@@ -65,6 +65,15 @@ public class WormEnemy extends EnemyEntity{
     }
 
     /**
+     * Worm does not have a special attack, only deals damage on contact
+     * @return 0
+     */
+    @Override
+    public int getDamage() {
+        return 0;
+    }
+
+    /**
      * Get the model address
      * @return the model address
      */
@@ -80,10 +89,10 @@ public class WormEnemy extends EnemyEntity{
     @Override
     public String toString() {
         return "Worm{" +
-                "health=" + health +
+                "health=" + getHealth() +
                 ", position=" + getPosition() +
-                ", assignedRoom=" + assignedRoom +
-                ", chasing=" + ai.isChasing() +
+                ", assignedRoom=" + getAssignedRoom() +
+                ", chasing=" + getAi().isChasing() +
                 '}';
     }
 }

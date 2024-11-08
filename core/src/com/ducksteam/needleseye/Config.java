@@ -2,6 +2,7 @@ package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.Vector3;
 
 import java.util.HashMap;
 
@@ -18,10 +19,13 @@ public class Config {
     public static float moveSpeed;
 
     // Global constants
+    public static final Vector3 PLAYER_START_POSITION = new Vector3(-5, 0.52f, -5);
     public static final float ROTATION_SPEED = 0.007F /* * MathUtils.degRad*/;
     public static final float LOADING_ANIM_SPEED = 0.05f;
     public static final float ATTACK_ANIM_SPEED = 0.03f;
     public static final float ASPECT_RATIO = (float) 16 / 9;
+    public static final int TARGET_WIDTH = 1920;
+    public static final int TARGET_HEIGHT = 1080;
     public static final int ROOM_SCALE = 10;
     public static final float PLAYER_MASS = 10;
     public static final float DAMAGE_TIMEOUT = 1; // seconds
@@ -31,8 +35,8 @@ public class Config {
     public static final float SOUL_FIRE_RANGE = 2f;
     public static final float SOUL_FIRE_THROW_DISTANCE = 2.5f;
     public static final float JOLT_PARALYSE_TIME = 1.5f;
-    private static final float LIGHT_INTENSITY = 0.03f;
-    public static final Color LIGHT_COLOUR = new Color(0.5f* LIGHT_INTENSITY, 0.3f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1);
+    public static final float LIGHT_INTENSITY = 0.25f;
+    public static final Color LIGHT_COLOUR = new Color(0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1f);
     public static final float KNOCKBACK_FORCE = 1000;
     public static final float WALK_SPEED = 220f;
     public static final float RUN_SPEED = 300f;

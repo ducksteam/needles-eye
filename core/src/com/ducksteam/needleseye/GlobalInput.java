@@ -3,6 +3,9 @@ package com.ducksteam.needleseye;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.math.Vector3;
+
+import static com.ducksteam.needleseye.Main.player;
 
 /**
  * An input processor that is always active, regardless of the current game state
@@ -19,14 +22,38 @@ public class GlobalInput implements InputProcessor {
 
     @Override
     public boolean keyDown(int i) {
+        if (i == Input.Keys.F5) { // toggle music
+            if (Main.menuMusic.getVolume() == 0) Main.menuMusic.setVolume(0.3f);
+            else Main.menuMusic.setVolume(0);
+        }
+
         if (i == Input.Keys.F8) { // enable/disable collider rendering
             Config.doRenderColliders = !Config.doRenderColliders;
             return true;
         }
+
         if (i == Input.Keys.F9) { // enable/disable debug menu
             Config.debugMenu = !Config.debugMenu;
             return true;
         }
+
+        if (i == Input.Keys.F10) { // toggle gravity
+            float gravity = Main.dynamicsWorld.getGravity().y;
+            Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
+        }
+
+        if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(20)); // move player up
+
+        if (i == Input.Keys.NUMPAD_ADD) { // heal the player
+            player.damage(-1);
+            return true;
+        }
+
+        if (i == Input.Keys.NUMPAD_SUBTRACT) { // damage the player
+            player.damage(1);
+            return true;
+        }
+
         if (i == Input.Keys.ESCAPE) { // pause the game
             if (!(Main.gameState == Main.GameState.IN_GAME || Main.gameState == Main.GameState.PAUSED_MENU)) return true;
             if (Main.gameState == Main.GameState.PAUSED_MENU) Main.gameState = Main.GameState.IN_GAME;

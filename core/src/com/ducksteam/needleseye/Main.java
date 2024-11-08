@@ -9,9 +9,8 @@ import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
-import com.badlogic.gdx.graphics.g3d.Environment;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
-import com.badlogic.gdx.graphics.g3d.attributes.ColorAttribute;
+import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
@@ -49,7 +48,9 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
+import net.mgsx.gltf.scene3d.scene.SceneManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +70,6 @@ public class Main extends Game {
 	static ModelBatch batch; // used for rendering 3d models
 	public static PerspectiveCamera camera; // the camera
 	public static FitViewport viewport; // the viewport
-	Environment environment; // stores lighting information
 	PointLight playerLantern; // the player's spotlight
 	Color playerLanternColour; // the colour for the light
 	public static ParticleSystem particleSystem; // the particle system
@@ -97,6 +97,7 @@ public class Main extends Game {
 	public static MapManager mapMan;
 
 	// objects to be rendered
+	public static SceneManager sceneMan;
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
 	// sprites to be loaded into asset manager
 	static ArrayList<String> spriteAddresses = new ArrayList<>();
@@ -233,7 +234,10 @@ public class Main extends Game {
 		Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
-//		if(menuMusic!=null) menuMusic.play();
+		if(menuMusic!=null) {
+			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME|| gameState == GameState.DEAD_MENU)) menuMusic.play();
+			else menuMusic.pause();
+		}
 		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
@@ -299,6 +303,7 @@ public class Main extends Game {
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("music/throughtheeye.mp3"));
 			menuMusic.setLooping(true);
+			menuMusic.setVolume(0f);
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
@@ -321,7 +326,7 @@ public class Main extends Game {
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 
 		// create player
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch();
@@ -334,15 +339,21 @@ public class Main extends Game {
 		buildFonts();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.9f, 0.85f, 0.8f, 1f);
+		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.6f*Config.LIGHT_INTENSITY, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
-		environment = new Environment();
+		//environment = new Environment();
 		batch = new ModelBatch();
+		sceneMan = new SceneManager();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
-		environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
-		environment.add(playerLantern);
+		//environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
+		//environment.add(playerLantern);
 		camera.near = 0.1f;
+		sceneMan.setCamera(camera);
+		//sceneMan.environment = environment;
+
+		sceneMan.setAmbientLight(0.0001f);
+		sceneMan.environment.add(playerLantern);
 
 		// init particles
 		generalBBParticleBatch = new BillboardParticleBatch();
@@ -416,8 +427,9 @@ public class Main extends Game {
 		Label isJumping = new Label("Jumping: " + player.isJumping, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(isJumping);
 
-		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition());
-		Label mapSpace = new Label("Room space: " + mapSpaceCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition(), true);
+		Vector2 mapSpaceRealCoords = MapManager.getRoomSpacePos(player.getPosition(), false);
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords + " " + mapSpaceRealCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(mapSpace);
 
 		if (!mapMan.levels.isEmpty()) {
@@ -426,7 +438,13 @@ public class Main extends Game {
 			if (currentRooms.length != 0) {
 				// get names of room(s) the player is standing in
 				StringBuilder names = new StringBuilder();
-				for (RoomInstance room : currentRooms) names.append(room.getRoom().getName()).append(", ");
+				for (RoomInstance room : currentRooms) {
+                    if (!(room instanceof HallwayPlaceholderRoom)) {
+                        names.append(room.getRoom().getName()).append(room.getRot()).append(" ").append(room.transform.getTranslation(new Vector3())).append(", ");
+                    } else {
+                        names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
+                    }
+                }
 				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));
 				labels.add(roomName);
 
@@ -457,8 +475,8 @@ public class Main extends Game {
 			// for each assigned enemy
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
-				if(entry.getValue().getModelInstance()==null){
-					entry.getValue().setModelInstance(EnemyRegistry.enemyModelInstances.get(entry.getValue().getClass()));
+				if(entry.getValue().getScene()==null){
+					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass()));
 				}
 				// position the enemy
 				EnemyEntity enemy = entry.getValue();
@@ -476,10 +494,6 @@ public class Main extends Game {
 	 * */
 	private void postLevelLoad() {
 		EnemyRegistry.postLoadEnemyAssets(assMan);
-		MapManager.roomTemplates.forEach((RoomTemplate room) -> {
-			if (room.getModelPath() == null) return;
-			room.setModel(((SceneAsset) assMan.get(room.getModelPath())).scene.model);
-		});
 		spriteAddresses.forEach((String address)-> spriteAssets.put(address,assMan.get(address)));
 		for (Map.Entry<String, Sound> entry : sounds.entrySet()) {
 			String address = entry.getKey();
@@ -635,7 +649,7 @@ public class Main extends Game {
 
 		// reinit player
 		player.destroy();
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.baseUpgrade = BaseUpgrade.NONE;
 
 		// recreate drawing utils
@@ -657,7 +671,7 @@ public class Main extends Game {
 		player.destroy(); // delete player
 
 		// restore information to new player instance
-		player = new Player(new Vector3(-5f,0.501f,2.5f));
+		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.setFromSerial(playerSerial);
 		player.heal(1);
 
@@ -757,7 +771,20 @@ public class Main extends Game {
 			DamageEffectManager.update();
 			ParalysisEffectManager.update();
 
+
+
+			// begin 3d drawing
+			/*batch.begin(camera);
+
+			// draw particles
+
+			batch.render(particleSystem);
+
+
 			//Update dynamic entities
+			// draw entities
+			*/
+
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
 					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
@@ -766,8 +793,22 @@ public class Main extends Game {
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
 			});
 
-			// begin 3d drawing
-			batch.begin(camera);
+			entities.forEach((Integer id, Entity entity) -> {
+				boolean flag = false;
+				for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
+					if (renderableProvider.equals(entity.getScene())) {
+						flag = true;
+						break;
+					}
+				}
+
+				if (entity.isRenderable&&(!flag)){
+					sceneMan.addScene(entity.getScene());
+				}
+				if((!entity.isRenderable)&&flag) {
+					sceneMan.removeScene(entity.getScene());
+				}
+			});
 
 			// draw particles
 			particleSystem.update(dT);
@@ -776,10 +817,8 @@ public class Main extends Game {
 			particleSystem.end();
 			batch.render(particleSystem);
 
-			// draw entities
-			entities.forEach((Integer id, Entity entity) -> {
-				if (entity.isRenderable) batch.render(entity.getModelInstance(), environment);
-			});
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
 
 			// finish 3d drawing
 			batch.end();
@@ -847,7 +886,7 @@ public class Main extends Game {
 		batch2d.begin();
 		batch2d.draw(new Texture("ui/menu/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
-			batch2d.draw(loadingItem, (float) ((171 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
+			batch2d.draw(loadingItem, (float) ((170 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
 		}
 		batch2d.end();
 	}
@@ -877,8 +916,8 @@ public class Main extends Game {
 	@Override
 	public void resize(int width, int height) {
 		// update cameras
-		super.resize(width, height);
-		viewport.update(width, height);
+		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
+		viewport.update(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
 
 		// update fonts
 		buildFonts();
