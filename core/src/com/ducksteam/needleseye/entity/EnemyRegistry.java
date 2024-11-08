@@ -2,12 +2,13 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.entity.enemies.OrbulonEnemy;
 import com.ducksteam.needleseye.entity.enemies.WormEnemy;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.util.HashMap;
@@ -21,7 +22,7 @@ public class EnemyRegistry {
     //Utility data for enemy registration
     public static HashMap<String, Class<? extends EnemyEntity>> registeredEnemies = new HashMap<>();
     public static boolean loaded = false;
-    public static HashMap<Class<? extends EnemyEntity>, ModelInstance> enemyModelInstances = new HashMap<>();
+    public static HashMap<Class<? extends EnemyEntity>, Scene> enemyScenes = new HashMap<>();
 
     /**
      * Register an enemy type
@@ -71,6 +72,7 @@ public class EnemyRegistry {
      * */
     public static void initEnemies(){
         registerEnemy(WormEnemy.MODEL_ADDRESS, WormEnemy.class);
+        registerEnemy(OrbulonEnemy.MODEL_ADDRESS, OrbulonEnemy.class);
     }
 
     /**
@@ -80,7 +82,6 @@ public class EnemyRegistry {
     public static void loadEnemyAssets(AssetManager assetManager) {
         for (Map.Entry<String, Class<? extends EnemyEntity>> enemyEntry : registeredEnemies.entrySet()) {
             try {
-                Class<? extends EnemyEntity> enemyClass = enemyEntry.getValue();
                 String address = enemyEntry.getKey();
                 assetManager.setLoader(SceneAsset.class,".gltf",new GLTFAssetLoader());
                 assetManager.load(address, SceneAsset.class);
@@ -101,7 +102,8 @@ public class EnemyRegistry {
             try {
                 Class<? extends EnemyEntity> enemyClass = enemyEntry.getValue();
                 String address = enemyEntry.getKey();
-                enemyModelInstances.put(enemyClass, new ModelInstance(new ModelInstance(new ModelInstance(((SceneAsset)assetManager.get(address)).scene.model))));
+                //enemyModelInstances.put(enemyClass, new ModelInstance(new ModelInstance(new ModelInstance(((SceneAsset)assetManager.get(address)).scene.model))));
+                enemyScenes.put(enemyClass, new Scene(((SceneAsset)assetManager.get(address)).scene));
             } catch (Exception e){
                 Gdx.app.error("EnemyRegistry", "Error loading enemy assets", e);
             }

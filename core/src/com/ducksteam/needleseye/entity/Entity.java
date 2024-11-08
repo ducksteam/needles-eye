@@ -2,7 +2,8 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
-import com.badlogic.gdx.graphics.g3d.model.Animation;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
+import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationListener;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import net.mgsx.gltf.scene3d.scene.Scene;
 
 import static com.ducksteam.needleseye.Main.*;
 
@@ -21,7 +23,7 @@ import static com.ducksteam.needleseye.Main.*;
  * @author thechiefpotatopeeler
  * @author skysourced
  */
-public abstract class Entity {
+public abstract class Entity implements AnimationListener {
 
 	// collision group flags
 	public static final short GROUND_GROUP = 1 << 8;
@@ -37,6 +39,7 @@ public abstract class Entity {
 	public btCollisionShape collisionShape;
 	public EntityMotionState motionState;
 	private ModelInstance modelInstance;
+	private Scene scene;
 	private float mass = 0f;
 	private final int flags;
 
@@ -54,9 +57,21 @@ public abstract class Entity {
 	 * @param rotation      the initial rotation
 	 * @param modelInstance the model instance of the entity
 	 */
-
+	@Deprecated
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
 		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+	}
+
+	/**
+	 * Creates a static entity with mass 0
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
+		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
 	}
 
 	/**
@@ -67,7 +82,7 @@ public abstract class Entity {
 	 * @param mass          the mass of the entity
 	 * @param modelInstance the model instance of the entity
 	 */
-
+	@Deprecated
 	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
 		transform.idt().translate(position).rotate(rotation);
 
@@ -84,17 +99,42 @@ public abstract class Entity {
 	}
 
 	/**
+	 * Creates a dynamic entity
+	 *
+	 * @param position      the initial position
+	 * @param rotation      the initial rotation
+	 * @param mass          the mass of the entity
+	 * @param scene the model instance of the entity
+	 */
+
+	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
+		transform.idt().translate(position).rotate(rotation);
+
+		id = currentId++;
+		Main.entities.put(id, this);
+
+		isStatic = mass == 0;
+		isRenderable = scene != null;
+
+		this.mass = mass;
+		this.flags = flags;
+
+		setScene(scene);
+	}
+
+	/**
 	 * Basic update method for entities
 	 * @param delta the time since the last frame
 	 * */
 	public void update(float delta){
-
+		motionState.setWorldTransform(transform);
 	}
 
 	/**
 	 * Sets the model instance of the entity
 	 * @param modelInstance the model instance to set
 	 * */
+	@Deprecated
 	public void setModelInstance(ModelInstance modelInstance) {
 		this.modelInstance = modelInstance;
 		if (isRenderable) {
@@ -125,9 +165,49 @@ public abstract class Entity {
 	 * Returns the model instance of the entity
 	 * @return the model instance
 	 * */
+	@Deprecated
 	public ModelInstance getModelInstance() {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
+	}
+
+	/**
+	 * Returns the scene asset of the entity
+	 * @return the scene asset
+	 * */
+	public Scene getScene() {
+		if (!isRenderable || scene == null) return null;
+		try {
+			motionState.getWorldTransform(scene.modelInstance.transform);
+		} catch (Exception e) {
+			Gdx.app.error("Entity", "Failed to get scene", e);
+		}
+		return scene;
+	}
+
+	/**
+	 * Sets the scene asset of the entity
+	 * @param scene the scene asset to set
+	 * */
+	public void setScene(Scene scene) {
+		this.scene = scene;
+		if (isRenderable) {
+			collisionShape = Bullet.obtainStaticNodeShape(scene.modelInstance.nodes); // set collision shape to model
+			motionState = new EntityMotionState(this, transform); // set motion state to entity
+
+			// calculate inertia
+			Vector3 inertia = new Vector3();
+			collisionShape.calculateLocalInertia(mass, inertia);
+
+			// Creates rigid body
+			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
+			collider.obtain();
+			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
+			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
+			collider.setUserValue(this.id); // set user value to entity id
+			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
+			if (!(this instanceof EnemyEntity)) dynamicsWorld.addRigidBody(collider); // enemy entities get modified more before being added to physics world
+		}
 	}
 
 	/**
@@ -174,16 +254,37 @@ public abstract class Entity {
 	}
 
 	/**
-	 * Sets the animation of the entity
-	 * This is not implemented in our current model batch
+	 * Immediately changes the animation of the entity
 	 * @param animationName the animation to set
+	 * @param loopCount the number of times to play the animation, -1 for infinite
 	 * */
-	public void setAnimation(String animationName) {
+	public void setAnimation(String animationName, int loopCount) {
 		if (isRenderable) {
-			Animation animation = modelInstance.getAnimation(animationName);
-			if (animation != null) {
-				Gdx.app.debug("Entity", "Setting animation: " + animationName);
+			try {
+				scene.animationController.setAnimation(animationName, loopCount, this);
+			} catch (Exception e) {
+				Gdx.app.error("Entity", "Failed to set animation", e);
 			}
+		} else {
+			Gdx.app.log("Entity", "Tried to set animation on non-renderable entity "+ id);
+		}
+	}
+
+	/**
+	 * Blends the animation of the entity to a new one
+	 * @param animationName the animation to blend to
+	 * @param loopCount the number of times to play the animation, -1 for infinite
+	 * @param blendTime the time to blend the animation over
+	 */
+	public void blendAnimation(String animationName, int loopCount, float blendTime) {
+		if (isRenderable) {
+			try {
+				scene.animationController.action(animationName, loopCount, 1f, this, blendTime);
+			} catch (Exception e) {
+				Gdx.app.error("Entity", "Failed to blend animation", e);
+			}
+		} else {
+			Gdx.app.log("Entity", "Tried to blend animation on non-renderable entity "+ id);
 		}
 	}
 
@@ -193,6 +294,7 @@ public abstract class Entity {
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
 		entities.remove(id);
+		if (isRenderable) sceneMan.removeScene(scene);
 	}
 
 	/**
@@ -201,5 +303,15 @@ public abstract class Entity {
 	@FunctionalInterface
 	public interface EntityRunnable {
 		void run(Entity entity);
+	}
+
+	@Override
+	public void onEnd(AnimationController.AnimationDesc animation) {
+		Gdx.app.debug("Entity", "Animation ended: " + animation.animation.id);
+	}
+
+	@Override
+	public void onLoop(AnimationController.AnimationDesc animation) {
+		Gdx.app.debug("Entity", "Animation looped: " + animation.animation.id);
 	}
 }

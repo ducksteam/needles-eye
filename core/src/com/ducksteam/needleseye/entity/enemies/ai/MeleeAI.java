@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.entity.enemies.ai;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Main;
@@ -51,7 +52,7 @@ public class MeleeAI implements IHasAi {
 	 */
 	@Override
 	public void idle(float dT) {
-		getTarget().setAnimation("idle");
+		//getTarget().setAnimation("idle");
 		Vector3 randomDirection = new Vector3().setToRandomDirection();
 		randomDirection.y = 0;
 		getTarget().collider.applyCentralImpulse(randomDirection.scl(idleSpeed * dT)); // move in random direction
@@ -63,7 +64,7 @@ public class MeleeAI implements IHasAi {
 	 */
 	@Override
 	public void chase(float dT) {
-		getTarget().setAnimation("walk");
+		//getTarget().setAnimation("walk");
 		Vector3 direction = playerPos.cpy().sub(getTarget().getPosition());
 		direction.y = 0;
 		getTarget().collider.applyCentralImpulse(direction.nor().scl(chaseSpeed * dT));// move in a random direction
@@ -75,7 +76,7 @@ public class MeleeAI implements IHasAi {
 	 */
 	@Override
 	public void attack() {
-		getTarget().setAnimation("attack");
+		//getTarget().setAnimation("attack");
 		Main.player.damage(1);
 	}
 
@@ -105,6 +106,27 @@ public class MeleeAI implements IHasAi {
 	@Override
 	public boolean isChasing() {
 		return chasing;
+	}
+
+	@Override
+	public void setWindup(boolean windup) {
+		Gdx.app.debug("MeleeAI", "setWindup() called on MeleeAI");
+	}
+
+	@Override
+	public boolean isWindup() {
+		Gdx.app.debug("MeleeAI", "isWindup() called on MeleeAI");
+		return false;
+	}
+
+	@Override
+	public void setIdling(boolean idling) {
+
+	}
+
+	@Override
+	public boolean isIdling() {
+		return false;
 	}
 
 	private Vector3 calculateRepulsionForce(Entity entity1, Entity entity2, float repulsionStrength) {

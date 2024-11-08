@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies;
 
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -13,6 +12,7 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
+import net.mgsx.gltf.scene3d.scene.Scene;
 
 /**
  * Entity class to represent enemies in the game
@@ -20,11 +20,11 @@ import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
  * */
 public abstract class EnemyEntity extends Entity implements IHasHealth {
 
-    int health;
-    int maxHealth;
-    Vector2 assignedRoom; // the room the enemy spawned in
-    IHasAi ai; // the AI algorithm for the enemy
-    float damageTimeout = 0;
+    private int health;
+    private int maxHealth;
+    private Vector2 assignedRoom; // the room the enemy spawned in
+    private IHasAi ai; // the AI algorithm for the enemy
+    private float damageTimeout = 0;
     float paralyseTime = 0;
 
     // Temporary vector for calculations
@@ -35,12 +35,12 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
      * @param position Vector3 position of the enemy
      * @param rotation Quaternion rotation of the enemy
      * @param mass float mass of the enemy
-     * @param modelInstance ModelInstance of the enemy
+     * @param scene ModelInstance of the enemy
      * @param maxHealth int max health of the enemy
      * @param assignedRoom Vector2 room space position of the enemy
      * */
-    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int maxHealth, Vector2 assignedRoom) {
-        super(position, rotation, mass, modelInstance, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, Scene scene, int maxHealth, Vector2 assignedRoom) {
+        super(position, rotation, mass, scene, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
 
         collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
         collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
@@ -60,8 +60,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         if (getDamageTimeout() > 0) damageTimeout -= delta;
 
         // delete the enemy if health is 0 or below, or if position is <-10
-        if (health <= 0) this.destroy();
-        if (getPosition().y < -10) this.destroy();
+        if (health <= 0 || getPosition().y < -10) this.destroy();
 
         // if the enemy is paralysed, reduce the time it will be paralysed for
         if (paralyseTime > 0) paralyseTime -= delta;
@@ -176,12 +175,16 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     }
 
     /**
-     * Gets the damage of the enemy
-     * @return int damage of the enemy
+     * Gets the contact damage for the enemy
+     * @return contact damage for the enemy
      */
-    public int getContactDamage(){
-        return 0;
-    }
+    public abstract int getContactDamage();
+
+    /**
+     * Gets the regular attack damage for the enemy
+     * @return regular attack damage for the enemy
+     */
+    public abstract int getDamage();
 
     /**
      * Sets the room of the enemy

@@ -1,7 +1,7 @@
 package com.ducksteam.needleseye.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.g3d.ModelInstance;
+import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
@@ -19,6 +19,7 @@ import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
+import net.mgsx.gltf.scene3d.scene.Scene;
 
 import java.util.ArrayList;
 
@@ -66,8 +67,11 @@ public class Player extends Entity implements IHasHealth {
 
     Vector3 tempVec = new Vector3(); // temporary vector for calculations
 
+    //Temporary:
+    public static Scene sceneModel;
+
     public Player(Vector3 pos) {
-        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, null, Entity.PLAYER_GROUP);
+        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP);
         baseUpgrade = BaseUpgrade.NONE;
 
         eulerRotation = new Vector3(0,0,1);
@@ -79,7 +83,8 @@ public class Player extends Entity implements IHasHealth {
         dynamicsWorld.setDebugDrawer(debugDrawer);
 
         // build the player's model
-        setModelInstance(null);
+        sceneModel = new Scene(new Model());
+        setScene(sceneModel);
 
         // reset other player info
         this.upgrades = new ArrayList<>();
@@ -129,7 +134,7 @@ public class Player extends Entity implements IHasHealth {
     }
 
     @Override
-    public void setModelInstance(ModelInstance modelInstance) {
+    public void setScene(Scene scene) {
         // delete old collision shape and rigid body
         if (collisionShape != null && !collisionShape.isDisposed()) collisionShape.dispose();
         if (collider != null && !collider.isDisposed()) collider.dispose();
@@ -142,7 +147,7 @@ public class Player extends Entity implements IHasHealth {
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         // create rigid body
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP);
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP); // the cf custom material callback flag is required for custom collision
         collider.setActivationState(Collision.DISABLE_DEACTIVATION); // player should never deactivate
         collider.setDamping(0.95f, 1f); // set damping
         collider.setAngularFactor(Vector3.Y); // lock x/z rotation
@@ -220,7 +225,7 @@ public class Player extends Entity implements IHasHealth {
      */
     public void whipAttack(EntityRunnable enemyLogic) {
         if (attackTimeout > 0) return; // if already attacking, don't
-        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition())) == null) return; // don't attack if not in a room
+        if (mapMan.getCurrentLevel().getRoom(getRoomSpacePos(player.getPosition(), true)) == null) return; // don't attack if not in a room
 
         for (Entity entity : Main.entities.values()) {
             if (entity instanceof EnemyEntity enemy) { // for each enemy

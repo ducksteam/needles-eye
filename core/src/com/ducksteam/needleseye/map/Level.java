@@ -3,6 +3,7 @@ package com.ducksteam.needleseye.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.ducksteam.needleseye.UpgradeRegistry;
+import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
@@ -32,16 +33,17 @@ public class Level {
     public void addRoom(RoomInstance room) {
         rooms.add(room); // add room to the level
 
-        Gdx.app.debug("MapManager", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ") at " + room.getRoomSpacePos());
+        Gdx.app.debug("Level", "Added room "  + room.getRoom().getName() + " ("+ room.getRoom().getType() + ", " + room.getRot() + ") at " + room.getRoomSpacePos());
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY) { // add a placeholder to prevent generation in the second position of a hallway
-            rooms.add(new RoomInstance(MapManager.HALLWAY_PLACEHOLDER, room.getRoomSpacePos().cpy().add(0, 1)));
+            rooms.add(new HallwayPlaceholderRoom(MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))), room));
+            Gdx.app.debug("Level", "plink plonko added placeholder room at " + MapManager.roundVector2(room.getRoomSpacePos().cpy().add(new Vector2(0,1).rotateDeg(room.getRot()))) + " for " + room.getRoomSpacePos());
         }
 
         if (room.getRoom().getType() == RoomTemplate.RoomType.TREASURE) { // add an upgrade entity to any treasure rooms
             Upgrade upgrade = UpgradeRegistry.getRandomUpgrade();
             new UpgradeEntity(room.getPosition().add(0,1.5f,0), upgrade);
-            Gdx.app.debug("MapManager", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
+            Gdx.app.debug("Level", "Added upgrade " + upgrade.getName() + " at " + room.getRoomSpacePos());
         }
     }
 
