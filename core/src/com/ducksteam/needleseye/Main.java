@@ -48,7 +48,6 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
-import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 
@@ -746,9 +745,8 @@ public class Main extends Game {
 
 		if (gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics for a transparent effect
-			batch.begin(camera);
-			entities.forEach((Integer id, Entity entity) -> { if (entity.isRenderable) batch.render(entity.getModelInstance(), environment); });
-			batch.end();
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
 		}
 
 		if (gameState != null && gameState.getStage() != null) {
@@ -771,20 +769,6 @@ public class Main extends Game {
 			DamageEffectManager.update();
 			ParalysisEffectManager.update();
 
-
-
-			// begin 3d drawing
-			/*batch.begin(camera);
-
-			// draw particles
-
-			batch.render(particleSystem);
-
-
-			//Update dynamic entities
-			// draw entities
-			*/
-
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
 					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
@@ -802,13 +786,19 @@ public class Main extends Game {
 					}
 				}
 
-				if (entity.isRenderable&&(!flag)){
+				if (entity.isRenderable && entity.getScene() != null && !flag){
 					sceneMan.addScene(entity.getScene());
 				}
-				if((!entity.isRenderable)&&flag) {
+				if(!entity.isRenderable && entity.getScene() != null && flag) {
 					sceneMan.removeScene(entity.getScene());
 				}
 			});
+
+			// draw scenes
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
+
+			batch.begin(camera);
 
 			// draw particles
 			particleSystem.update(dT);
@@ -817,10 +807,7 @@ public class Main extends Game {
 			particleSystem.end();
 			batch.render(particleSystem);
 
-			sceneMan.update(Gdx.graphics.getDeltaTime());
-			sceneMan.render();
-
-			// finish 3d drawing
+			batch.render(particleSystem);
 			batch.end();
 
 			renderGameOverlay();
