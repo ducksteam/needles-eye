@@ -57,7 +57,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param rotation      the initial rotation
 	 * @param modelInstance the model instance of the entity
 	 */
-
+	@Deprecated
 	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
 		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
 	}
@@ -82,7 +82,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param mass          the mass of the entity
 	 * @param modelInstance the model instance of the entity
 	 */
-
+	@Deprecated
 	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
 		transform.idt().translate(position).rotate(rotation);
 
@@ -176,12 +176,11 @@ public abstract class Entity implements AnimationListener {
 	 * @return the scene asset
 	 * */
 	public Scene getScene() {
+		if (!isRenderable || scene == null) return null;
 		try {
 			motionState.getWorldTransform(scene.modelInstance.transform);
-			scene.modelInstance.transform.set(transform);
-			if (!transform.equals(scene.modelInstance.transform)) Gdx.app.debug("Entity", "Transforms are not equal");
 		} catch (Exception e) {
-//			Gdx.app.error("Entity", "Failed to get scene", e);
+			Gdx.app.error("Entity", "Failed to get scene", e);
 		}
 		return scene;
 	}

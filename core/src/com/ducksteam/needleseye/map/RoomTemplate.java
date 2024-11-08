@@ -3,9 +3,11 @@ package com.ducksteam.needleseye.map;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
+import com.ducksteam.needleseye.Main;
 import com.google.gson.Gson;
 import com.google.gson.internal.LinkedTreeMap;
 import net.mgsx.gltf.scene3d.scene.Scene;
+import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
 import java.io.File;
 import java.io.FileReader;
@@ -20,7 +22,6 @@ import java.util.Map;
 public class RoomTemplate {
 
     private Model model; // the model of the room
-    private Scene scene; // the scene of the room
 
     // Represents the type of room
     public enum RoomType {
@@ -140,6 +141,7 @@ public class RoomTemplate {
      * Get the model of the room
      * @return the model
      */
+    @Deprecated
     public Model getModel() {
         return this.model;
     }
@@ -148,24 +150,18 @@ public class RoomTemplate {
      * Set the model of the room
      * @param model the model
      */
+    @Deprecated
     public void setModel(Model model) {
         this.model = model;
     }
 
     /**
      * Get the scene of the room
-     * @return the scene
+     * @return a new copy of the scene
      */
     public Scene getScene() {
-        return scene;
-    }
-
-    /**
-     * Set the scene of the room
-     * @param scene the scene
-     */
-    public void setScene(Scene scene) {
-        this.scene = scene;
+        if (getModelPath() != null) return new Scene(((SceneAsset) Main.assMan.get(getModelPath())).scene);
+        else return null; // should only be null for HallwayPlaceholderRoom
     }
 
     /**
