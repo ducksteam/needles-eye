@@ -7,6 +7,7 @@ gradle-app.setting
 /core/build/
 /lwjgl2/build/
 /lwjgl3/build/
+/desktop/build/
 /html/build/
 /teavm/build/
 /ios/build/
@@ -71,6 +72,7 @@ www-test/
 /core/bin/
 /lwjgl2/bin/
 /lwjgl3/bin/
+/desktop/bin/
 /html/bin/
 /teavm/bin/
 /ios/bin/
@@ -95,6 +97,7 @@ www-test/
 /core/nbproject/private/
 /lwjgl2/nbproject/private/
 /lwjgl3/nbproject/private/
+/desktop/nbproject/private/
 /html/nbproject/private/
 /teavm/nbproject/private/
 /ios/nbproject/private/
@@ -108,6 +111,7 @@ www-test/
 /core/nbbuild/
 /lwjgl2/nbbuild/
 /lwjgl3/nbbuild/
+/desktop/nbbuild/
 /html/nbbuild/
 /teavm/nbbuild/
 /ios/nbbuild/
@@ -121,6 +125,7 @@ www-test/
 /core/dist/
 /lwjgl2/dist/
 /lwjgl3/dist/
+/desktop/dist/
 /html/dist/
 /teavm/dist/
 /ios/dist/
@@ -134,6 +139,7 @@ www-test/
 /core/nbdist/
 /lwjgl2/nbdist/
 /lwjgl3/nbdist/
+/desktop/nbdist/
 /html/nbdist/
 /teavm/nbdist/
 /ios/nbdist/
