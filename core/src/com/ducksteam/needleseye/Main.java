@@ -48,6 +48,7 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 
@@ -643,9 +644,6 @@ public class Main extends Game {
 		// reset levels
 		mapMan.levels.clear();
 
-		// reset entities map
-		entities.clear();
-
 		// reinit player
 		player.destroy();
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
@@ -655,6 +653,17 @@ public class Main extends Game {
 		batch.dispose();
 		batch = new ModelBatch();
 		threadAnimState = new int[]{0, 0, 0};
+
+		for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
+			try {
+				sceneMan.removeScene((Scene) renderableProvider);
+			} catch (Exception e) {
+				Gdx.app.error("Main", "Failed to remove scene", e);
+			}
+		}
+
+		// reset entities map
+		entities.clear(); // this must come after the above scene removal
 
 		// recreate contact listener
 		contactListener.dispose();
@@ -805,8 +814,6 @@ public class Main extends Game {
 			particleSystem.begin();
 			particleSystem.draw();
 			particleSystem.end();
-			batch.render(particleSystem);
-
 			batch.render(particleSystem);
 			batch.end();
 
