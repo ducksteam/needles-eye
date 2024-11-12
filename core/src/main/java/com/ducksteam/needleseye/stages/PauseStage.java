@@ -35,10 +35,10 @@ public class PauseStage extends StageTemplate {
 	@Override
 	public void build() {
 		background = new Image(new Texture("ui/pause/pausebackground.png"));
-		resumeButtonUnpressed = new Image(new Texture("ui/menu/play1.png"));
-		resumeButtonPressed = new Image(new Texture("ui/menu/play2.png"));
-		exitButtonUnpressed = new Image(new Texture("ui/menu/quit1.png"));
-		exitButtonPressed = new Image(new Texture("ui/menu/quit2.png"));
+		resumeButtonUnpressed = new Image(new Texture("ui/main/play1.png"));
+		resumeButtonPressed = new Image(new Texture("ui/main/play2.png"));
+		exitButtonUnpressed = new Image(new Texture("ui/main/quit1.png"));
+		exitButtonPressed = new Image(new Texture("ui/main/quit2.png"));
 
 		resumeButtonStyle = new ImageButton.ImageButtonStyle();
 		resumeButtonStyle.imageUp = resumeButtonUnpressed.getDrawable();
