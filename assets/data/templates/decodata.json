@@ -4,7 +4,6 @@
   "required": [
     "name",
     "modelPath",
-    "texturePath",
     "destructible"
   ],
   "properties": {
@@ -13,9 +12,6 @@
       "default": ""
     },
     "modelPath": {
-      "type": "string"
-    },
-    "texturePath": {
       "type": "string"
     },
     "destructible": {

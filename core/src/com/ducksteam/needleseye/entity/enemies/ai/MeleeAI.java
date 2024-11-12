@@ -12,7 +12,6 @@ import com.ducksteam.needleseye.player.Player;
  * An AI algorithm for melee enemies that chases the player and attacks when in range
  */
 public class MeleeAI implements IHasAi {
-
 	Vector3 playerPos; // position of the player
 	static final float DETECTION_RANGE = 5; // range of detection
 	static final float ATTACK_RANGE = 0.7f; // range of attack
@@ -20,9 +19,6 @@ public class MeleeAI implements IHasAi {
 	boolean chasing = false; // whether the enemy is chasing the player
 	float idleSpeed; // speed of the enemy when idling
 	float chaseSpeed; // speed of the enemy when chasing
-
-	// temporary variables for calculation
-	Matrix4 tmpMat = new Matrix4();
 
 	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed) {
 		setTarget(target);
@@ -48,11 +44,6 @@ public class MeleeAI implements IHasAi {
 				getTarget().collider.applyCentralImpulse(repulsionForce.scl(dT)); // apply force
 			}
 		});
-
-		// rotate towards player
-		getTarget().motionState.getWorldTransform(tmpMat);
-		tmpMat.rotateTowardTarget(playerPos, Vector3.Y);
-		getTarget().motionState.setWorldTransform(tmpMat);
 	}
 
 	/**

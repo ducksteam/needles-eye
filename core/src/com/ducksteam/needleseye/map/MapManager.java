@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 
 /**
@@ -96,7 +97,8 @@ public class MapManager {
      */
     public void populateLevel(Level level){
         level.getRooms().forEach((RoomInstance room)->{
-            for(int i=0;i<room.getRoom().getType().getDifficulty();i++) { // for each enemy to spawn in the room
+            int numEnemy = randomEnemyNumberGenerator(room.getRoom().getType().getDifficulty());
+            for(int i=0;i<numEnemy;i++) { // for each enemy to spawn in the room
                 int bagSize = bagRandomiser.values().stream().reduce(0, Integer::sum); // get the total number of enemies in the bag
                 if (bagRandomiser.isEmpty() || bagSize == 0) { // if the bag is empty, refill it
                     fillBagRandomiser();
@@ -107,14 +109,45 @@ public class MapManager {
                 if(bagRandomiser.get(enemyClass)<=0) return;
                 // update the bag
                 bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
+                // get a random position in the room that isn't already taken
+                Vector3 enemyPos = room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]);
+                for(EnemyEntity otherEnemy : room.getEnemies().values()){
+                    if(otherEnemy.getPosition().x == enemyPos.x && otherEnemy.getPosition().z == enemyPos.z){
+                        enemyPos = new Vector3(enemyPos.x, enemyPos.y+0.2f, enemyPos.z);
+                    }
+                }
                 // create the enemy
-                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]), new Quaternion(), room);
+                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
 				assert enemy != null;
                 // set the room and add the enemy to the room
 				enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
             }
         });
+    }
+
+    /**
+     * 20% chance of 1 less than the given number of enemies
+     * 20% chance of 1 more than the given number of enemies
+     * 5% chance of 2 more than the given number of enemies
+     * 55% chance of the given number of enemies
+     * @param diff
+     * @return
+     */
+    private int randomEnemyNumberGenerator(int diff){
+        if (diff == 0){
+            return 0;
+        }
+        int enemies = diff;
+        double r = Math.random();
+        if (r<0.2){
+            enemies--;
+        } else if (r<.4){
+            enemies++;
+        } else if (r<.45){
+            enemies += 2;
+        }
+        return enemies;
     }
 
     /**
@@ -374,12 +407,8 @@ public class MapManager {
      * @return a random room template
      */
     private RoomTemplate getRandomRoomTemplate(RoomTemplate.RoomType type){
-        RoomTemplate template = getRandomElement(roomTemplates);
-        if (template.getType() == type || type == null) { // if the template is the correct type
-            return template;
-        } else { // if the template is the wrong type, try again
-            return getRandomRoomTemplate(type);
-        }
+        ArrayList<RoomTemplate> templates = roomTemplates.stream().filter(t -> t.getType() == type).collect(Collectors.toCollection(ArrayList::new));
+        return getRandomElement(templates);
     }
 
     // Static utility methods follow

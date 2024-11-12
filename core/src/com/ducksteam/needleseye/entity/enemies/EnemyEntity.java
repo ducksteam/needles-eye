@@ -10,6 +10,7 @@ import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
+import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
@@ -24,6 +25,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     private Vector2 assignedRoom; // the room the enemy spawned in
     private IHasAi ai; // the AI algorithm for the enemy
     private float damageTimeout = 0;
+    float paralyseTime = 0;
 
     // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
@@ -52,11 +54,17 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
      * */
     @Override
     public void update(float delta) {
-        if (ai != null) ai.update(delta);
+        if (paralyseTime <= 0) {
+            if (ai != null) ai.update(delta);
+        }
         if (getDamageTimeout() > 0) damageTimeout -= delta;
 
         // delete the enemy if health is 0 or below, or if position is <-10
         if (health <= 0 || getPosition().y < -10) this.destroy();
+
+        // if the enemy is paralysed, reduce the time it will be paralysed for
+        if (paralyseTime > 0) paralyseTime -= delta;
+        if (paralyseTime <= 0) paralyseTime = 0;
     }
 
     /**
@@ -76,10 +84,28 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         setDamageTimeout(Config.DAMAGE_TIMEOUT);
         if (health > maxHealth) setHealth(maxHealth);
     }
+    /**
+     * Method
+     * @param duration float duration of paralysis
+     */
+    @Override
+    public void setParalyseTime(float duration){
+        paralyseTime = duration;
+        if (duration > 0) ParalysisEffectManager.create(this);
+    }
+
+    /**
+     * Method
+     * @return float
+     */
+    @Override
+    public float getParalyseTime(){
+        return paralyseTime;
+    }
 
     /**
      * Sets health of the enemy
-     * */
+     */
     @Override
     public void setHealth(int health) {
         this.health = health;

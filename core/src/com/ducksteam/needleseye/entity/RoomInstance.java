@@ -28,7 +28,7 @@ public class RoomInstance extends Entity {
     public RoomInstance(RoomTemplate room, Vector3 drawPos, Vector2 roomSpacePos, int rot){
         super(drawPos, new Quaternion().setEulerAngles(rot, 0, 0), room.getScene());
         if (rot % 90 != 0) throw new IllegalArgumentException("Rotation must be a multiple of 90 degrees");
-      
+
         this.room = room;
         this.roomSpacePos = roomSpacePos;
         this.rot = rot;

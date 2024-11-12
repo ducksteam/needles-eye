@@ -16,6 +16,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
+import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -27,17 +28,15 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btSequentialImpulseConstraintSolver;
 import com.badlogic.gdx.physics.bullet.linearmath.btIDebugDraw;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
+import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
@@ -47,8 +46,8 @@ import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
+import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
-import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 
@@ -73,25 +72,22 @@ public class Main extends Game {
 	PointLight playerLantern; // the player's spotlight
 	Color playerLanternColour; // the colour for the light
 	public static ParticleSystem particleSystem; // the particle system
-	BillboardParticleBatch particleBatch; // the particle batch
+	public static BillboardParticleBatch generalBBParticleBatch; // the particle batch for billboards that use the general_particle
+	public static BillboardParticleBatch paralyseBBParticleBatch; // the particle batch for billboards that use the paralyse_particle
 
     static Music menuMusic; // the music for the menu
 	public static HashMap<String, Sound> sounds; // the sound for walking
 
 
 	// stages for 2d UI components
-	Stage mainMenu;
-	Stage instructionsMenu;
-	Stage threadMenu;
-	Stage pauseMenu;
-	Stage deathMenu;
 	Stage debug;
 
 	// other 2d rendering utils
 	SpriteBatch batch2d; // used for rendering other 2d sprites
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
-	BitmapFont uiFont; // font for text
-	GlyphLayout layout; // layout for text
+	public static BitmapFont uiFont; // font for text
+	public static BitmapFont titleFont; // font for titles
+	public static GlyphLayout layout; // layout for text
 
 	// asset manager
 	public static AssetManager assMan;
@@ -103,7 +99,7 @@ public class Main extends Game {
 	public static SceneManager sceneMan;
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
 	// sprites to be loaded into asset manager
-	ArrayList<String> spriteAddresses = new ArrayList<>();
+	static ArrayList<String> spriteAddresses = new ArrayList<>();
 
 	// physics utils
 	public static btDynamicsWorld dynamicsWorld; // contains all physics object
@@ -114,21 +110,25 @@ public class Main extends Game {
 	public static DebugDrawer debugDrawer;
 	public static CollisionListener contactListener; // custom collision event listener
 
+	@Deprecated
 	static long time = 0; // ms since first render
+
+	static long timeAtLastRender;
+	float dT;
 
 	// input & player
 	GlobalInput globalInput = new GlobalInput();
 	public static Player player;
 
 	// ui animation resources
-	Animation<TextureRegion> activeUIAnim; // the active UI animation
-	float animTime; // the progress through the active UI animation
+	static Animation<TextureRegion> activeUIAnim; // the active UI animation
+	static float animTime; // the progress through the active UI animation
 	public static float attackAnimTime; // the progress through the attack animation
 	public static float crackAnimTime; // the progress through the ability animation
-	Runnable animPreDraw; // runs every frame when an animation is active
-	Runnable animFinished; // runs once when the animation finishes
+	static Runnable animPreDraw; // runs every frame when an animation is active
+	static Runnable animFinished; // runs once when the animation finishes
 	static int[] threadAnimState = {0, 0, 0}; // information about the thread menu animation
-	Animation<TextureRegion> transitionAnimation; // the main menu -> thread menu animation
+	public static Animation<TextureRegion> transitionAnimation; // the main menu -> thread menu animation
 
 	//Runtime info
 	public static GameState gameState; // current game state
@@ -147,10 +147,12 @@ public class Main extends Game {
 		IN_GAME(3),
 		PAUSED_MENU(4),
 		DEAD_MENU(5),
-		INSTRUCTIONS(6);
+		INSTRUCTIONS(6),
+		OPTIONS(7);
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
+		StageTemplate stage; // the stage for each game state
 
 		/**
 		 * @param id assigns numeric id to state
@@ -171,13 +173,35 @@ public class Main extends Game {
 		void setInputProcessor(InputProcessor inputProcessor){
 			this.inputProcessor = inputProcessor;
 		}
+
+		/**
+		 * @return the stage of the current state
+		 * */
+		StageTemplate getStage(){
+			if (this.stage != null) return this.stage;
+			else return null;
+		}
+
+		/**
+		 * @param stage sets the stage of the current state
+		 * */
+
+		void setStage(StageTemplate stage){
+			this.stage = stage;
+		}
 	}
 
 	/**
-	 * Sets the input processor assigned to each GameState
+	 * Sets the input processor and screens assigned to each GameState
 	 * */
-	public void initialiseInputProcessors(){
-		// An input processor for menus that can to be exited, to be multiplexed with other
+	public void initialiseGameStates(){
+		GameState.MAIN_MENU.setStage(new MainStage());
+		GameState.THREAD_SELECT.setStage(new ThreadStage());
+		GameState.PAUSED_MENU.setStage(new PauseStage());
+		GameState.DEAD_MENU.setStage(new DeathStage());
+		GameState.INSTRUCTIONS.setStage(new InstructionsStage());
+
+		// An input processor for menus that can be exited, to be multiplexed with other
 		InputAdapter menuEscape = new InputAdapter(){
 			@Override
 			public boolean keyDown(int keycode) {
@@ -191,12 +215,13 @@ public class Main extends Game {
 
 		// actually set the input processors
 		GameState.IN_GAME.setInputProcessor(new InputMultiplexer(globalInput, new PlayerInput()));
-		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, mainMenu));
-		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, threadMenu));
+		GameState.MAIN_MENU.setInputProcessor(new InputMultiplexer(globalInput, GameState.MAIN_MENU.getStage()));
+		GameState.THREAD_SELECT.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.THREAD_SELECT.getStage()));
 		GameState.LOADING.setInputProcessor(globalInput);
-		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, pauseMenu));
-		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, deathMenu));
-		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, instructionsMenu));
+		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, GameState.PAUSED_MENU.getStage()));
+		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
+		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
+		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput));
 	}
 
 	/**
@@ -215,15 +240,28 @@ public class Main extends Game {
 		//Checks against previous state
 		gameStateCheck = gameState.toString();
 		if(gameState == GameState.IN_GAME) {
+			timeAtLastRender = System.currentTimeMillis();
 			Gdx.input.setCursorCatched(true);
 			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
 		}
 	}
 
+	public static Animation<TextureRegion> getActiveUIAnim() {
+		return activeUIAnim;
+	}
+
+	public static void setActiveUIAnim(Animation<TextureRegion> anim, Runnable preDraw, Runnable finished) {
+		activeUIAnim = anim;
+		animTime = 0;
+		animPreDraw = preDraw;
+		animFinished = finished;
+	}
+
 	/**
 	 * Begins the loading of assets
 	 * */
-	public void beginLoading(){
+	public static void beginLoading(){
+		if (gameState == GameState.LOADING) return;
 		setGameState(GameState.LOADING);
 		loadAssets();
 	}
@@ -256,6 +294,8 @@ public class Main extends Game {
 
 		//Registers other assets
 		spriteAddresses.add("ui/icons/heart.png");
+		spriteAddresses.add("ui/icons/empty_heart.png");
+		spriteAddresses.add("ui/icons/first_heart.png");
 		spriteAddresses.add("ui/ingame/damage.png");
 
 		// load music/sfx
@@ -296,11 +336,6 @@ public class Main extends Game {
 
 		//Builds UI elements
 		buildFonts();
-		buildMainMenu();
-		buildThreadMenu();
-		buildPauseMenu();
-		buildDeathMenu();
-		buildInstructionsMenu();
 
 		//Sets up environment and camera
 		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.6f*Config.LIGHT_INTENSITY, 1f);
@@ -320,11 +355,13 @@ public class Main extends Game {
 		sceneMan.environment.add(playerLantern);
 
 		// init particles
-		particleBatch = new BillboardParticleBatch();
+		generalBBParticleBatch = new BillboardParticleBatch();
+		paralyseBBParticleBatch = new BillboardParticleBatch();
 		particleSystem = new ParticleSystem();
-		particleBatch.setCamera(camera);
-		particleSystem.add(particleBatch);
-
+		generalBBParticleBatch.setCamera(camera);
+		paralyseBBParticleBatch.setCamera(camera);
+		particleSystem.add(generalBBParticleBatch);
+		particleSystem.add(paralyseBBParticleBatch);
 
 		//Sets up game managers
 		assMan = new AssetManager();
@@ -337,96 +374,9 @@ public class Main extends Game {
 
 		//Finalises
 		assMan.finishLoading();
-		initialiseInputProcessors();
+		initialiseGameStates();
 		setGameState(GameState.MAIN_MENU);
     }
-
-	/**
-	 * Construct instructions menu from actors
-	 * */
-	private void buildInstructionsMenu() {
-		instructionsMenu = new Stage();
-
-		// create background image
-		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/instructions/instructions.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		instructionsMenu.addActor(background);
-
-		// create exit button
-		ImageButton.ImageButtonStyle exitButtonStyle = new ImageButton.ImageButtonStyle();
-		exitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png"))).getDrawable(); // reusing assets from death menu
-		exitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
-		exitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
-
-		ImageButton exitButton = new ImageButton(exitButtonStyle);
-		exitButton.setPosition((float) Gdx.graphics.getWidth() * 237/640, (float) Gdx.graphics.getHeight() * 34/360);
-		exitButton.setSize((float) Gdx.graphics.getWidth() * 167/640, (float) Gdx.graphics.getHeight() * 32/360);
-		exitButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				setGameState(GameState.MAIN_MENU);
-				return true;
-			}
-		});
-
-		instructionsMenu.addActor(exitButton);
-
-		// Adapt instructions to current key config
-		StringBuilder keysText;
-		keysText = new StringBuilder();
-		keysText.append(Input.Keys.toString(Config.keys.get("forward"))).append(", ");
-		keysText.append(Input.Keys.toString(Config.keys.get("left"))).append(", ");
-		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
-		keysText.append(Input.Keys.toString(Config.keys.get("right")));
-
-		// Build instructions text
-		Label instructions = new Label("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.", new Label.LabelStyle(uiFont, null));
-		instructions.setBounds((float) (Gdx.graphics.getWidth() * 155) /640, (float) (Gdx.graphics.getHeight() * 113) /360, (float) (Gdx.graphics.getWidth() * 338) /640, (float) (Gdx.graphics.getHeight() * 148) /360);
-		instructions.setWrap(true);
-
-		instructionsMenu.addActor(instructions);
-	}
-	/**
-	 * Construct death menu from actors
-	 * */
-	private void buildDeathMenu() {
-		deathMenu = new Stage();
-
-		// add background
-		Image background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		deathMenu.addActor(background);
-
-		// add title
-		Image title = new Image(new Texture(Gdx.files.internal("ui/death/title.png")));
-		title.setBounds(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		deathMenu.addActor(title);
-
-		// add main menu button
-		ImageButton.ImageButtonStyle exitButtonStyle = new ImageButton.ImageButtonStyle();
-		exitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png"))).getDrawable();
-		exitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
-		exitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png"))).getDrawable();
-
-		ImageButton exitButton = new ImageButton(exitButtonStyle);
-		exitButton.setPosition((float) Gdx.graphics.getWidth() * 237/640, (float) Gdx.graphics.getHeight() * 34/360);
-		exitButton.setSize((float) Gdx.graphics.getWidth() * 167/640, (float) Gdx.graphics.getHeight() * 32/360);
-		exitButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				setGameState(GameState.MAIN_MENU);
-				return true;
-			}
-		});
-		deathMenu.addActor(exitButton);
-
-		if (mapMan != null){
-			Label levelText = new Label("You reached level " + mapMan.levelIndex, new Label.LabelStyle(uiFont, uiFont.getColor()));
-			layout.setText(uiFont, levelText.getText());
-			levelText.setPosition((float) Gdx.graphics.getWidth() * 320 / 640 - layout.width / 2, (float) Gdx.graphics.getHeight() * 220 / 360);
-			deathMenu.addActor(levelText);
-		}
-	}
 
 	/**
 	 * Construct font assets
@@ -436,170 +386,8 @@ public class Main extends Game {
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.02 * Gdx.graphics.getHeight()); // scale font to window size
 		uiFont = generator.generateFont(parameter);
-	}
-
-	/**
-	 * Construct main menu from actors
-	 * */
-	private void buildMainMenu() {
-		mainMenu = new Stage();
-
-		// add background
-		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/background.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		mainMenu.addActor(background);
-
-		// add play button
-		ImageButton.ImageButtonStyle playButtonStyle = new ImageButton.ImageButtonStyle();
-		playButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
-		playButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
-		playButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
-
-		ImageButton playButton = new ImageButton(playButtonStyle);
-		playButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
-		playButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		playButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (activeUIAnim == null){
-					activeUIAnim = transitionAnimation;
-					animTime = 0;
-					animPreDraw = () -> renderMainMenuFrame();
-					animFinished = () -> setGameState(GameState.THREAD_SELECT);
-				}
-				return true;
-			}
-		});
-		mainMenu.addActor(playButton);
-
-		// add instructions button
-		ImageButton.ImageButtonStyle instructionsButtonStyle = new ImageButton.ImageButtonStyle();
-		instructionsButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/instructions1.png"))).getDrawable();
-		instructionsButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/instructions2.png"))).getDrawable();
-		instructionsButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/instructions2.png"))).getDrawable();
-
-		ImageButton instructionsButton = new ImageButton(instructionsButtonStyle);
-		instructionsButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 193/360);
-		instructionsButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		instructionsButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				setGameState(GameState.INSTRUCTIONS);
-				return true;
-			}
-		});
-		mainMenu.addActor(instructionsButton);
-
-		// add quit button
-		ImageButton.ImageButtonStyle quitButtonStyle = new ImageButton.ImageButtonStyle();
-		quitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/quit1.png"))).getDrawable();
-		quitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
-		quitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
-
-		ImageButton quitButton = new ImageButton(quitButtonStyle);
-		quitButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 80/360);
-		quitButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		quitButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				System.exit(0);
-				return true;
-			}
-		});
-		mainMenu.addActor(quitButton);
-	}
-
-	/**
-	 * Construct thread menu from actors
-	 * */
-	private void buildThreadMenu(){
-		threadMenu = new Stage();
-
-		// Background
-		Image background = new Image(new Texture(Gdx.files.internal("ui/thread/background.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		threadMenu.addActor(background);
-
-		//initialize textures
-        Texture soulTexture = new Texture(Gdx.files.internal("ui/thread/soul8.png"));
-		Texture coalTexture = new Texture(Gdx.files.internal("ui/thread/coal8.png"));
-		Texture joltTexture = new Texture(Gdx.files.internal("ui/thread/jolt8.png"));
-		Texture tRodTexture = new Texture(Gdx.files.internal("ui/thread/threadedrod.png"));
-
-		ImageButton.ImageButtonStyle soulButtonStyle = new ImageButton.ImageButtonStyle();
-		soulButtonStyle.up = new Image(soulTexture).getDrawable();
-		ImageButton.ImageButtonStyle coalButtonStyle = new ImageButton.ImageButtonStyle();
-		coalButtonStyle.up = new Image(coalTexture).getDrawable();
-		ImageButton.ImageButtonStyle joltButtonStyle = new ImageButton.ImageButtonStyle();
-		joltButtonStyle.up = new Image(joltTexture).getDrawable();
-		ImageButton.ImageButtonStyle tRodButtonStyle = new ImageButton.ImageButtonStyle();
-		tRodButtonStyle.up = new Image(tRodTexture).getDrawable();
-
-		// Initialize buttons
-		ImageButton soulButton = new ImageButton(soulButtonStyle);
-		ImageButton coalButton = new ImageButton(coalButtonStyle);
-		ImageButton joltButton = new ImageButton(joltButtonStyle);
-		ImageButton tRodButton = new ImageButton(tRodButtonStyle);
-
-		// button positioning
-		tRodButton.setPosition((float) Gdx.graphics.getWidth() * 220/640, (float) Gdx.graphics.getHeight() * 57/360);
-		tRodButton.setSize((float) Gdx.graphics.getWidth() * ((float) tRodTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) tRodTexture.getHeight())/360);
-
-		soulButton.setSize((float) Gdx.graphics.getWidth() * ((float) soulTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) soulTexture.getHeight())/360);
-		soulButton.setPosition((float) Gdx.graphics.getWidth() * (160 - (float) soulTexture.getWidth() /2)/640,(float) Gdx.graphics.getHeight() * 100/360);
-
-		coalButton.setSize((float) Gdx.graphics.getWidth() * ((float) coalTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) coalTexture.getHeight())/360);
-		coalButton.setPosition((float) Gdx.graphics.getWidth() * (320 - (float) coalTexture.getWidth()/2)/640,(float) Gdx.graphics.getHeight() * 100/360);
-
-		joltButton.setSize((float) Gdx.graphics.getWidth() * ((float) joltTexture.getWidth() / 640), (float) Gdx.graphics.getHeight() * ((float) joltTexture.getHeight())/360);
-		joltButton.setPosition((float) Gdx.graphics.getWidth() * (480 - (float) joltTexture.getWidth()/2)/640,(float) Gdx.graphics.getHeight() * 100/360);
-
-		// event listeners
-		soulButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				player.setBaseUpgrade(BaseUpgrade.SOUL_THREAD);
-				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				beginLoading();
-				return true;
-			}
-		});
-
-		coalButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				player.setBaseUpgrade(BaseUpgrade.COAL_THREAD);
-				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				beginLoading();
-				return true;
-			}
-		});
-
-		joltButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				player.setBaseUpgrade(BaseUpgrade.JOLT_THREAD);
-				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				beginLoading();
-				return true;
-			}
-		});
-
-		tRodButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				player.setBaseUpgrade(BaseUpgrade.THREADED_ROD);
-				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				beginLoading();
-				return true;
-			}
-		});
-
-        // Adding buttons to stage
-		threadMenu.addActor(soulButton);
-		threadMenu.addActor(coalButton);
-		threadMenu.addActor(joltButton);
-		threadMenu.addActor(tRodButton);
+		parameter.size = (int) (0.08 * Gdx.graphics.getHeight());
+		titleFont = generator.generateFont(parameter);
 	}
 
 	/**
@@ -667,61 +455,14 @@ public class Main extends Game {
 			}
 		}
 
+		Label mainTime = new Label("Time: " + getTime(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		labels.add(mainTime);
+
 		// set positions of labels
 		labels.forEach(label -> {
 			label.setPosition(16F, (float) (Gdx.graphics.getHeight() - (0.04 * (labels.indexOf(label)+1) * Gdx.graphics.getHeight())));
 			debug.addActor(label);
 		});
-	}
-
-	/**
-	 * Construct pause menu from actors
-	 * */
-	private void buildPauseMenu(){
-		pauseMenu = new Stage();
-
-		// add background
-		Image background = new Image(new Texture(Gdx.files.internal("ui/menu/pausebackground.png")));
-		background.setBounds(0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-
-		// add resume button
-		ImageButton.ImageButtonStyle resumeButtonStyle = new ImageButton.ImageButtonStyle();
-		resumeButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/play1.png"))).getDrawable();
-		resumeButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
-		resumeButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/play2.png"))).getDrawable();
-
-		ImageButton resumeButton = new ImageButton(resumeButtonStyle);
-		resumeButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 228/360);
-		resumeButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		resumeButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				setGameState(GameState.IN_GAME);
-				return true;
-			}
-		});
-
-		// add quit button
-		ImageButton.ImageButtonStyle quitButtonStyle = new ImageButton.ImageButtonStyle();
-		quitButtonStyle.up = new Image(new Texture(Gdx.files.internal("ui/menu/quit1.png"))).getDrawable();
-		quitButtonStyle.down = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
-		quitButtonStyle.over = new Image(new Texture(Gdx.files.internal("ui/menu/quit2.png"))).getDrawable();
-
-		ImageButton quitButton = new ImageButton(quitButtonStyle);
-		quitButton.setPosition((float) Gdx.graphics.getWidth() * 36/640, (float) Gdx.graphics.getHeight() * 80/360);
-		quitButton.setSize((float) Gdx.graphics.getWidth() * 129/640, (float) Gdx.graphics.getHeight() * 30/360);
-		quitButton.addListener(new InputListener(){
-			@Override
-			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				resetGame();
-				setGameState(GameState.MAIN_MENU);
-				return true;
-			}
-		});
-
-		pauseMenu.addActor(background);
-		pauseMenu.addActor(quitButton);
-		pauseMenu.addActor(resumeButton);
 	}
 
 	/**
@@ -734,7 +475,7 @@ public class Main extends Game {
 			for(Map.Entry<Integer,EnemyEntity> entry : room.getEnemies().entrySet()){
 				// ensure that each enemy has a model
 				if(entry.getValue().getScene()==null){
-					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass().toString()));
+					entry.getValue().setScene(EnemyRegistry.enemyScenes.get(entry.getValue().getClass()));
 				}
 				// position the enemy
 				EnemyEntity enemy = entry.getValue();
@@ -748,7 +489,7 @@ public class Main extends Game {
 	}
 
 	/**
-	 * Performs any post level loading tasks
+	 * Performs any post room loading tasks
 	 * */
 	private void postLevelLoad() {
 		EnemyRegistry.postLoadEnemyAssets(assMan);
@@ -757,14 +498,14 @@ public class Main extends Game {
 			String address = entry.getKey();
 			entry.setValue(assMan.get(address, Sound.class));
 		}
-
-		Player.sceneModel = new Scene(((SceneAsset)assMan.get("models/upgrades/gold.gltf")).scene);
-
 		// Tell the particle managers to load the effect
 		SoulFireEffectManager.loadStaticEffect();
 		DamageEffectManager.loadStaticEffect();
+		ParalysisEffectManager.loadStaticEffect();
 
 		UpgradeRegistry.iconsLoaded = true;
+
+		mapMan.levelIndex = 1;
 		mapMan.generateLevel();
 		spawnEnemies();
 	}
@@ -772,7 +513,7 @@ public class Main extends Game {
 	/**
 	 * Loads all models and sprites to the game
 	 * */
-	private void loadAssets() {
+	private static void loadAssets() {
 		Gdx.app.debug("Loader thread", "Loading started");
 		// Load enemy models
 		EnemyRegistry.loadEnemyAssets(assMan);
@@ -810,19 +551,17 @@ public class Main extends Game {
 		}
 
 		//Particle effects
-		ParticleEffectLoader.ParticleEffectLoadParameter loadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(particleSystem.getBatches());
-		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
-		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, loadParameter);
+		Array<ParticleBatch<?>> generalBatches = new Array<>();
+		generalBatches.add(generalBBParticleBatch);
+		ParticleEffectLoader.ParticleEffectLoadParameter generalLoadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(generalBatches);
 
+		Array<ParticleBatch<?>> paralyseBatches = new Array<>();
+		paralyseBatches.add(paralyseBBParticleBatch);
+		ParticleEffectLoader.ParticleEffectLoadParameter paralyseLoadParameter = new ParticleEffectLoader.ParticleEffectLoadParameter(paralyseBatches);
 
-	}
-
-	/**
-	 * Renders the main menu
-	 * */
-	private void renderMainMenuFrame(){
-		mainMenu.act();
-		mainMenu.draw();
+		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
+		assMan.load(ParalysisEffectManager.getStaticEffectAddress(), ParticleEffect.class, paralyseLoadParameter);
+		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
 	}
 
 	/**
@@ -837,10 +576,18 @@ public class Main extends Game {
 		}
 
 		//Draws health
-		for(int i=0;i<player.getHealth();i++){
+		for (int i = player.getMaxHealth() - 1; i>=0; i--){
 			int x = Math.round((((float) Gdx.graphics.getWidth())/32F)+ (((float) (i * Gdx.graphics.getWidth()))/32F));
 			int y = Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight())/32F);
-			batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			if (i < player.getHealth()) {
+				if (i == 0) {
+					batch2d.draw(spriteAssets.get("ui/icons/first_heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+				} else {
+					batch2d.draw(spriteAssets.get("ui/icons/heart.png"), x, y, (float) (Gdx.graphics.getWidth()) / 30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() / 30 * (Math.pow(Config.ASPECT_RATIO, -1))));
+				}
+			} else {
+				batch2d.draw(spriteAssets.get("ui/icons/empty_heart.png"), x, y, (float) (Gdx.graphics.getWidth()) /30 * Config.ASPECT_RATIO, (float) ((double) Gdx.graphics.getHeight() /30 *(Math.pow(Config.ASPECT_RATIO, -1))));
+			}
 		}
 
 		//Draws upgrades
@@ -854,8 +601,8 @@ public class Main extends Game {
 					try {
 						// draw upgrade icon to screen
 						Vector2 pos = new Vector2(
-								Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 24F) - (((float) (counter*Gdx.graphics.getWidth())) / 24F),
-								Gdx.graphics.getHeight() - 24 - Math.round(((float) Gdx.graphics.getHeight()) / 24F));
+								Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 24F) - (((float) ((counter%7)*Gdx.graphics.getWidth())) / 24F),
+                                (float) (Gdx.graphics.getHeight() - (Math.floor(counter/7)+1)*(24 + Math.round(((float) Gdx.graphics.getHeight()) / 24F))));
 						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getHeight()) / 30 * Config.ASPECT_RATIO, ((float) Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
@@ -879,6 +626,9 @@ public class Main extends Game {
 	 * Sets the game state to the dead menu
 	 * */
 	public static void onPlayerDeath() {
+		if (GameState.DEAD_MENU.getStage() != null) {
+			GameState.DEAD_MENU.getStage().rebuild();
+		}
 		resetGame();
 		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
@@ -892,7 +642,6 @@ public class Main extends Game {
 
 		// reset levels
 		mapMan.levels.clear();
-		mapMan.levelIndex = 1;
 
 		// reset entities map
 		entities.clear();
@@ -923,6 +672,7 @@ public class Main extends Game {
 		// restore information to new player instance
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.setFromSerial(playerSerial);
+		player.heal(1);
 
 		// clear non-player entities
 		entities.forEach((Integer i, Entity e) -> {
@@ -931,9 +681,9 @@ public class Main extends Game {
 		});
 
 		// clear active particles
-		SoulFireEffectManager.positions.clear();
-		SoulFireEffectManager.times.clear();
-		DamageEffectManager.times.clear();
+		SoulFireEffectManager.effects.clear();
+		DamageEffectManager.effects.clear();
+		ParalysisEffectManager.effects.clear();
 		particleSystem.removeAll();
 
 		// generate new level
@@ -951,7 +701,10 @@ public class Main extends Game {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
 
 		// increment system time
-		time += (long) (Gdx.graphics.getDeltaTime()*1000);
+		dT = (System.currentTimeMillis() - timeAtLastRender) / 1000f;
+		timeAtLastRender = System.currentTimeMillis();
+
+//		time += (long) (Gdx.graphics.getDeltaTime()*1000);
 
 		// ensure the game state matches
 		if(gameState!=null) {
@@ -970,8 +723,6 @@ public class Main extends Game {
 			}
 			return;
 		}
-
-
 
 		// update UI animation
 		if(activeUIAnim != null){
@@ -992,39 +743,19 @@ public class Main extends Game {
 			return;
 		}
 
-		if(gameState == GameState.MAIN_MENU) {
-			renderMainMenuFrame();
+		if (gameState == GameState.PAUSED_MENU) {
+			// render the world without stepping physics for a transparent effect
+			sceneMan.update(Gdx.graphics.getDeltaTime());
+			sceneMan.render();
 		}
 
-		if(gameState == GameState.INSTRUCTIONS) {
-			instructionsMenu.act();
-			instructionsMenu.draw();
-		}
-
-		if (gameState == GameState.THREAD_SELECT){
-			threadMenu.act();
-			threadMenu.draw();
-			buildThreadMenu();
-		}
-
-		if(gameState == GameState.PAUSED_MENU) {
-			// render the world without stepping physics
-			/*batch.begin(camera);
-			entities.forEach((Integer id, Entity entity) -> { if (entity.isRenderable) batch.render(entity.getModelInstance(), environment); });
-			batch.end();*/
-			// draw the pause menu
-			pauseMenu.act();
-			pauseMenu.draw();
-		}
-
-		if(gameState == GameState.DEAD_MENU){
-			deathMenu.act();
-			deathMenu.draw();
+		if (gameState != null && gameState.getStage() != null) {
+			gameState.getStage().update();
 		}
 
 		if (gameState == GameState.IN_GAME){
 			// Update player input
-			PlayerInput.update(Gdx.graphics.getDeltaTime());
+			PlayerInput.update(dT);
 
 			// Update camera pos
 			camera.position.set(player.getPosition()).add(0, 0.2f, 0);
@@ -1036,20 +767,7 @@ public class Main extends Game {
 			// Update particles
 			SoulFireEffectManager.update();
 			DamageEffectManager.update();
-
-
-
-			// begin 3d drawing
-			/*batch.begin(camera);
-
-			// draw particles
-
-			batch.render(particleSystem);
-
-
-			//Update dynamic entities
-			// draw entities
-			*/
+			ParalysisEffectManager.update();
 
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
@@ -1068,24 +786,29 @@ public class Main extends Game {
 					}
 				}
 
-				if (entity.isRenderable&&(!flag)){
+				if (entity.isRenderable && entity.getScene() != null && !flag){
 					sceneMan.addScene(entity.getScene());
 				}
-				if((!entity.isRenderable)&&flag) {
+				if(!entity.isRenderable && entity.getScene() != null && flag) {
 					sceneMan.removeScene(entity.getScene());
 				}
 			});
 
-			particleSystem.update();
-			particleSystem.begin();
-			particleSystem.draw();
-			particleSystem.end();
-
+			// draw scenes
 			sceneMan.update(Gdx.graphics.getDeltaTime());
 			sceneMan.render();
 
-			// finish 3d drawing
-			//batch.end();
+			batch.begin(camera);
+
+			// draw particles
+			particleSystem.update(dT);
+			particleSystem.begin();
+			particleSystem.draw();
+			particleSystem.end();
+			batch.render(particleSystem);
+
+			batch.render(particleSystem);
+			batch.end();
 
 			renderGameOverlay();
 
@@ -1168,7 +891,8 @@ public class Main extends Game {
 	 * Returns the current tracking time in milliseconds
 	 * */
 	public static long getTime() {
-		return time;
+		return System.currentTimeMillis();
+//		return time; // this is so incredibly wrong it only counts the frames where render is called so if you're standing still without debug menu open it will run 10x slower than if you do have it open. debug menu essentially forces incredibly quick updates because it has the bullet vectors that are always changing slightly
 	}
 
 	/**
@@ -1182,13 +906,15 @@ public class Main extends Game {
 		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
 		viewport.update(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
 
+		// update fonts
+		buildFonts();
+
 		// update menus
-		buildPauseMenu();
-		buildDebugMenu();
-		buildMainMenu();
-		buildThreadMenu();
-		buildDeathMenu();
-		buildInstructionsMenu();
+		for (GameState state : GameState.values()) {
+			if (state.getStage() != null && state.getStage().isBuilt) state.getStage().rebuild();
+		}
+
+		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
 	}
 
 	/**
@@ -1197,16 +923,17 @@ public class Main extends Game {
 	@Override
 	public void dispose() {
 		super.dispose();
+		for (GameState state : GameState.values()) {
+			if (state.getStage() != null) state.getStage().dispose();
+		}
+
 		if (batch != null) batch.dispose();
 		if (batch2d != null) batch2d.dispose();
 		if (menuMusic != null) menuMusic.dispose();
-		if (mainMenu != null) mainMenu.dispose();
-		if (threadMenu != null) threadMenu.dispose();
-		if (pauseMenu != null) pauseMenu.dispose();
-		if (deathMenu != null) deathMenu.dispose();
 		if (debug != null) debug.dispose();
 		if (assMan != null) assMan.dispose();
 		if (uiFont != null) uiFont.dispose();
+		if (titleFont != null) titleFont.dispose();
         if (dynamicsWorld != null  && !dynamicsWorld.isDisposed()) dynamicsWorld.dispose();
         if (constraintSolver != null && !constraintSolver.isDisposed()) constraintSolver.dispose();
         if (broadphase != null && !broadphase.isDisposed()) broadphase.dispose();
@@ -1217,7 +944,7 @@ public class Main extends Game {
     }
 
 	/**
-	 * @return SplashWorker the splashworker instance
+	 * @return SplashWorker the splash worker instance
 	 * */
 	public SplashWorker getSplashWorker() {
 		return splashWorker;

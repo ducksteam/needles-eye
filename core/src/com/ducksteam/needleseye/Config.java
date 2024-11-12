@@ -34,6 +34,7 @@ public class Config {
     public static final float SOUL_FIRE_HEIGHT = 0f;
     public static final float SOUL_FIRE_RANGE = 2f;
     public static final float SOUL_FIRE_THROW_DISTANCE = 2.5f;
+    public static final float JOLT_PARALYSE_TIME = 1.5f;
     public static final float LIGHT_INTENSITY = 0.25f;
     public static final Color LIGHT_COLOUR = new Color(0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1f);
     public static final float KNOCKBACK_FORCE = 1000;
@@ -49,5 +50,6 @@ public class Config {
         keys.put("jump", Input.Keys.SPACE);
         keys.put("run", Input.Keys.SHIFT_LEFT);
         keys.put("advance", Input.Keys.R);
+        keys.put("ability", Input.Keys.CONTROL_LEFT);
     }
 }
