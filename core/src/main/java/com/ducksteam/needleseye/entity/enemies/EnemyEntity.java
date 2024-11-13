@@ -14,8 +14,6 @@ import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
-import java.util.HashSet;
-
 /**
  * Entity class to represent enemies in the game
  * @author skysourced
@@ -28,8 +26,6 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     private IHasAi ai; // the AI algorithm for the enemy
     private float damageTimeout = 0;
     float paralyseTime = 0;
-
-    private final static HashSet<EnemyTag> tags = new HashSet<>(); // tags for the enemy
 
     // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
@@ -48,6 +44,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
         collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
         collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
+
 
         setMaxHealth(maxHealth, true); // Set the max health and heal the enemy
         this.assignedRoom = assignedRoom;
