@@ -1,7 +1,6 @@
 {
   "name": "battlerock",
   "type": "battle",
-  "spawn": true,
   "modelPath": "models/rooms/battlerock.gltf",
   "width": 1,
   "height": 1,
@@ -11,5 +10,19 @@
     "1": true,
     "2": true,
     "3": true
-  }
+  },
+  "enemies": [
+    {
+      "tag": "small",
+      "position": [-2, 0.6, 0]
+    },
+    {
+      "tag": "small",
+      "position": [1, 0.6, 1.75]
+    },
+    {
+      "tag": "small",
+      "position": [1, 0.6, -1.75]
+    }
+  ]
 }

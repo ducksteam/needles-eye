@@ -1,7 +1,6 @@
 {
   "name": "brokenceiling",
   "type": "small",
-  "spawn": true,
   "modelPath": "models/rooms/brokenceiling.gltf",
   "width": 1,
   "height": 1,
@@ -11,5 +10,15 @@
     "1": true,
     "2": true,
     "3": true
-  }
+  },
+  "enemies": [
+    {
+      "tag": "all",
+      "position": [-2, 0.6, 0]
+    },
+    {
+      "tag": "all",
+      "position": [2, 0.6, 0]
+    }
+  ]
 }

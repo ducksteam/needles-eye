@@ -1,7 +1,6 @@
 {
   "name": "prison",
   "type": "hallway",
-  "spawn": false,
   "modelPath": "models/rooms/prison.gltf",
   "width": 1,
   "height": 2,
@@ -15,5 +14,8 @@
     "5": true,
     "6": true,
     "7": true
-  }
+  },
+  "enemies": [
+
+  ]
 }
