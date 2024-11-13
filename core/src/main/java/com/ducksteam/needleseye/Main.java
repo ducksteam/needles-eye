@@ -48,7 +48,6 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
-import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 
@@ -649,13 +648,8 @@ public class Main extends Game {
 		batch = new ModelBatch();
 		threadAnimState = new int[]{0, 0, 0};
 
-		for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
-			try {
-				sceneMan.removeScene((Scene) renderableProvider);
-			} catch (Exception e) {
-				Gdx.app.error("Main", "Failed to remove scene", e);
-			}
-		}
+        // clear rendered scenes (keeps any scene lights, but this is currently unused)
+        sceneMan.getRenderableProviders().clear();
 
 		// reset entities map
 		entities.clear(); // this must come after the above scene removal
