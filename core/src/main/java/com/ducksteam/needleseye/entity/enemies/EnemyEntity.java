@@ -14,6 +14,8 @@ import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.enemies.ai.IHasAi;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
+import java.util.HashSet;
+
 /**
  * Entity class to represent enemies in the game
  * @author skysourced
@@ -26,6 +28,8 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     private IHasAi ai; // the AI algorithm for the enemy
     private float damageTimeout = 0;
     float paralyseTime = 0;
+
+    private final static HashSet<EnemyTag> tags = new HashSet<>(); // tags for the enemy
 
     // Temporary vector for calculations
     static Vector3 tmp = new Vector3();
