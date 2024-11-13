@@ -109,12 +109,13 @@ public class MapManager {
         return EnemyRegistry.registeredEnemies.values().stream().filter(enemy -> {
             try {
                 @SuppressWarnings("unchecked") Set<EnemyTag> tags = (Set<EnemyTag>) enemy.getDeclaredField("tags").get(null);
+                for(EnemyTag tag : tags) {
+                    if (tag.isChildOf(EnemyTag.fromString(tagString))) return true;
+                }
+                return false;
             } catch (Exception e) {
                 throw new RuntimeException(e);
             } // remember to split it by , and &
-
-
-            return true; // delete this
         }).collect(Collectors.collectingAndThen(
             Collectors.toList(),
             list -> list.get(new Random().nextInt(list.size()))
