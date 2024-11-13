@@ -10,13 +10,10 @@ import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
-import com.ducksteam.needleseye.entity.enemies.OrbulonEnemy;
-import com.ducksteam.needleseye.entity.enemies.WormEnemy;
+import com.ducksteam.needleseye.entity.enemies.EnemyTag;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -29,19 +26,10 @@ public class MapManager {
     public static ArrayList<RoomTemplate> roomTemplates; // all room templates
     public final ArrayList<Level> levels; // the levels in this run of the game
 
-    public static HashMap<Class<?extends EnemyEntity>,Integer> bagRandomiser = new HashMap<>(); // the bag of enemies to spawn
     public int levelIndex; // number of levels generated
 
     // paths
     public final String ROOM_TEMPLATE_PATH = "data/rooms/";
-
-    // the different positions in the room for enemies to spawn
-    private final static Vector3[] ENEMY_POSITIONS = {
-            new Vector3(2f, 0.7f, 0f),
-            new Vector3(0f, 0.7f, -2f),
-            new Vector3(0f, 0.7f, 2f),
-            new Vector3(-2f, 0.7f, 0f)
-    };
 
     // different translations for various rotations of hallway models
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
@@ -97,68 +85,40 @@ public class MapManager {
      */
     public void populateLevel(Level level){
         level.getRooms().forEach((RoomInstance room)->{
-            int numEnemy = randomEnemyNumberGenerator(room.getRoom().getType().getDifficulty());
-            for(int i=0;i<numEnemy;i++) { // for each enemy to spawn in the room
-                int bagSize = bagRandomiser.values().stream().reduce(0, Integer::sum); // get the total number of enemies in the bag
-                if (bagRandomiser.isEmpty() || bagSize == 0) { // if the bag is empty, refill it
-                    fillBagRandomiser();
+            for (RoomTemplate.EnemyTagPosition tagPosition : room.getRoom().getEnemyTagPositions()){
+                Class<? extends EnemyEntity> enemyClass = getSuitableEnemy(tagPosition.tag());
+                if (enemyClass == null) {
+                    Gdx.app.error("MapManager", "No suitable enemy found for tag: " + tagPosition.tag());
+                    return;
                 }
-                // get a random enemy from the bag
-                Class<? extends EnemyEntity> enemyClass = bagRandomiser.keySet().stream().skip((int) (bagRandomiser.size() * Math.random())).findFirst().orElse(null);
-                // if the enemy has no entries left, return
-                if(bagRandomiser.get(enemyClass)<=0) return;
-                // update the bag
-                bagRandomiser.put(enemyClass, bagRandomiser.get(enemyClass) - 1);
-                // get a random position in the room that isn't already taken
-                Vector3 enemyPos = room.getPosition().cpy().add(ENEMY_POSITIONS[(int) (Math.random() * ENEMY_POSITIONS.length)]);
-                for(EnemyEntity otherEnemy : room.getEnemies().values()){
-                    if(otherEnemy.getPosition().x == enemyPos.x && otherEnemy.getPosition().z == enemyPos.z){
-                        enemyPos = new Vector3(enemyPos.x, enemyPos.y+0.2f, enemyPos.z);
-                    }
-                }
-                // create the enemy
+                Vector3 enemyPos = room.getPosition().cpy().add(tagPosition.position());
                 EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
-				assert enemy != null;
-                // set the room and add the enemy to the room
-				enemy.setAssignedRoom(room);
+                assert enemy != null;
+                enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
             }
         });
     }
 
     /**
-     * 20% chance of 1 less than the given number of enemies
-     * 20% chance of 1 more than the given number of enemies
-     * 5% chance of 2 more than the given number of enemies
-     * 55% chance of the given number of enemies
-     * @param diff original number of enemies
-     * @return adjusted number of enemies
+     * Get suitable enemy fulfilling tag requirements
+     * @param tagString the tag string as in the json file
+     * @return a suitable enemy class
      */
-    private int randomEnemyNumberGenerator(int diff){
-        if (diff == 0){
-            return 0;
-        }
-        int enemies = diff;
-        double r = Math.random();
-        if (r<0.2){
-            enemies--;
-        } else if (r<.4){
-            enemies++;
-        } else if (r<.45){
-            enemies += 2;
-        }
-        return enemies;
-    }
+    public Class<? extends EnemyEntity> getSuitableEnemy(String tagString) {
+        return EnemyRegistry.registeredEnemies.values().stream().filter(enemy -> {
+            try {
+                @SuppressWarnings("unchecked") Set<EnemyTag> tags = (Set<EnemyTag>) enemy.getDeclaredField("tags").get(null);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            } // remember to split it by , and &
 
-    /**
-     * Fill the bag of enemies with all enemy types
-     */
-    private void fillBagRandomiser() {
-        if(bagRandomiser==null){
-            bagRandomiser = new HashMap<>();
-        }
-        bagRandomiser.put(WormEnemy.class,7);
-        bagRandomiser.put(OrbulonEnemy.class,4);
+
+            return true; // delete this
+        }).collect(Collectors.collectingAndThen(
+            Collectors.toList(),
+            list -> list.get(new Random().nextInt(list.size()))
+        ));
     }
 
     public void generateTestLevel() {
