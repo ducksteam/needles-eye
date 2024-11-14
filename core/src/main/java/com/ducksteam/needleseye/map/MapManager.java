@@ -91,7 +91,7 @@ public class MapManager {
                     Gdx.app.error("MapManager", "No suitable enemy found for tag: " + tagPosition.tag());
                     return;
                 }
-                Vector3 enemyPos = room.getPosition().cpy().add(tagPosition.position());
+                Vector3 enemyPos = room.getPosition().cpy().add(tagPosition.position().cpy().rotate(Vector3.Y, room.getRot()));
                 EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
                 assert enemy != null;
                 enemy.setAssignedRoom(room);
