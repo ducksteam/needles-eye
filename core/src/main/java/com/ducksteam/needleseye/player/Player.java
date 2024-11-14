@@ -172,7 +172,7 @@ public class Player extends Entity implements IHasHealth {
         attackAnimTime = 0.01F;
         // run damage logic
         if (baseUpgrade == BaseUpgrade.JOLT_THREAD) player.whipAttack((entity -> {
-            ((IHasHealth) entity).damage(baseUpgrade.BASE_DAMAGE + (int) damageBoost);
+            ((IHasHealth) entity).damage(baseUpgrade.BASE_DAMAGE + (int) damageBoost, this);
             if (Math.random()<0.2) ((IHasHealth) entity).setParalyseTime(JOLT_PARALYSE_TIME);
         }));
         else player.whipAttack(baseUpgrade.BASE_DAMAGE + (int) damageBoost + (int) coalDamageBoost);
@@ -216,7 +216,7 @@ public class Player extends Entity implements IHasHealth {
      * @param damage the damage value
      */
     public void whipAttack(int damage){
-        whipAttack((Entity target) -> ((IHasHealth) target).damage(damage));
+        whipAttack((Entity target) -> ((IHasHealth) target).damage(damage, this));
     }
 
     /**
@@ -259,11 +259,12 @@ public class Player extends Entity implements IHasHealth {
     /**
      * Damages the player
      * @param damage the amount of damage
+     * @param source the entity that caused the damage
      */
     @Override
-    public void damage(int damage) {
+    public void damage(int damage, Entity source) {
         if (damage < 0) {
-            heal(damage);
+            heal(-damage);
             return;
         }
         if (damage == 0) return;
@@ -294,7 +295,7 @@ public class Player extends Entity implements IHasHealth {
      */
     public void heal(int damage) {
         if (damage < 0) {
-            damage(damage);
+            damage(-damage, this);
             return;
         }
         if (damage == 0) return;

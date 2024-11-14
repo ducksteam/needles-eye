@@ -37,7 +37,7 @@ public class Config {
     public static final float JOLT_PARALYSE_TIME = 1.5f;
     public static final float LIGHT_INTENSITY = 0.25f;
     public static final Color LIGHT_COLOUR = new Color(0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 0.4f* LIGHT_INTENSITY, 1f);
-    public static final float KNOCKBACK_FORCE = 1000;
+    public static final float KNOCKBACK_FORCE = 200f;
     public static final float WALK_SPEED = 220f;
     public static final float RUN_SPEED = 300f;
     public static final float UPGRADE_TEXT_DISPLAY_TIMEOUT = 3f;

@@ -41,7 +41,7 @@ public class CollisionListener extends ContactListener {
 		//Handles cases for player, enemy, room, and upgrade collisions
 		if (entity0 instanceof Player) {
             switch (entity1) {
-                case EnemyEntity enemyEntity -> ((Player) entity0).damage(enemyEntity.getContactDamage());
+                case EnemyEntity enemyEntity -> ((Player) entity0).damage(enemyEntity.getContactDamage(), enemyEntity);
                 case RoomInstance roomInstance -> {
                     if (!playerGroundContacts.contains(userValue1)) {
                         playerGroundContacts.add(userValue1);

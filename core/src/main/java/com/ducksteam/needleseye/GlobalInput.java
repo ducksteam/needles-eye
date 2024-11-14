@@ -45,12 +45,12 @@ public class GlobalInput implements InputProcessor {
         if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(20)); // move player up
 
         if (i == Input.Keys.NUMPAD_ADD) { // heal the player
-            player.damage(-1);
+            player.damage(-1, null);
             return true;
         }
 
         if (i == Input.Keys.NUMPAD_SUBTRACT) { // damage the player
-            player.damage(1);
+            player.damage(1, null);
             return true;
         }
 

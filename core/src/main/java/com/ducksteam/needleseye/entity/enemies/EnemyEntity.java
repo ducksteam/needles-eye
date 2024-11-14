@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.utils.Null;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
@@ -70,15 +71,18 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
     /**
      * Method to apply damage to the enemy
      * @param damage int damage to apply
+     * @param source the entity that has applied the damage
      * */
     @Override
-    public void damage(int damage) {
+    public void damage(int damage, @Null Entity source) {
+        if (source != null) {
+            tmp.set(source.getPosition().sub(getPosition())).nor();
+            tmp.y = 0;
+            collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));
+        }
+
         if (damageTimeout > 0) return;
         DamageEffectManager.create(getPosition()); // create effect
-
-        tmp.set(Main.player.getPosition().sub(getPosition())).nor();
-        tmp.y = 0;
-        collider.applyCentralImpulse(tmp.scl(-Config.KNOCKBACK_FORCE));
 
         health -= damage;
         setDamageTimeout(Config.DAMAGE_TIMEOUT);

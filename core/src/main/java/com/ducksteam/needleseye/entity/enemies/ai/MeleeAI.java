@@ -76,7 +76,7 @@ public class MeleeAI implements IHasAi {
 	@Override
 	public void attack() {
 		//getTarget().setAnimation("attack");
-		Main.player.damage(1);
+		Main.player.damage(1, getTarget());
 	}
 
 	/**

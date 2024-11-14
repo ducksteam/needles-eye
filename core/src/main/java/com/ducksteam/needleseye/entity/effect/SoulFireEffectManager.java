@@ -85,7 +85,7 @@ public class SoulFireEffectManager {
 
 				// if within range apply damage
 				if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
-					((EnemyEntity) e).damage(getContactDamage());
+					((EnemyEntity) e).damage(getContactDamage(), null);
 				}
 			});
 
@@ -97,7 +97,7 @@ public class SoulFireEffectManager {
 			tmp2.y = 0;
 
 			if (tmp.dst(tmp2) < Config.SOUL_FIRE_RANGE) {
-				player.damage(1);
+				player.damage(1, null);
 			}
 		}
 

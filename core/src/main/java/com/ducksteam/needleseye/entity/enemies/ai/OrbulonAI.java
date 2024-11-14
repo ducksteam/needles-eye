@@ -122,7 +122,7 @@ public class OrbulonAI implements IHasAi {
 			rayResult.getHitPointWorld(tmpVec);
 			Gdx.app.log("OrbulonAI", "Hit " + hitEntity.getClass().getSimpleName() + " at " + tmpVec );
 			if (hitEntity instanceof IHasHealth) {
-				((IHasHealth) hitEntity).damage(getTarget().getDamage());
+				((IHasHealth) hitEntity).damage(getTarget().getDamage(), getTarget());
 			}
 		}
 	}

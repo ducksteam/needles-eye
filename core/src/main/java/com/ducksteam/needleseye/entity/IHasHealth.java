@@ -7,7 +7,7 @@ import com.badlogic.gdx.math.Vector3;
  */
 public interface IHasHealth {
 	void update(float delta);
-	void damage(int damage);
+	void damage(int damage, Entity source);
 	float getParalyseTime();
 	void setParalyseTime(float paralyseTime);
 	void setHealth(int health);
