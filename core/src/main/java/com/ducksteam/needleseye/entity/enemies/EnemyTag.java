@@ -26,7 +26,7 @@ public enum EnemyTag {
 
     EnemyTag(EnemyTag... parent) {
         this.parents = new ArrayList<>();
-        parents.addAll(List.of(parent));
+        if(parent[0] != null) parents.addAll(List.of(parent));
 
         this.children = new ArrayList<>();
         for (EnemyTag parentTag : parents) {

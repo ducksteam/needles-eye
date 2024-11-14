@@ -110,14 +110,14 @@ public class MapManager {
             try {
                 @SuppressWarnings("unchecked") Set<EnemyTag> tags = (Set<EnemyTag>) enemy.getDeclaredField("tags").get(null);
                 ArrayList<String> possibleTagCombos = Arrays.stream(tagString.split(",")).collect(Collectors.toCollection(ArrayList::new));
-                for(String possibleTagCombo : possibleTagCombos) {
+
+                for(String possibleTagCombo : possibleTagCombos) { // tagString is split by commas into multiple possible tags/tag combos that are checked against
                     boolean allTagsPresent = true;
                     for(String possibleTag : possibleTagCombo.split("&")) {
                         if (tags.stream().noneMatch(tag -> tag.isChildOf(EnemyTag.fromString(possibleTag)))) allTagsPresent = false;
                     }
                     if (allTagsPresent) return true;
                 }
-
                 return false;
             } catch (Exception e) {
                 throw new RuntimeException(e);

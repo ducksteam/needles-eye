@@ -130,10 +130,9 @@ public class RoomTemplate {
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
         }
 
-        @SuppressWarnings("unchecked") LinkedTreeMap<String, Object> enemyTagPositions = (LinkedTreeMap<String, Object>) map.get("enemyTagPositions");
+        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> enemyTagPositions = (ArrayList<LinkedTreeMap<String, Object>>) map.get("enemies");
         rt.setEnemyTagPositions(new ArrayList<>()); // Create empty enemy tag positions list
-        for (Map.Entry<String, Object> entry : enemyTagPositions.entrySet()) {
-            @SuppressWarnings("unchecked") LinkedTreeMap<String, Object> tagPosition = (LinkedTreeMap<String, Object>) entry.getValue();
+        for (LinkedTreeMap<String, Object> tagPosition : enemyTagPositions) {
             rt.getEnemyTagPositions().add(new EnemyTagPosition((String) tagPosition.get("tag"), MapManager.vector3FromArray((ArrayList<Double>) tagPosition.get("position"))));
         }
 
