@@ -1,7 +1,6 @@
 {
   "name": "slantedcorridor",
   "type": "small",
-  "spawn": true,
   "modelPath": "models/rooms/slantedcorridor.gltf",
   "width": 1,
   "height": 1,
@@ -24,5 +23,15 @@
     "1": true,
     "2": true,
     "3": true
-  }
+  },
+  "enemies": [
+    {
+      "tag": "melee",
+      "position": [-2.5, 0.6, 1.2]
+    },
+    {
+      "tag": "melee",
+      "position": [2.5, 0.6, -1.2]
+    }
+  ]
 }

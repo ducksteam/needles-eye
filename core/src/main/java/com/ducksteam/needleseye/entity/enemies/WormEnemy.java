@@ -13,6 +13,9 @@ import com.ducksteam.needleseye.entity.enemies.ai.MeleeAI;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
 /**
@@ -26,6 +29,8 @@ public class WormEnemy extends EnemyEntity{
     static final Vector3 COLLIDER_SIZE = new Vector3(0.1f, 0.09f, 0.27f);
 
     public static final String MODEL_ADDRESS = "models/enemies/worm.gltf";
+
+    public static final Set<EnemyTag> tags = new HashSet<>(Set.of(EnemyTag.MELEE, EnemyTag.SMALL));
 
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
         super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());

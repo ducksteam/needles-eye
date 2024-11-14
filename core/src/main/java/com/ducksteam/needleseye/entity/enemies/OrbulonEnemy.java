@@ -14,6 +14,9 @@ import com.ducksteam.needleseye.entity.enemies.ai.OrbulonAI;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
 public class OrbulonEnemy extends EnemyEntity {
@@ -21,6 +24,8 @@ public class OrbulonEnemy extends EnemyEntity {
 	static final float COLLIDER_SIZE = 0.5f;
 
 	public static final String MODEL_ADDRESS = "models/enemies/gemorb.gltf";
+
+    public static final Set<EnemyTag> tags = new HashSet<>(Set.of(EnemyTag.RANGED, EnemyTag.MEDIUM));
 
 	public OrbulonEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
 		super(position, rotation, MASS, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 15, room.getRoomSpacePos());

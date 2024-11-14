@@ -1,7 +1,6 @@
 {
   "name": "pillars",
   "type": "hallway",
-  "spawn": false,
   "modelPath": "models/rooms/pillars.gltf",
   "width": 1,
   "height": 2,
@@ -19,5 +18,8 @@
     "4": true,
     "5": true,
     "6": true
-  }
+  },
+  "enemies": [
+
+  ]
 }

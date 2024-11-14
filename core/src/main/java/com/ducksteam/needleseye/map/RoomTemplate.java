@@ -21,6 +21,8 @@ import java.util.Map;
  */
 public class RoomTemplate {
 
+    public record EnemyTagPosition(String tag, Vector3 position) {}
+
     @Deprecated
     private Model model; // the model of the room
 
@@ -70,14 +72,6 @@ public class RoomTemplate {
             }
             return null;
         }
-
-        /**
-         * Get the difficulty of the room type
-         * @return the difficulty
-         */
-        public int getDifficulty() {
-            return difficulty;
-        }
     }
 
     private RoomType type; // the type of room
@@ -88,14 +82,16 @@ public class RoomTemplate {
     private String name; // the name of the room (only used internally)
     private HashMap<Integer, Boolean> doors; // the doors of the room and whether they are compatible with the model
     private Vector3 centreOffset; // the offset of the centre of the room
+    private ArrayList<EnemyTagPosition> enemyTagPositions; // the positions of enemy tags in the room
 
-    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, String texturePath, Vector3 centreOffset) {
+    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, Vector3 centreOffset, ArrayList<EnemyTagPosition> enemyTagPositions) {
         this.type = roomType;
         this.width = width;
         this.height = height;
         this.spawn = spawn;
         this.modelPath = modelPath;
         this.centreOffset = centreOffset;
+        this.enemyTagPositions = enemyTagPositions;
     }
 
     public RoomTemplate() {}
@@ -117,7 +113,6 @@ public class RoomTemplate {
         rt.setType(RoomType.fromString((String) map.get("type")));
         rt.setWidth(((Double) map.get("width")).intValue());
         rt.setHeight(((Double) map.get("height")).intValue());
-        rt.setSpawn((boolean) map.get("spawn"));
         rt.setModelPath((String) map.get("modelPath"));
         rt.setName((String) map.get("name"));
 
@@ -133,6 +128,12 @@ public class RoomTemplate {
         rt.setDoors(new HashMap<>() {}); // Create empty doors map
         for (Map.Entry<String, Object> entry : doors.entrySet()) { // Read doors from GSON map
             rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
+        }
+
+        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> enemyTagPositions = (ArrayList<LinkedTreeMap<String, Object>>) map.get("enemies");
+        rt.setEnemyTagPositions(new ArrayList<>()); // Create empty enemy tag positions list
+        for (LinkedTreeMap<String, Object> tagPosition : enemyTagPositions) {
+            rt.getEnemyTagPositions().add(new EnemyTagPosition((String) tagPosition.get("tag"), MapManager.vector3FromArray((ArrayList<Double>) tagPosition.get("position"))));
         }
 
         return rt;
@@ -214,22 +215,6 @@ public class RoomTemplate {
     }
 
     /**
-     * Check if enemies can spawn in the room
-     * @return true if enemies can spawn
-     */
-    public boolean canSpawn() {
-        return spawn;
-    }
-
-    /**
-     * Set whether enemies can spawn in the room
-     * @param spawn true if enemies can spawn
-     */
-    public void setSpawn(boolean spawn) {
-        this.spawn = spawn;
-    }
-
-    /**
      * Get the path to the model of the room
      * @return the path
      */
@@ -291,6 +276,22 @@ public class RoomTemplate {
      */
     public void setCentreOffset(Vector3 centreOffset) {
         this.centreOffset = centreOffset;
+    }
+
+    /**
+     * Get the enemy tags and positions in the room
+     * @return the enemy tags and positions
+     */
+    public ArrayList<EnemyTagPosition> getEnemyTagPositions() {
+        return enemyTagPositions;
+    }
+
+    /**
+     * Set the enemy tags and positions in the room
+     * @param enemyTagPositions the enemy tags and positions
+     */
+    public void setEnemyTagPositions(ArrayList<EnemyTagPosition> enemyTagPositions) {
+        this.enemyTagPositions = enemyTagPositions;
     }
 
     /**

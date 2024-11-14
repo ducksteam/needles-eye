@@ -46,6 +46,7 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
         collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
         collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
 
+
         setMaxHealth(maxHealth, true); // Set the max health and heal the enemy
         this.assignedRoom = assignedRoom;
     }
