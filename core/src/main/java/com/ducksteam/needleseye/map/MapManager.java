@@ -12,7 +12,6 @@ import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
 
-import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -27,9 +26,6 @@ public class MapManager {
     public final ArrayList<Level> levels; // the levels in this run of the game
 
     public int levelIndex; // number of levels generated
-
-    // paths
-    public final String ROOM_TEMPLATE_PATH = "data/rooms/";
 
     // different translations for various rotations of hallway models
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
@@ -64,7 +60,7 @@ public class MapManager {
         levels = new ArrayList<>();
         levelIndex = 1;
 
-        // load room templates
+        /*// load room templates
         File roomDir = new File(ROOM_TEMPLATE_PATH);
         if (!roomDir.exists()) { // check if the room template directory exists
             Gdx.app.error("MapManager", "Room template directory not found: " + ROOM_TEMPLATE_PATH);
@@ -75,7 +71,10 @@ public class MapManager {
                 roomTemplates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
                 Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": " + roomTemplates.getLast().toString());
             }
-        }
+        }*/
+
+        roomTemplates.addAll(RoomTemplate.loadRoomTemplates(Gdx.files.internal("data/rooms.json")));
+
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
     }
 
@@ -397,6 +396,10 @@ public class MapManager {
      */
     public static Vector3 vector3FromArray(ArrayList<Double> array) {
         return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
+    }
+
+    public static Vector3 vector3FromArray(double[] array) {
+        return new Vector3((float) array[0], (float) array[1], (float) array[2]);
     }
 
     /**

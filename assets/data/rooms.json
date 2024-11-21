@@ -1,0 +1,187 @@
+[
+  {
+    "name": "battlerock",
+    "type": "battle",
+    "modelPath": "models/rooms/battlerock.gltf",
+    "width": 1,
+    "height": 1,
+    "decos": [],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "enemies": [
+      {
+        "tag": "small",
+        "position": [-2, 0.6, 0]
+      },
+      {
+        "tag": "small",
+        "position": [1, 0.6, 1.75]
+      },
+      {
+        "tag": "small",
+        "position": [1, 0.6, -1.75]
+      }
+    ]
+  },
+  {
+    "name": "brokenceiling",
+    "type": "small",
+    "modelPath": "models/rooms/brokenceiling.gltf",
+    "width": 1,
+    "height": 1,
+    "decos": [],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "enemies": [
+      {
+        "tag": "all",
+        "position": [-2, 0.6, 0]
+      },
+      {
+        "tag": "all",
+        "position": [2, 0.6, 0]
+      }
+    ]
+  },
+  {
+    "name": "pedestal",
+    "type": "treasure",
+    "modelPath": "models/rooms/pedestal.gltf",
+    "width": 1,
+    "height": 1,
+    "decos": [],
+    "doors": {
+      "0": true,
+      "1": false,
+      "2": false,
+      "3": false
+    },
+    "enemies": [
+
+    ]
+  },
+  {
+    "name": "pillars",
+    "type": "hallway",
+    "modelPath": "models/rooms/pillars.gltf",
+    "width": 1,
+    "height": 2,
+    "decos": [
+      {
+        "name": "pot",
+        "position": [0, 0, 0]
+      }
+    ],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": false,
+      "4": true,
+      "5": true,
+      "6": true
+    },
+    "enemies": [
+
+    ]
+  },
+  {
+    "name": "prison",
+    "type": "hallway",
+    "modelPath": "models/rooms/prison.gltf",
+    "width": 1,
+    "height": 2,
+    "decos": [],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": false,
+      "4": true,
+      "5": true,
+      "6": true,
+      "7": true
+    },
+    "enemies": [
+
+    ]
+  },
+  {
+    "name": "rockroom",
+    "type": "small",
+    "modelPath": "models/rooms/rockroom.gltf",
+    "width": 1,
+    "height": 1,
+    "decos": [
+      {
+        "name": "pot",
+        "position": [0, 0, 0]
+      }
+    ],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "enemies": [
+      {
+        "tag": "ranged",
+        "position": [-3.5, 0.6, -3.5]
+      },
+      {
+        "tag": "melee",
+        "position": [0, 0.6, 2]
+      },
+      {
+        "tag": "melee",
+        "position": [2, 0.6, 0]
+      }
+    ]
+  },
+  {
+    "name": "slantedcorridor",
+    "type": "small",
+    "modelPath": "models/rooms/slantedcorridor.gltf",
+    "width": 1,
+    "height": 1,
+    "decos": [
+      {
+        "name": "pot",
+        "position": [0, 0, 0]
+      },
+      {
+        "name": "pot",
+        "position": [0.5, 0, 0]
+      },
+      {
+        "name": "pot",
+        "position": [0, 0.5, 0]
+      }
+    ],
+    "doors": {
+      "0": true,
+      "1": true,
+      "2": true,
+      "3": true
+    },
+    "enemies": [
+      {
+        "tag": "melee",
+        "position": [-2.5, 0.6, 1.2]
+      },
+      {
+        "tag": "melee",
+        "position": [2.5, 0.6, -1.2]
+      }
+    ]
+  }
+]

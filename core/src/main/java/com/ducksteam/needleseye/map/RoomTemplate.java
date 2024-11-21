@@ -1,19 +1,18 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Main;
-import com.google.gson.Gson;
-import com.google.gson.internal.LinkedTreeMap;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 
-import java.io.File;
-import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * Represents a template for a room in the world
@@ -96,47 +95,63 @@ public class RoomTemplate {
 
     public RoomTemplate() {}
 
-    /** Load a room template from a file
-     * @param file the file to load from
+    /** Load room templates from a file
+     * @param path the <code>FileHandle</code> to load from
      * @return the room template
      */
-    public static RoomTemplate loadRoomTemplate(File file) {
-        Gson gson = new Gson(); // start json reader
-        Map<?, ?> map; // create map to store values
-        try {
-            map = gson.fromJson(new FileReader(file), Map.class); // read the file to a map
-        } catch (Exception e) { // file not found
-            Gdx.app.error("RoomTemplate", "Error loading room template: " + file.getName(), e);
-            return null;
-        }
-        RoomTemplate rt = new RoomTemplate(); // Create empty room template & read values from map
-        rt.setType(RoomType.fromString((String) map.get("type")));
-        rt.setWidth(((Double) map.get("width")).intValue());
-        rt.setHeight(((Double) map.get("height")).intValue());
-        rt.setModelPath((String) map.get("modelPath"));
-        rt.setName((String) map.get("name"));
 
+    public static ArrayList<RoomTemplate> loadRoomTemplates(FileHandle path) {
+        Json json = new Json();
+        Array<JsonValue> map;
         try {
-            //noinspection unchecked
-            rt.setCentreOffset(MapManager.vector3FromArray((ArrayList<Double>) map.get("centre_offset")));
+            map = json.fromJson(null, path);
         } catch (Exception e) {
-            rt.setCentreOffset(new Vector3(0, 0, 0));
+            Gdx.app.error("RoomTemplate", "Error loading room templates: " + path, e);
+            return new ArrayList<>();
         }
 
-        // Read doors
-        @SuppressWarnings("unchecked") LinkedTreeMap<String, Object> doors = (LinkedTreeMap<String, Object>) map.get("doors");
-        rt.setDoors(new HashMap<>() {}); // Create empty doors map
-        for (Map.Entry<String, Object> entry : doors.entrySet()) { // Read doors from GSON map
-            rt.getDoors().put(Integer.parseInt(entry.getKey()), (boolean) entry.getValue()); // Add door to map
+        ArrayList<RoomTemplate> rtArray = new ArrayList<>();
+
+        for (JsonValue room : map) {
+            RoomTemplate rt = new RoomTemplate();
+
+            // Create empty room template & read values from map
+            rt.setType(RoomType.fromString(room.get("type").asString()));
+            rt.setWidth(room.get("width").asInt());
+            rt.setHeight(room.get("height").asInt());
+            rt.setModelPath(room.get("modelPath").asString());
+            rt.setName(room.get("name").asString());
+
+            try {
+                rt.setCentreOffset(MapManager.vector3FromArray(room.get("centreOffset").asDoubleArray()));
+            } catch (Exception e) {
+                rt.setCentreOffset(new Vector3(0, 0, 0));
+            }
+
+            // Read doors
+            JsonValue doors = room.get("doors");
+            rt.setDoors(new HashMap<>() {
+                {
+                    for (JsonValue door : doors) {
+                        put(Integer.parseInt(door.name), door.asBoolean());
+                    }
+                }
+            });
+
+            // Read enemy tag positions
+            JsonValue enemyTagPositions = room.get("enemies");
+            rt.setEnemyTagPositions(new ArrayList<>() {
+                {
+                    for (JsonValue tagPosition : enemyTagPositions) {
+                        add(new EnemyTagPosition(tagPosition.getString("tag"), MapManager.vector3FromArray(tagPosition.get("position").asDoubleArray())));
+                    }
+                }
+            });
+
+            rtArray.add(rt);
         }
 
-        @SuppressWarnings("unchecked") ArrayList<LinkedTreeMap<String, Object>> enemyTagPositions = (ArrayList<LinkedTreeMap<String, Object>>) map.get("enemies");
-        rt.setEnemyTagPositions(new ArrayList<>()); // Create empty enemy tag positions list
-        for (LinkedTreeMap<String, Object> tagPosition : enemyTagPositions) {
-            rt.getEnemyTagPositions().add(new EnemyTagPosition((String) tagPosition.get("tag"), MapManager.vector3FromArray((ArrayList<Double>) tagPosition.get("position"))));
-        }
-
-        return rt;
+        return rtArray;
     }
 
     /**
