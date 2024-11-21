@@ -332,7 +332,7 @@ public class Main extends Game {
 		layout = new GlyphLayout();
 
 		debugDrawer = new DebugDrawer();
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_FastWireframe);
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
 
 		//Builds UI elements
 		buildFonts();
@@ -457,6 +457,9 @@ public class Main extends Game {
 
 		Label mainTime = new Label("Time: " + getTime(), new Label.LabelStyle(uiFont, uiFont.getColor()));
 		labels.add(mainTime);
+
+        Label debugDraw = new Label("Debug draw: " + Config.doRenderColliders, new Label.LabelStyle(uiFont, uiFont.getColor()));
+        labels.add(debugDraw);
 
 		// set positions of labels
 		labels.forEach(label -> {
@@ -676,6 +679,9 @@ public class Main extends Game {
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 		player.setFromSerial(playerSerial);
 		player.heal(1);
+
+        // clear rendered scenes (keeps any scene lights, but this is currently unused)
+        sceneMan.getRenderableProviders().clear();
 
 		// clear non-player entities
 		entities.forEach((Integer i, Entity e) -> {
