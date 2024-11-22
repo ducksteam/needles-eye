@@ -60,6 +60,12 @@ public class GlobalInput implements InputProcessor {
             else Main.setGameState(Main.GameState.PAUSED_MENU);
             return true;
         }
+
+        if (Main.mapMan.visualise) {
+            if (i == Input.Keys.COMMA) Main.mapMan.visualiser.step(-1);
+            if (i == Input.Keys.PERIOD) Main.mapMan.visualiser.step(1);
+        }
+
         return false;
     }
 

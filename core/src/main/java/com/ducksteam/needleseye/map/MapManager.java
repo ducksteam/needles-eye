@@ -27,6 +27,9 @@ public class MapManager {
 
     public int levelIndex; // number of levels generated
 
+    public MapGenerationVisualiser visualiser;
+    public boolean visualise;
+
     // different translations for various rotations of hallway models
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
             new Vector3(-5, 0, 0), // 0 deg
@@ -56,26 +59,22 @@ public class MapManager {
     };
 
     public MapManager() {
+        this(false);
+    }
+
+    public MapManager(boolean visualise) {
         roomTemplates = new ArrayList<>();
         levels = new ArrayList<>();
         levelIndex = 1;
 
-        /*// load room templates
-        File roomDir = new File(ROOM_TEMPLATE_PATH);
-        if (!roomDir.exists()) { // check if the room template directory exists
-            Gdx.app.error("MapManager", "Room template directory not found: " + ROOM_TEMPLATE_PATH);
-            return;
-        }
-        for (File file : Objects.requireNonNull(roomDir.listFiles())) { // load all room templates
-            if (file.getName().endsWith(".json")) { // only load json files
-                roomTemplates.add(RoomTemplate.loadRoomTemplate(file)); // load the room template
-                Gdx.app.debug("MapManager", "Loaded data for " + file.getName() + ": " + roomTemplates.getLast().toString());
-            }
-        }*/
-
         roomTemplates.addAll(RoomTemplate.loadRoomTemplates(Gdx.files.internal("data/rooms.json")));
 
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
+        if (visualise) {
+            Gdx.app.log("MapManager", "Visualising map generation");
+            visualiser = new MapGenerationVisualiser();
+            this.visualise = true;
+        }
     }
 
     /**
@@ -146,11 +145,18 @@ public class MapManager {
      */
 
     public void generateLevel() {
+        if (visualise) {
+            visualiser.renderingComplete = false;
+            visualiser.instructions.clear();
+        }
+
         Level level = new Level(levelIndex); // create an empty level object
 
         int rot = randomRotation();
 
         RoomInstance room = new RoomInstance(getRandomRoomTemplate(RoomTemplate.RoomType.HALLWAY), hallwayModelTranslations[rot/90], new Vector2(0,0), rot); // build a base hallway
+
+        if (visualise) visualiser.addInstruction("add-room " + RoomTemplate.RoomType.HALLWAY + " " + room.getRoom().getName() + " 0 0 " + room.getRoom().getWidth() + " " + room.getRoom().getHeight() + " " + rot);
 
         level.addRoom(room);
         int battleRoomCount = 0;
@@ -158,8 +164,9 @@ public class MapManager {
         for (int i = 0; i < levelIndex * 5; i++){ // add a random number of rooms, increasing with each level
             RoomTemplate.RoomType nextType = RoomTemplate.RoomType.getRandomRoomType(); // get a random room type
             if (nextType == RoomTemplate.RoomType.BATTLE) { // limit the number of battle rooms
-                battleRoomCount++;
                 if (battleRoomCount > levelIndex) generateRoom(level, nextType);
+                else if (visualise) visualiser.addInstruction("msg Skipping battle room");
+                battleRoomCount++;
             } else {
                 generateRoom(level, nextType);
             }
@@ -168,12 +175,16 @@ public class MapManager {
         // generate treasure rooms
         float treasureRand = (levelIndex + 2f) / 3; // the chance of a treasure room increases with each level
         float treasureGuaranteed = (float) Math.floor(treasureRand); // the number of guaranteed treasure rooms, increases every 3 levels
+        if (visualise) visualiser.addInstruction("msg Generating " + (int) treasureGuaranteed + " guaranteed treasure rooms");
+
         for (int i = 0; i < treasureGuaranteed; i++){
             generateRoom(level, RoomTemplate.RoomType.TREASURE);
         }
+
         if(Math.random() < treasureRand - treasureGuaranteed){ // chance of an extra treasure room
             generateRoom(level, RoomTemplate.RoomType.TREASURE);
-        }
+            if (visualise) visualiser.addInstruction("msg Generating extra treasure room");
+        } else if (visualise) visualiser.addInstruction("msg Not generating extra treasure room");
 
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
@@ -220,7 +231,7 @@ public class MapManager {
                 if (adjacentRoomExists) {
                     RoomInstance adjacentRoom = level.getRooms().stream().filter(room -> room.getRoomSpacePos().equals(adjacentRoomPosition)).findFirst().orElse(null);
                     if (adjacentRoom == null) {
-						Gdx.app.error("MapManager", "Adjacent room found but not found");
+						Gdx.app.error("MapManager", "Adjacent room found but not found - this should never happen");
                         return;
                     }
                     adjacentRoomIsHallwayPlaceholder = adjacentRoom.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER;
@@ -311,9 +322,14 @@ public class MapManager {
         RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
         int rot = randomRotation(); // generate a random rotation
         Vector2 pos = generateRoomPos(template, level.getRooms(), rot); // generate a valid position for the room
+
         RoomInstance room;
+
         if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).add(hallwayModelTranslations[rot/90]), pos, rot); // create instance
         else room = new RoomInstance(template, pos, rot);
+
+        if (visualise) visualiser.addInstruction("add-room " + type + " " + room.getRoom().getName() + " " + (int) pos.x + " " + (int) pos.y + " " + room.getRoom().getWidth() + " " + room.getRoom().getHeight() + " " + rot);
+
         level.addRoom(room); // add to level
     }
 
@@ -325,15 +341,22 @@ public class MapManager {
      */
     private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms, int rot) {
         RoomInstance room = getRandomElement(rooms); // get a random room to attach to
-        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return generateRoomPos(template, rooms, rot); // if the room is a placeholder, try again
+        if (visualise) visualiser.addInstruction("select-room " + (int) room.getRoomSpacePos().x + " " + (int) room.getRoomSpacePos().y);
+
+        if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
+            if (visualise) visualiser.addInstruction("msg Skipping hallway placeholder");
+            return generateRoomPos(template, rooms, rot); // if the room is a placeholder, try again
+        }
 
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
 
         int door = (int) Math.floor(Math.random() * doorCount);
         while ((doorCount == 7 && door == 3) || !room.getRoom().getDoors().get(door)) door = (int) Math.floor(Math.random() * doorCount); // but door 3 isn't used in hallways and doors can be disabled
+        if (visualise) visualiser.addInstruction("select-door " + door);
 
         // Door id reference
-        /*   6
+        /* this might be horizontally flipped? ask lila if you need to know
+         *   6
          *   __
          * 4|3 |5
          *  |__|
@@ -352,12 +375,18 @@ public class MapManager {
             default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
         };
 
-        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.scl(adjacentRoomOffset)); // add offset to room position
+        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.cpy().scl(adjacentRoomOffset)); // add offset to room position
+
+        if (visualise) {
+            visualiser.addInstruction("try-position " + (int) pos.x + " " + (int) pos.y + " " + template.getWidth() + " " + template.getHeight() + " " + rot);
+            visualiser.addInstruction("msg "+room.getRoomSpacePos()+" + "+offset+"*"+adjacentRoomOffset+" = "+pos);
+        }
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
                     if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
+                        if (visualise) visualiser.addInstruction("position-test-fail " + (int) pos.x + " " + (int) pos.y);
                         return generateRoomPos(template, rooms, rot); // try again
                     }
                 }

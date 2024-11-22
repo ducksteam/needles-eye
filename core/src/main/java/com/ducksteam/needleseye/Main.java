@@ -365,7 +365,7 @@ public class Main extends Game {
 
 		//Sets up game managers
 		assMan = new AssetManager();
-		mapMan = new MapManager();
+		mapMan = new MapManager(false);
 
 		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/thread/thread-transition.png"));
@@ -385,8 +385,10 @@ public class Main extends Game {
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.02 * Gdx.graphics.getHeight()); // scale font to window size
+        if (parameter.size < 3) parameter.size = 3;
 		uiFont = generator.generateFont(parameter);
 		parameter.size = (int) (0.08 * Gdx.graphics.getHeight());
+        if (parameter.size < 8) parameter.size = 8;
 		titleFont = generator.generateFont(parameter);
 	}
 
@@ -763,6 +765,11 @@ public class Main extends Game {
 		}
 
 		if (gameState == GameState.IN_GAME){
+            if (mapMan.visualise && !mapMan.visualiser.renderingComplete){
+                mapMan.visualiser.draw(batch2d);
+                return;
+            }
+
 			// Update player input
 			PlayerInput.update(dT);
 
