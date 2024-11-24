@@ -365,7 +365,7 @@ public class Main extends Game {
 
 		//Sets up game managers
 		assMan = new AssetManager();
-		mapMan = new MapManager(false);
+		mapMan = new MapManager(true);
 
 		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/thread/thread-transition.png"));

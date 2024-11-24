@@ -148,6 +148,7 @@ public class MapManager {
         if (visualise) {
             visualiser.renderingComplete = false;
             visualiser.instructions.clear();
+            visualiser.nextInstruction = 0;
         }
 
         Level level = new Level(levelIndex); // create an empty level object
@@ -175,7 +176,7 @@ public class MapManager {
         // generate treasure rooms
         float treasureRand = (levelIndex + 2f) / 3; // the chance of a treasure room increases with each level
         float treasureGuaranteed = (float) Math.floor(treasureRand); // the number of guaranteed treasure rooms, increases every 3 levels
-        if (visualise) visualiser.addInstruction("msg Generating " + (int) treasureGuaranteed + " guaranteed treasure rooms");
+        if (visualise) visualiser.addInstruction("msg Generating " + treasureRand + " treasure rooms, " + treasureGuaranteed + " guaranteed");
 
         for (int i = 0; i < treasureGuaranteed; i++){
             generateRoom(level, RoomTemplate.RoomType.TREASURE);
@@ -367,19 +368,10 @@ public class MapManager {
 
         Vector2 offset = roomSpaceAdjacentRoomTransformations[door].cpy();
 
-        Vector2 adjacentRoomOffset = switch (room.getRot()) { // room rotation
-            case 0 -> new Vector2(1, 1);
-            case 90 -> new Vector2(1, -1);
-            case 180 -> new Vector2(-1, -1);
-            case 270 -> new Vector2(-1, 1);
-            default -> throw new IllegalStateException("Unexpected value: " + room.getRot());
-        };
-
-        Vector2 pos = room.getRoomSpacePos().cpy().add(offset.cpy().scl(adjacentRoomOffset)); // add offset to room position
+        Vector2 pos = MapManager.roundVector2(room.getRoomSpacePos().cpy().add(offset.rotateDeg(room.getRot()))); // add offset to room position
 
         if (visualise) {
             visualiser.addInstruction("try-position " + (int) pos.x + " " + (int) pos.y + " " + template.getWidth() + " " + template.getHeight() + " " + rot);
-            visualiser.addInstruction("msg "+room.getRoomSpacePos()+" + "+offset+"*"+adjacentRoomOffset+" = "+pos);
         }
 
         for (RoomInstance ri : rooms) { // check if the position is already taken

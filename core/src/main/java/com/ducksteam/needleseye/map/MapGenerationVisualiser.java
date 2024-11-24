@@ -38,8 +38,8 @@ public class MapGenerationVisualiser {
     Color selectedColor = new Color(0x20dbdbff);
     Color tryColor = new Color(0xfc523fff);
 
-    private final int roomSize = 64;
-    private final int selectedRoomSize = 48;
+    private final int roomSize = 128;
+    private final int selectedRoomSize = 96;
     RoomPlacementData selectedRoom;
     int selectedDoor;
 
@@ -53,6 +53,7 @@ public class MapGenerationVisualiser {
     Vector2 tmpDoorVec = new Vector2();
 
     /*
+    Possible instructions:
     add-room <room type> <room name> <x> <y> <w> <h> <rotation>
     select-room <x> <y>
     select-door <door index>
@@ -87,7 +88,7 @@ public class MapGenerationVisualiser {
     public void step(int count){
         if (count > 0) {
             for (int i = 0; i < count; i++) {
-                if (nextInstruction + 1 != instructions.size()) nextInstruction++;
+                if (nextInstruction != instructions.size()) nextInstruction++;
                 else if (instructions.size() > 1) {
                     renderingComplete = true;
                     break;
@@ -168,6 +169,10 @@ public class MapGenerationVisualiser {
         }
 
         // draw text labels for each room
+        for (RoomPlacementData room : rooms) {
+            uiFont.draw(batch, room.templateName.substring(0, 4), (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 + uiFont.getLineHeight()/2);
+            uiFont.draw(batch, room.rotation + "", (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 - uiFont.getLineHeight()/2);
+        }
 
         // draw more text
         uiFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
@@ -181,8 +186,8 @@ public class MapGenerationVisualiser {
         layout.setText(uiFont, recentMessage[2]);
         uiFont.draw(batch, recentMessage[2], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 10);
 
-        uiFont.draw(batch, "-> +X", Gdx.graphics.getWidth() - 100, Gdx.graphics.getHeight() / 2);
-        uiFont.draw(batch, "^ +Z", Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() - 130);
+        uiFont.draw(batch, "-> +X", Gdx.graphics.getWidth() - 100, (float) Gdx.graphics.getHeight() / 2);
+        uiFont.draw(batch, "^ +Z", (float) Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() - 130);
 
         batch.end();
 
@@ -240,14 +245,14 @@ public class MapGenerationVisualiser {
         if (tmpSizeVec.x < 0) tmpPosVec.x += roomSize;
         if (tmpSizeVec.y < 0) tmpPosVec.y += roomSize;
 
-        if (tmpSizeVec.x < 0) tmpDoorVec.x += 3*roomSize/4;
-        if (tmpSizeVec.y < 0) tmpDoorVec.y += 3*roomSize/4;
+        if (tmpSizeVec.x < 0) tmpDoorVec.x += (float) (3 * roomSize) /4;
+        if (tmpSizeVec.y < 0) tmpDoorVec.y += (float) (3 * roomSize) /4;
 
         batch.draw(pixel,
             tmpDoorVec.x,
             tmpDoorVec.y,
-            roomSize / 4,
-            roomSize / 4);
+            (float) roomSize / 4,
+            (float) roomSize / 4);
     }
 
     private final static Vector2[] doorTranslations = new Vector2[]{
