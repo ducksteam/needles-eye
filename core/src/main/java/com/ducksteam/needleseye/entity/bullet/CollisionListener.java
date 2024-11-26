@@ -4,21 +4,16 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.physics.bullet.collision.ContactListener;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
-import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.Upgrade;
-
-import java.util.ArrayList;
 
 /**
  * Custom logic for collision callback handling.
  * @author skysourced
  * */
 public class CollisionListener extends ContactListener {
-
-	public static final ArrayList<Integer> playerGroundContacts = new ArrayList<>();
 
 	/**
 	 * Called when two objects (one of which having the <code>CF_CUSTOM_MATERIAL_CALLBACK</code> flag) collide.
@@ -42,11 +37,6 @@ public class CollisionListener extends ContactListener {
 		if (entity0 instanceof Player) {
             switch (entity1) {
                 case EnemyEntity enemyEntity -> ((Player) entity0).damage(enemyEntity.getContactDamage(), enemyEntity);
-                case RoomInstance roomInstance -> {
-                    if (!playerGroundContacts.contains(userValue1)) {
-                        playerGroundContacts.add(userValue1);
-                    }
-                }
                 case UpgradeEntity upgradeEntity -> {
                     entity1.collider.setContactCallbackFilter(0);
                     Upgrade pickup = upgradeEntity.getUpgrade();
