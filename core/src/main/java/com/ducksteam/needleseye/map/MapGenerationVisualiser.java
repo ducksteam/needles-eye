@@ -57,9 +57,7 @@ public class MapGenerationVisualiser {
     add-room <room type> <room name> <x> <y> <w> <h> <rotation>
     select-room <x> <y>
     select-door <door index>
-    try-position <x> <y> <w> <h> <rotation>
-    position-test-success
-    position-test-fail <x> <y>
+    try-position <room name> <x> <y> <w> <h> <rotation>
     msg <message>
      */
 
@@ -151,19 +149,13 @@ public class MapGenerationVisualiser {
                 }
                 case "try-position" -> tryPos(batch, new RoomPlacementData(
                     null,
-                    null,
-                    Integer.parseInt(parts[1]),
+                    parts[1],
                     Integer.parseInt(parts[2]),
                     Integer.parseInt(parts[3]),
                     Integer.parseInt(parts[4]),
                     Integer.parseInt(parts[5]),
+                    Integer.parseInt(parts[6]),
                     new HashMap<>()));
-                case "position-test-success" -> {
-
-                }
-                case "position-test-fail" -> {
-
-                }
                 case "msg" -> setRecentMessage(instruction.substring(4));
             }
         }
@@ -257,11 +249,11 @@ public class MapGenerationVisualiser {
 
     private final static Vector2[] doorTranslations = new Vector2[]{
         new Vector2(0.375f, 0f),
-        new Vector2(0.75f, 0.375f),
         new Vector2(0f, 0.375f),
+        new Vector2(0.75f, 0.375f),
         new Vector2(0.375f, 0.75f),
-        new Vector2(0.75f, 1.375f),
         new Vector2(0f, 1.375f),
+        new Vector2(0.75f, 1.375f),
         new Vector2(0.375f, 1.75f)
     };
 
@@ -293,6 +285,14 @@ public class MapGenerationVisualiser {
             tmpPosVec.y,
             tmpSizeVec.x,
             tmpSizeVec.y);
+
+        for (Map.Entry<Integer, Boolean> door : room.doors.entrySet()) {
+            if (door.getValue()) {
+                drawDoor(batch, room, door.getKey(), enabledDoorColor);
+            } else {
+                drawDoor(batch, room, door.getKey(), disabledDoorColor);
+            }
+        }
     }
 
     private void selectDoor(SpriteBatch batch, int door) {
@@ -308,6 +308,8 @@ public class MapGenerationVisualiser {
     }
 
     private void redrawRooms(SpriteBatch batch) {
+        Gdx.graphics.getGL20().glClearColor(0, 0, 0, 1);
+
         for (RoomPlacementData room : rooms) {
             drawRoom(batch, room);
         }

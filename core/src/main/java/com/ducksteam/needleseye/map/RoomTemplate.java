@@ -1,11 +1,8 @@
 package com.ducksteam.needleseye.map;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.g3d.Model;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Main;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -95,21 +92,12 @@ public class RoomTemplate {
 
     public RoomTemplate() {}
 
-    /** Load room templates from a file
-     * @param path the <code>FileHandle</code> to load from
+    /** Load room templates from JSON
+     * @param map the JSON array to read from
      * @return the room template
      */
 
-    public static ArrayList<RoomTemplate> loadRoomTemplates(FileHandle path) {
-        Json json = new Json();
-        Array<JsonValue> map;
-        try {
-            map = json.fromJson(null, path);
-        } catch (Exception e) {
-            Gdx.app.error("RoomTemplate", "Error loading room templates: " + path, e);
-            return new ArrayList<>();
-        }
-
+    public static ArrayList<RoomTemplate> loadRoomTemplates(Array<JsonValue> map) {
         ArrayList<RoomTemplate> rtArray = new ArrayList<>();
 
         for (JsonValue room : map) {

@@ -9,7 +9,19 @@ dependencies {
   api "com.github.mgsx-dev.gdx-gltf:gltf:$gdxGltfVersion"
   implementation "com.google.code.gson:gson:2.10.1"
 
+  testImplementation(platform('org.junit:junit-bom:5.11.3'))
+  testImplementation('org.junit.jupiter:junit-jupiter')
+  testRuntimeOnly('org.junit.platform:junit-platform-launcher')
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
+  }
+}
+
+
+test {
+  useJUnitPlatform()
+  testLogging {
+    events "passed", "skipped", "failed"
   }
 }

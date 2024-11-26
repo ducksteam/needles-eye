@@ -4,6 +4,9 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.entity.EnemyRegistry;
 import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
@@ -13,6 +16,7 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 
@@ -38,25 +42,29 @@ public class MapManager {
             new Vector3(0, 0, -5) // 270 deg
     };
 
+    // these are from the centre of the room, may need to have 0.5f added to them
     private final static Vector2[] roomSpaceDoorTransformations = new Vector2[]{
             new Vector2(0f, -0.5f),
-            new Vector2(0.5f, 0),
             new Vector2(-0.5f, 0),
+            new Vector2(0.5f, 0),
             new Vector2(0, 0.5f),
-            new Vector2(0.5f, 1f),
             new Vector2(-0.5f, 1f),
+            new Vector2(0.5f, 1f),
             new Vector2(0f, 1.5f)
     };
 
     private final static Vector2[] roomSpaceAdjacentRoomTransformations = new Vector2[]{
             new Vector2(0, -1),
-            new Vector2(1, 0),
             new Vector2(-1, 0),
+            new Vector2(1, 0),
             new Vector2(0, 1),
-            new Vector2(1, 1),
             new Vector2(-1, 1),
+            new Vector2(1, 1),
             new Vector2(0, 2)
     };
+
+    private final static Vector2 INVALID_ROOM_POS = new Vector2(-10000, -10000);
+    private int rotationOverride = -1;
 
     public MapManager() {
         this(false);
@@ -67,7 +75,14 @@ public class MapManager {
         levels = new ArrayList<>();
         levelIndex = 1;
 
-        roomTemplates.addAll(RoomTemplate.loadRoomTemplates(Gdx.files.internal("data/rooms.json")));
+        Json json = new Json();
+        Array<JsonValue> map;
+        try {
+            map = json.fromJson(null, Gdx.files.internal("data/rooms.json"));
+            roomTemplates.addAll(RoomTemplate.loadRoomTemplates(map));
+        } catch (Exception e) {
+            Gdx.app.error("RoomTemplate", "Error loading room templates", e);
+        }
 
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
         if (visualise) {
@@ -165,7 +180,7 @@ public class MapManager {
         for (int i = 0; i < levelIndex * 5; i++){ // add a random number of rooms, increasing with each level
             RoomTemplate.RoomType nextType = RoomTemplate.RoomType.getRandomRoomType(); // get a random room type
             if (nextType == RoomTemplate.RoomType.BATTLE) { // limit the number of battle rooms
-                if (battleRoomCount > levelIndex) generateRoom(level, nextType);
+                if (battleRoomCount < levelIndex) generateRoom(level, nextType);
                 else if (visualise) visualiser.addInstruction("msg Skipping battle room");
                 battleRoomCount++;
             } else {
@@ -176,14 +191,14 @@ public class MapManager {
         // generate treasure rooms
         float treasureRand = (levelIndex + 2f) / 3; // the chance of a treasure room increases with each level
         float treasureGuaranteed = (float) Math.floor(treasureRand); // the number of guaranteed treasure rooms, increases every 3 levels
-        if (visualise) visualiser.addInstruction("msg Generating " + treasureRand + " treasure rooms, " + treasureGuaranteed + " guaranteed");
+        if (visualise) visualiser.addInstruction("msg Generating " + treasureRand + " treasure rooms, " + (int) treasureGuaranteed + " guaranteed");
 
         for (int i = 0; i < treasureGuaranteed; i++){
-            generateRoom(level, RoomTemplate.RoomType.TREASURE);
+            generateRoom(level, RoomTemplate.RoomType.TREASURE, true);
         }
 
         if(Math.random() < treasureRand - treasureGuaranteed){ // chance of an extra treasure room
-            generateRoom(level, RoomTemplate.RoomType.TREASURE);
+            generateRoom(level, RoomTemplate.RoomType.TREASURE, true);
             if (visualise) visualiser.addInstruction("msg Generating extra treasure room");
         } else if (visualise) visualiser.addInstruction("msg Not generating extra treasure room");
 
@@ -270,41 +285,38 @@ public class MapManager {
                 level.walls.put(currentRoomDoorPosition, new WallObject(getRoomPos(currentRoomDoorPosition), new Quaternion().setEulerAngles(((i % 3 == 0) ? 90 : 0)+roomInstance.getRot(), 0, 0), wallHasDoor));
             }
         });
+    }
 
-        /*// parameters for the four different wall types
-        Vector2[] translations = new Vector2[]{new Vector2(0, -0.5f), new Vector2(-0.5f, 0), new Vector2(-0.5f, -1), new Vector2(-1, -0.5f)};
-        int[] rotations = new int[]{0, 90, 270, 180};
-        Vector2[] roomOffsets = {new Vector2(1, 0), new Vector2(0, 1), new Vector2(0, -1), new Vector2(-1, 0)};
+    /**
+     * Return the door on the first room that connects to the specified door on the second room.
+     * Does not check if the door is enabled on the target room
+     * @param template the room template of the first room
+     * @param rot the rotation of the first room
+     * @param roomSpacePos the room space position of the first room
+     * @param targetRoomSpacePos the room space position of the second room
+     * @param targetDoor the door on the second room
+     * @param targetRot the rotation of the second room
+     * @return the door that connects the two rooms, or -1 if no connection / the door is disabled on the first room
+     */
+    public static int getConnectingDoor(RoomTemplate template, int rot, Vector2 roomSpacePos, Vector2 targetRoomSpacePos, int targetDoor, int targetRot) {
+        Vector2 targetDoorPos = getDoorRoomSpacePos(targetRoomSpacePos, targetDoor, targetRot); // get the position of the target door
+        for (Map.Entry<Integer, Boolean> entry : template.getDoors().entrySet()) { // check all the doors on the room
+            if (entry.getValue() && targetDoorPos.epsilonEquals(getDoorRoomSpacePos(roomSpacePos, entry.getKey(), rot), 0.25f)) {
+                return entry.getKey();
+            } // if the door is enabled and in the correct position, return the door
+        }
+        return -1; // no connection
+    }
 
-        level.getRooms().forEach(roomInstance -> {
-            RoomTemplate.RoomType type = roomInstance.getRoom().getType(); // store type to save memories
-
-            int possibleDoors = 4;
-
-			for(int i = 0; i < possibleDoors; i++){
-                if (i == 1 && type == RoomTemplate.RoomType.HALLWAY) continue; // skip door 3 for hallways
-                if (i == 2 && type == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) continue; // skip door 0 for hallway placeholders
-                if (level.walls.get(roomInstance.getRoomSpacePos().cpy().add(translations[i])) != null) continue; // if there's already a wall there, skip it
-
-                boolean adjacentRoomExists;
-
-                // select the correct translation, rotation, and position for the wall number
-                Vector2 translation = translations[i];
-                Vector3 position = getRoomPos(roomInstance.getRoomSpacePos()).cpy().add(new Vector3(translation.x,0,translation.y).scl(Config.ROOM_SCALE));
-
-                Quaternion rotation = new Quaternion();
-                rotation.set(Vector3.Y, rotations[i]);
-
-                // check if the corresponding room exists
-                Vector2 adjacentRoomOffset = roomOffsets[i];
-                // if an adjacent room exists
-                adjacentRoomExists = level.getRooms().stream().anyMatch(room -> room.getRoomSpacePos().equals(roomInstance.getRoomSpacePos().cpy().add(adjacentRoomOffset)));
-
-                // create wall
-                WallObject wall = new WallObject(position, rotation, adjacentRoomExists);
-                level.walls.put(roomInstance.getRoomSpacePos().cpy().add(translation), wall);
-            }
-        });*/
+    /**
+     * Get the room space position of a door
+     * @param roomSpacePos the room space position in the lower left corner of the room
+     * @param door the door id
+     * @param rot the rotation of the room
+     * @return the room space position of the door
+     */
+    public static Vector2 getDoorRoomSpacePos(Vector2 roomSpacePos, int door, int rot) {
+        return MapManager.roundVector2(roomSpacePos.cpy().add(roomSpaceDoorTransformations[door].cpy().rotateDeg(rot)).add(0.5f, 0.5f), 2);
     }
 
     /**
@@ -318,12 +330,22 @@ public class MapManager {
     /**
      * Generate a room & add it to the level
      * @param level the level to generate the room in
+     * @param type the type of room to generate
+     * @param forceRotation whether to force a position on rotation (passed through to generateRoomPos)
      */
-    private void generateRoom(Level level, RoomTemplate.RoomType type) {
+    private void generateRoom(Level level, RoomTemplate.RoomType type, boolean forceRotation) {
         RoomTemplate template = getRandomRoomTemplate(type); // find the template with the correct type
         int rot = randomRotation(); // generate a random rotation
-        Vector2 pos = generateRoomPos(template, level.getRooms(), rot); // generate a valid position for the room
-
+        Vector2 pos = generateRoomPos(template, level.getRooms(), rot, forceRotation); // generate a valid position for the room
+        while (pos.equals(INVALID_ROOM_POS)){
+            rot = randomRotation();
+            pos = generateRoomPos(template, level.getRooms(), rot, forceRotation);
+        }
+        if (rotationOverride != -1) {
+            rot = rotationOverride;
+            rotationOverride = -1;
+            Gdx.app.log("MapManager", "Overriding rotation to " + rot);
+        }
         RoomInstance room;
 
         if (template.getType() == RoomTemplate.RoomType.HALLWAY) room = new RoomInstance(template, MapManager.getRoomPos(pos).add(hallwayModelTranslations[rot/90]), pos, rot); // create instance
@@ -334,19 +356,26 @@ public class MapManager {
         level.addRoom(room); // add to level
     }
 
+    public void generateRoom(Level level, RoomTemplate.RoomType type) {
+        generateRoom(level, type, false);
+    }
+
     /**
      * Generates a valid position for a room.
      * @param template the room to generate a position for
      * @param rooms the rooms already placed in the level
+     *              @param rot the rotation of the room
+     *                         @param forceRotation whether to force a position on rotation
      * @return a valid position for the room
      */
-    private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms, int rot) {
-        RoomInstance room = getRandomElement(rooms); // get a random room to attach to
+    private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms, int rot, boolean forceRotation) {
+        RoomInstance room = getRandomElement(rooms, (RoomInstance i) -> i.getRoom().getType() != RoomTemplate.RoomType.HALLWAY_PLACEHOLDER); // get a random room to attach to
         if (visualise) visualiser.addInstruction("select-room " + (int) room.getRoomSpacePos().x + " " + (int) room.getRoomSpacePos().y);
 
+        // this should never trigger thanks to the predicate above but i will leave it as i am unsure and unconfident
         if (room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) {
             if (visualise) visualiser.addInstruction("msg Skipping hallway placeholder");
-            return generateRoomPos(template, rooms, rot); // if the room is a placeholder, try again
+            return INVALID_ROOM_POS.cpy(); // if the room is a placeholder, try again
         }
 
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
@@ -371,17 +400,36 @@ public class MapManager {
         Vector2 pos = MapManager.roundVector2(room.getRoomSpacePos().cpy().add(offset.rotateDeg(room.getRot()))); // add offset to room position
 
         if (visualise) {
-            visualiser.addInstruction("try-position " + (int) pos.x + " " + (int) pos.y + " " + template.getWidth() + " " + template.getHeight() + " " + rot);
+            visualiser.addInstruction("try-position " + template.getName() + " " + (int) pos.x + " " + (int) pos.y + " " + template.getWidth() + " " + template.getHeight() + " " + rot);
         }
 
         for (RoomInstance ri : rooms) { // check if the position is already taken
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
                     if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
-                        if (visualise) visualiser.addInstruction("position-test-fail " + (int) pos.x + " " + (int) pos.y);
-                        return generateRoomPos(template, rooms, rot); // try again
+                        if (visualise) visualiser.addInstruction("msg Position (" + pos.x + ", " + pos.y + ") occupied");
+                        return INVALID_ROOM_POS.cpy(); // try again
                     }
                 }
+            }
+        }
+
+        if (getConnectingDoor(template, rot, pos, room.getRoomSpacePos(), door, room.getRot()) == -1) { // check if the doors connect
+            if (forceRotation){
+                if (visualise) visualiser.addInstruction("msg Forcing rotation");
+                for (int i = 0; i < 4; i++){
+                    if (getConnectingDoor(template, i * 90, pos, room.getRoomSpacePos(), door, room.getRot()) != -1) {
+                        rotationOverride = i * 90;
+                        break;
+                    }
+                }
+                if (rotationOverride == -1) {
+                    if (visualise) visualiser.addInstruction("msg Doors do not connect");
+                    return INVALID_ROOM_POS.cpy();
+                }
+            } else {
+                if (visualise) visualiser.addInstruction("msg Doors do not connect");
+                return INVALID_ROOM_POS.cpy();
             }
         }
 
@@ -411,14 +459,22 @@ public class MapManager {
     }
 
     /**
+     * Get a random element from a list that matches a filter
+     * @param list the list to get an element from
+     * @param filter the filter to apply
+     * @return a random element from the list
+     * @param <E> the type of the list
+     */
+    public static <E> E getRandomElement(ArrayList<E> list, Predicate<E> filter) {
+        ArrayList<E> filtered = list.stream().filter(filter).collect(Collectors.toCollection(ArrayList::new));
+        return getRandomElement(filtered);
+    }
+
+    /**
      * Get a vector3 from an array
      * @param array the array to get the vector from
      * @return the new vector3
      */
-    public static Vector3 vector3FromArray(ArrayList<Double> array) {
-        return new Vector3(array.get(0).floatValue(), array.get(1).floatValue(), array.get(2).floatValue());
-    }
-
     public static Vector3 vector3FromArray(double[] array) {
         return new Vector3((float) array[0], (float) array[1], (float) array[2]);
     }
@@ -463,7 +519,7 @@ public class MapManager {
     /**
      * Get the room space position of a world space position
      * @param pos the world space position
-     * @param round whether to round the position to nearest ints
+     * @param round whether to round the position to nearest int
      * @return the room space position
      */
     public static Vector2 getRoomSpacePos (Vector3 pos, boolean round) {
