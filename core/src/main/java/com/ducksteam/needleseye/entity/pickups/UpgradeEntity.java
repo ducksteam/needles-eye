@@ -22,6 +22,11 @@ public class UpgradeEntity extends Entity {
     Vector3 tmp = new Vector3();
     Matrix4 tmpMat = new Matrix4();
 
+    /**
+     * Create a new upgrade entity
+     * @param position the position of the entity
+     * @param upgrade the upgrade contained within the entity
+     */
     public UpgradeEntity(Vector3 position, Upgrade upgrade) {
         super(position, new Quaternion(), 0f, new Scene(((SceneAsset) Main.assMan.get(upgrade.getModelAddress())).scene), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
         this.upgrade = upgrade;
@@ -37,7 +42,7 @@ public class UpgradeEntity extends Entity {
     }
 
     /**
-     * get the upgrade contained within the entity
+     * Get the upgrade contained within the entity
      * @return the entity's upgrade
      */
     public Upgrade getUpgrade() {

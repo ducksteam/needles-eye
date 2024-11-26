@@ -15,7 +15,7 @@ import static com.ducksteam.needleseye.Main.setGameState;
 import static com.ducksteam.needleseye.Main.uiFont;
 
 /**
- * The screen where the player can view the instructions for the game.
+ * The stage that shows the player the game's instructions.
  * @author SkySourced
  */
 

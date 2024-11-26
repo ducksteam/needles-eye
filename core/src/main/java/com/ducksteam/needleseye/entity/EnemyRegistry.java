@@ -20,8 +20,17 @@ import java.util.Map;
  * */
 public class EnemyRegistry {
     //Utility data for enemy registration
+    /**
+     * A map of all registered enemy types, and a string id for each
+     */
     public static HashMap<String, Class<? extends EnemyEntity>> registeredEnemies = new HashMap<>();
+    /**
+     * Whether the enemy assets have been loaded
+     */
     public static boolean loaded = false;
+    /**
+     * A map of all enemy models
+     */
     public static HashMap<Class<? extends EnemyEntity>, Scene> enemyScenes = new HashMap<>();
 
     /**

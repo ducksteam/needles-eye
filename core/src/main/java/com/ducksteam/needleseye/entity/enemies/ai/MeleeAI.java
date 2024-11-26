@@ -19,16 +19,18 @@ public class MeleeAI implements IHasAi {
 	float idleSpeed; // speed of the enemy when idling
 	float chaseSpeed; // speed of the enemy when chasing
 
+    /**
+     * Creates a new MeleeAI
+     * @param target the entity to control
+     * @param idleSpeed the speed of the enemy when idling
+     * @param chaseSpeed the speed of the enemy when chasing
+     */
 	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed) {
 		setTarget(target);
 		this.idleSpeed = idleSpeed;
 		this.chaseSpeed = chaseSpeed;
 	}
 
-	/**
-	 * Updates the AI algorithm
-	 * @param dT the time since the last update
-	 */
 	@Override
 	public void update(float dT) {
 		if (getTarget() == null) return; // ensure target exists
@@ -45,10 +47,6 @@ public class MeleeAI implements IHasAi {
 		});
 	}
 
-	/**
-	 * Idle behaviour
-	 * @param dT the time since the last update
-	 */
 	@Override
 	public void idle(float dT) {
 		//getTarget().setAnimation("idle");
@@ -57,10 +55,6 @@ public class MeleeAI implements IHasAi {
 		getTarget().collider.applyCentralImpulse(randomDirection.scl(idleSpeed * dT)); // move in random direction
 	}
 
-	/**
-	 * Chase behaviour
-	 * @param dT the time since the last update
-	 */
 	@Override
 	public void chase(float dT) {
 		//getTarget().setAnimation("walk");
@@ -70,28 +64,17 @@ public class MeleeAI implements IHasAi {
 		if (playerPos.dst(getTarget().getPosition()) < ATTACK_RANGE) attack(); // attack if within range
 	}
 
-	/**
-	 * Attack behaviour
-	 */
 	@Override
 	public void attack() {
 		//getTarget().setAnimation("attack");
 		Main.player.damage(1, getTarget());
 	}
 
-	/**
-	 * Sets the target of the AI
-	 * @param target the target to set
-	 */
 	@Override
 	public void setTarget(EnemyEntity target) {
 		this.target = target;
 	}
 
-	/**
-	 * Gets the target of the AI
-	 * @return the target
-	 */
 	@Override
 	public EnemyEntity getTarget() {
 		return target;

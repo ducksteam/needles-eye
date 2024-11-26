@@ -26,15 +26,32 @@ import java.util.stream.Collectors;
  */
 public class MapManager {
 
-    public static ArrayList<RoomTemplate> roomTemplates; // all room templates
-    public final ArrayList<Level> levels; // the levels in this run of the game
+    /**
+     * All room templates
+     */
+    public static ArrayList<RoomTemplate> roomTemplates;
+    /**
+     * The levels from the current run
+     */
+    public final ArrayList<Level> levels;
 
-    public int levelIndex; // number of levels generated
+    /**
+     * The number of levels generated/the number to use for the next level to be generated
+     */
+    public int levelIndex;
 
+    /**
+     * The visualiser for map generation
+     */
     public MapGenerationVisualiser visualiser;
+    /**
+     * Whether to visualise the map generation
+     */
     public boolean visualise;
 
-    // different translations for various rotations of hallway models
+    /**
+     * The translations for hallway models at different rotations
+     */
     private final static Vector3[] hallwayModelTranslations = new Vector3[]{
             new Vector3(-5, 0, 0), // 0 deg
             new Vector3(-10, 0, -5), // 90 deg
@@ -42,7 +59,9 @@ public class MapManager {
             new Vector3(0, 0, -5) // 270 deg
     };
 
-    // these are from the centre of the room, may need to have 0.5f added to them
+    /**
+     * The transformations for doors in room space. These are from the centre of the room, so they may need to be offset by 0.5f on both axis to convert from the lower left corner typically obtained by flooring the position
+     */
     private final static Vector2[] roomSpaceDoorTransformations = new Vector2[]{
             new Vector2(0f, -0.5f),
             new Vector2(-0.5f, 0),
@@ -53,6 +72,9 @@ public class MapManager {
             new Vector2(0f, 1.5f)
     };
 
+    /**
+     * The transformations for adjacent rooms in room space
+     */
     private final static Vector2[] roomSpaceAdjacentRoomTransformations = new Vector2[]{
             new Vector2(0, -1),
             new Vector2(-1, 0),
@@ -63,13 +85,26 @@ public class MapManager {
             new Vector2(0, 2)
     };
 
+    /**
+     * This very large position is used to indicate that a room position is invalid, can be changed if needed
+     */
     private final static Vector2 INVALID_ROOM_POS = new Vector2(-10000, -10000);
+    /**
+     * This speeds up the map generation process by making some rooms check all possible rotations, instead of iterating through and finding a position for one random rotation
+     */
     private int rotationOverride = -1;
 
+    /**
+     * Create a new map manager
+     */
     public MapManager() {
         this(false);
     }
 
+    /**
+     * Create a new map manager
+     * @param visualise whether to visualise the map generation
+     */
     public MapManager(boolean visualise) {
         roomTemplates = new ArrayList<>();
         levels = new ArrayList<>();
@@ -141,6 +176,9 @@ public class MapManager {
         ));
     }
 
+    /**
+     * Generate a test level, with known parameters
+     */
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
@@ -156,9 +194,8 @@ public class MapManager {
     }
 
     /**
-     * Generate a new level
+     * Create a new level with a random layout, the size of which is determined by the level index
      */
-
     public void generateLevel() {
         if (visualise) {
             visualiser.renderingComplete = false;
@@ -213,6 +250,10 @@ public class MapManager {
         levelIndex++; // increment the level index
     }
 
+    /**
+     * Add walls to a level, based on template door enabling and physical proximity
+     * @param level the level to add walls to
+     */
     public void addWalls(Level level){
         level.walls = new HashMap<>();
 
@@ -356,6 +397,11 @@ public class MapManager {
         level.addRoom(room); // add to level
     }
 
+    /**
+     * Generate a room in a level
+     * @param level the level to generate the room in
+     * @param type the type of room to generate
+     */
     public void generateRoom(Level level, RoomTemplate.RoomType type) {
         generateRoom(level, type, false);
     }
@@ -364,8 +410,8 @@ public class MapManager {
      * Generates a valid position for a room.
      * @param template the room to generate a position for
      * @param rooms the rooms already placed in the level
-     *              @param rot the rotation of the room
-     *                         @param forceRotation whether to force a position on rotation
+     * @param rot the rotation of the room
+     * @param forceRotation whether to force a position on rotation
      * @return a valid position for the room
      */
     private Vector2 generateRoomPos(RoomTemplate template, ArrayList<RoomInstance> rooms, int rot, boolean forceRotation) {
@@ -397,13 +443,15 @@ public class MapManager {
 
         Vector2 offset = roomSpaceAdjacentRoomTransformations[door].cpy();
 
-        Vector2 pos = MapManager.roundVector2(room.getRoomSpacePos().cpy().add(offset.rotateDeg(room.getRot()))); // add offset to room position
+        // add offset to room position
+        Vector2 pos = MapManager.roundVector2(room.getRoomSpacePos().cpy().add(offset.rotateDeg(room.getRot())));
 
         if (visualise) {
             visualiser.addInstruction("try-position " + template.getName() + " " + (int) pos.x + " " + (int) pos.y + " " + template.getWidth() + " " + template.getHeight() + " " + rot);
         }
 
-        for (RoomInstance ri : rooms) { // check if the position is already taken
+        // check if the position is already taken
+        for (RoomInstance ri : rooms) {
             for (int h = 0; h < template.getHeight(); h++) { // check all the tiles that the room would occupy
                 for (int w = 0; w < template.getWidth(); w++){
                     if (ri.getRoomSpacePos().equals(pos.cpy().add(new Vector2(w, h).rotateDeg(rot)))) { // if the position is already taken
@@ -414,7 +462,8 @@ public class MapManager {
             }
         }
 
-        if (getConnectingDoor(template, rot, pos, room.getRoomSpacePos(), door, room.getRot()) == -1) { // check if the doors connect
+        // check if the doors connect
+        if (getConnectingDoor(template, rot, pos, room.getRoomSpacePos(), door, room.getRot()) == -1) {
             if (forceRotation){
                 if (visualise) visualiser.addInstruction("msg Forcing rotation");
                 for (int i = 0; i < 4; i++){

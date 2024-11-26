@@ -7,6 +7,9 @@ import com.ducksteam.needleseye.player.Upgrade;
  * @author SkySourced
  */
 public class SoulThread extends Upgrade {
+    /**
+     * Create a new soul thread upgrade
+     */
 	public SoulThread() {
 		super("Soul Thread", "Increases maximum health by 3", "upgrades/soul_thread.png", null, true);
 	}

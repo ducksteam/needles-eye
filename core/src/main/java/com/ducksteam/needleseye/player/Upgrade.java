@@ -21,18 +21,40 @@ public class Upgrade {
     Texture icon; // icon for the upgrade
     String iconAddress; // file path to icon
     String modelAddress; // file path to model
-    public boolean isBaseUpgrade; // whether the upgrade is a base upgrade
+    /**
+     * Whether the upgrade is a base upgrade
+     */
+    public boolean isBaseUpgrade;
 
+    /**
+     * Create a new upgrade with dummy values
+     * Only used for when searching fails
+     */
     public Upgrade() {
         this.name = "Upgrade";
         this.description = "This is an upgrade";
         this.modelAddress = null;
     }
 
+    /**
+     * Create a new upgrade
+     * @param name the name of the upgrade
+     * @param description the description of the upgrade
+     * @param iconAddress the address of the icon
+     * @param modelAddress the address of the model
+     */
     public Upgrade (String name, String description, String iconAddress, String modelAddress) {
         this(name, description, iconAddress, modelAddress, false);
     }
 
+    /**
+     * Create a new upgrade
+     * @param name the name of the upgrade
+     * @param description the description of the upgrade
+     * @param iconAddress the address of the icon
+     * @param modelAddress the address of the model
+     * @param isBaseUpgrade whether the upgrade is a base upgrade
+     */
     public Upgrade (String name, String description, String iconAddress, String modelAddress, boolean isBaseUpgrade) {
         this.name = name;
         this.description = description;
@@ -135,18 +157,53 @@ public class Upgrade {
      * Base upgrade enum
      */
     public enum BaseUpgrade {
+        /**
+         * The soul thread upgrade
+         */
         SOUL_THREAD("Soul Thread", 3, SoulThread.class,"ui/ingame/soul_swing.png", "ui/ingame/soul_crack.png", 3, 2),
+        /**
+         * The coal thread upgrade
+         */
         COAL_THREAD("Coal Thread", 5, CoalThread.class, "ui/ingame/coal_swing.png", "ui/ingame/coal_crack.png", 1.5f, 2),
+        /**
+         * The jolt thread upgrade
+         */
         JOLT_THREAD("Jolt Thread", 4, JoltThread.class, "ui/ingame/jolt_swing.png", "ui/ingame/jolt_crack.png", 1, 3),
+        /**
+         * The threaded rod upgrade
+         */
         THREADED_ROD("Threaded Rod", 4, ThreadedRod.class, "ui/ingame/trod_swing.png", null, 1, 3),
+        /**
+         * The player has not selected a base upgrade. The game will not progress past loading if this is 'selected'
+         */
         NONE(null, -1, null, null, null, 1, -1);
 
-        public final String NAME; // name of the upgrade
-        public final Class<? extends Upgrade> UPGRADE_CLASS; // class of the upgrade
+        /**
+         * The display name of the upgrade.
+         * Not actually shown to the player.
+         */
+        public final String NAME;
+        /**
+         * The class of the upgrade.
+         * Technically makes this entire enum redundant, but oh well
+         */
+        public final Class<? extends Upgrade> UPGRADE_CLASS;
+        /**
+         * The max health of the upgrade
+         */
         final int MAX_HEALTH; // max health of the upgrade
-        public final Animation<TextureRegion> SWING_ANIM; // swing animation of the upgrade
-        public final Animation<TextureRegion> CRACK_ANIM; // crack animation of the upgrade
-        final int BASE_DAMAGE; // base damage for the upgrade
+        /**
+         * The swing animation of the upgrade
+         */
+        public final Animation<TextureRegion> SWING_ANIM;
+        /**
+         * The crack animation of the upgrade
+         */
+        public final Animation<TextureRegion> CRACK_ANIM;
+        /**
+         * The base damage for the upgrade
+         */
+        final int BASE_DAMAGE;
 
         BaseUpgrade(String name, int maxHealth, Class<? extends Upgrade> upgradeClass, String swingAnimPath, String crackAnimPath, float crackAnimMult, int baseDamage) {
             this.NAME = name;

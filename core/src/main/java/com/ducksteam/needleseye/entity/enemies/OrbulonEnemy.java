@@ -19,14 +19,31 @@ import java.util.Set;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
+/**
+ * A ranged enemy that does not move and shoots at the player
+ * @author SkySourced
+ */
 public class OrbulonEnemy extends EnemyEntity {
 	static final float MASS = 0f;
 	static final float COLLIDER_SIZE = 0.5f;
 
+    /**
+     * The model address for the Orbulon enemy
+     */
 	public static final String MODEL_ADDRESS = "models/enemies/gemorb.gltf";
 
+    /**
+     * The {@link EnemyTag}s for the Orbulon enemy.
+     * Used in map generation to determine which enemies to spawn
+     */
     public static final Set<EnemyTag> tags = new HashSet<>(Set.of(EnemyTag.RANGED, EnemyTag.MEDIUM));
 
+    /**
+     * Create a new Orbulon enemy
+     * @param position the position of the enemy
+     * @param rotation the rotation of the enemy
+     * @param room the room the enemy is in
+     */
 	public OrbulonEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
 		super(position, rotation, MASS, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 15, room.getRoomSpacePos());
 		// initialise ai

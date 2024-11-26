@@ -7,6 +7,10 @@ import com.ducksteam.needleseye.player.Upgrade;
  * @author SkySourced
  */
 public class CoalThread extends Upgrade {
+
+    /**
+     * Create a new coal thread upgrade
+     */
 	public CoalThread() {
 		super("Coal Thread", "Increases maximum health by 5", "upgrades/coal_thread.png", null, true);
 	}

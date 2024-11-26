@@ -15,7 +15,7 @@ import static com.ducksteam.needleseye.Main.layout;
 import static com.ducksteam.needleseye.Main.uiFont;
 
 /**
- * Visualises the generation of a map
+ * Visualises the generation of a map.
  * Probably only used for debugging purposes
  * @author SkySourced
  */
@@ -46,6 +46,9 @@ public class MapGenerationVisualiser {
     ArrayList<RoomPlacementData> rooms = new ArrayList<>();
     String[] recentMessage = {"" , "", ""};
 
+    /**
+     * Whether the visualiser has finished rendering, and the main game can begin
+     */
     public boolean renderingComplete = false;
 
     Vector2 tmpPosVec = new Vector2();
@@ -61,6 +64,9 @@ public class MapGenerationVisualiser {
     msg <message>
      */
 
+    /**
+     * Create a new map generation visualiser
+     */
     public MapGenerationVisualiser() {
         instructions = new ArrayList<>();
         nextInstruction = 0;
@@ -106,6 +112,7 @@ public class MapGenerationVisualiser {
 
     /**
      * Render the visualiser
+     * @param batch the sprite batch to render with
      */
     public void draw(SpriteBatch batch) {
         batch.begin();

@@ -13,7 +13,7 @@ import com.ducksteam.needleseye.player.Upgrade;
 import java.util.ArrayList;
 
 /**
- * A listener of collisions between entities.
+ * Custom logic for collision callback handling.
  * @author skysourced
  * */
 public class CollisionListener extends ContactListener {

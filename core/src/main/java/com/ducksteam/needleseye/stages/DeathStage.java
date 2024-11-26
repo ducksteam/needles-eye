@@ -11,7 +11,7 @@ import com.ducksteam.needleseye.Main;
 import static com.ducksteam.needleseye.Main.*;
 
 /**
- * The screen after the player dies.
+ * The stage that displays after the player dies.
  * @author SkySourced
  * @author themoonboyx
  */

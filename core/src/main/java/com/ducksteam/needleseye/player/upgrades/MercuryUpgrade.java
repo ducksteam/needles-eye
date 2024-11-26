@@ -9,6 +9,10 @@ import com.ducksteam.needleseye.player.Upgrade;
  */
 
 public class MercuryUpgrade extends Upgrade {
+
+    /**
+    * Create a new mercury upgrade
+    */
 	public MercuryUpgrade() {
 		super("Mercury", "Your hands become numb", "upgrades/mercury.png", "upgrades/mercury.gltf");
 	}

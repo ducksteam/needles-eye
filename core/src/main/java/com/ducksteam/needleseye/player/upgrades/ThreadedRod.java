@@ -7,6 +7,10 @@ import com.ducksteam.needleseye.player.Upgrade;
  * @author SkySourced
  */
 public class ThreadedRod extends Upgrade {
+
+    /**
+     * Create a new threaded rod upgrade
+     */
 	public ThreadedRod() {
 		super("Threaded Rod", "Increases maximum health by 4", "upgrades/threaded_rod.png", null, true);
 	}

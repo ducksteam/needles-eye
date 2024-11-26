@@ -7,6 +7,10 @@ import com.ducksteam.needleseye.player.Upgrade;
  * @author SkySourced
  */
 public class JoltThread extends Upgrade {
+
+    /**
+     * Create a new jolt thread upgrade
+     */
 	public JoltThread() {
 		super("Jolt Thread", "Increases maximum health by 4", "upgrades/jolt_thread.png", null, true);
 	}

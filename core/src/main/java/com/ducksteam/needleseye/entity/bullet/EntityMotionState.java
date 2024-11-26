@@ -5,7 +5,7 @@ import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
 import com.ducksteam.needleseye.entity.Entity;
 
 /**
- * Wrapper for btMotionState that allows us to link a bullet physics object to an entity.
+ * Wrapper for btMotionState that allows linking of a bullet physics object to an entity.
  * @author skysourced
  * */
 public class EntityMotionState extends btMotionState {

@@ -21,7 +21,9 @@ import static com.ducksteam.needleseye.Main.*;
  */
 public class PlayerInput implements InputProcessor {
 
-    // The keys that are currently pressed
+    /**
+     * The keys currently being pressed
+     */
     public static final HashMap<Integer, Boolean> KEYS = new HashMap<>();
 
     static Vector3 tmp = new Vector3(); // used for various calculations
@@ -29,6 +31,7 @@ public class PlayerInput implements InputProcessor {
 
     /**
      * Updates the player's velocity based on the keys pressed.
+     * @param delta the time since the last frame
      */
     public static void update(float delta) {
         // update player speed by sprinting & multiplier

@@ -66,89 +66,241 @@ import java.util.stream.Collectors;
  * */
 public class Main extends Game {
 	// 3d rendering utils
-	static ModelBatch batch; // used for rendering 3d models
+
+    /**
+     * The model batch for rendering 3d models
+     */
+    static ModelBatch batch; // used for rendering 3d models
+    /**
+     * The camera for the game
+     */
 	public static PerspectiveCamera camera; // the camera
+    /**
+     * The viewport for the game. FitViewport theoretically uses letterboxing, but I have not seen this
+     */
 	public static FitViewport viewport; // the viewport
+    /**
+     * The light for the player's lantern
+     */
 	PointLight playerLantern; // the player's spotlight
+    /**
+     * The colour of the player's lantern
+     */
 	Color playerLanternColour; // the colour for the light
+    /**
+     * The particle system for the game
+     */
 	public static ParticleSystem particleSystem; // the particle system
+    /**
+     * The particle batch for billboards that use the general_particle
+     */
 	public static BillboardParticleBatch generalBBParticleBatch; // the particle batch for billboards that use the general_particle
+    /**
+     * The particle batch for billboards that use the paralyse_particle
+     */
 	public static BillboardParticleBatch paralyseBBParticleBatch; // the particle batch for billboards that use the paralyse_particle
 
-    static Music menuMusic; // the music for the menu
-	public static HashMap<String, Sound> sounds; // the sound for walking
+    // audio utils
+    /**
+     * The music for the menu
+     */
+    static Music menuMusic;
+    /**
+     * The sounds for the game
+     */
+	public static HashMap<String, Sound> sounds;
 
-
-	// stages for 2d UI components
+    /**
+     * The stage for the debug menu
+     */
 	Stage debug;
 
 	// other 2d rendering utils
-	SpriteBatch batch2d; // used for rendering other 2d sprites
+    /**
+     * The sprite batch for rendering 2d sprites, mostly UI
+     */
+	SpriteBatch batch2d;
+    /**
+     * The 2d texture assets for the game, mapped to their addresses
+     */
 	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
+    /**
+     * The font for the UI, 3% of the height of the window
+     */
 	public static BitmapFont uiFont; // font for text
+    /**
+     * The font for titles, 8% of the height of the window
+     */
 	public static BitmapFont titleFont; // font for titles
+    /**
+     * The virtual text layout, used for measuring and centering text
+     */
 	public static GlyphLayout layout; // layout for text
 
-	// asset manager
+    /**
+     * The asset manager for the game, for loading and storing assets
+     */
 	public static AssetManager assMan;
 
-	// level & room manager
+    /**
+     * The map manager, responsible for loading room templates and generating levels
+     */
 	public static MapManager mapMan;
 
-	// objects to be rendered
+    /**
+     * The scene manager, which renders glTF scenes and PBR materials.
+     * Theres a bit of a pattern here
+     */
 	public static SceneManager sceneMan;
-	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>(); // key = entity.id
-	// sprites to be loaded into asset manager
+    /**
+     * A map of all entities currently in the game, where the key is {@link Entity}.id
+     */
+	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>();
+    /**
+     * The file path of textures to be loaded into the asset manager
+     */
 	static ArrayList<String> spriteAddresses = new ArrayList<>();
 
 	// physics utils
+    /**
+     * The physics simulation of the world
+     */
 	public static btDynamicsWorld dynamicsWorld; // contains all physics object
+    /**
+     * The constraint solver working in the physics world
+     */
 	public static btConstraintSolver constraintSolver; // solves constraints
-	public static btBroadphaseInterface broadphase; // detects overlapping AABBs
-	public static btCollisionConfiguration collisionConfig; // configure collision settings
-	public static btDispatcher dispatcher; // dispatches collision calculations for overlapping pairs
+    /**
+     * The broadphase AABB overlap detector
+     */
+	public static btBroadphaseInterface broadphase;
+    /**
+     * The collision configuration for the physics world
+     */
+	public static btCollisionConfiguration collisionConfig;
+    /**
+     * Dispatches collision calculations for overlapping pairs
+     */
+	public static btDispatcher dispatcher;
+    /**
+     * Renders AABB and more complex shapes for debugging, currently broken :(
+     */
 	public static DebugDrawer debugDrawer;
-	public static CollisionListener contactListener; // custom collision event listener
+    /**
+     * Custom collision event callback
+     */
+	public static CollisionListener contactListener;
 
 	@Deprecated
 	static long time = 0; // ms since first render
 
+    /**
+     * The time `Main.getTime()` at the last render
+     */
 	static long timeAtLastRender;
+    /**
+     * The difference in time between the last render and the current render
+     * delta Time!
+     */
 	float dT;
 
 	// input & player
+    /**
+     * The global input processor for the game
+     */
 	GlobalInput globalInput = new GlobalInput();
+    /**
+     * The player entity
+     */
 	public static Player player;
 
 	// ui animation resources
-	static Animation<TextureRegion> activeUIAnim; // the active UI animation
+    /**
+     * The active UI animation
+     */
+	static Animation<TextureRegion> activeUIAnim;
+    /**
+     * The progress through the active UI animation
+     */
 	static float animTime; // the progress through the active UI animation
+    /**
+     * The progress through the attack animation
+     */
 	public static float attackAnimTime; // the progress through the attack animation
+    /**
+     * The progress through the crack animation
+     */
 	public static float crackAnimTime; // the progress through the ability animation
+    /**
+     * Logic to run before the animation is drawn each frame
+     */
 	static Runnable animPreDraw; // runs every frame when an animation is active
+    /**
+     * Logic to run once when the animation finishes
+     */
 	static Runnable animFinished; // runs once when the animation finishes
+    /**
+     * The state of the thread menu animation.
+     * Not used currently, but we should add this back it was cool
+     */
 	static int[] threadAnimState = {0, 0, 0}; // information about the thread menu animation
+    /**
+     * The thread menu animation
+     */
 	public static Animation<TextureRegion> transitionAnimation; // the main menu -> thread menu animation
 
 	//Runtime info
+    /**
+     * The current game state
+     */
 	public static GameState gameState; // current game state
+    /**
+     * A string representation of the current game state, used as backup for switching
+     */
 	private static String gameStateCheck;
 
 	//Runtime utils
+    /**
+     * Manages the duck splash screen on startup as app loads
+     */
 	private SplashWorker splashWorker; // splash screen
 
 	/**
 	 * The enum for managing the game state
 	 * */
 	public enum GameState{
+        /**
+         * The main menu
+         */
 		MAIN_MENU(0),
+        /**
+         * Loading screen
+         */
 		LOADING(1),
+        /**
+         * The thread selection menu
+         */
 		THREAD_SELECT(2),
-		IN_GAME(3),
-		PAUSED_MENU(4),
-		DEAD_MENU(5),
-		INSTRUCTIONS(6),
-		OPTIONS(7);
+        /**
+         * The in-game state
+         */
+        IN_GAME(3),
+        /**
+         * The paused menu
+         */
+        PAUSED_MENU(4),
+        /**
+         * The death menu
+         */
+        DEAD_MENU(5),
+        /**
+         * The instructions menu
+         */
+        INSTRUCTIONS(6),
+        /**
+         * The options menu
+         */
+        OPTIONS(7);
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
@@ -246,10 +398,20 @@ public class Main extends Game {
 		}
 	}
 
+    /**
+     * Get active UI animation
+     * @return the active UI animation
+     */
 	public static Animation<TextureRegion> getActiveUIAnim() {
 		return activeUIAnim;
 	}
 
+    /**
+     * Set active UI animation
+     * @param anim the animation to set
+     * @param preDraw logic to run before the animation is drawn each frame
+     * @param finished logic to run once when the animation finishes
+     */
 	public static void setActiveUIAnim(Animation<TextureRegion> anim, Runnable preDraw, Runnable finished) {
 		activeUIAnim = anim;
 		animTime = 0;
@@ -902,8 +1064,9 @@ public class Main extends Game {
 	}
 
 	/**
-	 * Returns the current tracking time in milliseconds
-	 * */
+	 * Gets the current time, in milliseconds. This is technically unnecessary, but i just changed it here because the old time was so wrong
+     * @return the current time in milliseconds
+	 */
 	public static long getTime() {
 		return System.currentTimeMillis();
 //		return time; // this is so incredibly wrong it only counts the frames where render is called so if you're standing still without debug menu open it will run 10x slower than if you do have it open. debug menu essentially forces incredibly quick updates because it has the bullet vectors that are always changing slightly
@@ -958,6 +1121,7 @@ public class Main extends Game {
     }
 
 	/**
+     * Gets the splash screen worker from running the program as an application
 	 * @return SplashWorker the splash worker instance
 	 * */
 	public SplashWorker getSplashWorker() {
@@ -965,6 +1129,7 @@ public class Main extends Game {
 	}
 
 	/**
+     * Sets the splash screen worker to display
 	 * @param splashWorker Target SplashWorker to run game
 	 * */
 	public void setSplashWorker(SplashWorker splashWorker) {

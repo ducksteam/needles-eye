@@ -13,7 +13,7 @@ import com.ducksteam.needleseye.Main;
 import static com.ducksteam.needleseye.Main.setGameState;
 
 /**
- * The main menu stage.
+ * The stage that displays the main menu.
  * @author SkySourced
  */
 
@@ -42,6 +42,9 @@ public class MainStage extends StageTemplate {
 
 	Table buttons;
 
+    /**
+     * Create a new main menu stage
+     */
 	public MainStage() {
 		super();
 	}

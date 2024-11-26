@@ -17,17 +17,30 @@ import java.util.HashMap;
  * @author SkySourced
  */
 public class Level {
-    private final ArrayList<RoomInstance> rooms; // rooms in the level
-    public HashMap<Vector2,WallObject> walls; // walls in the level
-    private final int levelNo; // the level number
+    /**
+     * The rooms in the level
+     */
+    private final ArrayList<RoomInstance> rooms;
+    /**
+     * The walls in the level
+     */
+    public HashMap<Vector2,WallObject> walls;
+    /**
+     * The level number
+     */
+    private final int levelNo;
 
+    /**
+     * Create a new level
+     * @param levelNo the level number
+     */
     public Level(int levelNo) {
         this.levelNo = levelNo;
         rooms = new ArrayList<>();
     }
 
     /**
-     * Add a room to the level, & an additional placeholder room if it's a hallway
+     * Add a room to the level, and an additional placeholder room if it's a hallway
      * @param room the room to add
      */
     public void addRoom(RoomInstance room) {

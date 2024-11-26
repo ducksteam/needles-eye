@@ -8,7 +8,9 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.*;
+import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
+import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
@@ -25,29 +27,82 @@ import static com.ducksteam.needleseye.Main.*;
  */
 public abstract class Entity implements AnimationListener {
 
-	// collision group flags
+	// Collision group flags
+    /**
+     * Custom collision flag for rooms
+     */
 	public static final short GROUND_GROUP = 1 << 8;
+    /**
+     * Custom collision flag for players
+     */
 	public static final short PLAYER_GROUP = 1 << 9;
+    /**
+     * Custom collision flag for enemies
+     */
 	public static final short ENEMY_GROUP = 1 << 10;
+    /**
+     * Custom collision flag for projectiles
+     */
 	public static final short PROJECTILE_GROUP = 1 << 11;
+    /**
+     * Custom collision flag for pickups
+     */
 	public static final short PICKUP_GROUP = 1 << 12;
 	//Rendering and collision data
+    /**
+     * Whether the entity is renderable
+     */
 	public Boolean isRenderable;
+    /**
+     * Whether the entity is static (i.e. mass 0 and cannot be moved by bullet)
+     */
 	public Boolean isStatic;
+    /**
+     * The transformation matrix of the entity
+     */
 	public Matrix4 transform = new Matrix4();
+    /**
+     * The entity's collider
+     */
 	public btRigidBody collider;
+    /**
+     * The collision shape of the entity
+     */
 	public btCollisionShape collisionShape;
+    /**
+     * The motion state of the entity for synchronising position of model and collider
+     */
 	public EntityMotionState motionState;
-	private ModelInstance modelInstance;
+    /**
+     * The model instance of the entity
+     * @deprecated in favour of scenes
+     */
+	@Deprecated private ModelInstance modelInstance;
+    /**
+     * The scene asset of the entity
+     */
 	private Scene scene;
+    /**
+     * The mass of the entity
+     */
 	private float mass = 0f;
+    /**
+     * The collision flags of the entity
+     */
 	private final int flags;
 
-	// temp variables for calculations
+    /**
+     * A temporary matrix for entity positioning
+     */
 	protected static final Matrix4 tmpMat = new Matrix4();
 
-	//Id data
+    /**
+     * The next entity ID to be assigned
+     */
 	public static int currentId = 1;
+    /**
+     * The ID of the entity
+     */
 	public final int id;
 
 	/**
@@ -81,6 +136,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param rotation      the initial rotation
 	 * @param mass          the mass of the entity
 	 * @param modelInstance the model instance of the entity
+     * @param flags         the collision flags of the entity to be passed to bullet
 	 */
 	@Deprecated
 	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
@@ -105,6 +161,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param rotation      the initial rotation
 	 * @param mass          the mass of the entity
 	 * @param scene the model instance of the entity
+     * @param flags the collision flags of the entity to be passed to bullet
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
@@ -302,6 +359,10 @@ public abstract class Entity implements AnimationListener {
 	 * */
 	@FunctionalInterface
 	public interface EntityRunnable {
+        /**
+         * Run code on an entity
+         * @param entity the entity to run code on
+         */
 		void run(Entity entity);
 	}
 

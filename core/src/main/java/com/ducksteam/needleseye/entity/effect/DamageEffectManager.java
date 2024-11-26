@@ -9,26 +9,52 @@ import com.ducksteam.needleseye.Main;
 
 import java.util.ArrayList;
 
-import static com.ducksteam.needleseye.Main.*;
+import static com.ducksteam.needleseye.Main.generalBBParticleBatch;
+import static com.ducksteam.needleseye.Main.particleSystem;
 
 /**
- * Manages the creation and removal of damage effects in the game world.
+ * Manages the creation and removal of damage particle effects.
  * @author SkySourced
  */
 public class DamageEffectManager {
 
+    /**
+     * Represents a damage effect
+     * @param effect the copy of the effect
+     * @param expiryTime the time at which the effect should be removed
+     */
 	public record DamageEffect(ParticleEffect effect, Long expiryTime) {}
 
-	// the effects and their expiry times
+    /**
+     * All effects currently active
+     */
 	public static ArrayList<DamageEffect> effects = new ArrayList<>();
+    /**
+     * Effects to be removed in the next update
+     */
 	public static ArrayList<DamageEffect> effectsForDisposal = new ArrayList<>();
 
-	private static final String STATIC_EFFECT_ADDRESS = "particles/bleed.pfx"; // file path to the effect
-	private static ParticleEffect staticEffect; // the original copy of the effect
-	private static final int LIFETIME = 1000; // the lifetime of the effect in milliseconds
+    /**
+     * The address of the static effect
+     */
+	private static final String STATIC_EFFECT_ADDRESS = "particles/bleed.pfx";
+    /**
+     * The static effect copied by new instances
+     */
+	private static ParticleEffect staticEffect;
+    /**
+     * The lifetime of the effect in milliseconds
+     */
+	private static final int LIFETIME = 1000;
+    /**
+     * A list of particle batches used by effects using the general_particle.png image as the texture
+     */
 	private static Array<ParticleBatch<?>> generalBatches;
 
-	private static final Matrix4 tmpMat = new Matrix4(); // temporary matrix for effect positioning
+    /**
+     * A temporary matrix for effect positioning
+     */
+	private static final Matrix4 tmpMat = new Matrix4();
 
 	/**
 	 * Load the static effect from the asset manager
@@ -72,6 +98,10 @@ public class DamageEffectManager {
 		effects.removeAll(effectsForDisposal);
 	}
 
+    /**
+     * Gets the address for loading the static copy of the particle effect
+     * @return the path to the file containing the effect information
+     */
 	public static String getStaticEffectAddress() {
 		return STATIC_EFFECT_ADDRESS;
 	}

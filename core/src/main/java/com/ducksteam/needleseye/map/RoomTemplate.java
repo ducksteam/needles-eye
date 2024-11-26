@@ -17,21 +17,57 @@ import java.util.HashMap;
  */
 public class RoomTemplate {
 
+    /**
+     * Represents the position of a placed enemy in the room
+     * @param tag the string combination of tags that can possibly be placed there
+     * @param position the position of the enemy in the room
+     */
     public record EnemyTagPosition(String tag, Vector3 position) {}
 
     @Deprecated
     private Model model; // the model of the room
 
-    // Represents the type of room
+    /**
+     * Represents the type a room is.
+     * This is used in map generation to specify the contents of a level
+     */
     public enum RoomType {
+        /**
+         * Represents a small room. These typically have some enemies.
+         * These have an 80% chance of generation.
+         */
         SMALL(2, 0.8f), // 80% chance of being a small room
+        /**
+         * Represents a hallway. These do not typically have enemies.
+         * These have a 5% chance of generation.
+         */
         HALLWAY(0, 0.85f), // 5% chance of being a hallway
-        HALLWAY_PLACEHOLDER(0, 0), // represents the second tile of a hallway, purely for generation
-        BATTLE(3, 1f), // 15% chance of being a battle room
-        BOSS(0, 0), // boss rooms & treasure rooms are generated specially
+        /**
+         * Represents a placeholder for the second tile of a hallway. This is purely for generation and should not be used in-game.
+         */
+        HALLWAY_PLACEHOLDER(0, 0),
+        /**
+         * Represents a battle room. These generally have more enemies.
+         * These have a 15% chance of generation.
+         */
+        BATTLE(3, 1f),
+        /**
+         * Represents a boss room. Currently unused, and as such has a 0 chance of generation.
+         */
+        BOSS(0, 0),
+        /**
+         * Represents a room with an upgrade in it. This has a 0 chance of generation as it is generated specially.
+         */
         TREASURE(0, 0);
 
-        final int difficulty; // the difficulty of the room, or how many enemies it should spawn
+        /**
+         * The difficulty of the room, or how many enemies it should spawn.
+         * This was deprecated in favour of {@link com.ducksteam.needleseye.entity.enemies.EnemyTag}s.
+         */
+        @Deprecated final int difficulty;
+        /**
+         * The chance of this room type being generated, described as a normalised weight table between 0 and 1.
+         */
         final float normalChance; // the chance of this room type being generated
 
         RoomType(int difficulty, float normalChance) {
@@ -80,6 +116,16 @@ public class RoomTemplate {
     private Vector3 centreOffset; // the offset of the centre of the room
     private ArrayList<EnemyTagPosition> enemyTagPositions; // the positions of enemy tags in the room
 
+    /**
+     * Create a pre-populated room template
+     * @param roomType the type of room
+     * @param width the width of the room in room space
+     * @param height the height of the room in room space
+     * @param spawn whether enemies can spawn in the room
+     * @param modelPath the path to the model of the room
+     * @param centreOffset the offset of the centre of the room
+     * @param enemyTagPositions the positions of enemy tags in the room
+     */
     public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, Vector3 centreOffset, ArrayList<EnemyTagPosition> enemyTagPositions) {
         this.type = roomType;
         this.width = width;
@@ -90,13 +136,15 @@ public class RoomTemplate {
         this.enemyTagPositions = enemyTagPositions;
     }
 
+    /**
+     * Create an empty room template to be populated with setters
+     */
     public RoomTemplate() {}
 
     /** Load room templates from JSON
      * @param map the JSON array to read from
      * @return the room template
      */
-
     public static ArrayList<RoomTemplate> loadRoomTemplates(Array<JsonValue> map) {
         ArrayList<RoomTemplate> rtArray = new ArrayList<>();
 

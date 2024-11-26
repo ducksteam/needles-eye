@@ -10,6 +10,9 @@ import com.ducksteam.needleseye.player.Upgrade;
 
 public class LeadUpgrade extends Upgrade {
 
+    /**
+     * Create a new lead upgrade
+     */
 	public LeadUpgrade() {
 		super("Lead", "Add some weight to your swing", "upgrades/lead.png", "upgrades/lead.gltf");
 	}

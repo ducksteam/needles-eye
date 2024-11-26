@@ -6,15 +6,24 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 /**
- * A template for any 2d menu visible
+ * A template for any 2d stage visible
  * @author SkySourced
  */
 
 public abstract class StageTemplate extends Stage {
 
+    /**
+     * Whether the stage has been built initially, and has the textures loaded
+     */
 	public boolean isBuilt = false;
-	protected Table root = new Table();
+    /**
+     * The root table of the stage
+     */
+    protected Table root = new Table();
 
+    /**
+     * Create a new stage template
+     */
 	public StageTemplate() {
 		super(new ScreenViewport());
 		build();
@@ -50,6 +59,9 @@ public abstract class StageTemplate extends Stage {
 		draw();
 	}
 
+    /**
+     * Update the stage using libGDX's delta time
+     */
 	public void update() {
 		update(Gdx.graphics.getDeltaTime());
 	}

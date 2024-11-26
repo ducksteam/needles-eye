@@ -13,10 +13,11 @@ import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.player.Upgrade;
 
-import static com.ducksteam.needleseye.Main.*;
+import static com.ducksteam.needleseye.Main.player;
+import static com.ducksteam.needleseye.Main.titleFont;
 
 /**
- * The screen where the player can choose their base upgrade.
+ * The stage that displays after the player selects play, and allows them to choose their thread
  * @author SkySourced
  */
 public class ThreadStage extends StageTemplate {

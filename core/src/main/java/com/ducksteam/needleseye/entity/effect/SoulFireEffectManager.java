@@ -15,20 +15,43 @@ import java.util.ArrayList;
 import static com.ducksteam.needleseye.Main.*;
 
 /**
- * Manages the right click ability for soul thread
+ * Manages the creation and removal of particle effects for the soul thread ability.
  * @author SkySourced
  */
 public class SoulFireEffectManager {
 
+    /**
+     * Represents a soul fire effect instance.
+     * @param effect the copy of the effect
+     * @param position the position of the effect
+     * @param expiryTime the time at which the effect should be removed
+     */
     public record SoulFireEffect(ParticleEffect effect, Vector3 position, Long expiryTime) {}
 
-    // the effects and their expiry times
+    /**
+     * All effects currently active
+     */
     public static ArrayList<SoulFireEffect> effects = new ArrayList<>();
+    /**
+     * Effects to be removed in the next update
+     */
     public static ArrayList<SoulFireEffect> effectsForDisposal = new ArrayList<>();
 
-    private static final String STATIC_EFFECT_ADDRESS = "particles/soulfire.pfx"; // file path to the effect
-    private static ParticleEffect staticEffect; // the original copy of the effect
-    private static final int LIFETIME = 3000; // the lifetime of the effect in milliseconds
+    /**
+     * File path to the effect
+     */
+    private static final String STATIC_EFFECT_ADDRESS = "particles/soulfire.pfx";
+    /**
+     * The static effect copied by new instances
+     */
+    private static ParticleEffect staticEffect;
+    /**
+     * The lifetime of the effect in milliseconds
+     */
+    private static final int LIFETIME = 3000;
+    /**
+     * A list of particle batches used by effects using the general_particle.png image as the texture
+     */
 	private static Array<ParticleBatch<?>> generalBatches;
 
 	// used for various calculations
@@ -36,6 +59,9 @@ public class SoulFireEffectManager {
     private static Vector3 tmp = new Vector3();
     private static Vector3 tmp2 = new Vector3();
 
+    /**
+     * Load the static effect from the asset manager
+     */
     public static void loadStaticEffect(){ // load the effect from the asset manager
 		generalBatches = new Array<>();
 		generalBatches.add(generalBBParticleBatch);
@@ -61,6 +87,9 @@ public class SoulFireEffectManager {
         particleSystem.add(tmpEffect);
     }
 
+    /**
+     * Update all soul fire effects, damaging nearby entities and removing expired effects
+     */
     public static void update(){
         effectsForDisposal.clear();
 

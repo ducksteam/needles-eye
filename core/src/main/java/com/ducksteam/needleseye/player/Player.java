@@ -33,43 +33,99 @@ import static com.ducksteam.needleseye.map.MapManager.getRoomSpacePos;
  * @author thechiefpotatopeeler
  */
 public class Player extends Entity implements IHasHealth {
-    public BaseUpgrade baseUpgrade; // the player's selected base upgrade
-    public ArrayList<Upgrade> upgrades; // the player's upgrades
-    int health; // the player's current health
-    int maxHealth; // the player's maximum health
+    /**
+     * The {@link BaseUpgrade} of the player
+     */
+    public BaseUpgrade baseUpgrade;
+    /**
+     * The upgrades the player has collected
+     */
+    public ArrayList<Upgrade> upgrades;
+    /**
+     * The player's health
+     */
+    int health;
+    /**
+     * The player's maximum health
+     */
+    int maxHealth;
 
     // collision constants
     private static final float PLAYER_BOX_HALF_SIZE = 0.25f;
     private static final float PLAYER_BOX_HALF_HEIGHT = 0.5f;
-    public static final float ATTACK_BOX_DEPTH = 1.7f;
+    /**
+     * The attack radius of the player's LMB attack
+     */
+    public static final float ATTACK_RANGE = 1.7f;
 
     // timeout variables
     float damageTimeout = 0;
     float abilityTimeout = 0;
     float attackTimeout = 0;
-    public static float timeSincePickup = Config.UPGRADE_TEXT_DISPLAY_TIMEOUT; // time since the last upgrade was picked up
+    /**
+     * The time since the last upgrade was picked up. This is initially set to the upgrade text display timeout so that no text is displayed until an upgrade is collected
+     */
+    public static float timeSincePickup = Config.UPGRADE_TEXT_DISPLAY_TIMEOUT;
 
-    // camera rotation
-    public Vector3 eulerRotation; // rads
+    /**
+     * The player's euler rotation, only used for the camera. Quaternions are hard.
+     * measured in radians
+     */
+    public Vector3 eulerRotation;
 
     // Upgrade properties
-    public float playerSpeedMultiplier = 1; // speed multiplier
-    public float dodgeChance = 0f; // 0-1 chance to dodge an attack
-    public float damageBoost = 0f; // constant damage boost
-    public float coalDamageBoost = 0f; // a quickly decaying boost from coal thread right click
-    public float joltSpeedBoost = 0f; // a speed boost from jolt thread right click
-    public float attackLength = 0.2f; // the length of the attack animation
+    /**
+     * The player's speed multiplier
+     */
+    public float playerSpeedMultiplier = 1;
+    /**
+     * The player's dodge chance.
+     * This should be capped/we should make more upgrades so that the threat of a dodge chance >= 100% is very low
+     */
+    public float dodgeChance = 0f;
+    /**
+     * The player's damage boost, always applied
+     */
+    public float damageBoost = 0f;
+    /**
+     * The player's coal damage boost, decays over time
+     */
+    public float coalDamageBoost = 0f;
+    /**
+     * The player's jolt speed boost, decays over time
+     */
+    public float joltSpeedBoost = 0f;
+    /**
+     * The player's attack animation time, used for the attack timeout
+     */
+    public float attackLength = 0.2f;
 
-    public boolean isJumping; // Flag for jumping
-    public boolean[] jumpFlags = new boolean[2]; //Flags for vertical movement, 0 is up (y' > 0), 1 is down (y' < 0)
+    /**
+     * Whether the player is currently jumping
+     */
+    public boolean isJumping;
+    /**
+     * Flags for vertical movement, 0 is up (y' greater than 0), 1 is down (y' less than 0). Used for jumping calculations
+     */
+    public boolean[] jumpFlags = new boolean[2];
 
-    public long walkingSoundId; // walking sound identifier
+    /**
+     * The player's walking sound id.
+     * Unsure.
+     */
+    public long walkingSoundId;
 
     Vector3 tempVec = new Vector3(); // temporary vector for calculations
 
-    //Temporary:
+    /**
+     * Temporary: used for the player's model until we have a proper one
+     */
     public static Scene sceneModel;
 
+    /**
+     * Creates a new player at the given position
+     * @param pos the position to spawn the player at
+     */
     public Player(Vector3 pos) {
         super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP);
         baseUpgrade = BaseUpgrade.NONE;
@@ -92,6 +148,10 @@ public class Player extends Entity implements IHasHealth {
         maxHealth = -1;
     }
 
+    /**
+     * Update the player's timeouts, jumping flags, boosts, and checks for any illegal states
+     * @param delta the time since the last update in seconds
+     */
     @Override
     public void update(float delta) {
         if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH; // this will only be called on the first in-game frame
@@ -133,6 +193,10 @@ public class Player extends Entity implements IHasHealth {
         if (tmpMat.getTranslation(tempVec).y < -10) setHealth(0);
     }
 
+    /**
+     * Sets the player's scene asset, updating the collision shape and rigid body
+     * @param scene the scene asset to set
+     */
     @Override
     public void setScene(Scene scene) {
         // delete old collision shape and rigid body
@@ -230,7 +294,7 @@ public class Player extends Entity implements IHasHealth {
         for (Entity entity : Main.entities.values()) {
             if (entity instanceof EnemyEntity enemy) { // for each enemy
                 tempVec = enemy.getPosition().sub(player.getPosition()); // get distance
-                if (tempVec.len() < ATTACK_BOX_DEPTH) { // if within attack radius, run logic
+                if (tempVec.len() < ATTACK_RANGE) { // if within attack radius, run logic
                     enemyLogic.run(enemy);
                 }
             }
@@ -286,7 +350,7 @@ public class Player extends Entity implements IHasHealth {
     }
     @Override
     public void setParalyseTime(float paralyseTime){
-        return;
+
     }
 
     /**

@@ -23,6 +23,13 @@ public class RoomInstance extends Entity {
 
     HashMap<Integer, EnemyEntity> enemies = new HashMap<>(); // enemies in the room
 
+    /**
+     * Create a new room instance, with a specified draw position. This is typically used for hallways
+     * @param room the room template
+     * @param drawPos the position to draw the room at
+     * @param roomSpacePos the position of the room in room space
+     * @param rot the rotation of the room
+     */
     public RoomInstance(RoomTemplate room, Vector3 drawPos, Vector2 roomSpacePos, int rot){
         super(drawPos, new Quaternion().setEulerAngles(rot, 0, 0), room.getScene());
         if (rot % 90 != 0) throw new IllegalArgumentException("Rotation must be a multiple of 90 degrees");
@@ -32,6 +39,12 @@ public class RoomInstance extends Entity {
         this.rot = rot;
     }
 
+    /**
+     * Create a new room instance
+     * @param room the room template
+     * @param roomSpacePos the position of the room in room space
+     * @param rot the rotation of the room
+     */
     public RoomInstance(RoomTemplate room, Vector2 roomSpacePos, int rot) {
         super(MapManager.getRoomPos(roomSpacePos).sub(new Vector3(5,0,5)).cpy().add(room.getCentreOffset()), new Quaternion().setEulerAngles(rot, 0, 0), (room.getScene() == null) ? null : room.getScene());
         if (rot % 90 != 0) throw new IllegalArgumentException("Rotation must be a multiple of 90 degrees");
@@ -41,22 +54,43 @@ public class RoomInstance extends Entity {
         this.rot = rot;
     }
 
+    /**
+     * Create a new room instance
+     * @param room the room template
+     * @param pos the room space position of the room, in whole numbers
+     */
     public RoomInstance(RoomTemplate room, Vector2 pos) {
         this(room, pos, 0);
     }
 
+    /**
+     * Get the room template of the room
+     * @return the room template
+     */
     public RoomTemplate getRoom() {
         return room;
     }
 
+    /**
+     * Get the position of the room in room space
+     * @return the position of the room
+     */
     public Vector2 getRoomSpacePos() {
         return roomSpacePos;
     }
 
+    /**
+     * Get the central position of the room in world space
+     * @return the central position of the room
+     */
     public Vector2 getCentreRoomSpacePos() {
         return roomSpacePos.cpy().sub(0.5f, 0.5f);
     }
 
+    /**
+     * Get the rotation of the room
+     * @return the rotation of the room
+     */
     public int getRot() {
         return rot;
     }

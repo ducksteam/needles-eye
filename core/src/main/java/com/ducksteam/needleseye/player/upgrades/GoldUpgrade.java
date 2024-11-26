@@ -9,6 +9,9 @@ import com.ducksteam.needleseye.player.Upgrade;
  */
 
 public class GoldUpgrade extends Upgrade {
+    /**
+     * Create a new gold upgrade
+     */
 	public GoldUpgrade() {
 		super("Gold", "The nugget warms in your pocket", "upgrades/gold.png", "upgrades/gold.gltf");
 	}

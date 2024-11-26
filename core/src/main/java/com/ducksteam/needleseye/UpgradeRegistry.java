@@ -12,7 +12,13 @@ import java.util.HashMap;
  * */
 public class UpgradeRegistry {
     //Utilities for tracking upgrades
+    /**
+     * Whether the upgrade icons have been loaded
+     */
     public static boolean iconsLoaded = false;
+    /**
+     * A map of upgrade names to their classes that have been registered in the registry
+     */
     public static HashMap<String,Class<?extends Upgrade>> registeredUpgrades = new HashMap<>();
 
     /**
@@ -68,9 +74,9 @@ public class UpgradeRegistry {
     /**
      * Use to validate that an upgrade is registered by id
      * @param id the id of the upgrade
+     * @return whether the upgrade is registered
      * */
     public boolean isUpgradeRegistered(String id) {
         return registeredUpgrades.containsKey(id);
     }
-
 }

@@ -13,6 +13,10 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 import static com.ducksteam.needleseye.Main.entities;
 
+/**
+ * AI for the Orbulon enemy
+ * @author skysourced
+ */
 public class OrbulonAI implements IHasAi {
 
 	Vector3 playerPos; // position of the player
@@ -39,14 +43,14 @@ public class OrbulonAI implements IHasAi {
 	Vector3 rayFrom = new Vector3();
 	Vector3 rayTo = new Vector3();
 
+    /**
+     * Create a new OrbulonAI
+     * @param target the enemy entity to control
+     */
 	public OrbulonAI(EnemyEntity target) {
 		setTarget(target);
 	}
 
-	/**
-	 * Updates the AI algorithm
-	 * @param dT the time since the last update
-	 */
 	@Override
 	public void update(float dT) {
 		if (getTarget() == null) return; // ensure target exists
@@ -60,10 +64,6 @@ public class OrbulonAI implements IHasAi {
 		else idle(dT);
 	}
 
-	/**
-	 * Idle behaviour
-	 * @param dT the time since the last update
-	 */
 	@Override
 	public void idle(float dT) {
 		if (Math.abs(idleTargetAngle - currentAngle) < 0.2 && !isIdling()){
@@ -99,6 +99,9 @@ public class OrbulonAI implements IHasAi {
 
 	}
 
+    /**
+     * Begin winding up an attack, playing the animation
+     */
 	public void windup() {
 		setWindup(true);
 		getTarget().blendAnimation("windup", 1, 0.2f);
@@ -127,6 +130,11 @@ public class OrbulonAI implements IHasAi {
 		}
 	}
 
+    /**
+     * Gradually rotates the target towards the player
+     * @param angle the angle to rotate to
+     * @param dT the time since the last update in seconds
+     */
 	private void rotateToAngle(float angle, float dT) {
 		while (angle < -180) angle += 360; // ensure angle is greater than -180
 		while (angle > 180) angle -= 360; // ensure angle is less than 180

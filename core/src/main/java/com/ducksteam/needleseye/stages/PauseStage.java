@@ -12,7 +12,7 @@ import com.ducksteam.needleseye.Main;
 import static com.ducksteam.needleseye.Main.setGameState;
 
 /**
- * The pause screen
+ * The stage that displays when the player pauses mid-game
  * @author SkySourced
  */
 
