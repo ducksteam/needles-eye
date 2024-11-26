@@ -55,15 +55,6 @@ public class MapGenerationVisualiser {
     Vector2 tmpSizeVec = new Vector2();
     Vector2 tmpDoorVec = new Vector2();
 
-    /*
-    Possible instructions:
-    add-room <room type> <room name> <x> <y> <w> <h> <rotation>
-    select-room <x> <y>
-    select-door <door index>
-    try-position <room name> <x> <y> <w> <h> <rotation>
-    msg <message>
-     */
-
     /**
      * Create a new map generation visualiser
      */
@@ -78,7 +69,15 @@ public class MapGenerationVisualiser {
     }
 
     /**
-     * Add an instruction to the visualiser
+     * Add an instruction to the visualiser.
+     * Possible instructions are: <br> <ul>
+     * <li>add-room (room type) (room name) (x) (y) (w) (h) (rotation)</li>
+     * <li>select-room (x) (y)</li>
+     * <li>select-door (door index)</li>
+     * <li>try-position (room name) (x) (y) (w) (h) (rotation)</li>
+     * <li>msg (message)</li>
+     * </ul>
+     *
      * @param instruction the instruction to add
      */
     public void addInstruction(String instruction) {
