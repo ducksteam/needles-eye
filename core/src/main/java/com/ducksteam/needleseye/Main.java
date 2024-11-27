@@ -17,6 +17,8 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -76,9 +78,24 @@ public class Main extends Game {
      */
 	public static PerspectiveCamera camera; // the camera
     /**
+     * The frame buffer used to transfer color and depth information to the shaders
+     */
+    FrameBuffer fbo;
+    /**
+     * The sprite batch used for rendering shaders
+     */
+    Batch shaderBatch;
+    /**
      * The viewport for the game. FitViewport theoretically uses letterboxing, but I have not seen this
      */
 	public static FitViewport viewport; // the viewport
+
+    // Shaders
+    /**
+     * The effect shader for the main game
+     */
+    ShaderProgram effectShader; // the effect shader
+
     /**
      * The light for the player's lantern
      */
@@ -87,6 +104,7 @@ public class Main extends Game {
      * The colour of the player's lantern
      */
 	Color playerLanternColour; // the colour for the light
+
     /**
      * The particle system for the game
      */
@@ -503,19 +521,25 @@ public class Main extends Game {
 		//Sets up environment and camera
 		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.6f*Config.LIGHT_INTENSITY, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
-		//environment = new Environment();
+
 		batch = new ModelBatch();
-		sceneMan = new SceneManager();
+		sceneMan = createSceneManager();
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
-		//environment.set(new ColorAttribute(ColorAttribute.AmbientLight,Config.LIGHT_COLOUR));
-		//environment.add(playerLantern);
+
 		camera.near = 0.1f;
 		sceneMan.setCamera(camera);
-		//sceneMan.environment = environment;
 
 		sceneMan.setAmbientLight(0.0001f);
 		sceneMan.environment.add(playerLantern);
+
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
+        shaderBatch = new SpriteBatch();
+
+        effectShader = new ShaderProgram(Gdx.files.internal("shaders/shader.vert"), Gdx.files.internal("shaders/shader.frag"));
+        if (!effectShader.isCompiled()) {
+            Gdx.app.error("Main", "Shader failed to compile: " + effectShader.getLog());
+        }
 
 		// init particles
 		generalBBParticleBatch = new BillboardParticleBatch();
@@ -528,7 +552,7 @@ public class Main extends Game {
 
 		//Sets up game managers
 		assMan = new AssetManager();
-		mapMan = new MapManager();
+		mapMan = new MapManager(false);
 
 		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/thread/thread-transition.png"));
@@ -539,6 +563,27 @@ public class Main extends Game {
 		assMan.finishLoading();
 		initialiseGameStates();
 		setGameState(GameState.MAIN_MENU);
+    }
+
+    /**
+     * Loads shaders and configures rendering settings before passing them into a new {@link SceneManager}
+     * @return a configured {@link SceneManager}
+     */
+    private SceneManager createSceneManager() {
+        /*PBRShaderConfig pbrConfig = PBRShaderProvider.createDefaultConfig();
+        pbrConfig.numBones = 32;
+        pbrConfig.numDirectionalLights = 1;
+        pbrConfig.numPointLights = 1;
+        pbrConfig.numSpotLights = 0;
+
+//        pbrConfig.vertexShader = Gdx.files.internal("shaders/shader.vert").readString();
+//        pbrConfig.fragmentShader = Gdx.files.internal("shaders/shader.frag").readString();
+
+        DepthShader.Config depthConfig = new DepthShader.Config();
+        depthConfig.numBones = pbrConfig.numBones;
+
+        return new SceneManager(PBRShaderProvider.createDefault(pbrConfig), PBRShaderProvider.createDefaultDepth(depthConfig));*/
+        return new SceneManager();
     }
 
 	/**
@@ -973,9 +1018,28 @@ public class Main extends Game {
 				}
 			});
 
-			// draw scenes
-			sceneMan.update(Gdx.graphics.getDeltaTime());
-			sceneMan.render();
+            // Draw the scene with shaders
+            sceneMan.update(Gdx.graphics.getDeltaTime());
+
+            sceneMan.renderShadows();
+            fbo.begin();
+            Gdx.gl.glClearColor(0, 0, 0, 0);
+            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+
+            sceneMan.renderColors();
+            fbo.end();
+
+            effectShader.bind();
+            setEffectShaderUniforms();
+
+            viewport.apply();
+
+			shaderBatch.setShader(effectShader);
+            shaderBatch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
+            shaderBatch.begin();
+            shaderBatch.draw(fbo.getColorBufferTexture(), 0, 0, 1, 1, 0, 0, 1, 1);
+            shaderBatch.end();
+            shaderBatch.setShader(null);
 
 			batch.begin(camera);
 
@@ -1045,7 +1109,12 @@ public class Main extends Game {
 		if (player.getHealth() <= 0 && gameState == GameState.IN_GAME && player.baseUpgrade != BaseUpgrade.NONE) onPlayerDeath();
 	}
 
-	private void renderLoadingFrame(float progress) {
+    private void setEffectShaderUniforms() {
+        effectShader.setUniformMatrix("u_projTrans", camera.combined);
+//        effectShader.setUniformf("u_edgeThreshold", 0.1f);
+    }
+
+    private void renderLoadingFrame(float progress) {
 		Texture loadingItem = new Texture("ui/main/loading-item.png");
 		batch2d.begin();
 		batch2d.draw(new Texture("ui/main/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
