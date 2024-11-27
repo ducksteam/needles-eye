@@ -7,7 +7,6 @@ dependencies {
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.github.mgsx-dev.gdx-gltf:gltf:$gdxGltfVersion"
-  implementation "com.google.code.gson:gson:2.10.1"
 
   testImplementation(platform('org.junit:junit-bom:5.11.3'))
   testImplementation('org.junit.jupiter:junit-jupiter')
