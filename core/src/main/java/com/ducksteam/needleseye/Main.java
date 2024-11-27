@@ -495,6 +495,7 @@ public class Main extends Game {
 
 		debugDrawer = new DebugDrawer();
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+        dynamicsWorld.setDebugDrawer(debugDrawer);
 
 		//Builds UI elements
 		buildFonts();
