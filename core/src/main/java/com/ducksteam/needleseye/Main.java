@@ -456,6 +456,12 @@ public class Main extends Game {
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
+        Gdx.app.log("Main", "Starting game");
+        Gdx.app.log("GL_VENDOR", Gdx.gl.glGetString(GL20.GL_VENDOR));
+        Gdx.app.log("GL_RENDERER", Gdx.gl.glGetString(GL20.GL_RENDERER));
+        Gdx.app.log("GL_VERSION", Gdx.gl.glGetString(GL20.GL_VERSION));
+        Gdx.app.log("GL_SHADING_LANGUAGE_VERSION", Gdx.gl.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION));
+
 		//Runs registries
 		Upgrade.registerUpgrades();
 		EnemyRegistry.initEnemies();
