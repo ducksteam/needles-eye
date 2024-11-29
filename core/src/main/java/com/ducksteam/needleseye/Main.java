@@ -18,6 +18,8 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.HdpiMode;
+import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
@@ -543,6 +545,7 @@ public class Main extends Game {
         shaderBatch = new SpriteBatch();
 
         effectShader = new ShaderProgram(Gdx.files.internal("shaders/shader.vert"), Gdx.files.internal("shaders/shader.frag"));
+//        ShaderProgram.pedantic = false;
         if (!effectShader.isCompiled()) {
             Gdx.app.error("Main", "Shader failed to compile: " + effectShader.getLog());
         }
@@ -1027,6 +1030,8 @@ public class Main extends Game {
             // Draw the scene with shaders
             sceneMan.update(Gdx.graphics.getDeltaTime());
 
+            HdpiUtils.setMode(HdpiMode.Pixels);
+
             sceneMan.renderShadows();
             fbo.begin();
             Gdx.gl.glClearColor(0, 0, 0, 0);
@@ -1034,6 +1039,8 @@ public class Main extends Game {
 
             sceneMan.renderColors();
             fbo.end();
+
+            HdpiUtils.setMode(HdpiMode.Logical);
 
             effectShader.bind();
             setEffectShaderUniforms();
@@ -1117,7 +1124,8 @@ public class Main extends Game {
 
     private void setEffectShaderUniforms() {
         effectShader.setUniformMatrix("u_projTrans", camera.combined);
-//        effectShader.setUniformf("u_edgeThreshold", 0.1f);
+        effectShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
+        effectShader.setUniformi("u_kernelSize", 7);
     }
 
     private void renderLoadingFrame(float progress) {
