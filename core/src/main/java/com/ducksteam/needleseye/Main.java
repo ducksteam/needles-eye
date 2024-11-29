@@ -25,7 +25,6 @@ import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.DebugDrawer;
 import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btConstraintSolver;
 import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
@@ -39,6 +38,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
+import com.ducksteam.needleseye.entity.bullet.NEDebugDrawer;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
@@ -205,7 +205,7 @@ public class Main extends Game {
     /**
      * Renders AABB and more complex shapes for debugging, currently broken :(
      */
-	public static DebugDrawer debugDrawer;
+	public static NEDebugDrawer debugDrawer;
     /**
      * Custom collision event callback
      */
@@ -525,7 +525,8 @@ public class Main extends Game {
 		batch2d = new SpriteBatch(1000, spriteBatchShader);
 		layout = new GlyphLayout();
 
-		debugDrawer = new DebugDrawer();
+		debugDrawer = new NEDebugDrawer();
+        debugDrawer.setSpriteBatch(batch2d);
 		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
         dynamicsWorld.setDebugDrawer(debugDrawer);
 
