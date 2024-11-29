@@ -314,7 +314,7 @@ public class MapGenerationVisualiser {
     }
 
     private void redrawRooms(SpriteBatch batch) {
-        Gdx.graphics.getGL20().glClearColor(0, 0, 0, 1);
+        Gdx.gl32.glClearColor(0, 0, 0, 1);
 
         for (RoomPlacementData room : rooms) {
             drawRoom(batch, room);

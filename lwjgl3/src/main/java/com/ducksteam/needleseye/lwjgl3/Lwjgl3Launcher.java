@@ -12,10 +12,10 @@ public class Lwjgl3Launcher {
         createApplication();
     }
 
-    private static Lwjgl3Application createApplication() {
+    private static void createApplication() {
         Main main = new Main();
         main.setSplashWorker(new LwjglSplashWorker());
-        return new Lwjgl3Application(main, getDefaultConfiguration());
+        new Lwjgl3Application(main, getDefaultConfiguration());
     }
 
     private static Lwjgl3ApplicationConfiguration getDefaultConfiguration() {
@@ -33,6 +33,8 @@ public class Lwjgl3Launcher {
         configuration.setTitle("The Needle's Eye"); // window title
 
         configuration.setWindowedMode(1920, 1080); // resolution
+
+        configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL32, 3, 2);
 
         configuration.setDecorated(true); // enable OS window options
 

@@ -459,10 +459,10 @@ public class Main extends Game {
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         Gdx.app.log("Main", "Starting game");
-        Gdx.app.log("GL_VENDOR", Gdx.gl.glGetString(GL20.GL_VENDOR));
-        Gdx.app.log("GL_RENDERER", Gdx.gl.glGetString(GL20.GL_RENDERER));
-        Gdx.app.log("GL_VERSION", Gdx.gl.glGetString(GL20.GL_VERSION));
-        Gdx.app.log("GL_SHADING_LANGUAGE_VERSION", Gdx.gl.glGetString(GL20.GL_SHADING_LANGUAGE_VERSION));
+        Gdx.app.log("GL_VENDOR", Gdx.gl32.glGetString(GL32.GL_VENDOR));
+        Gdx.app.log("GL_RENDERER", Gdx.gl32.glGetString(GL32.GL_RENDERER));
+        Gdx.app.log("GL_VERSION", Gdx.gl32.glGetString(GL32.GL_VERSION));
+        Gdx.app.log("GL_SHADING_LANGUAGE_VERSION", Gdx.gl32.glGetString(GL32.GL_SHADING_LANGUAGE_VERSION));
 
 		//Runs registries
 		Upgrade.registerUpgrades();
@@ -515,8 +515,14 @@ public class Main extends Game {
 		// create player
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
+        // prepare spritebatch shader
+        ShaderProgram spriteBatchShader = new ShaderProgram(Gdx.files.internal("shaders/spriteBatch.vert"), Gdx.files.internal("shaders/spriteBatch.frag"));
+        if (!spriteBatchShader.isCompiled()) {
+            Gdx.app.error("Main", "SpriteBatch shader failed to compile: " + spriteBatchShader.getLog());
+        }
+
 		// initialise drawing utils
-		batch2d = new SpriteBatch();
+		batch2d = new SpriteBatch(1000, spriteBatchShader);
 		layout = new GlyphLayout();
 
 		debugDrawer = new DebugDrawer();
@@ -542,12 +548,12 @@ public class Main extends Game {
 		sceneMan.environment.add(playerLantern);
 
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
-        shaderBatch = new SpriteBatch();
+        shaderBatch = new SpriteBatch(1000, spriteBatchShader);
 
         effectShader = new ShaderProgram(Gdx.files.internal("shaders/shader.vert"), Gdx.files.internal("shaders/shader.frag"));
 //        ShaderProgram.pedantic = false;
         if (!effectShader.isCompiled()) {
-            Gdx.app.error("Main", "Shader failed to compile: " + effectShader.getLog());
+            Gdx.app.error("Main", "Post-processing shader failed to compile: " + effectShader.getLog());
         }
 
 		// init particles
@@ -925,8 +931,8 @@ public class Main extends Game {
 	public void render () {
 		// clear the screen
 		super.render();
-		Gdx.gl.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+		Gdx.gl32.glViewport(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
 
 		// increment system time
 		dT = (System.currentTimeMillis() - timeAtLastRender) / 1000f;
@@ -1034,8 +1040,8 @@ public class Main extends Game {
 
             sceneMan.renderShadows();
             fbo.begin();
-            Gdx.gl.glClearColor(0, 0, 0, 0);
-            Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT);
+            Gdx.gl32.glClearColor(0, 0, 0, 0);
+            Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
 
             sceneMan.renderColors();
             fbo.end();
