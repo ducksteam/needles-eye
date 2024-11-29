@@ -26,6 +26,7 @@ public class WormEnemy extends EnemyEntity{
     static final float MASS = 40f;
     static final float IDLE_SPEED = 20f;
     static final float CHASE_SPEED = 300f;
+    static final float CHASE_ANGLE_SPEED = 5f;
     static final Vector3 COLLIDER_SIZE = new Vector3(0.1f, 0.09f, 0.27f);
 
     /**
@@ -48,7 +49,7 @@ public class WormEnemy extends EnemyEntity{
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
         super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());
         // initialise ai
-        setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED));
+        setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED, CHASE_ANGLE_SPEED));
 
         // destroy old bullet objects
         collider.dispose();

@@ -18,6 +18,7 @@ public class MeleeAI implements IHasAi {
 	boolean chasing = false; // whether the enemy is chasing the player
 	float idleSpeed; // speed of the enemy when idling
 	float chaseSpeed; // speed of the enemy when chasing
+    float chaseAngleSpeed; // speed of the enemy when rotating towards player
 
     /**
      * Creates a new MeleeAI
@@ -25,10 +26,11 @@ public class MeleeAI implements IHasAi {
      * @param idleSpeed the speed of the enemy when idling
      * @param chaseSpeed the speed of the enemy when chasing
      */
-	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed) {
+	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed, float chaseAngleSpeed) {
 		setTarget(target);
 		this.idleSpeed = idleSpeed;
 		this.chaseSpeed = chaseSpeed;
+        this.chaseAngleSpeed = chaseAngleSpeed;
 	}
 
 	@Override
@@ -42,7 +44,7 @@ public class MeleeAI implements IHasAi {
 		Main.entities.forEach((Integer id, Entity entity) -> { // repel from other enemies
 			if (entity instanceof EnemyEntity || entity instanceof Player && id != getTarget().id) { // push moving entities away from each other
 				Vector3 repulsionForce = calculateRepulsionForce(getTarget(), entity, 1);
-				getTarget().collider.applyCentralImpulse(repulsionForce.scl(dT)); // apply force
+				getTarget().collider.applyCentralForce(repulsionForce); // apply force
 			}
 		});
 	}
@@ -52,16 +54,23 @@ public class MeleeAI implements IHasAi {
 		//getTarget().setAnimation("idle");
 		Vector3 randomDirection = new Vector3().setToRandomDirection();
 		randomDirection.y = 0;
-		getTarget().collider.applyCentralImpulse(randomDirection.scl(idleSpeed * dT)); // move in random direction
+		getTarget().collider.applyCentralForce(randomDirection.scl(idleSpeed)); // move in random direction
 	}
 
 	@Override
 	public void chase(float dT) {
 		//getTarget().setAnimation("walk");
-		Vector3 direction = playerPos.cpy().sub(getTarget().getPosition());
+        Vector3 direction = playerPos.cpy().sub(getTarget().collider.getCenterOfMassPosition());
 		direction.y = 0;
-		getTarget().collider.applyCentralImpulse(direction.nor().scl(chaseSpeed * dT));// move in a random direction
-		if (playerPos.dst(getTarget().getPosition()) < ATTACK_RANGE) attack(); // attack if within range
+        float playerAngle = calculatePlayerAngle(direction.cpy().nor().x, direction.cpy().nor().z);
+        float currentAngle = getTarget().getRotation().getAngleAround(0, 1, 0);
+
+        // rotate towards player
+        if(currentAngle > playerAngle) getTarget().collider.applyTorque(new Vector3(0, (currentAngle - playerAngle < 180) ? -chaseAngleSpeed : chaseAngleSpeed, 0));
+        else getTarget().collider.applyTorque(new Vector3(0, (playerAngle - currentAngle < 180) ? chaseAngleSpeed : -chaseAngleSpeed, 0));
+
+        getTarget().collider.applyCentralForce(direction.nor().scl(chaseSpeed)); // move towards player
+		if (playerPos.dst(getTarget().collider.getCenterOfMassPosition()) < ATTACK_RANGE) attack(); // attack if within range
 	}
 
 	@Override
@@ -112,10 +121,23 @@ public class MeleeAI implements IHasAi {
 	}
 
 	private Vector3 calculateRepulsionForce(Entity entity1, Entity entity2, float repulsionStrength) {
-		Vector3 direction = entity1.getPosition().cpy().sub(entity2.getPosition());
+		Vector3 direction = entity1.collider.getCenterOfMassPosition().cpy().sub(entity2.collider.getCenterOfMassPosition());
 		direction.y = 0;
 		float distance = direction.len();
 		if (distance == 0) return new Vector3(0, 0, 0); // Avoid division by zero
 		float forceMagnitude = repulsionStrength / (distance * distance); // Inverse square law
 		return direction.nor().scl(forceMagnitude);
-	}}
+	}
+
+    private float calculatePlayerAngle(float x, float y) {
+        if(x>0 && y>0) { // 180 - 270 degrees
+            return (float) Math.toDegrees(Math.PI + Math.asin(x));
+        } else if(x>0 && y<0) { // 270 - 360 degrees
+            return (float) Math.toDegrees(2*Math.PI - Math.asin(x));
+        } else if(x<0 && y>0) { // 90-180 degrees
+            return (float) Math.toDegrees(Math.PI + Math.asin(x));
+        } else { // 0-90 degrees
+            return (float) -Math.toDegrees(Math.asin(x));
+        }
+    }
+}
