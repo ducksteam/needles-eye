@@ -10,10 +10,13 @@ import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
+import com.badlogic.gdx.graphics.g3d.Renderable;
 import com.badlogic.gdx.graphics.g3d.RenderableProvider;
+import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleShader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
@@ -69,7 +72,7 @@ import java.util.stream.Collectors;
  * @author SkySourced
  * */
 public class Main extends Game {
-	// 3d rendering utils
+    // 3d rendering utils
 
     /**
      * The model batch for rendering 3d models
@@ -139,7 +142,7 @@ public class Main extends Game {
     /**
      * The sprite batch for rendering 2d sprites, mostly UI
      */
-	SpriteBatch batch2d;
+	public static SpriteBatch batch2d;
     /**
      * The 2d texture assets for the game, mapped to their addresses
      */
@@ -516,10 +519,8 @@ public class Main extends Game {
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
         // prepare spritebatch shader
-        ShaderProgram spriteBatchShader = new ShaderProgram(Gdx.files.internal("shaders/spriteBatch.vert"), Gdx.files.internal("shaders/spriteBatch.frag"));
-        if (!spriteBatchShader.isCompiled()) {
-            Gdx.app.error("Main", "SpriteBatch shader failed to compile: " + spriteBatchShader.getLog());
-        }
+        ShaderProgram spriteBatchShader = new ShaderProgram(Gdx.files.internal("shaders/sprite_batch.vert"), Gdx.files.internal("shaders/sprite_batch.frag"));
+        if (!spriteBatchShader.isCompiled()) Gdx.app.error("Main", "SpriteBatch shader failed to compile: " + spriteBatchShader.getLog());
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch(1000, spriteBatchShader);
@@ -558,8 +559,25 @@ public class Main extends Game {
         }
 
 		// init particles
-		generalBBParticleBatch = new BillboardParticleBatch();
-		paralyseBBParticleBatch = new BillboardParticleBatch();
+        ShaderProgram particleShader = new ShaderProgram(Gdx.files.internal("shaders/particle.vert"), Gdx.files.internal("shaders/particle.frag"));
+        if (!particleShader.isCompiled()) Gdx.app.error("Main", "Particle shader failed to compile: " + particleShader.getLog());
+
+		generalBBParticleBatch = new BillboardParticleBatch(ParticleShader.AlignMode.Screen, true, 100){
+            @Override
+            protected Shader getShader(Renderable renderable) {
+                Shader shader = new ParticleShader(renderable, new ParticleShader.Config(mode), particleShader);
+                shader.init();
+                return shader;
+            }
+        };
+		paralyseBBParticleBatch = new BillboardParticleBatch(ParticleShader.AlignMode.Screen, true, 100){
+            @Override
+            protected Shader getShader(Renderable renderable) {
+                Shader shader = new ParticleShader(renderable, new ParticleShader.Config(mode), particleShader);
+                shader.init();
+                return shader;
+            }
+        };
 		particleSystem = new ParticleSystem();
 		generalBBParticleBatch.setCamera(camera);
 		paralyseBBParticleBatch.setCamera(camera);

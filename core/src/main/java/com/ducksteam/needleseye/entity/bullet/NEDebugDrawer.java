@@ -29,10 +29,10 @@ public class NEDebugDrawer extends btIDebugDraw implements Disposable {
     public NEDebugDrawer() {
         ShaderProgram shader = new ShaderProgram(Gdx.files.internal("shaders/debug_drawer.vert"), Gdx.files.internal("shaders/debug_drawer.frag"));
         if (!shader.isCompiled()) {
-            throw new IllegalArgumentException("Error compiling shader: " + shader.getLog());
+            Gdx.app.error("DebugDrawer", "DebugDrawer shader failed to compile: " + shader.getLog());
         }
-        shapeRenderer = new ShapeRenderer(5000, shader);
 
+        shapeRenderer = new ShapeRenderer(5000, shader);
     }
 
     public void drawLine(Vector3 from, Vector3 to, Vector3 color) {

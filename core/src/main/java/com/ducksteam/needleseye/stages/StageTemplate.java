@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.ducksteam.needleseye.Main;
 
 /**
  * A template for any 2d stage visible
@@ -25,9 +26,9 @@ public abstract class StageTemplate extends Stage {
      * Create a new stage template
      */
 	public StageTemplate() {
-		super(new ScreenViewport());
+		super(new ScreenViewport(), Main.batch2d);
 		build();
-		this.setDebugAll(true);
+        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
 	}
 
 	/**
