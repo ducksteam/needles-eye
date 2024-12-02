@@ -630,6 +630,7 @@ public class Main extends Game {
         pbrConfig.numDirectionalLights = 1;
         pbrConfig.numPointLights = 1;
         pbrConfig.numSpotLights = 0;
+        pbrConfig.glslVersion = "#version 150\n#define GLSL3\n";
 
         pbrConfig.vertexShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.vert"));
         pbrConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.frag"));
