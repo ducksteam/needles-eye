@@ -29,7 +29,9 @@ public class NEDebugDrawer extends btIDebugDraw implements Disposable {
     public NEDebugDrawer() {
         ShaderProgram shader = new ShaderProgram(Gdx.files.internal("shaders/debug_drawer.vert"), Gdx.files.internal("shaders/debug_drawer.frag"));
         if (!shader.isCompiled()) {
-            Gdx.app.error("DebugDrawer", "DebugDrawer shader failed to compile: " + shader.getLog());
+            Gdx.app.error("Shaders", "DebugDrawer shader failed to compile: " + shader.getLog());
+        } else {
+            Gdx.app.log("Shaders", "DebugDrawer shader compiled: " + shader.getLog());
         }
 
         shapeRenderer = new ShapeRenderer(5000, shader);

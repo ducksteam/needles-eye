@@ -99,7 +99,15 @@ public class Main extends Game {
     /**
      * The effect shader for the main game
      */
-    ShaderProgram effectShader; // the effect shader
+    ShaderProgram postProcessingShader; // the effect shader
+    /**
+     * The shader for the particle system
+     */
+    ShaderProgram particleShader; // the particle shader
+    /**
+     * The shader for the 2d sprites
+     */
+    ShaderProgram spriteBatchShader; // the sprite batch shader
 
     /**
      * The light for the player's lantern
@@ -518,9 +526,27 @@ public class Main extends Game {
 		// create player
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
-        // prepare spritebatch shader
-        ShaderProgram spriteBatchShader = new ShaderProgram(Gdx.files.internal("shaders/sprite_batch.vert"), Gdx.files.internal("shaders/sprite_batch.frag"));
-        if (!spriteBatchShader.isCompiled()) Gdx.app.error("Main", "SpriteBatch shader failed to compile: " + spriteBatchShader.getLog());
+        // prepare shaders
+        spriteBatchShader = new ShaderProgram(Gdx.files.internal("shaders/sprite_batch.vert"), Gdx.files.internal("shaders/sprite_batch.frag"));
+        if (!spriteBatchShader.isCompiled()) {
+            Gdx.app.error("Shaders", "Sprite batch shader failed to compile: " + spriteBatchShader.getLog());
+        } else {
+            Gdx.app.log("Shaders", "Sprite batch shader compiled: " + spriteBatchShader.getLog());
+        }
+
+        postProcessingShader = new ShaderProgram(Gdx.files.internal("shaders/post_processing.vert"), Gdx.files.internal("shaders/post_processing.frag"));
+        if (!postProcessingShader.isCompiled()) {
+            Gdx.app.error("Shaders", "Post-processing shader failed to compile: " + postProcessingShader.getLog());
+        } else {
+            Gdx.app.log("Shaders", "Post-processing shader compiled: " + postProcessingShader.getLog());
+        }
+
+        particleShader = new ShaderProgram(Gdx.files.internal("shaders/particle.vert"), Gdx.files.internal("shaders/particle.frag"));
+        if (!particleShader.isCompiled()) {
+            Gdx.app.error("Shaders", "Particle shader failed to compile: " + particleShader.getLog());
+        } else {
+            Gdx.app.log("Shaders", "Particle shader compiled: " + particleShader.getLog());
+        }
 
 		// initialise drawing utils
 		batch2d = new SpriteBatch(1000, spriteBatchShader);
@@ -552,16 +578,7 @@ public class Main extends Game {
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
         shaderBatch = new SpriteBatch(1000, spriteBatchShader);
 
-        effectShader = new ShaderProgram(Gdx.files.internal("shaders/shader.vert"), Gdx.files.internal("shaders/shader.frag"));
-//        ShaderProgram.pedantic = false;
-        if (!effectShader.isCompiled()) {
-            Gdx.app.error("Main", "Post-processing shader failed to compile: " + effectShader.getLog());
-        }
-
 		// init particles
-        ShaderProgram particleShader = new ShaderProgram(Gdx.files.internal("shaders/particle.vert"), Gdx.files.internal("shaders/particle.frag"));
-        if (!particleShader.isCompiled()) Gdx.app.error("Main", "Particle shader failed to compile: " + particleShader.getLog());
-
 		generalBBParticleBatch = new BillboardParticleBatch(ParticleShader.AlignMode.Screen, true, 100){
             @Override
             protected Shader getShader(Renderable renderable) {
@@ -586,7 +603,7 @@ public class Main extends Game {
 
 		//Sets up game managers
 		assMan = new AssetManager();
-		mapMan = new MapManager(false);
+		mapMan = new MapManager();
 
 		//Sets up animations
 		Texture transitionMap = new Texture(Gdx.files.internal("ui/thread/thread-transition.png"));
@@ -943,6 +960,45 @@ public class Main extends Game {
 		mapMan.generateLevel();
 	}
 
+    /**
+     * Render the game world using the post processing shader. Does not update particle system.
+     * @param drawParticles whether to draw particles
+     */
+    private void renderObjects(boolean drawParticles){
+        HdpiUtils.setMode(HdpiMode.Pixels);
+
+        sceneMan.renderShadows();
+        fbo.begin();
+        Gdx.gl32.glClearColor(0, 0, 0, 0);
+        Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
+
+        sceneMan.renderColors();
+        fbo.end();
+
+        HdpiUtils.setMode(HdpiMode.Logical);
+
+        postProcessingShader.bind();
+        setEffectShaderUniforms();
+
+        viewport.apply();
+
+        shaderBatch.setShader(postProcessingShader);
+        shaderBatch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
+        shaderBatch.begin();
+        shaderBatch.draw(fbo.getColorBufferTexture(), 0, 0, 1, 1, 0, 0, 1, 1);
+        shaderBatch.end();
+        shaderBatch.setShader(null);
+
+        if (drawParticles) {
+            batch.begin(camera);
+            particleSystem.begin();
+            particleSystem.draw();
+            particleSystem.end();
+            batch.render(particleSystem);
+            batch.end();
+        }
+    }
+
 	/**
 	 * Runs every frame to render the game
 	 * */
@@ -998,8 +1054,7 @@ public class Main extends Game {
 
 		if (gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics for a transparent effect
-			sceneMan.update(Gdx.graphics.getDeltaTime());
-			sceneMan.render();
+			renderObjects(true);
 		}
 
 		if (gameState != null && gameState.getStage() != null) {
@@ -1052,42 +1107,12 @@ public class Main extends Game {
 				}
 			});
 
-            // Draw the scene with shaders
-            sceneMan.update(Gdx.graphics.getDeltaTime());
+            // Update managers
+            sceneMan.update(dT);
+            particleSystem.update(dT);
 
-            HdpiUtils.setMode(HdpiMode.Pixels);
-
-            sceneMan.renderShadows();
-            fbo.begin();
-            Gdx.gl32.glClearColor(0, 0, 0, 0);
-            Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
-
-            sceneMan.renderColors();
-            fbo.end();
-
-            HdpiUtils.setMode(HdpiMode.Logical);
-
-            effectShader.bind();
-            setEffectShaderUniforms();
-
-            viewport.apply();
-
-			shaderBatch.setShader(effectShader);
-            shaderBatch.getProjectionMatrix().setToOrtho2D(0, 0, 1, 1);
-            shaderBatch.begin();
-            shaderBatch.draw(fbo.getColorBufferTexture(), 0, 0, 1, 1, 0, 0, 1, 1);
-            shaderBatch.end();
-            shaderBatch.setShader(null);
-
-			batch.begin(camera);
-
-			// draw particles
-			particleSystem.update(dT);
-			particleSystem.begin();
-			particleSystem.draw();
-			particleSystem.end();
-			batch.render(particleSystem);
-			batch.end();
+            // Render the game world
+            renderObjects(true);
 
 			renderGameOverlay();
 
@@ -1148,9 +1173,9 @@ public class Main extends Game {
 	}
 
     private void setEffectShaderUniforms() {
-        effectShader.setUniformMatrix("u_projTrans", camera.combined);
-        effectShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
-        effectShader.setUniformi("u_kernelSize", 7);
+        postProcessingShader.setUniformMatrix("u_projTrans", camera.combined);
+        postProcessingShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
+        postProcessingShader.setUniformi("u_kernelSize", 7);
     }
 
     private void renderLoadingFrame(float progress) {
