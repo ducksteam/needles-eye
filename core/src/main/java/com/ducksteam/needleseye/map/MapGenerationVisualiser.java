@@ -107,6 +107,7 @@ public class MapGenerationVisualiser {
                 Gdx.app.debug("Visualiser", instructions.get(i));
             }
         }
+        renderingComplete = nextInstruction >= instructions.size();
     }
 
     /**
