@@ -20,6 +20,7 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleShader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
+import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
@@ -57,6 +58,9 @@ import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
+import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
+import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -561,8 +565,8 @@ public class Main extends Game {
 		buildFonts();
 
 		//Sets up environment and camera
-		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.6f*Config.LIGHT_INTENSITY, 1f);
-		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 10);
+		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 1f);
+		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 1);
 
 		batch = new ModelBatch();
 		sceneMan = createSceneManager();
@@ -572,7 +576,7 @@ public class Main extends Game {
 		camera.near = 0.1f;
 		sceneMan.setCamera(camera);
 
-		sceneMan.setAmbientLight(0.0001f);
+		sceneMan.setAmbientLight(0f);
 		sceneMan.environment.add(playerLantern);
 
         fbo = new FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), true);
@@ -621,20 +625,22 @@ public class Main extends Game {
      * @return a configured {@link SceneManager}
      */
     private SceneManager createSceneManager() {
-        /*PBRShaderConfig pbrConfig = PBRShaderProvider.createDefaultConfig();
+        PBRShaderConfig pbrConfig = PBRShaderProvider.createDefaultConfig();
         pbrConfig.numBones = 32;
         pbrConfig.numDirectionalLights = 1;
         pbrConfig.numPointLights = 1;
         pbrConfig.numSpotLights = 0;
 
-//        pbrConfig.vertexShader = Gdx.files.internal("shaders/shader.vert").readString();
-//        pbrConfig.fragmentShader = Gdx.files.internal("shaders/shader.frag").readString();
+        pbrConfig.vertexShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.vert"));
+        pbrConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.frag"));
 
         DepthShader.Config depthConfig = new DepthShader.Config();
         depthConfig.numBones = pbrConfig.numBones;
 
-        return new SceneManager(PBRShaderProvider.createDefault(pbrConfig), PBRShaderProvider.createDefaultDepth(depthConfig));*/
-        return new SceneManager();
+        depthConfig.vertexShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr_depth.vert"));
+        depthConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr_depth.frag"));
+
+        return new SceneManager(PBRShaderProvider.createDefault(pbrConfig), PBRShaderProvider.createDefaultDepth(depthConfig));
     }
 
 	/**
