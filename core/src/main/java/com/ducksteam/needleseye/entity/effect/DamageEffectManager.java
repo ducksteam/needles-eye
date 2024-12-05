@@ -96,6 +96,7 @@ public class DamageEffectManager {
 		}
 
 		effects.removeAll(effectsForDisposal);
+        effectsForDisposal.forEach((DamageEffect e) -> e.effect.dispose());
 	}
 
     /**

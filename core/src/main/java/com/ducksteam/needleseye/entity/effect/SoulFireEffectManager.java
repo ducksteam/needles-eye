@@ -131,6 +131,7 @@ public class SoulFireEffectManager {
 		}
 
         effects.removeAll(effectsForDisposal);
+        effectsForDisposal.forEach((SoulFireEffect e) -> e.effect.dispose());
     }
 
     /**

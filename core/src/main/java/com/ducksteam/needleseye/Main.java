@@ -44,6 +44,7 @@ import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
 import com.ducksteam.needleseye.entity.bullet.NEDebugDrawer;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
+import com.ducksteam.needleseye.entity.effect.OrbulonEffectManager;
 import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
@@ -773,6 +774,7 @@ public class Main extends Game {
 		SoulFireEffectManager.loadStaticEffect();
 		DamageEffectManager.loadStaticEffect();
 		ParalysisEffectManager.loadStaticEffect();
+        OrbulonEffectManager.loadStaticEffect();
 
 		UpgradeRegistry.iconsLoaded = true;
 
@@ -833,6 +835,7 @@ public class Main extends Game {
 		assMan.load(SoulFireEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
 		assMan.load(ParalysisEffectManager.getStaticEffectAddress(), ParticleEffect.class, paralyseLoadParameter);
 		assMan.load(DamageEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
+        assMan.load(OrbulonEffectManager.getStaticEffectAddress(), ParticleEffect.class, generalLoadParameter);
 	}
 
 	/**
@@ -925,6 +928,13 @@ public class Main extends Game {
 		// reset entities map
 		entities.clear(); // this must come after the above scene removal
 
+        // clear active particles
+        SoulFireEffectManager.effects.clear();
+        DamageEffectManager.effects.clear();
+        ParalysisEffectManager.effects.clear();
+        OrbulonEffectManager.effects.clear();
+        particleSystem.removeAll();
+
         // reinit player
         player.destroy();
         player = new Player(Config.PLAYER_START_POSITION.cpy()); // this must come after the entity map clear
@@ -961,6 +971,7 @@ public class Main extends Game {
 		SoulFireEffectManager.effects.clear();
 		DamageEffectManager.effects.clear();
 		ParalysisEffectManager.effects.clear();
+        OrbulonEffectManager.effects.clear();
 		particleSystem.removeAll();
 
 		// generate new level
@@ -968,21 +979,46 @@ public class Main extends Game {
 	}
 
     /**
-     * Render the game world using the post processing shader. Does not update particle system.
+     * Render the game world using the post-processing shader. Does not update particle system.
      * @param drawParticles whether to draw particles
+     * @param shadeParticles whether to draw particles using the post-processing shader
      */
-    private void renderObjects(boolean drawParticles){
-        HdpiUtils.setMode(HdpiMode.Pixels);
+    private void renderObjects(boolean drawParticles, boolean shadeParticles){
+//        HdpiUtils.setMode(HdpiMode.Pixels);
 
         sceneMan.renderShadows();
+
         fbo.begin();
         Gdx.gl32.glClearColor(0, 0, 0, 0);
         Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
 
+        sceneMan.renderMirror();
+        sceneMan.renderTransmission();
         sceneMan.renderColors();
-        fbo.end();
 
-        HdpiUtils.setMode(HdpiMode.Logical);
+        if (!shadeParticles) fbo.end();
+
+        if (drawParticles) {
+            batch.begin(camera);
+            particleSystem.begin();
+            particleSystem.draw();
+            particleSystem.end();
+            batch.render(particleSystem);
+            batch.end();
+        }
+
+        if (shadeParticles) fbo.end();
+
+//        depthFbo.begin();
+//        Gdx.gl32.glEnable(GL32.GL_DEPTH_TEST);
+//        Gdx.gl32.glClearColor(0, 0, 0, 1);
+//        Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
+//        sceneMan.renderDepth();
+//        depthFbo.end();
+
+//        Gdx.gl32.glDisable(GL32.GL_DEPTH_TEST);
+
+//        HdpiUtils.setMode(HdpiMode.Logical);
 
         postProcessingShader.bind();
         setEffectShaderUniforms();
@@ -996,14 +1032,7 @@ public class Main extends Game {
         shaderBatch.end();
         shaderBatch.setShader(null);
 
-        if (drawParticles) {
-            batch.begin(camera);
-            particleSystem.begin();
-            particleSystem.draw();
-            particleSystem.end();
-            batch.render(particleSystem);
-            batch.end();
-        }
+//        Gdx.gl32.glActiveTexture(GL32.GL_TEXTURE0);
     }
 
 	/**
@@ -1061,7 +1090,7 @@ public class Main extends Game {
 
 		if (gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics for a transparent effect
-			renderObjects(true);
+			renderObjects(true, true);
 		}
 
 		if (gameState != null && gameState.getStage() != null) {
@@ -1088,6 +1117,7 @@ public class Main extends Game {
 			SoulFireEffectManager.update();
 			DamageEffectManager.update();
 			ParalysisEffectManager.update();
+            OrbulonEffectManager.update();
 
 			entities.forEach((Integer id, Entity entity) -> {
 				if (entity instanceof RoomInstance) {
@@ -1119,7 +1149,7 @@ public class Main extends Game {
             particleSystem.update(dT);
 
             // Render the game world
-            renderObjects(true);
+            renderObjects(true, true);
 
 			renderGameOverlay();
 

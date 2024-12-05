@@ -8,6 +8,7 @@ import com.badlogic.gdx.physics.bullet.collision.ClosestRayResultCallback;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
+import com.ducksteam.needleseye.entity.effect.OrbulonEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
@@ -127,7 +128,17 @@ public class OrbulonAI implements IHasAi {
 			if (hitEntity instanceof IHasHealth) {
 				((IHasHealth) hitEntity).damage(getTarget().getDamage(), getTarget());
 			}
+            rayTo = tmpVec;
 		}
+
+        Gdx.app.log("OrbulonAI", rayFrom.cpy().sub(rayTo).len()/ OrbulonEffectManager.PARTICLE_DENSITY +"");
+
+        for (int i = 0; i < rayFrom.cpy().sub(rayTo).len()/ OrbulonEffectManager.PARTICLE_DENSITY; i++) {
+            tmpVec = rayFrom.cpy().add(rayTo.cpy().sub(rayFrom).nor().scl(i * OrbulonEffectManager.PARTICLE_DENSITY));
+            Gdx.app.debug("OrbulonAI", i + " " + rayFrom + " + " + rayTo + " * " + i * OrbulonEffectManager.PARTICLE_DENSITY);
+            Gdx.app.debug("OrbulonAI", i + " " + tmpVec);
+            OrbulonEffectManager.create(tmpVec, Main.getTime() + i * OrbulonEffectManager.PARTICLE_DELAY);
+        }
 	}
 
     /**

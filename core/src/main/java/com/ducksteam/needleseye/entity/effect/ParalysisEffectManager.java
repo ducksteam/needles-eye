@@ -91,6 +91,7 @@ public class ParalysisEffectManager {
 		}
 
         effects.removeAll(effectsForDisposal);
+        effectsForDisposal.forEach((ParalysisEffect e) -> e.effect.dispose());
     }
 
     /**
