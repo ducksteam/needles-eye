@@ -25,6 +25,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -57,6 +58,7 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
+import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
@@ -1125,6 +1127,7 @@ public class Main extends Game {
 				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
+                entity.isRenderable = isInFrustum(entity.getScene(), camera);
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
@@ -1243,7 +1246,18 @@ public class Main extends Game {
 //		return time; // this is so incredibly wrong it only counts the frames where render is called so if you're standing still without debug menu open it will run 10x slower than if you do have it open. debug menu essentially forces incredibly quick updates because it has the bullet vectors that are always changing slightly
 	}
 
-	/**
+    /**
+     * Identifies if an object is in the camera frustum
+     */
+
+    private boolean isInFrustum(Scene scene, Camera camera) {
+        if (scene == null) return false;
+        BoundingBox bounds = new BoundingBox();
+        scene.modelInstance.calculateBoundingBox(bounds);
+        return camera.frustum.boundsInFrustum(bounds);
+    }
+
+    /**
 	 * @param width The new width of the window
 	 * @param height The new height of the window
 	 * Called when the window is resized
