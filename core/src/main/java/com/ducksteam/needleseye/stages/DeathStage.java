@@ -18,7 +18,6 @@ import static com.ducksteam.needleseye.Main.*;
 public class DeathStage extends StageTemplate {
 
 	Image background;
-	Image title;
 	Image exitButtonUnpressed;
 	Image exitButtonPressed;
 
@@ -32,7 +31,6 @@ public class DeathStage extends StageTemplate {
 	@Override
 	public void build() {
 		background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
-		title = new Image(new Texture(Gdx.files.internal("ui/death/title.png")));
 		exitButtonUnpressed = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png")));
 		exitButtonPressed = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png")));
 
