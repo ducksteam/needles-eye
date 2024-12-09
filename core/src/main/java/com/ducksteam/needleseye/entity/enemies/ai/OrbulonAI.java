@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye.entity.enemies.ai;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
@@ -24,8 +23,8 @@ public class OrbulonAI implements IHasAi {
 	float currentAngle;
 
 	static final float DETECTION_RANGE = 8; // range of detection
-	static final float ROTATION_SPEED = 25f; // speed of rotation (deg s^-1)
-	static final float ATTACK_ACCURACY = 0.01f; // accuracy of attack (deg)
+	static final float ROTATION_SPEED = 45f; // speed of rotation (deg s^-1)
+	static final float ATTACK_ACCURACY = 0.02f; // accuracy of attack (deg)
 
 	private static final Vector3 PROJECTILE_POSITION = new Vector3(0, 0, -0.5f);
 	private static final Vector3 PROJECTILE_RAY = new Vector3(0, 0, -10f);
@@ -124,19 +123,14 @@ public class OrbulonAI implements IHasAi {
 		if (rayResult.hasHit()) {
 			Entity hitEntity = entities.get(rayResult.getCollisionObject().getUserValue());
 			rayResult.getHitPointWorld(tmpVec);
-			Gdx.app.log("OrbulonAI", "Hit " + hitEntity.getClass().getSimpleName() + " at " + tmpVec );
 			if (hitEntity instanceof IHasHealth) {
 				((IHasHealth) hitEntity).damage(getTarget().getDamage(), getTarget());
 			}
             rayTo = tmpVec;
 		}
 
-        Gdx.app.log("OrbulonAI", rayFrom.cpy().sub(rayTo).len()/ OrbulonEffectManager.PARTICLE_DENSITY +"");
-
         for (int i = 0; i < rayFrom.cpy().sub(rayTo).len()/ OrbulonEffectManager.PARTICLE_DENSITY; i++) {
             tmpVec = rayFrom.cpy().add(rayTo.cpy().sub(rayFrom).nor().scl(i * OrbulonEffectManager.PARTICLE_DENSITY));
-            Gdx.app.debug("OrbulonAI", i + " " + rayFrom + " + " + rayTo + " * " + i * OrbulonEffectManager.PARTICLE_DENSITY);
-            Gdx.app.debug("OrbulonAI", i + " " + tmpVec);
             OrbulonEffectManager.create(tmpVec, Main.getTime() + i * OrbulonEffectManager.PARTICLE_DELAY);
         }
 	}
