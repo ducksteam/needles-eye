@@ -95,7 +95,7 @@ public class NEDebugDrawer extends btIDebugDraw implements Disposable {
         if (!program.isCompiled()) {
             Gdx.app.error("Shaders", "Debug drawer shader failed to compile: " + program.getLog());
         } else {
-            Gdx.app.error("Shaders", "Debug drawer shader compiled: " + program.getLog());
+            Gdx.app.log("Shaders", "Debug drawer shader compiled: " + program.getLog());
         }
         return program;
     }
