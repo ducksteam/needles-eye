@@ -42,6 +42,12 @@ public class GlobalInput implements InputProcessor {
             Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
         }
 
+        if(i == Input.Keys.F3) {
+            if(Main.gameState != Main.GameState.IN_GAME) return false;
+            Main.mapMan.getCurrentLevel().getRooms().forEach(room -> room.isRenderable = !room.isRenderable);
+            return true;
+        }
+
         if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(20)); // move player up
 
         if (i == Input.Keys.NUMPAD_ADD) { // heal the player

@@ -233,7 +233,7 @@ public abstract class Entity implements AnimationListener {
 	 * @return the scene asset
 	 * */
 	public Scene getScene() {
-		if (!isRenderable || scene == null) return null;
+		if (scene == null) return null;
 		try {
 			motionState.getWorldTransform(scene.modelInstance.transform);
 		} catch (Exception e) {

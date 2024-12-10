@@ -182,12 +182,9 @@ public class MapManager {
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
         level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[3].cpy().add(10, 0, 0), new Vector2(-1, 0), 90));
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[2].cpy().add(0, 0, -10), new Vector2(0, -1), 180));
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[1].cpy().add(-10, 0, 0), new Vector2(1, 0), 270));
 
         addWalls(level);
-        populateLevel(level);
+        //populateLevel(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index

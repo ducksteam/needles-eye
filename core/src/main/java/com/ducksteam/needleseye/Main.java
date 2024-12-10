@@ -65,6 +65,7 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -1127,22 +1128,19 @@ public class Main extends Game {
 				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
 				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
-                entity.isRenderable = isInFrustum(entity.getScene(), camera);
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
 				boolean flag = false;
-				for (RenderableProvider renderableProvider : sceneMan.getRenderableProviders()) {
-					if (renderableProvider.equals(entity.getScene())) {
-						flag = true;
-						break;
-					}
-				}
 
-				if (entity.isRenderable && entity.getScene() != null && !flag){
+                flag = sceneMan.getRenderableProviders().contains(entity.getScene(), true);
+
+                //entity.isRenderable = isInFrustum(entity.getScene(), camera);
+
+                if (entity.isRenderable && entity.getScene() != null && !flag){
 					sceneMan.addScene(entity.getScene());
 				}
-				if(!entity.isRenderable && entity.getScene() != null && flag) {
+				if(!entity.isRenderable && entity.getScene() != null) {
 					sceneMan.removeScene(entity.getScene());
 				}
 			});
@@ -1249,12 +1247,12 @@ public class Main extends Game {
     /**
      * Identifies if an object is in the camera frustum
      */
-
     private boolean isInFrustum(Scene scene, Camera camera) {
         if (scene == null) return false;
         BoundingBox bounds = new BoundingBox();
         scene.modelInstance.calculateBoundingBox(bounds);
         return camera.frustum.boundsInFrustum(bounds);
+
     }
 
     /**
