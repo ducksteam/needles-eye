@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationListener
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
@@ -82,6 +83,13 @@ public abstract class Entity implements AnimationListener {
      * The scene asset of the entity
      */
 	private Scene scene;
+
+    /** The centre of the bounding sphere*/
+    private final Vector3 boundingSphereCentre = new Vector3();
+
+    /** The radius of the bounding sphere*/
+    private final float boundingSphereRadius;
+
     /**
      * The mass of the entity
      */
@@ -140,6 +148,18 @@ public abstract class Entity implements AnimationListener {
 		this.flags = flags;
 
 		setScene(scene);
+
+        if(scene==null) {
+            boundingSphereCentre.setZero();
+            boundingSphereRadius = 0;
+            return;
+        }
+        BoundingBox boundingBox = new BoundingBox();
+        Vector3 dimensions = new Vector3();
+        this.scene.modelInstance.calculateBoundingBox(boundingBox);
+        boundingBox.getCenter(boundingSphereCentre);
+        boundingBox.getDimensions(dimensions);
+        boundingSphereRadius = dimensions.len() / 2f;
 	}
 
 	/**
@@ -272,6 +292,22 @@ public abstract class Entity implements AnimationListener {
 	public Quaternion getRotation() {
 		return transform.getRotation(new Quaternion());
 	}
+
+    /**
+     * Gets the centre of the bounding sphere
+     * @return the centre of the bounding sphere
+     * */
+    public Vector3 getBoundingSphereCentre() {
+        return boundingSphereCentre;
+    }
+
+    /**
+     * Gets the radius of the bounding sphere
+     * @return the radius of the bounding sphere
+     * */
+    public float getBoundingSphereRadius() {
+        return boundingSphereRadius;
+    }
 
 	/**
 	 * Immediately changes the animation of the entity
