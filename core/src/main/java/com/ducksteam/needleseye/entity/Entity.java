@@ -149,7 +149,7 @@ public abstract class Entity implements AnimationListener {
 
 		setScene(scene);
 
-        if(scene==null) {
+        if(this.scene==null) {
             boundingSphereCentre.setZero();
             boundingSphereRadius = 0;
             return;
