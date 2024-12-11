@@ -171,6 +171,8 @@ public class Main extends Game {
      * The font for titles, 8% of the height of the window
      */
 	public static BitmapFont titleFont; // font for titles
+    /** The font for ImageTextButtons, 5.5% the height of the window */
+    public static BitmapFont buttonFont;
     /**
      * The virtual text layout, used for measuring and centering text
      */
@@ -652,14 +654,17 @@ public class Main extends Game {
 	 * Construct font assets
 	 * */
 	private void buildFonts() {
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/needleseye.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-		parameter.size = (int) (0.02 * Gdx.graphics.getHeight()); // scale font to window size
+		parameter.size = (int) (0.04 * Gdx.graphics.getHeight()); // scale font to window size
         if (parameter.size < 3) parameter.size = 3;
 		uiFont = generator.generateFont(parameter);
-		parameter.size = (int) (0.08 * Gdx.graphics.getHeight());
+		parameter.size = (int) (0.12 * Gdx.graphics.getHeight());
         if (parameter.size < 8) parameter.size = 8;
 		titleFont = generator.generateFont(parameter);
+        parameter.size = (int) (0.056 * Gdx.graphics.getHeight());
+        if (parameter.size < 4) parameter.size = 4;
+        buttonFont = generator.generateFont(parameter);
 	}
 
 	/**

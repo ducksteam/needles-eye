@@ -5,8 +5,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
+import com.badlogic.gdx.utils.Align;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.setGameState;
@@ -19,39 +21,20 @@ import static com.ducksteam.needleseye.Main.setGameState;
 public class PauseStage extends StageTemplate {
 
 	Image background;
-	Image resumeButtonUnpressed;
-	Image resumeButtonPressed;
-	Image exitButtonUnpressed;
-	Image exitButtonPressed;
 
-	ImageButton.ImageButtonStyle resumeButtonStyle;
-	ImageButton.ImageButtonStyle exitButtonStyle;
-
-	ImageButton resumeButton;
-	ImageButton exitButton;
+	TextButton resumeButton;
+	TextButton exitButton;
 
 	Table buttons;
 
 	@Override
 	public void build() {
+        super.build();
+
 		background = new Image(new Texture("ui/pause/pausebackground.png"));
-		resumeButtonUnpressed = new Image(new Texture("ui/main/play1.png"));
-		resumeButtonPressed = new Image(new Texture("ui/main/play2.png"));
-		exitButtonUnpressed = new Image(new Texture("ui/main/quit1.png"));
-		exitButtonPressed = new Image(new Texture("ui/main/quit2.png"));
 
-		resumeButtonStyle = new ImageButton.ImageButtonStyle();
-		resumeButtonStyle.imageUp = resumeButtonUnpressed.getDrawable();
-		resumeButtonStyle.imageDown = resumeButtonPressed.getDrawable();
-		resumeButtonStyle.imageOver = resumeButtonPressed.getDrawable();
-
-		exitButtonStyle = new ImageButton.ImageButtonStyle();
-		exitButtonStyle.imageUp = exitButtonUnpressed.getDrawable();
-		exitButtonStyle.imageDown = exitButtonPressed.getDrawable();
-		exitButtonStyle.imageOver = exitButtonPressed.getDrawable();
-
-		resumeButton = new ImageButton(resumeButtonStyle);
-		exitButton = new ImageButton(exitButtonStyle);
+		resumeButton = new TextButton("Play", buttonStyle);
+		exitButton = new TextButton("Quit", buttonStyle);
 
 		buttons = new Table();
 
@@ -95,8 +78,11 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
-		resumeButton.getCell(resumeButton.getImage()).grow();
-		exitButton.getCell(exitButton.getImage()).grow();
+        resumeButton.getCell(resumeButton.getLabel()).padLeft(Value.percentWidth(0.05f, resumeButton));
+        resumeButton.getLabel().setAlignment(Align.left);
+
+        exitButton.getCell(exitButton.getLabel()).padLeft(Value.percentWidth(0.05f, exitButton));
+        exitButton.getLabel().setAlignment(Align.left);
 
 		buttons.add(resumeButton).prefSize(400, 90).growX().padBottom(220).row();
 		buttons.add(exitButton).prefSize(400, 90).growX().spaceTop(250).row();

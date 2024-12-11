@@ -3,11 +3,10 @@ package com.ducksteam.needleseye.stages;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
-import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 
@@ -21,13 +20,8 @@ import static com.ducksteam.needleseye.Main.*;
 public class InstructionsStage extends StageTemplate {
 
 	Image background;
-	Image backButtonUnpressed;
-	Image backButtonPressed;
-    NinePatchDrawable background9Patch;
 
-	ImageButton.ImageButtonStyle backButtonStyle;
-
-	ImageButton backButton;
+	TextButton backButton;
 
 	StringBuilder keysText;
 	Label instructions;
@@ -37,17 +31,11 @@ public class InstructionsStage extends StageTemplate {
 
 	@Override
 	public void build() {
+        super.build();
+
 		background = new Image(new Texture("ui/instructions/background.png"));
-		backButtonUnpressed = new Image(new Texture("ui/death/exit1.png"));
-		backButtonPressed = new Image(new Texture("ui/death/exit2.png"));
-        background9Patch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/textbackground.9.png"), 4,4,4,4));
 
-		backButtonStyle = new ImageButton.ImageButtonStyle();
-		backButtonStyle.imageUp = backButtonUnpressed.getDrawable();
-		backButtonStyle.imageDown = backButtonPressed.getDrawable();
-		backButtonStyle.imageOver = backButtonPressed.getDrawable();
-
-		backButton = new ImageButton(backButtonStyle);
+		backButton = new TextButton("Return To Menu", dualButtonStyle);
 
 		keysText = new StringBuilder();
 
@@ -82,7 +70,6 @@ public class InstructionsStage extends StageTemplate {
 				return true;
 			}
 		});
-		backButton.getImage().setFillParent(true);
 		addActor(backButton);
 
 		keysText.setLength(0); // clear the string builder
@@ -99,8 +86,7 @@ public class InstructionsStage extends StageTemplate {
 
         instructionsTable.add(instructions).prefWidth(Value.percentWidth(338/640f, background)).pad(Value.percentWidth(0.02f, background)).row();
 
-
-        backButton.getCell(backButton.getImage()).grow();
+        backButton.getLabel().setAlignment(Align.center);
 
         root.add(title).row();
 

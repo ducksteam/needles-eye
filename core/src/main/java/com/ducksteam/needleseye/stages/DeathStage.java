@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.utils.Align;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -18,28 +19,19 @@ import static com.ducksteam.needleseye.Main.*;
 public class DeathStage extends StageTemplate {
 
 	Image background;
-	Image exitButtonUnpressed;
-	Image exitButtonPressed;
 
-	ImageButton.ImageButtonStyle exitButtonStyle;
-
-	ImageButton exitButton;
+	TextButton exitButton;
 	Label levelText;
 
 	Table upgradeIcons;
 
 	@Override
 	public void build() {
+        super.build();
+
 		background = new Image(new Texture(Gdx.files.internal("ui/death/background.png")));
-		exitButtonUnpressed = new Image(new Texture(Gdx.files.internal("ui/death/exit1.png")));
-		exitButtonPressed = new Image(new Texture(Gdx.files.internal("ui/death/exit2.png")));
 
-		exitButtonStyle = new ImageButton.ImageButtonStyle();
-		exitButtonStyle.imageUp = exitButtonUnpressed.getDrawable();
-		exitButtonStyle.imageDown = exitButtonPressed.getDrawable();
-		exitButtonStyle.imageOver = exitButtonPressed.getDrawable();
-
-		exitButton = new ImageButton(exitButtonStyle);
+		exitButton = new TextButton("Return To Menu",  dualButtonStyle);
 
 		levelText = new Label("", new Label.LabelStyle(titleFont, null));
 
@@ -85,10 +77,10 @@ public class DeathStage extends StageTemplate {
 		}
 		upgradeIcons.add(new Actor()).expand(); // pushes everything to the left
 
-		exitButton.getCell(exitButton.getImage()).grow();
+        exitButton.getLabel().setAlignment(Align.center);
 
 		root.add(levelText).prefHeight(Value.percentHeight(0.08f, background)).row();
 		root.add(upgradeIcons).prefWidth(Value.percentWidth(0.41875f, background)).prefHeight(Value.percentHeight(0.325f, background)).spaceTop(Value.percentHeight(0.225f, background)).row();
-		root.add(exitButton).prefSize(Value.percentWidth(0.2f, background), Value.percentHeight(0.083f, background)).spaceTop(Value.percentHeight(0.05f, background));
+		root.add(exitButton).prefSize(Value.percentWidth(167f/640, background), Value.percentHeight(32f/360, background)).spaceTop(Value.percentHeight(0.08f, background));
 	}
 }
