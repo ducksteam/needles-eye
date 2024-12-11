@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
@@ -22,10 +21,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.HdpiMode;
-import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -65,7 +61,6 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -1131,13 +1126,9 @@ public class Main extends Game {
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
-				boolean flag = false;
+                entity.isRenderable = isInFrustum(entity, camera);
 
-                flag = sceneMan.getRenderableProviders().contains(entity.getScene(), true);
-
-                //entity.isRenderable = isInFrustum(entity.getScene(), camera);
-
-                if (entity.isRenderable && entity.getScene() != null && !flag){
+                if (entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
 					sceneMan.addScene(entity.getScene());
 				}
 				if(!entity.isRenderable && entity.getScene() != null) {
@@ -1247,12 +1238,17 @@ public class Main extends Game {
     /**
      * Identifies if an object is in the camera frustum
      */
-    private boolean isInFrustum(Scene scene, Camera camera) {
+    private boolean isInFrustum(Entity entity, Camera camera) {
+        Scene scene = entity.getScene();
         if (scene == null) return false;
-        BoundingBox bounds = new BoundingBox();
+        /*BoundingBox bounds = new BoundingBox();
         scene.modelInstance.calculateBoundingBox(bounds);
-        return camera.frustum.boundsInFrustum(bounds);
+        return camera.frustum.boundsInFrustum(bounds);*/
 
+        Vector3 position = new Vector3();
+        scene.modelInstance.transform.getTranslation(position);
+        position.add(entity.getBoundingSphereCentre());
+        return camera.frustum.sphereInFrustum(position, entity.getBoundingSphereRadius());
     }
 
     /**
