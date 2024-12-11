@@ -14,6 +14,7 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
+import com.ducksteam.needleseye.entity.enemies.OrbulonEnemy;
 
 import java.util.*;
 import java.util.function.Predicate;
