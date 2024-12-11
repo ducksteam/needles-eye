@@ -110,48 +110,11 @@ public abstract class Entity implements AnimationListener {
 	 *
 	 * @param position      the initial position
 	 * @param rotation      the initial rotation
-	 * @param modelInstance the model instance of the entity
-	 */
-	@Deprecated
-	public Entity(Vector3 position, Quaternion rotation, ModelInstance modelInstance) {
-		this(position, rotation, 0f, modelInstance, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
-	}
-
-	/**
-	 * Creates a static entity with mass 0
-	 *
-	 * @param position      the initial position
-	 * @param rotation      the initial rotation
 	 * @param scene the model instance of the entity
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
 		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
-	}
-
-	/**
-	 * Creates a dynamic entity
-	 *
-	 * @param position      the initial position
-	 * @param rotation      the initial rotation
-	 * @param mass          the mass of the entity
-	 * @param modelInstance the model instance of the entity
-     * @param flags         the collision flags of the entity to be passed to bullet
-	 */
-	@Deprecated
-	public Entity(Vector3 position, Quaternion rotation, float mass, ModelInstance modelInstance, int flags) {
-		transform.idt().translate(position).rotate(rotation);
-
-		id = currentId++;
-		Main.entities.put(id, this);
-
-		isStatic = mass == 0;
-		isRenderable = modelInstance != null;
-
-		this.mass = mass;
-		this.flags = flags;
-
-		setModelInstance(modelInstance);
 	}
 
 	/**
