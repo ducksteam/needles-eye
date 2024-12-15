@@ -42,6 +42,8 @@ public class ThreadStage extends StageTemplate {
 
 	@Override
 	public void build() {
+        super.build();
+
 		background = new Image(new Texture("ui/thread/background.png"));
 		soul = new Image(new Texture("ui/thread/soul8.png"));
 		coal = new Image(new Texture("ui/thread/coal8.png"));

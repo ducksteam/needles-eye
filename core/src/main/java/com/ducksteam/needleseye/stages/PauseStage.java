@@ -84,8 +84,8 @@ public class PauseStage extends StageTemplate {
         exitButton.getCell(exitButton.getLabel()).padLeft(Value.percentWidth(0.05f, exitButton));
         exitButton.getLabel().setAlignment(Align.left);
 
-		buttons.add(resumeButton).prefSize(400, 90).growX().padBottom(220).row();
-		buttons.add(exitButton).prefSize(400, 90).growX().spaceTop(250).row();
-		root.add(buttons).pad(100).left();
+		buttons.add(resumeButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().padBottom(Value.percentHeight(220f/1080, background)).row();
+		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(250f/1080, background)).row();
+		root.add(buttons).pad(Value.percentWidth(100f/1920, background)).left();
 	}
 }

@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
-import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
 
@@ -119,23 +118,15 @@ public class MainStage extends StageTemplate {
 		});
 
 		// scene2d magic
-        playButton.getCell(playButton.getLabel()).padLeft(Value.percentWidth(0.05f, playButton));
-        playButton.getLabel().setAlignment(Align.left);
+        alignButton(playButton, instructionsButton, optionsButton, exitButton);
 
-        instructionsButton.getCell(instructionsButton.getLabel()).padLeft(Value.percentWidth(0.05f, instructionsButton));
-        instructionsButton.getLabel().setAlignment(Align.left);
+		buttons.add(playButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
+		buttons.add(instructionsButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
+		buttons.add(optionsButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().row();
+		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(250f/1080, background)).row();
+		root.add(buttons).left().pad(Value.percentWidth(0.1f, background));
+		root.add(logo).expandX().pad(Value.percentWidth(0.05f, background)).fillY().fillX().padRight(100);
 
-        optionsButton.getCell(optionsButton.getLabel()).padLeft(Value.percentWidth(0.05f, optionsButton));
-        optionsButton.getLabel().setAlignment(Align.left);
-
-        exitButton.getCell(exitButton.getLabel()).padLeft(Value.percentWidth(0.05f, exitButton));
-        exitButton.getLabel().setAlignment(Align.left);
-
-		buttons.add(playButton).prefSize(400, 90).growX().spaceBottom(20).row();
-		buttons.add(instructionsButton).prefSize(400, 90).growX().spaceBottom(20).row();
-		buttons.add(optionsButton).prefSize(400, 90).growX().row();
-		buttons.add(exitButton).prefSize(400, 90).growX().spaceTop(250).row();
-		root.add(buttons).left().pad(100).padRight(200);
-		root.add(logo).expandX().fillY().fillX().padRight(100);
+        buttons.getCell(exitButton).bottom();
 	}
 }

@@ -14,7 +14,6 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
-import com.ducksteam.needleseye.entity.enemies.OrbulonEnemy;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -492,6 +491,9 @@ public class MapManager {
         ArrayList<RoomTemplate> templates = roomTemplates.stream().filter(t -> t.getType() == type).collect(Collectors.toCollection(ArrayList::new));
         return getRandomElement(templates);
     }
+
+    public void setSeed(String seed){}
+    public void setSeed(long seed){}
 
     // Static utility methods follow
 

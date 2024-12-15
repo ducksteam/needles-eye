@@ -393,6 +393,7 @@ public class Main extends Game {
 		GameState.PAUSED_MENU.setStage(new PauseStage());
 		GameState.DEAD_MENU.setStage(new DeathStage());
 		GameState.INSTRUCTIONS.setStage(new InstructionsStage());
+        GameState.OPTIONS.setStage(new OptionsStage());
 
 		// An input processor for menus that can be exited, to be multiplexed with other
 		InputAdapter menuEscape = new InputAdapter(){
@@ -414,7 +415,7 @@ public class Main extends Game {
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, GameState.PAUSED_MENU.getStage()));
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
-		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput));
+		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.OPTIONS.getStage())); // todo: options has/will have an apply popup to confirm changes so remove menuEscape
 	}
 
 	/**
@@ -423,7 +424,8 @@ public class Main extends Game {
 	 * */
 	public static void setGameState(GameState gameState){
 		Main.gameState = gameState;
-		Gdx.input.setInputProcessor(gameState.getInputProcessor());
+        if (gameState.stage != null) gameState.stage.build();
+        Gdx.input.setInputProcessor(gameState.getInputProcessor());
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
 		if(menuMusic!=null) {

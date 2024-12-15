@@ -5,10 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.scenes.scene2d.ui.Table;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.ducksteam.needleseye.Main;
@@ -33,6 +32,10 @@ public abstract class StageTemplate extends Stage {
     TextButton.TextButtonStyle buttonStyle;
     TextButton.TextButtonStyle dualButtonStyle;
     TextButton.TextButtonStyle roundedButtonStyle;
+
+    ScrollPane.ScrollPaneStyle scrollStyle;
+
+    TextField.TextFieldStyle textFieldStyle;
 
     /**
      * Whether the stage has been built initially, and has the textures loaded
@@ -72,23 +75,7 @@ public abstract class StageTemplate extends Stage {
         buttonUnpressed.setScaling(Scaling.fit);
         buttonPressed.setScaling(Scaling.fit);
 
-        buttonStyle = new TextButton.TextButtonStyle();
-        buttonStyle.up = buttonUnpressed.getDrawable();
-        buttonStyle.down = buttonStyle.over = buttonPressed.getDrawable();
-        buttonStyle.font = Main.buttonFont;
-        buttonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
-
-        dualButtonStyle = new TextButton.TextButtonStyle();
-        dualButtonStyle.up = dualButtonUnpressed.getDrawable();
-        dualButtonStyle.down = dualButtonStyle.over = dualButtonPressed.getDrawable();
-        dualButtonStyle.font = Main.buttonFont;
-        dualButtonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
-
-        roundedButtonStyle = new TextButton.TextButtonStyle();
-        roundedButtonStyle.up = dualButtonUnpressedNinePatch;
-        roundedButtonStyle.down = roundedButtonStyle.over = dualButtonPressedNinePatch;
-        roundedButtonStyle.font = Main.buttonFont;
-        roundedButtonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
+        updateStyles();
     }
 
 	/**
@@ -98,7 +85,7 @@ public abstract class StageTemplate extends Stage {
 
 	public void rebuild() {
 		root.clear();
-
+        updateStyles();
 	}
 
 	/**
@@ -117,4 +104,40 @@ public abstract class StageTemplate extends Stage {
 	public void update() {
 		update(Gdx.graphics.getDeltaTime());
 	}
+
+    /**
+     * Format textbuttons using the predefined style
+     * @param buttons buttons to format
+     */
+    public void alignButton(TextButton ...buttons) {
+        for (TextButton button : buttons) {
+            button.getCell(button.getLabel()).padLeft(Value.percentWidth(0.05f, button));
+            button.getLabel().setAlignment(Align.left);
+        }
+    }
+
+    private void updateStyles() {
+        buttonStyle = new TextButton.TextButtonStyle();
+        buttonStyle.up = buttonUnpressed.getDrawable();
+        buttonStyle.down = buttonStyle.over = buttonStyle.checked = buttonPressed.getDrawable();
+        buttonStyle.font = Main.buttonFont;
+        buttonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
+
+        dualButtonStyle = new TextButton.TextButtonStyle();
+        dualButtonStyle.up = dualButtonUnpressed.getDrawable();
+        dualButtonStyle.down = dualButtonStyle.over = dualButtonStyle.checked = dualButtonPressed.getDrawable();
+        dualButtonStyle.font = Main.buttonFont;
+        dualButtonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
+
+        roundedButtonStyle = new TextButton.TextButtonStyle();
+        roundedButtonStyle.up = dualButtonUnpressedNinePatch;
+        roundedButtonStyle.down = roundedButtonStyle.over = roundedButtonStyle.checked = dualButtonPressedNinePatch;
+        roundedButtonStyle.font = Main.buttonFont;
+        roundedButtonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
+
+        scrollStyle = new ScrollPane.ScrollPaneStyle();
+        scrollStyle.background = background9Patch;
+
+        textFieldStyle = new TextField.TextFieldStyle(Main.uiFont, Main.uiFont.getColor(), null, null, background9Patch);
+    }
 }
