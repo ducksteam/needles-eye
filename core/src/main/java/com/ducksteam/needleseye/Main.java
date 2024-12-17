@@ -167,6 +167,9 @@ public class Main extends Game {
      * The font for the UI, 3% of the height of the window
      */
 	public static BitmapFont uiFont; // font for text
+    /** The font for debug menu (JetBrains Mono) */
+    public static BitmapFont debugFont;
+    public static Label.LabelStyle debugStyle;
     /**
      * The font for titles, 8% of the height of the window
      */
@@ -305,6 +308,8 @@ public class Main extends Game {
      * Manages the duck splash screen on startup as app loads
      */
 	private SplashWorker splashWorker; // splash screen
+    /** Maximum resolution for initialised display mode */
+    public static OptionsStage.Resolution maxResolution;
 
 	/**
 	 * The enum for managing the game state
@@ -656,17 +661,23 @@ public class Main extends Game {
 	 * Construct font assets
 	 * */
 	private void buildFonts() {
-		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/needleseye.ttf"));
+		FreeTypeFontGenerator neGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/needleseye.ttf"));
+        FreeTypeFontGenerator jbmGenerator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/JetBrainsMono.ttf"));
 		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
 		parameter.size = (int) (0.04 * Gdx.graphics.getHeight()); // scale font to window size
         if (parameter.size < 3) parameter.size = 3;
-		uiFont = generator.generateFont(parameter);
+		uiFont = neGenerator.generateFont(parameter);
 		parameter.size = (int) (0.12 * Gdx.graphics.getHeight());
         if (parameter.size < 8) parameter.size = 8;
-		titleFont = generator.generateFont(parameter);
+		titleFont = neGenerator.generateFont(parameter);
         parameter.size = (int) (0.056 * Gdx.graphics.getHeight());
         if (parameter.size < 4) parameter.size = 4;
-        buttonFont = generator.generateFont(parameter);
+        buttonFont = neGenerator.generateFont(parameter);
+        parameter.size = (int) (0.02 * Gdx.graphics.getHeight());
+        if (parameter.size < 2) parameter.size = 2;
+        debugFont = jbmGenerator.generateFont(parameter);
+
+        debugStyle = new Label.LabelStyle(debugFont, debugFont.getColor());
 	}
 
 	/**
@@ -678,36 +689,36 @@ public class Main extends Game {
 
 		ArrayList<Label> labels = new ArrayList<>();
 
-		Label gameState = new Label("Game state: " + gameStateCheck, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label gameState = new Label("Game state: " + gameStateCheck, debugStyle);
 		labels.add(gameState);
 
-		Label coords = new Label("Location: "+player.getPosition().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label coords = new Label("Location: "+player.getPosition().toString(), debugStyle);
 		labels.add(coords);
 
-		Label rotation = new Label("Rotation: " + player.getRotation().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label rotation = new Label("Rotation: " + player.getRotation().toString(), debugStyle);
 		labels.add(rotation);
 
-		Label eulerAngles = new Label("Camera angle: " + player.eulerRotation, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label eulerAngles = new Label("Camera angle: " + player.eulerRotation, debugStyle);
 		labels.add(eulerAngles);
 
-		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label velocity = new Label("Velocity: " + player.getVelocity().len() + " " + player.getVelocity().toString(), debugStyle);
 		labels.add(velocity);
 
-		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label fps = new Label("FPS: " + Gdx.graphics.getFramesPerSecond(), debugStyle);
 		labels.add(fps);
 
-		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label attackTime = new Label("Attack time: " + player.getAttackTimeout(), debugStyle);
 		labels.add(attackTime);
 
-		Label damageBoost = new Label("Coal damage boost: " + player.coalDamageBoost, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label damageBoost = new Label("Coal damage boost: " + player.coalDamageBoost, debugStyle);
 		labels.add(damageBoost);
 
-		Label isJumping = new Label("Jumping: " + player.isJumping, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label isJumping = new Label("Jumping: " + player.isJumping, debugStyle);
 		labels.add(isJumping);
 
 		Vector2 mapSpaceCoords = MapManager.getRoomSpacePos(player.getPosition(), true);
 		Vector2 mapSpaceRealCoords = MapManager.getRoomSpacePos(player.getPosition(), false);
-		Label mapSpace = new Label("Room space: " + mapSpaceCoords + " " + mapSpaceRealCoords, new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label mapSpace = new Label("Room space: " + mapSpaceCoords + " " + mapSpaceRealCoords, debugStyle);
 		labels.add(mapSpace);
 
 		if (!mapMan.levels.isEmpty()) {
@@ -723,26 +734,26 @@ public class Main extends Game {
                         names.append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRoom().getName()).append(((HallwayPlaceholderRoom) room).getAssociatedRoom().getRot()).append("-assoc, ");
                     }
                 }
-				Label roomName = new Label("Room: " + names, new Label.LabelStyle(uiFont, uiFont.getColor()));
+				Label roomName = new Label("Room: " + names, debugStyle);
 				labels.add(roomName);
 
 				// get enemies registered to the room the player is standing in
 				StringBuilder enemiesSB = new StringBuilder();
 				for (EnemyEntity enemy : currentRooms[0].getEnemies().values()) enemiesSB.append(enemy).append(", \n");
-				Label enemies = new Label("Enemies: " + enemiesSB, new Label.LabelStyle(uiFont, uiFont.getColor()));
+				Label enemies = new Label("Enemies: " + enemiesSB, debugStyle);
 				labels.add(enemies);
 			}
 		}
 
-		Label mainTime = new Label("Time: " + getTime(), new Label.LabelStyle(uiFont, uiFont.getColor()));
+		Label mainTime = new Label("Time: " + getTime(), debugStyle);
 		labels.add(mainTime);
 
-        Label debugDraw = new Label("Debug draw: " + Config.doRenderColliders, new Label.LabelStyle(uiFont, uiFont.getColor()));
+        Label debugDraw = new Label("Debug draw: " + Config.doRenderColliders, debugStyle);
         labels.add(debugDraw);
 
 		// set positions of labels
 		labels.forEach(label -> {
-			label.setPosition(16F, (float) (Gdx.graphics.getHeight() - (0.04 * (labels.indexOf(label)+1) * Gdx.graphics.getHeight())));
+			label.setPosition(16F, (float) (Gdx.graphics.getHeight() - (0.03 * (labels.indexOf(label)+1) * Gdx.graphics.getHeight())));
 			debug.addActor(label);
 		});
 	}
@@ -1279,7 +1290,7 @@ public class Main extends Game {
 
 		// update menus
 		for (GameState state : GameState.values()) {
-			if (state.getStage() != null && state.getStage().isBuilt) state.getStage().rebuild();
+			if (state.getStage() != null) state.getStage().build();
 		}
 
 		Gdx.app.debug("Main", "Resized to "+width+"x"+height);

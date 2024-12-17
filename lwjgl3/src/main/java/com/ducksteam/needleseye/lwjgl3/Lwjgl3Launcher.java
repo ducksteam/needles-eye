@@ -4,6 +4,7 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.stages.OptionsStage;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -14,6 +15,7 @@ public class Lwjgl3Launcher {
 
     private static void createApplication() {
         Main main = new Main();
+        Main.maxResolution = new OptionsStage.Resolution(Lwjgl3ApplicationConfiguration.getDisplayMode());
         main.setSplashWorker(new LwjglSplashWorker());
         new Lwjgl3Application(main, getDefaultConfiguration());
     }
@@ -41,6 +43,8 @@ public class Lwjgl3Launcher {
         configuration.useVsync(false); // disable vsync
 
         configuration.setHdpiMode(HdpiMode.Pixels); // use actual pixels for resolution
+
+        configuration.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
 
         configuration.setWindowIcon("icon_128.png", "icon_64.png", "icon_32.png", "icon_16.png"); // application icon
 

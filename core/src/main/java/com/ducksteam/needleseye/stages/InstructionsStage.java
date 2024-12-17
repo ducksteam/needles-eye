@@ -40,7 +40,7 @@ public class InstructionsStage extends StageTemplate {
 		keysText = new StringBuilder();
 
         instructionsTable = new Table();
-        instructionsTable.background(background9Patch);
+        instructionsTable.background(backgroundNinePatch);
 
         instructions = new Label("", new Label.LabelStyle(uiFont, null));
         title = new Label("INSTRUCTIONS", new Label.LabelStyle(titleFont, null));

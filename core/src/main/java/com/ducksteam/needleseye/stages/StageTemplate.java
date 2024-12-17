@@ -27,7 +27,16 @@ public abstract class StageTemplate extends Stage {
 
     NinePatchDrawable dualButtonPressedNinePatch;
     NinePatchDrawable dualButtonUnpressedNinePatch;
-    NinePatchDrawable background9Patch;
+
+    NinePatchDrawable backgroundNinePatch;
+    NinePatchDrawable disabledBackgroundNinePatch;
+    NinePatchDrawable highlightBackgroundNinePatch;
+    NinePatchDrawable backgroundDitheredNinePatch;
+
+    NinePatchDrawable checkboxOnNinePatch;
+    NinePatchDrawable checkboxOffNinePatch;
+    NinePatchDrawable checkboxOnOverNinePatch;
+    NinePatchDrawable checkboxOffOverNinePatch;
 
     TextButton.TextButtonStyle buttonStyle;
     TextButton.TextButtonStyle dualButtonStyle;
@@ -36,6 +45,10 @@ public abstract class StageTemplate extends Stage {
     ScrollPane.ScrollPaneStyle scrollStyle;
 
     TextField.TextFieldStyle textFieldStyle;
+    SelectBox.SelectBoxStyle selectBoxStyle;
+    ImageButton.ImageButtonStyle checkboxStyle;
+
+    Label.LabelStyle labelStyle;
 
     /**
      * Whether the stage has been built initially, and has the textures loaded
@@ -52,7 +65,7 @@ public abstract class StageTemplate extends Stage {
 	public StageTemplate() {
 		super(new ScreenViewport(), Main.batch2d);
 		build();
-        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(false); // not available on OSX
+//        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
 	}
 
 	/**
@@ -68,12 +81,22 @@ public abstract class StageTemplate extends Stage {
         dualButtonUnpressed = new Image(new Texture("ui/main/dual_button1.png"));
         dualButtonPressed = new Image(new Texture("ui/main/dual_button2.png"));
 
-        background9Patch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/textbackground.9.png"), 4,4,4,4));
+        backgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/textbackground.9.png"), 4,4,4,4));
+        disabledBackgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/disabledbackground.9.png"), 4,4,4,4));
+        highlightBackgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/activebackground.9.png"), 4,4,4,4));
+        backgroundDitheredNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/dropdownbackground.9.png"), 4, 4, 4, 4));
+
         dualButtonUnpressedNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/main/dual_button1.png"), 16,16,15,15));
         dualButtonPressedNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/main/dual_button2.png"), 16, 16, 15, 15));
 
+        checkboxOnNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_outon.png"), 4,4,4,4));
+        checkboxOffNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_outoff.png"), 4,4,4,4));
+        checkboxOnOverNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_inon.png"), 4,4,4,4));
+        checkboxOffOverNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_inoff.png"), 4,4,4,4));
+
         buttonUnpressed.setScaling(Scaling.fit);
         buttonPressed.setScaling(Scaling.fit);
+
 
         updateStyles();
     }
@@ -136,8 +159,25 @@ public abstract class StageTemplate extends Stage {
         roundedButtonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
 
         scrollStyle = new ScrollPane.ScrollPaneStyle();
-        scrollStyle.background = background9Patch;
+        scrollStyle.background = backgroundNinePatch;
 
-        textFieldStyle = new TextField.TextFieldStyle(Main.uiFont, Main.uiFont.getColor(), null, null, background9Patch);
+        textFieldStyle = new TextField.TextFieldStyle(Main.uiFont, Main.uiFont.getColor(), null, null, backgroundNinePatch);
+
+        selectBoxStyle = new SelectBox.SelectBoxStyle();
+        selectBoxStyle.backgroundDisabled = disabledBackgroundNinePatch;
+        selectBoxStyle.background = backgroundNinePatch;
+        selectBoxStyle.font = Main.uiFont;
+        selectBoxStyle.fontColor = Color.WHITE;
+        selectBoxStyle.listStyle = new List.ListStyle(Main.uiFont, Main.uiFont.getColor(), Color.WHITE, backgroundNinePatch);
+        selectBoxStyle.scrollStyle = new ScrollPane.ScrollPaneStyle();
+        selectBoxStyle.scrollStyle.background = backgroundDitheredNinePatch;
+
+        labelStyle = new Label.LabelStyle(Main.uiFont, Color.WHITE);
+
+        checkboxStyle = new ImageButton.ImageButtonStyle();
+        checkboxStyle.checked = checkboxOnNinePatch;
+        checkboxStyle.up = checkboxOffNinePatch;
+        checkboxStyle.checkedOver = checkboxOnOverNinePatch;
+        checkboxStyle.over = checkboxOffOverNinePatch;
     }
 }
