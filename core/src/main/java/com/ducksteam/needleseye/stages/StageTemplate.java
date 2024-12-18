@@ -47,6 +47,7 @@ public abstract class StageTemplate extends Stage {
     TextField.TextFieldStyle textFieldStyle;
     SelectBox.SelectBoxStyle selectBoxStyle;
     ImageButton.ImageButtonStyle checkboxStyle;
+    Slider.SliderStyle sliderStyle;
 
     Label.LabelStyle labelStyle;
 
@@ -65,7 +66,7 @@ public abstract class StageTemplate extends Stage {
 	public StageTemplate() {
 		super(new ScreenViewport(), Main.batch2d);
 		build();
-//        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
+        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
 	}
 
 	/**
@@ -179,5 +180,10 @@ public abstract class StageTemplate extends Stage {
         checkboxStyle.up = checkboxOffNinePatch;
         checkboxStyle.checkedOver = checkboxOnOverNinePatch;
         checkboxStyle.over = checkboxOffOverNinePatch;
+
+        sliderStyle = new Slider.SliderStyle();
+        sliderStyle.background = backgroundDitheredNinePatch;
+        sliderStyle.knob = backgroundNinePatch;
+        sliderStyle.knobOver = highlightBackgroundNinePatch;
     }
 }

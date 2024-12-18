@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
-import com.badlogic.gdx.utils.Array;
 import com.ducksteam.needleseye.Main;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 /**
  * The stage for options.
@@ -171,7 +171,7 @@ public class OptionsStage extends StageTemplate {
         Table pane = new Table();
 
         SelectBox<Resolution> resolutionDropdown = new SelectBox<>(selectBoxStyle);
-        resolutionDropdown.setItems(Resolution.getMatchingResolutions(Main.maxResolution));
+        resolutionDropdown.setItems(Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Resolution[0]));
         resolutionDropdown.setMaxListCount(4);
 
         Label resolutionLabel = new Label("Resolution", labelStyle);
@@ -192,9 +192,29 @@ public class OptionsStage extends StageTemplate {
         Label vSyncLabel = new Label("VSync", labelStyle);
 
         pane.add(vSyncLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        pane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, pane)).left().maxSize(Value.percentHeight(1, windowTypeDropdown)).row();
+        pane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, pane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
+
+        Slider brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
+        Label brightnessLabel = new Label("Brightness", labelStyle);
+        Label brightnessValueLabel = new Label((int)brightnessSlider.getValue() + "%", labelStyle);
+
+        brightnessSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                brightnessValueLabel.setText((int) brightnessSlider.getValue() + "%");
+            }
+        });
+
+        pane.add(brightnessLabel).pad(Value.percentWidth(0.04f, pane)).left();
+        Table sliderTable = new Table();
+        sliderTable.add(brightnessSlider).padLeft(sliderStyle.background.getLeftWidth()).padRight(Value.percentWidth(0.04f, pane)).minSize(Value.percentWidth(0.5f, pane), Value.percentHeight(0.7f, brightnessLabel)).left().growX();
+        sliderTable.add(brightnessValueLabel).padLeft(Value.percentWidth(0.02f, sliderTable)).row();
+        pane.add(sliderTable).padRight(Value.percentWidth(0.04f, pane)).maxWidth(Value.percentWidth(0.75f, pane)).left().row();
 
         OptionCategory.VIDEO.pane = new ScrollPane(pane, scrollStyle);
+        OptionCategory.VIDEO.pane.setFlingTime(0);
+        OptionCategory.VIDEO.pane.setFlickScroll(false);
+        OptionCategory.VIDEO.pane.setScrollingDisabled(true, false);
     }
 
 
@@ -235,24 +255,17 @@ public class OptionsStage extends StageTemplate {
 
         public Resolution(int width, int height) {
             if (width <= 0 || height <= 0) throw new IllegalArgumentException("Resolution width and height must be positive");
-            if (width/16*9 != height) System.err.println("Resolution may not be correct aspect ratio: " + width + "x" + height);
+            if (width/16*9 != height) System.err.println("[Options] Resolution may not be correct aspect ratio: " + width + "x" + height); // this is called in Lwjgl3Launcher so we cannot use Gdx.app as it is not created at that point
             this.width = width;
             this.height = height;
-            resolutions.add(this);
         }
 
         public Resolution(Graphics.DisplayMode displayMode) {
             this(displayMode.width, displayMode.height);
         }
 
-        public static Array<Resolution> getMatchingResolutions(Resolution maxRes) {
-            Array<Resolution> matchingResolutions = new Array<>();
-            for (Resolution resolution : resolutions) {
-                if (!matchingResolutions.contains(resolution, false) && maxRes.width >= resolution.width && maxRes.height >= resolution.height) {
-                    matchingResolutions.add(resolution);
-                }
-            }
-            return matchingResolutions;
+        public static ArrayList<Resolution> getMatchingResolutions(Resolution maxRes) {
+            return resolutions.stream().filter(resolution -> maxRes.width >= resolution.width && maxRes.height >= resolution.height).collect(Collectors.toCollection(ArrayList::new));
         }
 
         @Override
