@@ -1,15 +1,13 @@
 package com.ducksteam.needleseye.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 
-import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 /**
  * The stage for options.
@@ -118,6 +116,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 applyButton.setChecked(false);
+                Config.flushPrefs();
             }
         });
         exitButton.addListener(new ChangeListener() {
@@ -170,18 +169,32 @@ public class OptionsStage extends StageTemplate {
     private void buildVideoPane(){
         Table pane = new Table();
 
-        SelectBox<Resolution> resolutionDropdown = new SelectBox<>(selectBoxStyle);
-        resolutionDropdown.setItems(Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Resolution[0]));
+        SelectBox<Config.Resolution> resolutionDropdown = new SelectBox<>(selectBoxStyle);
+        resolutionDropdown.setItems(Config.Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Config.Resolution[0]));
         resolutionDropdown.setMaxListCount(4);
+
+        resolutionDropdown.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Config.setResolution(resolutionDropdown.getSelected());
+            }
+        });
 
         Label resolutionLabel = new Label("Resolution", labelStyle);
 
         pane.add(resolutionLabel).pad(Value.percentWidth(0.04f, pane)).left();
         pane.add(resolutionDropdown).padRight(Value.percentWidth(0.04f, pane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
-        SelectBox<WindowType> windowTypeDropdown = new SelectBox<>(selectBoxStyle);
-        windowTypeDropdown.setItems(WindowType.values());
+        SelectBox<String> windowTypeDropdown = new SelectBox<>(selectBoxStyle);
+        windowTypeDropdown.setItems(Config.WindowType.getUserStrings());
         windowTypeDropdown.setMaxListCount(3);
+
+        windowTypeDropdown.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Config.setWindowType(Config.WindowType.valueOf(windowTypeDropdown.getSelected().toUpperCase()));
+            }
+        });
 
         Label windowTypeLabel = new Label("Window Type", labelStyle);
 
@@ -194,6 +207,13 @@ public class OptionsStage extends StageTemplate {
         pane.add(vSyncLabel).pad(Value.percentWidth(0.04f, pane)).left();
         pane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, pane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
 
+        vSyncCheckbox.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Config.setvSync(vSyncCheckbox.isChecked());
+            }
+        });
+
         Slider brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
         Label brightnessLabel = new Label("Brightness", labelStyle);
         Label brightnessValueLabel = new Label((int)brightnessSlider.getValue() + "%", labelStyle);
@@ -202,6 +222,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 brightnessValueLabel.setText((int) brightnessSlider.getValue() + "%");
+                Config.brightness =  (int) brightnessSlider.getValue();
             }
         });
 
@@ -234,64 +255,4 @@ public class OptionsStage extends StageTemplate {
         OptionCategory.CONTROLS.pane = new ScrollPane(pane, scrollStyle);
     }
 
-    public static class Resolution {
-        public int width;
-        public int height;
-
-        static ArrayList<Resolution> resolutions = new ArrayList<>();
-
-        static {
-            resolutions.add(new Resolution(3840, 2160)); // 4k
-            resolutions.add(new Resolution(3200, 1800)); // qhd+
-            resolutions.add(new Resolution(2560, 1440)); // qhd
-            resolutions.add(new Resolution(1920, 1080)); // full hd
-            resolutions.add(new Resolution(1600, 900)); // hd+
-            resolutions.add(new Resolution(1280, 720)); // hd
-            resolutions.add(new Resolution(1024, 576)); // wsvga
-            resolutions.add(new Resolution(960, 540)); // qHD
-            resolutions.add(new Resolution(848, 480)); // FWVGA
-            resolutions.add(new Resolution(640, 360)); // nHD
-        }
-
-        public Resolution(int width, int height) {
-            if (width <= 0 || height <= 0) throw new IllegalArgumentException("Resolution width and height must be positive");
-            if (width/16*9 != height) System.err.println("[Options] Resolution may not be correct aspect ratio: " + width + "x" + height); // this is called in Lwjgl3Launcher so we cannot use Gdx.app as it is not created at that point
-            this.width = width;
-            this.height = height;
-        }
-
-        public Resolution(Graphics.DisplayMode displayMode) {
-            this(displayMode.width, displayMode.height);
-        }
-
-        public static ArrayList<Resolution> getMatchingResolutions(Resolution maxRes) {
-            return resolutions.stream().filter(resolution -> maxRes.width >= resolution.width && maxRes.height >= resolution.height).collect(Collectors.toCollection(ArrayList::new));
-        }
-
-        @Override
-        public String toString() {
-            return width + "x" + height;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof Resolution)) return false;
-            return ((Resolution) o).width == this.width && ((Resolution) o).height == this.height;
-        }
-    }
-
-    public enum WindowType {
-        WINDOWED,
-        FULLSCREEN,
-        BORDERLESS;
-
-        @Override
-        public String toString() {
-            return switch (this) {
-                case WINDOWED -> "Windowed";
-                case FULLSCREEN -> "Fullscreen";
-                case BORDERLESS -> "Borderless Fullscreen";
-            };
-        }
-    }
 }

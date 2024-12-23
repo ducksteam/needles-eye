@@ -3,8 +3,8 @@ package com.ducksteam.needleseye.lwjgl3;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
+import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.stages.OptionsStage;
 
 /** Launches the desktop (LWJGL3) application. */
 public class Lwjgl3Launcher {
@@ -15,7 +15,7 @@ public class Lwjgl3Launcher {
 
     private static void createApplication() {
         Main main = new Main();
-        Main.maxResolution = new OptionsStage.Resolution(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        Main.maxResolution = new Config.Resolution(Lwjgl3ApplicationConfiguration.getDisplayMode());
         main.setSplashWorker(new LwjglSplashWorker());
         new Lwjgl3Application(main, getDefaultConfiguration());
     }
@@ -34,7 +34,7 @@ public class Lwjgl3Launcher {
 
         configuration.setTitle("The Needle's Eye"); // window title
 
-        configuration.setWindowedMode(1920, 1080); // resolution
+        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
 
         configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL32, 3, 2);
 

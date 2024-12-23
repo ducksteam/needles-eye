@@ -309,7 +309,7 @@ public class Main extends Game {
      */
 	private SplashWorker splashWorker; // splash screen
     /** Maximum resolution for initialised display mode */
-    public static OptionsStage.Resolution maxResolution;
+    public static Config.Resolution maxResolution;
 
 	/**
 	 * The enum for managing the game state
@@ -484,6 +484,8 @@ public class Main extends Game {
 		// remove splash screen
 		splashWorker.closeSplashScreen();
 
+        Config.init();
+
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
         Gdx.app.log("Main", "Starting game");
@@ -518,7 +520,7 @@ public class Main extends Game {
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music/throughtheeye.mp3"));
 			menuMusic.setLooping(true);
-			menuMusic.setVolume(0f);
+			menuMusic.setVolume(Config.musicVolume);
 		} catch (GdxRuntimeException e) {
 			Gdx.app.error("Main", "Failed to load music file",e);
 		}
