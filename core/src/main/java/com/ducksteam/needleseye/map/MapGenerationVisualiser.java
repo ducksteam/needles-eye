@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.ducksteam.needleseye.Main.layout;
-import static com.ducksteam.needleseye.Main.uiFont;
+import static com.ducksteam.needleseye.Main.debugFont;
 
 /**
  * Visualises the generation of a map.
@@ -169,24 +169,24 @@ public class MapGenerationVisualiser {
 
         // draw text labels for each room
         for (RoomPlacementData room : rooms) {
-            uiFont.draw(batch, room.templateName.substring(0, 4), (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 + uiFont.getLineHeight()/2);
-            uiFont.draw(batch, room.rotation + "", (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 - uiFont.getLineHeight()/2);
+            debugFont.draw(batch, room.templateName.substring(0, 4), (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 + uiFont.getLineHeight()/2);
+            debugFont.draw(batch, room.rotation + "", (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 - uiFont.getLineHeight()/2);
         }
 
         // draw more text
-        uiFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
-        uiFont.draw(batch, "Currently executing: " + (nextInstruction == 0 ? " " : instructions.get(nextInstruction-1)), 10, Gdx.graphics.getHeight() - 35);
-        uiFont.draw(batch, "Use , and . to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
+        debugFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
+        debugFont.draw(batch, "Currently executing: " + (nextInstruction == 0 ? " " : instructions.get(nextInstruction-1)), 10, Gdx.graphics.getHeight() - 35);
+        debugFont.draw(batch, "Use , and . to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
 
-        layout.setText(uiFont, recentMessage[0]);
-        uiFont.draw(batch, recentMessage[0], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 70);
-        layout.setText(uiFont, recentMessage[1]);
-        uiFont.draw(batch, recentMessage[1], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 40);
-        layout.setText(uiFont, recentMessage[2]);
-        uiFont.draw(batch, recentMessage[2], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 10);
+        layout.setText(debugFont, recentMessage[0]);
+        debugFont.draw(batch, recentMessage[0], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 70);
+        layout.setText(debugFont, recentMessage[1]);
+        debugFont.draw(batch, recentMessage[1], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 40);
+        layout.setText(debugFont, recentMessage[2]);
+        debugFont.draw(batch, recentMessage[2], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 10);
 
-        uiFont.draw(batch, "-> +X", Gdx.graphics.getWidth() - 100, (float) Gdx.graphics.getHeight() / 2);
-        uiFont.draw(batch, "^ +Z", (float) Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() - 130);
+        debugFont.draw(batch, "-> +X", Gdx.graphics.getWidth() - 100, (float) Gdx.graphics.getHeight() / 2);
+        debugFont.draw(batch, "^ +Z", (float) Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() - 130);
 
         batch.end();
 
