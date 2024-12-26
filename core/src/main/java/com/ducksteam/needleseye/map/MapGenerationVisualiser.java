@@ -169,8 +169,8 @@ public class MapGenerationVisualiser {
 
         // draw text labels for each room
         for (RoomPlacementData room : rooms) {
-            debugFont.draw(batch, room.templateName.substring(0, 4), (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 + uiFont.getLineHeight()/2);
-            debugFont.draw(batch, room.rotation + "", (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 - uiFont.getLineHeight()/2);
+            debugFont.draw(batch, room.templateName.substring(0, 4), (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 + debugFont.getLineHeight()/2);
+            debugFont.draw(batch, room.rotation + "", (float) Gdx.graphics.getWidth() /2 - (float) roomSize /2 + room.x*roomSize + 40, (float) Gdx.graphics.getHeight() /2 - (float) roomSize /2 + room.y*roomSize + (float) roomSize /2 - debugFont.getLineHeight()/2);
         }
 
         // draw more text
