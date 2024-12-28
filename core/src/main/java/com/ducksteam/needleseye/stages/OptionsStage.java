@@ -7,7 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
-
+import com.ducksteam.needleseye.map.MapManager;
 
 /**
  * The stage for options.
@@ -49,6 +49,9 @@ public class OptionsStage extends StageTemplate {
 
     TextButton applyButton;
     TextButton exitButton;
+
+    /** Where the seed in general pane is stored before the apply button is pressed */
+    String tempSeed;
 
     public OptionsStage() {
         super();
@@ -117,6 +120,7 @@ public class OptionsStage extends StageTemplate {
             public void changed(ChangeEvent event, Actor actor) {
                 applyButton.setChecked(false);
                 Config.flushPrefs();
+                applySeed();
             }
         });
         exitButton.addListener(new ChangeListener() {
@@ -155,6 +159,8 @@ public class OptionsStage extends StageTemplate {
 
         TextField seedInputField = new TextField("", textFieldStyle);
 
+        seedInputField.setTextFieldListener((textField, c) -> tempSeed = textField.getText());
+
         Label seedLabel = new Label("Seed", labelStyle);
 
         pane.add(seedLabel).pad(Value.percentWidth(0.04f, pane)).left();
@@ -164,6 +170,17 @@ public class OptionsStage extends StageTemplate {
         OptionCategory.GENERAL.pane.setFlingTime(0);
         OptionCategory.GENERAL.pane.setFlickScroll(false);
         OptionCategory.GENERAL.pane.setScrollingDisabled(true, false);
+    }
+
+    /**
+     * Determines type of the inputted seed value, and sends it to MapMan
+     */
+    private void applySeed(){
+        try {
+            MapManager.setSeed(Long.parseLong(tempSeed));
+        } catch (NumberFormatException e) {
+            MapManager.setSeed(tempSeed);
+        }
     }
 
     private void buildVideoPane(){

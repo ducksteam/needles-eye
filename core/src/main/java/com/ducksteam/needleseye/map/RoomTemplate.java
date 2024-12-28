@@ -96,7 +96,7 @@ public class RoomTemplate {
          * @return the room type
          */
         public static RoomType getRandomRoomType() {
-            double rand = Math.random();
+            double rand = MapManager.random.nextFloat();
             for (RoomType type : RoomType.values()) {
                 if (rand < type.normalChance) {
                     return type;

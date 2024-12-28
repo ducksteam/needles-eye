@@ -1,4 +1,4 @@
-package com.ducksteam.needleseye;
+package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
 import com.ducksteam.needleseye.player.Upgrade;
@@ -65,9 +65,9 @@ public class UpgradeRegistry {
      * @return a random upgrade
      * */
     public static Upgrade getRandomUpgrade() {
-        int random = (int) (Math.random() * registeredUpgrades.size());
+        int random = MapManager.random.nextInt(registeredUpgrades.size());
         Upgrade upgrade = getUpgradeInstance((Class<? extends Upgrade>) registeredUpgrades.values().toArray()[random]);
-        if(upgrade == null || upgrade.isBaseUpgrade) return getRandomUpgrade();
+        if(upgrade.isBaseUpgrade) return getRandomUpgrade();
         return getUpgradeInstance(upgrade.getClass());
     }
 

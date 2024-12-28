@@ -52,6 +52,7 @@ import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
 import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.RoomTemplate;
+import com.ducksteam.needleseye.map.UpgradeRegistry;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
@@ -499,7 +500,7 @@ public class Main extends Game {
 		EnemyRegistry.initEnemies();
 
 		//Registers upgrade icon addresses
-		UpgradeRegistry.registeredUpgrades.forEach((id,upgradeClass)->{
+		UpgradeRegistry.registeredUpgrades.forEach((id, upgradeClass)->{
 			if(upgradeClass == null) return;
 			try {
 				// add the upgrade icon to the list of addresses to load in
@@ -939,6 +940,7 @@ public class Main extends Game {
 
 		// reset levels
 		mapMan.levels.clear();
+        mapMan.resetSeed();
 
 		// recreate drawing utils
 		batch.dispose();

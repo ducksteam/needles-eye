@@ -26,6 +26,8 @@ public class MapGenerationVisualiser {
 
     ArrayList<String> instructions;
     int nextInstruction;
+    Object seed;
+    boolean seedIsLong;
     Texture pixel;
 
     Color smallRoomColor = new Color(0x78b4ccff);
@@ -177,6 +179,9 @@ public class MapGenerationVisualiser {
         debugFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
         debugFont.draw(batch, "Currently executing: " + (nextInstruction == 0 ? " " : instructions.get(nextInstruction-1)), 10, Gdx.graphics.getHeight() - 35);
         debugFont.draw(batch, "Use , and . to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
+        debugFont.draw(batch, "Seed: " + seed, 10, Gdx.graphics.getHeight() - 85);
+        if(!seedIsLong) debugFont.draw(batch, "("+seed.hashCode()+")", 10, Gdx.graphics.getHeight() - 110);
+        else debugFont.draw(batch, "Seed interpreted as long", 10, Gdx.graphics.getHeight() - 110);
 
         layout.setText(debugFont, recentMessage[0]);
         debugFont.draw(batch, recentMessage[0], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 70);
@@ -320,5 +325,10 @@ public class MapGenerationVisualiser {
         for (RoomPlacementData room : rooms) {
             drawRoom(batch, room);
         }
+    }
+
+    public void informSeed(Object seed, boolean isLong) {
+        this.seed = seed;
+        this.seedIsLong = isLong;
     }
 }

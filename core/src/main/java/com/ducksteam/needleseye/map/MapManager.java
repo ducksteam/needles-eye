@@ -48,7 +48,12 @@ public class MapManager {
      * Whether to visualise the map generation
      */
     public boolean visualise;
-
+    /** The seeded random instance. <b>Only to be used for level generation to preserve seed uniformity</b> */
+    protected static Random random;
+    /** The seed as the user typed it in. */
+    private static String rawSeed;
+    /** The class of the seed */
+    private static Class<?> seedClass;
     /**
      * The translations for hallway models at different rotations
      */
@@ -172,7 +177,7 @@ public class MapManager {
             }
         }).collect(Collectors.collectingAndThen(
             Collectors.toList(),
-            list -> list.get(new Random().nextInt(list.size()))
+            list -> list.get(random.nextInt(list.size()))
         ));
     }
 
@@ -181,10 +186,10 @@ public class MapManager {
      */
     public void generateTestLevel() {
         Level level = new Level(levelIndex); // create an empty level object
-        level.addRoom(new RoomInstance(getRoomWithName("pillars"), hallwayModelTranslations[0], new Vector2(0, 0), 0));
+        level.addRoom(new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0), 0));
 
         addWalls(level);
-        //populateLevel(level);
+        populateLevel(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -194,10 +199,15 @@ public class MapManager {
      * Create a new level with a random layout, the size of which is determined by the level index
      */
     public void generateLevel() {
+        if (random == null) {
+            setSeed(System.nanoTime());
+        }
+
         if (visualise) {
             visualiser.renderingComplete = false;
             visualiser.instructions.clear();
             visualiser.nextInstruction = 0;
+            visualiser.informSeed(rawSeed, seedClass == long.class);
         }
 
         Level level = new Level(levelIndex); // create an empty level object
@@ -231,7 +241,7 @@ public class MapManager {
             generateRoom(level, RoomTemplate.RoomType.TREASURE, true);
         }
 
-        if(Math.random() < treasureRand - treasureGuaranteed){ // chance of an extra treasure room
+        if(random.nextFloat() < treasureRand - treasureGuaranteed){ // chance of an extra treasure room
             generateRoom(level, RoomTemplate.RoomType.TREASURE, true);
             if (visualise) visualiser.addInstruction("msg Generating extra treasure room");
         } else if (visualise) visualiser.addInstruction("msg Not generating extra treasure room");
@@ -423,8 +433,8 @@ public class MapManager {
 
         int doorCount = room.getRoom().getType() == RoomTemplate.RoomType.HALLWAY ? 7 : 4; // hallways have 7 doors
 
-        int door = (int) Math.floor(Math.random() * doorCount);
-        while ((doorCount == 7 && door == 3) || !room.getRoom().getDoors().get(door)) door = (int) Math.floor(Math.random() * doorCount); // but door 3 isn't used in hallways and doors can be disabled
+        int door = random.nextInt(doorCount);
+        while ((doorCount == 7 && door == 3) || !room.getRoom().getDoors().get(door)) door = random.nextInt(doorCount); // but door 3 isn't used in hallways and doors can be disabled
         if (visualise) visualiser.addInstruction("select-door " + door);
 
         // Door id reference
@@ -492,8 +502,37 @@ public class MapManager {
         return getRandomElement(templates);
     }
 
-    public void setSeed(String seed){}
-    public void setSeed(long seed){}
+    /**
+     * Sets the seed to a string. Sets <code>rawSeed</code>, <code>seedClass</code>, and creates a seeded
+     * <code>random</code> to the hashed value of the string
+     * @param seed the string seed as entered by the user in the options menu
+     */
+    public static void setSeed(String seed) {
+        if (seed == null || seed.isEmpty()) return;
+        rawSeed = seed;
+        seedClass = String.class;
+        random = new Random(seed.hashCode());
+        Gdx.app.log("Seeding", "Set seed to string \"" + seed + "\"");
+    }
+
+    /**
+     * Sets the seed to a long. Sets <code>rawSeed</code>, <code>seedClass</code>, and creates a seeded
+     * <code>random</code>
+     * @param seed the long as entered by the user in the options menu
+     */
+    public static void setSeed(long seed) {
+        rawSeed = String.valueOf(seed);
+        seedClass = long.class;
+        random = new Random(seed);
+        Gdx.app.log("Seeding", "Set seed to long " + seed);
+    }
+
+    public void resetSeed() {
+        random = null;
+        seedClass = null;
+        rawSeed = null;
+        Gdx.app.log("Seeding", "Reset seed");
+    }
 
     // Static utility methods follow
 
@@ -504,7 +543,7 @@ public class MapManager {
      * @return a random element from the list
      */
     public static <E> E getRandomElement(ArrayList<E> list) {
-        return list.get((int) (Math.random() * list.size()));
+        return list.get(random.nextInt(list.size()));
     }
 
     /**
@@ -514,7 +553,7 @@ public class MapManager {
      * @return a random element from the list
      * @param <E> the type of the list
      */
-    public static <E> E getRandomElement(ArrayList<E> list, Predicate<E> filter) {
+    private static <E> E getRandomElement(ArrayList<E> list, Predicate<E> filter) {
         ArrayList<E> filtered = list.stream().filter(filter).collect(Collectors.toCollection(ArrayList::new));
         return getRandomElement(filtered);
     }
@@ -533,7 +572,7 @@ public class MapManager {
      * @return a random rotation
      */
     public static int randomRotation() {
-        return (int) (Math.random() * 4) * 90;
+        return random.nextInt(0, 3) * 90;
     }
 
     /**
