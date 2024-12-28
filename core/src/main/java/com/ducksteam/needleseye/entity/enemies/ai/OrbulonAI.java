@@ -87,6 +87,7 @@ public class OrbulonAI implements IHasAi {
 
 	@Override
 	public void chase(float dT) {
+        setIdling(false);
 		getTarget().motionState.getWorldTransform(tmpMat); // get the world transform of the target
 		tmpMat.getRotation(tmpQuat); // get the rotation of the target
 		tmpMat.getTranslation(tmpVec); // get the translation of the target
@@ -150,9 +151,22 @@ public class OrbulonAI implements IHasAi {
 
 		getTarget().motionState.getWorldTransform(tmpMat); // get the world transform of the target
 
+        float preS = Math.signum(difference);
 
 		if (difference > 0) tmpMat.rotate(Vector3.Y, ROTATION_SPEED * dT); // rotate the target towards the player
 		else tmpMat.rotate(Vector3.Y, -ROTATION_SPEED * dT); // rotate the target towards the player
+
+        tmpMat.getRotation(tmpQuat);
+        difference = angle - tmpQuat.nor().getYaw();
+        if (difference > 180) difference -= 360; // ensure the difference is the shortest path
+        if (difference < -180) difference += 360; // ensure the difference is the shortest path
+
+        float postS = Math.signum(difference);
+
+        if (postS != preS) { // rotation has gone over the target angle
+            tmpQuat.setEulerAngles(angle, tmpQuat.getPitch(), tmpQuat.getRoll());
+            tmpMat.set(getTarget().getPosition(), tmpQuat);
+        }
 
 		getTarget().transform.set(tmpMat); // set the transform of the target
 	}
