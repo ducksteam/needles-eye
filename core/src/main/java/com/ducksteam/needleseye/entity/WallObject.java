@@ -42,4 +42,12 @@ public class WallObject extends Entity {
     public String getModelAddress() {
         return MODEL_ADDRESS;
     }
+
+    @Override
+    public String toString() {
+        return id+"-WallObject{" +
+            "hasDoor=" + hasDoor +
+            "position=" + getPosition() +
+            '}';
+    }
 }

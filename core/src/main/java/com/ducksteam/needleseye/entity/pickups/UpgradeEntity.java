@@ -72,4 +72,12 @@ public class UpgradeEntity extends Entity {
     public String getModelAddress() {
         return upgrade.getModelAddress();
     }
+
+    @Override
+    public String toString() {
+        return id+"-UpgradeEntity{" +
+            "upgrade=" + upgrade +
+            "position=" + getPosition() +
+            '}';
+    }
 }

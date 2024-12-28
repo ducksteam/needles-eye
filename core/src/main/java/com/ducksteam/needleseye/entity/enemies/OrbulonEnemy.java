@@ -97,7 +97,7 @@ public class OrbulonEnemy extends EnemyEntity {
 	 */
 	@Override
 	public String toString() {
-		return "Orbulon{" +
+		return id+"-Orbulon{" +
 				"health=" + getHealth() +
 				", position=" + getPosition() +
 				", assignedRoom=" + getAssignedRoom() +

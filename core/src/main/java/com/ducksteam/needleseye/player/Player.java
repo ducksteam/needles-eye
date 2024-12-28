@@ -169,7 +169,9 @@ public class Player extends Entity implements IHasHealth {
         if (attackTimeout > 0) attackTimeout -= delta;
         if (attackTimeout < 0) attackTimeout = 0;
         if (coalDamageBoost > 0) coalDamageBoost -= (float) (0.43 * Math.pow(Math.E, coalDamageBoost/2) * delta);
+        if (coalDamageBoost < 0) coalDamageBoost = 0;
         if (joltSpeedBoost > 0) joltSpeedBoost -= (float) (0.43 * Math.pow(Math.E, joltSpeedBoost/2) * delta);
+        if (joltSpeedBoost < 0) joltSpeedBoost = 0;
 
         // calculate jumping flags
         float velY = Math.round(getVelocity().y);
@@ -464,9 +466,8 @@ public class Player extends Entity implements IHasHealth {
      */
     @Override
     public String toString() {
-        return "Player{" +
+        return id+"-Player{" +
                 "baseUpgrade=" + baseUpgrade +
-                ", id=" + id +
                 ", transform=" + transform +
                 ", upgrades=" + upgrades +
                 ", health=" + health +

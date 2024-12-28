@@ -107,7 +107,7 @@ public class WormEnemy extends EnemyEntity{
      */
     @Override
     public String toString() {
-        return "Worm{" +
+        return id+"-Worm{" +
                 "health=" + getHealth() +
                 ", position=" + getPosition() +
                 ", assignedRoom=" + getAssignedRoom() +

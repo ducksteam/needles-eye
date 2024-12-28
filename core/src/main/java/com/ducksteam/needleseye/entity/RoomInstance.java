@@ -146,7 +146,7 @@ public class RoomInstance extends Entity {
      */
     @Override
     public String toString() {
-        return "RoomInstance{" +
+        return id+"-RoomInstance{" +
                 "isrenderable=" + isRenderable +
                 ",room={type=" + room.getType() +
                 ", name=" + room.getName() +
