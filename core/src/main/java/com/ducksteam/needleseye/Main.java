@@ -50,9 +50,7 @@ import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
-import com.ducksteam.needleseye.map.MapManager;
-import com.ducksteam.needleseye.map.RoomTemplate;
-import com.ducksteam.needleseye.map.UpgradeRegistry;
+import com.ducksteam.needleseye.map.*;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
@@ -197,6 +195,10 @@ public class Main extends Game {
      * Theres a bit of a pattern here
      */
 	public static SceneManager sceneMan;
+
+    /** Loaded playthrough save*/
+    public static Playthrough currentSave;
+
     /**
      * A map of all entities currently in the game, where the key is {@link Entity}.id
      */
@@ -486,6 +488,8 @@ public class Main extends Game {
 		splashWorker.closeSplashScreen();
 
         Config.init();
+
+        PlaythroughLoader.initialisePlaythroughLoader();
 
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 
