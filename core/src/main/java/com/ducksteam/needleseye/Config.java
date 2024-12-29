@@ -4,12 +4,14 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
 import de.pottgames.tuningfork.AudioDevice;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
@@ -168,6 +170,9 @@ public class Config {
 
     /** apply new preferences and save to disk */
     public static void flushPrefs(){
+        prefs.putString("Resolution", resolution.toString());
+        prefs.putString("WindowType", windowType.toString());
+
         switch (windowType) {
             case WINDOWED -> {
                 if (!(!Gdx.graphics.isFullscreen() && Gdx.graphics.getWidth() == resolution.width && Gdx.graphics.getHeight() == resolution.height)) {
@@ -176,15 +181,13 @@ public class Config {
             }
             case FULLSCREEN -> {
                 if (!(Gdx.graphics.isFullscreen() && Gdx.graphics.getWidth() == resolution.width && Gdx.graphics.getHeight() == resolution.height)) {
-                    Gdx.graphics.setWindowedMode(resolution.width, resolution.height);
+                    Gdx.graphics.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
                 }
             }
         }
-        prefs.putString("Resolution", resolution.toString());
-        prefs.putString("WindowType", windowType.toString());
 
-        Gdx.graphics.setVSync(vSync);
         prefs.putBoolean("VSync", vSync);
+        Gdx.graphics.setVSync(vSync);
 
         prefs.putInteger("Brightness", brightness);
         prefs.putInteger("MusicVolume", musicVolume);
@@ -207,23 +210,26 @@ public class Config {
         Config.windowType = windowType;
     }
 
+    public static Resolution getFullscreenResolution() {
+        return new Resolution(Lwjgl3ApplicationConfiguration.getDisplayMode());
+    }
+
     public enum WindowType {
         WINDOWED,
         FULLSCREEN;
 
         static final WindowType defaultValue = WINDOWED;
 
+        /** Returns an array of titlecase strings for each value in the enum */
         public static String[] getUserStrings() {
-            String[] arr = new String[WindowType.values().length];
-            WindowType[] values = WindowType.values();
-            for (int i = 0; i < values.length; i++) {
-                WindowType type = values[i];
-                arr[i] = type.toString();
-                String[] chars = arr[i].toLowerCase().split("");
-                chars[0] = chars[0].toUpperCase();
-                arr[i] = String.join("", chars);
-            }
-            return arr;
+            return Arrays.stream(WindowType.values()).map(WindowType::getUserString).toArray(String[]::new);
+        }
+
+        /** Returns a titlecase string of the display mode */
+        public String getUserString() {
+            String[] chars = this.toString().toLowerCase().split("");
+            chars[0] = chars[0].toUpperCase();
+            return String.join("", chars);
         }
     }
 

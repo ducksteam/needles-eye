@@ -190,6 +190,12 @@ public class OptionsStage extends StageTemplate {
         resolutionDropdown.setItems(Config.Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Config.Resolution[0]));
         resolutionDropdown.setMaxListCount(4);
 
+        if (Config.prefs.getString("WindowType").equalsIgnoreCase("fullscreen")){
+            resolutionDropdown.setSelected(Config.getFullscreenResolution());
+        } else {
+            resolutionDropdown.setSelected(new Config.Resolution(Config.prefs.getString("Resolution", "")));
+        }
+
         resolutionDropdown.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -206,12 +212,17 @@ public class OptionsStage extends StageTemplate {
         windowTypeDropdown.setItems(Config.WindowType.getUserStrings());
         windowTypeDropdown.setMaxListCount(3);
 
+        windowTypeDropdown.setSelected(Config.WindowType.valueOf(Config.prefs.getString("WindowType", "")).getUserString());
+
         windowTypeDropdown.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Config.setWindowType(Config.WindowType.valueOf(windowTypeDropdown.getSelected().toUpperCase()));
+                Config.setResolution(Config.getFullscreenResolution());
             }
         });
+
+        resolutionDropdown.setDisabled(windowTypeDropdown.getSelected().equals(Config.WindowType.FULLSCREEN.getUserString()));
 
         Label windowTypeLabel = new Label("Window Type", labelStyle);
 
@@ -239,7 +250,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 brightnessValueLabel.setText((int) brightnessSlider.getValue() + "%");
-                Config.brightness =  (int) brightnessSlider.getValue();
+                Config.brightness = (int) brightnessSlider.getValue();
             }
         });
 
