@@ -1157,12 +1157,12 @@ public class Main extends Game {
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
-                entity.isRenderable = isInFrustum(entity, camera);
+                entity.isInFrame = isInFrustum(entity, camera);
 
-                if (entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
+                if (entity.isInFrame && entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
 					sceneMan.addScene(entity.getScene());
 				}
-				if(!entity.isRenderable && entity.getScene() != null) {
+				if(!entity.isInFrame && entity.isRenderable && entity.getScene() != null) {
 					sceneMan.removeScene(entity.getScene());
 				}
 			});

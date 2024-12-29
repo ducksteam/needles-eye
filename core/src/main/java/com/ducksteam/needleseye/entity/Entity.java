@@ -61,6 +61,8 @@ public abstract class Entity implements AnimationListener {
      * Whether the entity is static (i.e. mass 0 and cannot be moved by bullet)
      */
 	public Boolean isStatic;
+    /** Whether the entity is in view of the camera frustum. Only entities with this set to true will be rendered */
+    public Boolean isInFrame;
     /**
      * The transformation matrix of the entity
      */
@@ -327,7 +329,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param loopCount the number of times to play the animation, -1 for infinite
 	 * */
 	public void setAnimation(String animationName, int loopCount) {
-		if (scene != null) {
+		if (isRenderable) {
 			try {
 				scene.animationController.setAnimation(animationName, loopCount, this);
 			} catch (Exception e) {
@@ -345,7 +347,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param blendTime the time to blend the animation over
 	 */
 	public void blendAnimation(String animationName, int loopCount, float blendTime) {
-		if (scene != null) {
+		if (isRenderable) {
 			try {
 				scene.animationController.action(animationName, loopCount, 1f, this, blendTime);
 			} catch (Exception e) {
