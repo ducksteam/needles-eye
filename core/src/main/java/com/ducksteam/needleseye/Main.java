@@ -1234,8 +1234,8 @@ public class Main extends Game {
 
     private void setEffectShaderUniforms() {
         postProcessingShader.setUniformMatrix("u_projTrans", camera.combined);
-        postProcessingShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
-        postProcessingShader.setUniformi("u_kernelSize", 7);
+        //postProcessingShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
+        //postProcessingShader.setUniformi("u_kernelSize", 7);
     }
 
     private void renderLoadingFrame(float progress) {
