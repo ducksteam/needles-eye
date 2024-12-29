@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
+import com.ducksteam.needleseye.entity.bullet.WorldTrigger;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
@@ -32,23 +33,25 @@ public abstract class Entity implements AnimationListener {
     /**
      * Custom collision flag for rooms
      */
-	public static final short GROUND_GROUP = 1 << 8;
+	public static final short GROUND_GROUP = 1 << 11;
     /**
      * Custom collision flag for players
      */
-	public static final short PLAYER_GROUP = 1 << 9;
+	public static final short PLAYER_GROUP = 1 << 12;
     /**
      * Custom collision flag for enemies
      */
-	public static final short ENEMY_GROUP = 1 << 10;
+	public static final short ENEMY_GROUP = 1 << 13;
     /**
      * Custom collision flag for projectiles
      */
-	public static final short PROJECTILE_GROUP = 1 << 11;
+	public static final short PROJECTILE_GROUP = 1 << 14;
     /**
      * Custom collision flag for pickups
      */
-	public static final short PICKUP_GROUP = 1 << 12;
+	public static final int PICKUP_GROUP = 1 << 15;
+    /** Collision flag for triggers */
+    public static final int TRIGGER_GROUP = 1 << 16;
 	//Rendering and collision data
     /**
      * Whether the entity is renderable
@@ -97,7 +100,7 @@ public abstract class Entity implements AnimationListener {
     /**
      * The collision flags of the entity
      */
-	private final int flags;
+	protected int flags;
 
     /**
      * A temporary matrix for entity positioning
@@ -111,7 +114,7 @@ public abstract class Entity implements AnimationListener {
     /**
      * The ID of the entity
      */
-	public final int id;
+	public int id;
 
 	/**
 	 * Creates a static entity with mass 0
@@ -162,7 +165,16 @@ public abstract class Entity implements AnimationListener {
         boundingSphereRadius = dimensions.len() / 2f;
 	}
 
-	/**
+    /**
+     * Only used in {@link WorldTrigger}
+     */
+    protected Entity() {
+        isRenderable = false;
+        boundingSphereCentre.setZero();
+        boundingSphereRadius = 0;
+    }
+
+    /**
 	 * Basic update method for entities
 	 * @param delta the time since the last frame
 	 * */
@@ -349,6 +361,9 @@ public abstract class Entity implements AnimationListener {
 	 * */
 	public void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
+        collisionShape.dispose();
+        motionState.dispose();
+        collider.dispose();
 		entities.remove(id);
 		if (isRenderable && scene != null) sceneMan.removeScene(scene);
 	}

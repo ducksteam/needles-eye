@@ -38,7 +38,6 @@ public class PlayerInput implements InputProcessor {
         Config.moveSpeed = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? Config.RUN_SPEED : Config.WALK_SPEED;
         Config.moveSpeed *= (player.playerSpeedMultiplier + player.joltSpeedBoost);
 
-
         Vector3 forceDir = new Vector3(); // the direction the player should move in
 
         Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.moveSpeed); // the direction the player is facing, scaled to speed
