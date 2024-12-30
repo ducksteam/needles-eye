@@ -470,6 +470,33 @@ public class Main extends Game {
 		animFinished = finished;
 	}
 
+    /**
+     * Sets the current save
+     * @param save the save to set
+     * */
+    public static void setCurrentSave(Playthrough save) {
+        currentSave = save;
+    }
+
+    /**
+     * Start game after save is selected
+     * @return success of starting the game
+     * */
+    public static boolean startGame() {
+        if (currentSave == null) return false;
+
+        MapManager.setSeed(currentSave.getSeed());
+
+        //TODO: make MapManager.generateLevel() generate levels according to an id
+        //This should probably have a catch block at some point
+        do mapMan.generateLevel();
+        while (mapMan.levels.size()<currentSave.getCurrentLevelId());
+
+        mapMan.generateLevel();
+        beginLoading();
+        return true;
+    }
+
 	/**
 	 * Begins the loading of assets
 	 * */
@@ -547,7 +574,8 @@ public class Main extends Game {
 		constraintSolver = new btSequentialImpulseConstraintSolver();
 		dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
 
-		// create player
+        //TODO: Separate once playthroughs are implemented
+        //create player
 		player = new Player(Config.PLAYER_START_POSITION.cpy());
 
         // prepare shaders
@@ -584,6 +612,7 @@ public class Main extends Game {
 		//Builds UI elements
 		buildFonts();
 
+        //TODO: Separate once playthroughs are implemented
 		//Sets up environment and camera
 		playerLanternColour = new Color(0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 0.85f*Config.LIGHT_INTENSITY, 1f);
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 1);
@@ -593,7 +622,8 @@ public class Main extends Game {
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
 
-		camera.near = 0.1f;
+        //TODO: Separate once playthroughs are implemented
+        camera.near = 0.1f;
 		sceneMan.setCamera(camera);
 
 		sceneMan.setAmbientLight(0f);

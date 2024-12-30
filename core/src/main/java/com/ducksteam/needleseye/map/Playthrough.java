@@ -7,17 +7,32 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Playthrough {
 
-    String name;
-    int currentLevelId;
-    String seed;
-    Player player;
-    ConcurrentHashMap<Integer, Entity> entities;
+    private final String name;
+    private int currentLevelId;
+    private final String seed;
+    public ConcurrentHashMap<Integer, Entity> entities;
 
-    public Playthrough(String seed, Player player, String name) {
+    public Playthrough(String seed, String name) {
         this.seed = seed;
-        this.player = player;
         this.entities = new ConcurrentHashMap<>();
         this.currentLevelId = 0;
         this.name = name;
+    }
+
+
+    public String getName() {
+        return name;
+    }
+
+    public int getCurrentLevelId() {
+        return currentLevelId;
+    }
+
+    public void setCurrentLevelId(int currentLevelId) {
+        this.currentLevelId = currentLevelId;
+    }
+
+    public String getSeed() {
+        return seed;
     }
 }
