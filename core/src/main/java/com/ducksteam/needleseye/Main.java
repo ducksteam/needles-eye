@@ -491,9 +491,6 @@ public class Main extends Game {
         //This should probably have a catch block at some point
         do mapMan.generateLevel();
         while (mapMan.levels.size()<currentSave.getCurrentLevelId());
-
-        mapMan.generateLevel();
-        beginLoading();
         return true;
     }
 
@@ -837,7 +834,8 @@ public class Main extends Game {
 		UpgradeRegistry.iconsLoaded = true;
 
 		mapMan.levelIndex = 1;
-		mapMan.generateLevel();
+		//mapMan.generateLevel();
+        startGame();
 		spawnEnemies();
 	}
 

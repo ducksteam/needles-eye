@@ -99,8 +99,9 @@ public class ThreadStage extends StageTemplate {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.THREADED_ROD);
 				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				Main.beginLoading();
-				return true;
+				//return Main.startGame();
+                Main.beginLoading();
+                return true;
 			}
 		});
 
@@ -109,8 +110,9 @@ public class ThreadStage extends StageTemplate {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.SOUL_THREAD);
 				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				Main.beginLoading();
-				return true;
+                //return Main.startGame();
+                Main.beginLoading();
+                return true;
 			}
 		});
 
@@ -119,8 +121,9 @@ public class ThreadStage extends StageTemplate {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.COAL_THREAD);
 				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				Main.beginLoading();
-				return true;
+                //return Main.startGame();
+                Main.beginLoading();
+                return true;
 			}
 		});
 
@@ -129,8 +132,9 @@ public class ThreadStage extends StageTemplate {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				player.setBaseUpgrade(Upgrade.BaseUpgrade.JOLT_THREAD);
 				Gdx.graphics.setSystemCursor(Cursor.SystemCursor.None);
-				Main.beginLoading();
-				return true;
+                //return Main.startGame();
+                Main.beginLoading();
+                return true;
 			}
 		});
 
