@@ -1,5 +1,6 @@
 package com.ducksteam.needleseye.lwjgl3;
 
+import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.graphics.glutils.HdpiMode;
@@ -32,9 +33,16 @@ public class Lwjgl3Launcher {
         //// useful for testing performance, but can also be very stressful to some hardware.
         //// You may also need to configure GPU drivers to fully disable Vsync; this can cause screen tearing.
 
+        System.out.println("[Monitor info] " + Lwjgl3ApplicationConfiguration.getMonitors().length + " monitors");
+        for (Graphics.Monitor monitor : Lwjgl3ApplicationConfiguration.getMonitors())
+            for (Graphics.DisplayMode mode : Lwjgl3ApplicationConfiguration.getDisplayModes(monitor))
+                System.out.println("["+monitor.name + "] " + mode);
+
         configuration.setTitle("The Needle's Eye"); // window title
 
         configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+
+        System.out.println("[Selected DisplayMode] "+Lwjgl3ApplicationConfiguration.getDisplayMode());
 
         configuration.setOpenGLEmulation(Lwjgl3ApplicationConfiguration.GLEmulation.GL32, 3, 2);
 
