@@ -11,7 +11,6 @@ import com.badlogic.gdx.graphics.g2d.*;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.ModelBatch;
 import com.badlogic.gdx.graphics.g3d.Renderable;
-import com.badlogic.gdx.graphics.g3d.RenderableProvider;
 import com.badlogic.gdx.graphics.g3d.Shader;
 import com.badlogic.gdx.graphics.g3d.environment.PointLight;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleEffect;
@@ -22,10 +21,7 @@ import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
 import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.HdpiMode;
-import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -40,7 +36,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScalingViewport;
 import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.bullet.CollisionListener;
 import com.ducksteam.needleseye.entity.bullet.NEDebugDrawer;
@@ -56,6 +54,7 @@ import com.ducksteam.needleseye.player.PlayerInput;
 import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
+import de.pottgames.tuningfork.Audio;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -64,7 +63,6 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
 import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -546,6 +544,7 @@ public class Main extends Game {
 		spriteAddresses.add("ui/ingame/damage.png");
 
 		// load music/sfx
+        Audio.init();
 		try {
 			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music/throughtheeye.mp3"));
 			menuMusic.setLooping(true);
@@ -719,7 +718,7 @@ public class Main extends Game {
 	 * */
 	private void buildDebugMenu(){
 		if (debug != null) debug.dispose(); // clear previous debug menu
-		debug = new Stage();
+		debug = new Stage(new ScalingViewport(Scaling.stretch, Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), new OrthographicCamera()), batch2d);
 
 		ArrayList<Label> labels = new ArrayList<>();
 
@@ -932,7 +931,7 @@ public class Main extends Game {
 						// draw upgrade icon to screen
 						Vector2 pos = new Vector2(
 								Math.round((float) Gdx.graphics.getWidth() - ((float) Gdx.graphics.getWidth()) / 24F) - (((float) ((counter%7)*Gdx.graphics.getWidth())) / 24F),
-                                (float) (Gdx.graphics.getHeight() - (Math.floor(counter/7)+1)*(24 + Math.round(((float) Gdx.graphics.getHeight()) / 24F))));
+                                (float) (Gdx.graphics.getHeight() - (Math.floor(((float) counter)/7)+1)*(24 + Math.round(((float) Gdx.graphics.getHeight()) / 24F))));
 						batch2d.draw(upgrade.getIcon(), pos.x, pos.y, (float) (Gdx.graphics.getHeight()) / 30 * Config.ASPECT_RATIO, ((float) Gdx.graphics.getHeight() / 30 * Config.ASPECT_RATIO ));
 					} catch (Exception e){
 						Gdx.app.error("Upgrade icon", "Failed to draw icon for upgrade "+id,e);
@@ -1185,12 +1184,12 @@ public class Main extends Game {
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
-                entity.isRenderable = isInFrustum(entity, camera);
+                entity.isInFrame = isInFrustum(entity, camera);
 
-                if (entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
+                if (entity.isInFrame && entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
 					sceneMan.addScene(entity.getScene());
 				}
-				if(!entity.isRenderable && entity.getScene() != null) {
+				if(!entity.isInFrame && entity.isRenderable && entity.getScene() != null) {
 					sceneMan.removeScene(entity.getScene());
 				}
 			});
@@ -1261,9 +1260,9 @@ public class Main extends Game {
 	}
 
     private void setEffectShaderUniforms() {
-        postProcessingShader.setUniformMatrix("u_projTrans", camera.combined);
-        //postProcessingShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
-        //postProcessingShader.setUniformi("u_kernelSize", 7);
+//        postProcessingShader.setUniformMatrix("u_projTrans", camera.combined);
+//        postProcessingShader.setUniform2fv("u_screenSize", new float[]{Gdx.graphics.getWidth(), Gdx.graphics.getHeight()}, 0, 2);
+//        postProcessingShader.setUniformi("u_kernelSize", 7);
     }
 
     private void renderLoadingFrame(float progress) {
@@ -1329,7 +1328,7 @@ public class Main extends Game {
 			if (state.getStage() != null) state.getStage().build();
 		}
 
-		Gdx.app.debug("Main", "Resized to "+width+"x"+height);
+		Gdx.app.debug("Main", "Resized to "+width+"x"+height+", " + (Gdx.graphics.isFullscreen() ? "fullscreen" : "windowed"));
 	}
 
 	/**

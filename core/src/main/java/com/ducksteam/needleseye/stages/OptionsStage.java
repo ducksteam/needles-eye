@@ -154,19 +154,23 @@ public class OptionsStage extends StageTemplate {
         setScrollFocus(currentCategory.pane);
     }
 
-    private void buildGeneralPane(){
-        Table pane = new Table();
+    Table generalPane;
+    TextField seedInputField;
+    Label seedLabel;
 
-        TextField seedInputField = new TextField("", textFieldStyle);
+    private void buildGeneralPane(){
+        generalPane = new Table();
+
+        seedInputField = new TextField("", textFieldStyle);
 
         seedInputField.setTextFieldListener((textField, c) -> tempSeed = textField.getText());
 
-        Label seedLabel = new Label("Seed", labelStyle);
+        seedLabel = new Label("Seed", labelStyle);
 
-        pane.add(seedLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        pane.add(seedInputField).padRight(Value.percentWidth(0.04f, pane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
+        generalPane.add(seedLabel).pad(Value.percentWidth(0.04f, generalPane)).left();
+        generalPane.add(seedInputField).padRight(Value.percentWidth(0.04f, generalPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
-        OptionCategory.GENERAL.pane = new ScrollPane(pane, scrollStyle);
+        OptionCategory.GENERAL.pane = new ScrollPane(generalPane, scrollStyle);
         OptionCategory.GENERAL.pane.setFlingTime(0);
         OptionCategory.GENERAL.pane.setFlickScroll(false);
         OptionCategory.GENERAL.pane.setScrollingDisabled(true, false);
@@ -183,12 +187,30 @@ public class OptionsStage extends StageTemplate {
         }
     }
 
-    private void buildVideoPane(){
-        Table pane = new Table();
+    Table videoPane;
+    SelectBox<Config.Resolution> resolutionDropdown;
+    Label resolutionLabel;
+    SelectBox<String> windowTypeDropdown;
+    Label windowTypeLabel;
+    ImageButton vSyncCheckbox;
+    Label vSyncLabel;
+    Slider brightnessSlider;
+    Label brightnessLabel;
+    Label brightnessValueLabel;
+    Table brightnessSliderTable;
 
-        SelectBox<Config.Resolution> resolutionDropdown = new SelectBox<>(selectBoxStyle);
+    private void buildVideoPane(){
+        videoPane = new Table();
+
+        resolutionDropdown = new SelectBox<>(selectBoxStyle);
         resolutionDropdown.setItems(Config.Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Config.Resolution[0]));
         resolutionDropdown.setMaxListCount(4);
+
+        if (Config.prefs.getString("WindowType").equalsIgnoreCase("fullscreen")){
+            resolutionDropdown.setSelected(Config.getFullscreenResolution());
+        } else {
+            resolutionDropdown.setSelected(new Config.Resolution(Config.prefs.getString("Resolution", "")));
+        }
 
         resolutionDropdown.addListener(new ChangeListener() {
             @Override
@@ -197,32 +219,37 @@ public class OptionsStage extends StageTemplate {
             }
         });
 
-        Label resolutionLabel = new Label("Resolution", labelStyle);
+        resolutionLabel = new Label("Resolution", labelStyle);
 
-        pane.add(resolutionLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        pane.add(resolutionDropdown).padRight(Value.percentWidth(0.04f, pane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
+        videoPane.add(resolutionLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
+        videoPane.add(resolutionDropdown).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
-        SelectBox<String> windowTypeDropdown = new SelectBox<>(selectBoxStyle);
+        windowTypeDropdown = new SelectBox<>(selectBoxStyle);
         windowTypeDropdown.setItems(Config.WindowType.getUserStrings());
         windowTypeDropdown.setMaxListCount(3);
+
+        windowTypeDropdown.setSelected(Config.WindowType.valueOf(Config.prefs.getString("WindowType", "")).getUserString());
 
         windowTypeDropdown.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Config.setWindowType(Config.WindowType.valueOf(windowTypeDropdown.getSelected().toUpperCase()));
+                Config.setResolution(Config.getFullscreenResolution());
             }
         });
 
-        Label windowTypeLabel = new Label("Window Type", labelStyle);
+        resolutionDropdown.setDisabled(windowTypeDropdown.getSelected().equals(Config.WindowType.FULLSCREEN.getUserString()));
 
-        pane.add(windowTypeLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        pane.add(windowTypeDropdown).padRight(Value.percentWidth(0.04f, pane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
+        windowTypeLabel = new Label("Window Type", labelStyle);
 
-        ImageButton vSyncCheckbox = new ImageButton(checkboxStyle);
-        Label vSyncLabel = new Label("VSync", labelStyle);
+        videoPane.add(windowTypeLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
+        videoPane.add(windowTypeDropdown).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
-        pane.add(vSyncLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        pane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, pane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
+        vSyncCheckbox = new ImageButton(checkboxStyle);
+        vSyncLabel = new Label("VSync", labelStyle);
+
+        videoPane.add(vSyncLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
+        videoPane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, videoPane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
 
         vSyncCheckbox.addListener(new ChangeListener() {
             @Override
@@ -231,45 +258,50 @@ public class OptionsStage extends StageTemplate {
             }
         });
 
-        Slider brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
-        Label brightnessLabel = new Label("Brightness", labelStyle);
-        Label brightnessValueLabel = new Label((int)brightnessSlider.getValue() + "%", labelStyle);
+        brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
+        brightnessLabel = new Label("Brightness", labelStyle);
+        brightnessValueLabel = new Label((int)brightnessSlider.getValue() + "%", labelStyle);
 
         brightnessSlider.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 brightnessValueLabel.setText((int) brightnessSlider.getValue() + "%");
-                Config.brightness =  (int) brightnessSlider.getValue();
+                Config.brightness = (int) brightnessSlider.getValue();
             }
         });
 
-        pane.add(brightnessLabel).pad(Value.percentWidth(0.04f, pane)).left();
-        Table sliderTable = new Table();
-        sliderTable.add(brightnessSlider).padLeft(sliderStyle.background.getLeftWidth()).padRight(Value.percentWidth(0.04f, pane)).minSize(Value.percentWidth(0.5f, pane), Value.percentHeight(0.7f, brightnessLabel)).left().growX();
-        sliderTable.add(brightnessValueLabel).padLeft(Value.percentWidth(0.02f, sliderTable)).row();
-        pane.add(sliderTable).padRight(Value.percentWidth(0.04f, pane)).maxWidth(Value.percentWidth(0.75f, pane)).left().row();
+        brightnessSlider.setValue(Config.prefs.getInteger("Brightness", 50));
 
-        OptionCategory.VIDEO.pane = new ScrollPane(pane, scrollStyle);
+        videoPane.add(brightnessLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
+        brightnessSliderTable = new Table();
+        brightnessSliderTable.add(brightnessSlider).padLeft(sliderStyle.background.getLeftWidth()).padRight(Value.percentWidth(0.04f, videoPane)).minSize(Value.percentWidth(0.5f, videoPane), Value.percentHeight(0.7f, brightnessLabel)).left().growX();
+        brightnessSliderTable.add(brightnessValueLabel).padLeft(Value.percentWidth(0.02f, brightnessSliderTable)).row();
+        videoPane.add(brightnessSliderTable).padRight(Value.percentWidth(0.04f, videoPane)).maxWidth(Value.percentWidth(0.75f, videoPane)).left().row();
+
+        OptionCategory.VIDEO.pane = new ScrollPane(videoPane, scrollStyle);
         OptionCategory.VIDEO.pane.setFlingTime(0);
         OptionCategory.VIDEO.pane.setFlickScroll(false);
         OptionCategory.VIDEO.pane.setScrollingDisabled(true, false);
     }
 
+    Table audioPane;
 
     private void buildAudioPane() {
-        Table pane = new Table();
+        audioPane = new Table();
 
 
 
-        OptionCategory.AUDIO.pane = new ScrollPane(pane, scrollStyle);
+        OptionCategory.AUDIO.pane = new ScrollPane(audioPane, scrollStyle);
     }
 
+    Table controlsPane;
+
     private void buildControlsPane(){
-        Table pane = new Table();
+        controlsPane = new Table();
 
 
 
-        OptionCategory.CONTROLS.pane = new ScrollPane(pane, scrollStyle);
+        OptionCategory.CONTROLS.pane = new ScrollPane(controlsPane, scrollStyle);
     }
 
 }

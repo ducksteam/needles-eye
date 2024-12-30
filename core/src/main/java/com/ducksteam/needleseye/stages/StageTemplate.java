@@ -165,7 +165,7 @@ public abstract class StageTemplate extends Stage {
         textFieldStyle = new TextField.TextFieldStyle(Main.uiFont, Main.uiFont.getColor(), null, null, backgroundNinePatch);
 
         selectBoxStyle = new SelectBox.SelectBoxStyle();
-        selectBoxStyle.backgroundDisabled = disabledBackgroundNinePatch;
+        selectBoxStyle.backgroundDisabled = highlightBackgroundNinePatch;
         selectBoxStyle.background = backgroundNinePatch;
         selectBoxStyle.font = Main.uiFont;
         selectBoxStyle.fontColor = Color.WHITE;

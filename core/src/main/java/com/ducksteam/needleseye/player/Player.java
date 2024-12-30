@@ -212,7 +212,7 @@ public class Player extends Entity implements IHasHealth {
         collisionShape.calculateLocalInertia(Config.PLAYER_MASS, inertia);
         // create rigid body
         collider = new btRigidBody(Config.PLAYER_MASS, motionState, collisionShape, inertia);
-        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK | PLAYER_GROUP); // the cf custom material callback flag is required for custom collision
+        collider.setCollisionFlags(btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK); // the cf custom material callback flag is required for custom collision
         collider.setActivationState(Collision.DISABLE_DEACTIVATION); // player should never deactivate
         collider.setDamping(0.95f, 1f); // set damping
         collider.setAngularFactor(Vector3.Y); // lock x/z rotation

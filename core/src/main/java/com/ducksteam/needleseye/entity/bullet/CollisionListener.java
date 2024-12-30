@@ -31,6 +31,20 @@ public class CollisionListener extends ContactListener {
 		if (entity0 == null || entity1 == null) return;
 		Gdx.app.debug("CollisionListener", "Contact added between " + entity0.getClass().getSimpleName() + " " + entity0.id + " cf " + match0 + " and " + entity1.getClass().getSimpleName() + " " + entity1.id + " cf " + match1);
 
+        if (entity0 instanceof WorldTrigger && entity1 instanceof WorldTrigger) {
+            Gdx.app.error("CollisionListener", "Two world triggers ("+userValue0+"&"+userValue1+") have collided");
+            return;
+        }
+
+        if (entity0 instanceof WorldTrigger) {
+            ((WorldTrigger) entity0).activate(entity1);
+            return;
+        }
+
+        if (entity1 instanceof WorldTrigger) {
+            ((WorldTrigger) entity1).activate(entity0);
+        }
+
 		if (entity1 instanceof Player) onContactStarted(userValue1, match1, userValue0, match0); // flip for convenience
 
 		//Handles cases for player, enemy, room, and upgrade collisions
@@ -65,5 +79,18 @@ public class CollisionListener extends ContactListener {
 		Entity entity1 = Main.entities.get(userValue1);
 		if (entity0 == null || entity1 == null) return;
 		Gdx.app.debug("CollisionListener", "Contact ended between " + entity0.getClass().getSimpleName() + " " + entity0.id + " cf " + match0 + " and " + entity1.getClass().getSimpleName() + " " + entity1.id + " cf " + match1);
-	}
+        if (entity0 instanceof WorldTrigger && entity1 instanceof WorldTrigger) {
+            Gdx.app.error("CollisionListener", "Two world triggers ("+userValue0+"&"+userValue1+") have collided");
+            return;
+        }
+
+        if (entity0 instanceof WorldTrigger) {
+            ((WorldTrigger) entity0).deactivate(entity1);
+            return;
+        }
+
+        if (entity1 instanceof WorldTrigger) {
+            ((WorldTrigger) entity1).deactivate(entity0);
+        }
+    }
 }

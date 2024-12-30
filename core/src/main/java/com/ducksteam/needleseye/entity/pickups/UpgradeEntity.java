@@ -3,10 +3,13 @@ package com.ducksteam.needleseye.entity.pickups;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.entity.bullet.WorldTrigger;
+import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.Upgrade;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -17,6 +20,8 @@ import net.mgsx.gltf.scene3d.scene.SceneAsset;
  */
 public class UpgradeEntity extends Entity {
     Upgrade upgrade; // contained upgrade
+
+    WorldTrigger trigger;
 
     // temp variables for calculations
     Vector3 tmp = new Vector3();
@@ -31,9 +36,13 @@ public class UpgradeEntity extends Entity {
         super(position, new Quaternion(), 0f, new Scene(((SceneAsset) Main.assMan.get(upgrade.getModelAddress())).scene), PICKUP_GROUP | btCollisionObject.CollisionFlags.CF_KINEMATIC_OBJECT);
         this.upgrade = upgrade;
 
-        // set collision filters to only respond to player
-        collider.setContactCallbackFlag(PICKUP_GROUP);
-        collider.setContactCallbackFilter(PLAYER_GROUP);
+        trigger = new WorldTrigger(new btBoxShape(new Vector3(1, 1, 1)), new Matrix4().setToTranslation(position), (Entity e) -> {
+            Upgrade pickup = getUpgrade();
+            ((Player) e).upgrades.add(pickup);
+            Player.timeSincePickup = 0;
+            getUpgrade().onPickup();
+            destroy();
+        }, Entity.PLAYER_GROUP, WorldTrigger.TriggerType.ONCE_ON_ENTER);
 
         // set initial rotation
         motionState.getWorldTransform(tmpMat);
@@ -75,9 +84,15 @@ public class UpgradeEntity extends Entity {
 
     @Override
     public String toString() {
-        return id+"-UpgradeEntity{" +
+        return id + "-UpgradeEntity{" +
             "upgrade=" + upgrade +
             "position=" + getPosition() +
             '}';
+    }
+
+    @Override
+    public void destroy() {
+        trigger.destroy();
+        super.destroy();
     }
 }
