@@ -162,18 +162,19 @@ public abstract class StageTemplate extends Stage {
         scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.background = backgroundNinePatch;
 
-        textFieldStyle = new TextField.TextFieldStyle(Main.uiFont, Main.uiFont.getColor(), null, null, backgroundNinePatch);
+        textFieldStyle = new TextField.TextFieldStyle(Main.smallFont, Main.smallFont.getColor(), null, null, backgroundNinePatch);
 
         selectBoxStyle = new SelectBox.SelectBoxStyle();
         selectBoxStyle.backgroundDisabled = highlightBackgroundNinePatch;
         selectBoxStyle.background = backgroundNinePatch;
-        selectBoxStyle.font = Main.uiFont;
+        selectBoxStyle.font = Main.smallFont;
         selectBoxStyle.fontColor = Color.WHITE;
-        selectBoxStyle.listStyle = new List.ListStyle(Main.uiFont, Main.uiFont.getColor(), Color.WHITE, backgroundNinePatch);
+        selectBoxStyle.listStyle = new List.ListStyle(Main.smallFont, Main.smallFont.getColor(), Color.WHITE, backgroundNinePatch);
         selectBoxStyle.scrollStyle = new ScrollPane.ScrollPaneStyle();
+        selectBoxStyle.font = Main.smallFont;
         selectBoxStyle.scrollStyle.background = backgroundDitheredNinePatch;
 
-        labelStyle = new Label.LabelStyle(Main.uiFont, Color.WHITE);
+        labelStyle = new Label.LabelStyle(Main.smallFont, Color.WHITE);
 
         checkboxStyle = new ImageButton.ImageButtonStyle();
         checkboxStyle.checked = checkboxOnNinePatch;

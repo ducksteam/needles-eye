@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
+import de.pottgames.tuningfork.AudioDevice;
 
 /**
  * The stage for options.
@@ -251,6 +252,8 @@ public class OptionsStage extends StageTemplate {
         videoPane.add(vSyncLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
         videoPane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, videoPane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
 
+        vSyncCheckbox.setChecked(Config.prefs.getBoolean("VSync", true));
+
         vSyncCheckbox.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
@@ -274,9 +277,9 @@ public class OptionsStage extends StageTemplate {
 
         videoPane.add(brightnessLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
         brightnessSliderTable = new Table();
-        brightnessSliderTable.add(brightnessSlider).padLeft(sliderStyle.background.getLeftWidth()).padRight(Value.percentWidth(0.04f, videoPane)).minSize(Value.percentWidth(0.5f, videoPane), Value.percentHeight(0.7f, brightnessLabel)).left().growX();
-        brightnessSliderTable.add(brightnessValueLabel).padLeft(Value.percentWidth(0.02f, brightnessSliderTable)).row();
-        videoPane.add(brightnessSliderTable).padRight(Value.percentWidth(0.04f, videoPane)).maxWidth(Value.percentWidth(0.75f, videoPane)).left().row();
+        brightnessSliderTable.add(brightnessSlider).padLeft(sliderStyle.background.getLeftWidth()).maxSize(Value.percentWidth(0.5f, videoPane), Value.percentHeight(0.7f, brightnessLabel)).left().growX();
+        brightnessSliderTable.add(brightnessValueLabel).row();
+        videoPane.add(brightnessSliderTable).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f, videoPane)).left().row();
 
         OptionCategory.VIDEO.pane = new ScrollPane(videoPane, scrollStyle);
         OptionCategory.VIDEO.pane.setFlingTime(0);
@@ -289,9 +292,53 @@ public class OptionsStage extends StageTemplate {
     private void buildAudioPane() {
         audioPane = new Table();
 
+        Slider musicVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
+        Label musicVolumeLabel = new Label("Music Volume", labelStyle);
+        Label musicVolumeValueLabel = new Label((int)musicVolumeSlider.getValue() + "%", labelStyle);
 
+        musicVolumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                musicVolumeValueLabel.setText((int) musicVolumeSlider.getValue() + "%");
+            }
+        });
+
+        audioPane.add(musicVolumeLabel).pad(Value.percentWidth(0.04f, audioPane)).left();
+        Table musicVolumeSliderTable = new Table();
+        musicVolumeSliderTable.add(musicVolumeSlider).padLeft(sliderStyle.background.getLeftWidth()).maxSize(Value.percentWidth(0.5f, audioPane), Value.percentHeight(0.7f, musicVolumeLabel)).left().growX();
+        musicVolumeSliderTable.add(musicVolumeValueLabel).row();
+        audioPane.add(musicVolumeSliderTable).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f, audioPane)).left().row();
+
+        Slider sfxVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
+        Label sfxVolumeLabel = new Label("SFX Volume", labelStyle);
+        Label sfxVolumeValueLabel = new Label((int)sfxVolumeSlider.getValue() + "%", labelStyle);
+
+        sfxVolumeSlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                sfxVolumeValueLabel.setText((int) sfxVolumeSlider.getValue() + "%");
+            }
+        });
+
+        audioPane.add(sfxVolumeLabel).pad(Value.percentWidth(0.04f, audioPane)).left();
+        Table sfxVolumeSliderTable = new Table();
+        sfxVolumeSliderTable.add(sfxVolumeSlider).padLeft(sliderStyle.background.getLeftWidth()).maxSize(Value.percentWidth(0.5f, audioPane), Value.percentHeight(0.7f, sfxVolumeLabel)).left().growX();
+        sfxVolumeSliderTable.add(sfxVolumeValueLabel).row();
+        audioPane.add(sfxVolumeSliderTable).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f, audioPane)).left().row();
+
+        SelectBox<String> audioDeviceDropdown = new SelectBox<>(selectBoxStyle);
+        audioDeviceDropdown.setItems(AudioDevice.availableDevices().stream().map(s -> s.substring(15)).toArray(String[]::new));
+        audioDeviceDropdown.setMaxListCount(3);
+
+        Label resolutionLabel = new Label("Output Device", labelStyle);
+
+        audioPane.add(resolutionLabel).pad(Value.percentWidth(0.04f, audioPane)).left();
+        audioPane.add(audioDeviceDropdown).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
         OptionCategory.AUDIO.pane = new ScrollPane(audioPane, scrollStyle);
+        OptionCategory.AUDIO.pane.setFlingTime(0);
+        OptionCategory.AUDIO.pane.setFlickScroll(false);
+        OptionCategory.AUDIO.pane.setScrollingDisabled(true, false);
     }
 
     Table controlsPane;
@@ -302,6 +349,9 @@ public class OptionsStage extends StageTemplate {
 
 
         OptionCategory.CONTROLS.pane = new ScrollPane(controlsPane, scrollStyle);
+        OptionCategory.CONTROLS.pane.setFlingTime(0);
+        OptionCategory.CONTROLS.pane.setFlickScroll(false);
+        OptionCategory.CONTROLS.pane.setScrollingDisabled(true, false);
     }
 
 }
