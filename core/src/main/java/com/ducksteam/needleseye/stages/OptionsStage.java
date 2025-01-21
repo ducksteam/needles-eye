@@ -302,6 +302,8 @@ public class OptionsStage extends StageTemplate {
         audioPane = new Table();
 
         Slider musicVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
+        musicVolumeSlider.setValue(Config.musicVolume);
+
         Label musicVolumeLabel = new Label("Music Volume", labelStyle);
         Label musicVolumeValueLabel = new Label((int)musicVolumeSlider.getValue() + "%", labelStyle);
 
@@ -309,6 +311,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 musicVolumeValueLabel.setText((int) musicVolumeSlider.getValue() + "%");
+                Config.musicVolume = (int) musicVolumeSlider.getValue();
             }
         });
 
@@ -319,6 +322,8 @@ public class OptionsStage extends StageTemplate {
         audioPane.add(musicVolumeSliderTable).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f, audioPane)).left().row();
 
         Slider sfxVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
+        sfxVolumeSlider.setValue(Config.sfxVolume);
+
         Label sfxVolumeLabel = new Label("SFX Volume", labelStyle);
         Label sfxVolumeValueLabel = new Label((int)sfxVolumeSlider.getValue() + "%", labelStyle);
 
@@ -326,6 +331,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 sfxVolumeValueLabel.setText((int) sfxVolumeSlider.getValue() + "%");
+                Config.sfxVolume = (int) sfxVolumeSlider.getValue();
             }
         });
 
