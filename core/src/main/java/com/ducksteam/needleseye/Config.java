@@ -12,7 +12,6 @@ import de.pottgames.tuningfork.AudioDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -22,12 +21,6 @@ import java.util.stream.Collectors;
  */
 public class Config {
     // Modifiable
-    /**
-     * The keys used for player input, see static block for defaults
-     * String is the action, Integer is the key code
-     */
-    public static HashMap<String, Integer> keys = new HashMap<>();
-
     /**
      * Whether the debug menu is enabled, toggled by default with F9
      */
@@ -165,6 +158,26 @@ public class Config {
         sfxVolume = prefs.getInteger("SFXVolume", 50);
         audioOutputDevice = prefs.getString("AudioDevice", AudioDevice.availableDevices().getFirst());
 
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Forward", Input.Keys.W);
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Backward", Input.Keys.S);
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Left", Input.Keys.A);
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Right", Input.Keys.D);
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Jump", Input.Keys.SPACE);
+        new Keybind(Keybind.KeybindType.MOVEMENT, "Run", Input.Keys.SHIFT_LEFT, Input.Keys.SHIFT_RIGHT);
+        new Keybind(Keybind.KeybindType.ABILITY, "Advance Level", Input.Keys.R);
+        new Keybind(Keybind.KeybindType.ABILITY, "Switch Ability Mode", Input.Keys.CONTROL_LEFT);
+        new Keybind(Keybind.KeybindType.OTHER, "Pause", Input.Keys.ESCAPE);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Music", Input.Keys.F5);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle DebugDrawer", Input.Keys.F8);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Debug Info", Input.Keys.F9);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Gravity", Input.Keys.F10);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Room Rendering", Input.Keys.F3);
+        new Keybind(Keybind.KeybindType.DEBUG, "Move Player Up", Input.Keys.P);
+        new Keybind(Keybind.KeybindType.DEBUG, "Heal", Input.Keys.NUMPAD_ADD);
+        new Keybind(Keybind.KeybindType.DEBUG, "Damage", Input.Keys.NUMPAD_SUBTRACT);
+        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Forward", Input.Keys.PERIOD);
+        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Backward", Input.Keys.COMMA);
+
         flushPrefs();
     }
 
@@ -193,6 +206,9 @@ public class Config {
         prefs.putInteger("MusicVolume", musicVolume);
         prefs.putInteger("SFXVolume", sfxVolume);
         prefs.putString("AudioDevice", audioOutputDevice);
+
+        Keybind.flushAll();
+
         prefs.flush();
     }
 
@@ -284,15 +300,15 @@ public class Config {
             return ((Resolution) o).width == this.width && ((Resolution) o).height == this.height;
         }
 
-        static {
-            keys.put("forward", Input.Keys.W);
-            keys.put("back", Input.Keys.S);
-            keys.put("left", Input.Keys.A);
-            keys.put("right", Input.Keys.D);
-            keys.put("jump", Input.Keys.SPACE);
-            keys.put("run", Input.Keys.SHIFT_LEFT);
-            keys.put("advance", Input.Keys.R);
-            keys.put("ability", Input.Keys.CONTROL_LEFT);
-        }
+//        static {
+//            keys.put("forward", Input.Keys.W);
+//            keys.put("back", Input.Keys.S);
+//            keys.put("left", Input.Keys.A);
+//            keys.put("right", Input.Keys.D);
+//            keys.put("jump", Input.Keys.SPACE);
+//            keys.put("run", Input.Keys.SHIFT_LEFT);
+//            keys.put("advance", Input.Keys.R);
+//            keys.put("ability", Input.Keys.CONTROL_LEFT);
+//        }
     }
 }

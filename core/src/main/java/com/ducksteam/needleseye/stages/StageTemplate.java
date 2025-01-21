@@ -32,6 +32,8 @@ public abstract class StageTemplate extends Stage {
     NinePatchDrawable disabledBackgroundNinePatch;
     NinePatchDrawable highlightBackgroundNinePatch;
     NinePatchDrawable backgroundDitheredNinePatch;
+    NinePatchDrawable keybindBackgroundNinePatch;
+    NinePatchDrawable keybindOverNinePatch;
 
     NinePatchDrawable checkboxOnNinePatch;
     NinePatchDrawable checkboxOffNinePatch;
@@ -41,6 +43,7 @@ public abstract class StageTemplate extends Stage {
     TextButton.TextButtonStyle buttonStyle;
     TextButton.TextButtonStyle dualButtonStyle;
     TextButton.TextButtonStyle roundedButtonStyle;
+    TextButton.TextButtonStyle keybindButtonStyle;
 
     ScrollPane.ScrollPaneStyle scrollStyle;
 
@@ -86,6 +89,8 @@ public abstract class StageTemplate extends Stage {
         disabledBackgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/disabledbackground.9.png"), 4,4,4,4));
         highlightBackgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/activebackground.9.png"), 4,4,4,4));
         backgroundDitheredNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/instructions/dropdownbackground.9.png"), 4, 4, 4, 4));
+        keybindBackgroundNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/keybindbackground_off.9.png"), 8,8,8,8));
+        keybindOverNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/keybindbackground_over.9.png"), 8,8,8,8));
 
         dualButtonUnpressedNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/main/dual_button1.png"), 16,16,15,15));
         dualButtonPressedNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/main/dual_button2.png"), 16, 16, 15, 15));
@@ -143,9 +148,15 @@ public abstract class StageTemplate extends Stage {
     private void updateStyles() {
         buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.up = buttonUnpressed.getDrawable();
-        buttonStyle.down = buttonStyle.over = buttonStyle.checked = buttonPressed.getDrawable();
+        buttonStyle.down = buttonStyle.over = buttonStyle.checked = buttonUnpressed.getDrawable();
         buttonStyle.font = Main.buttonFont;
         buttonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
+
+        keybindButtonStyle = new TextButton.TextButtonStyle();
+        keybindButtonStyle.up = keybindBackgroundNinePatch;
+        keybindButtonStyle.down = buttonStyle.over = buttonStyle.checked = keybindOverNinePatch;
+        keybindButtonStyle.font = Main.smallFont;
+        keybindButtonStyle.fontColor = new Color(0xeeeeeeff);
 
         dualButtonStyle = new TextButton.TextButtonStyle();
         dualButtonStyle.up = dualButtonUnpressed.getDrawable();

@@ -1,11 +1,13 @@
 package com.ducksteam.needleseye.stages;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Keybind;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
 import de.pottgames.tuningfork.AudioDevice;
@@ -346,7 +348,24 @@ public class OptionsStage extends StageTemplate {
     private void buildControlsPane(){
         controlsPane = new Table();
 
+        for (Keybind.KeybindType keybindType : Keybind.KeybindType.values()) {
+            if (keybindType == Keybind.KeybindType.DEBUG && !Keybind.KeybindType.showDebugKeybinds) continue;
+            Label sectionTitle = new Label(keybindType.name(), labelStyle);
+            sectionTitle.setFontScale(2);
+            controlsPane.add(sectionTitle).colspan(2).row();
+            for (Keybind keybind : keybindType.keybinds) {
+                Label keybindName = new Label(keybind.readableName, labelStyle);
+                Table keybindContainer = new Table();
 
+                for (Integer key : keybind.keys) {
+                    TextButton button = new TextButton(Input.Keys.toString(key), keybindButtonStyle);
+                    keybindContainer.add(button).space(Value.percentWidth(0.02f, background));
+                }
+
+                controlsPane.add(keybindName).prefWidth(Value.percentWidth(0.5f, controlsPane)).expandX();
+                controlsPane.add(keybindContainer).prefSize(Value.percentHeight(0.85f, keybindName)).expandX().row();
+            }
+        }
 
         OptionCategory.CONTROLS.pane = new ScrollPane(controlsPane, scrollStyle);
         OptionCategory.CONTROLS.pane.setFlingTime(0);

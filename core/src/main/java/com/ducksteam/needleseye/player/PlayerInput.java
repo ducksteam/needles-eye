@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Keybind;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 
@@ -35,35 +36,35 @@ public class PlayerInput implements InputProcessor {
      */
     public static void update(float delta) {
         // update player speed by sprinting & multiplier
-        Config.moveSpeed = KEYS.containsKey(Config.keys.get("run")) && KEYS.get(Config.keys.get("run")) ? Config.RUN_SPEED : Config.WALK_SPEED;
+        Config.moveSpeed = Keybind.pressed("Run", KEYS) ? Config.RUN_SPEED : Config.WALK_SPEED;
         Config.moveSpeed *= (player.playerSpeedMultiplier + player.joltSpeedBoost);
 
         Vector3 forceDir = new Vector3(); // the direction the player should move in
 
         Vector3 moveVec = player.eulerRotation.cpy().nor().scl(Config.moveSpeed); // the direction the player is facing, scaled to speed
 
-        if(KEYS.containsKey(Config.keys.get("forward")) && KEYS.get(Config.keys.get("forward"))){
+        if(Keybind.pressed("Forward", KEYS)) {
             forceDir.add(moveVec);
         }
-        if(KEYS.containsKey(Config.keys.get("back")) && KEYS.get(Config.keys.get("back"))){
+        if(Keybind.pressed("Backward", KEYS)){
             forceDir.sub(moveVec);
         }
-        if(KEYS.containsKey(Config.keys.get("left")) && KEYS.get(Config.keys.get("left"))){
+        if(Keybind.pressed("Left", KEYS)){
             tmp.set(moveVec).nor().crs(Vector3.Y); // cross product with up vector to get left vector
             forceDir.sub(tmp); // subtract left vector
         }
-        if(KEYS.containsKey(Config.keys.get("right")) && KEYS.get(Config.keys.get("right"))){
+        if(Keybind.pressed("Right", KEYS)){
             tmp.set(moveVec).nor().crs(Vector3.Y); // cross product with up vector to get left vector
             forceDir.add(tmp); // add left vector
         }
 
         // jumping logic
-        if(KEYS.containsKey(Config.keys.get("jump")) && KEYS.get(Config.keys.get("jump")) && Math.abs(player.getVelocity().y) < 0.5 && !player.isJumping){
+        if(Keybind.pressed("Jump", KEYS) && Math.abs(player.getVelocity().y) < 0.5 && !player.isJumping){
             player.collider.applyCentralImpulse(new Vector3(0, 50, 0));
         }
 
         // advance to next level
-        if(KEYS.containsKey(Config.keys.get("advance")) && KEYS.get(Config.keys.get("advance"))){
+        if(Keybind.pressed("Advance", KEYS)){
             // if all enemies in current level are dead
             if (entities.values().stream().filter(e -> e instanceof EnemyEntity).map(e -> (EnemyEntity) e).collect(Collectors.toCollection(ArrayList::new)).isEmpty()) {
                 Main.advanceLevel();
@@ -156,7 +157,7 @@ public class PlayerInput implements InputProcessor {
      */
     @Override
     public boolean touchDown(int x, int y, int pointer, int button) {
-        if (button == Input.Buttons.RIGHT || button == Input.Buttons.LEFT && KEYS.containsKey(Config.keys.get("ability")) && KEYS.get(Config.keys.get("ability"))) {
+        if (button == Input.Buttons.RIGHT || button == Input.Buttons.LEFT && Keybind.pressed("SwitchAbilityMode", KEYS)) {
             player.ability();
             return true;
         }

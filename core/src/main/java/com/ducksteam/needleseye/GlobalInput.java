@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.math.Vector3;
 
@@ -22,45 +21,45 @@ public class GlobalInput implements InputProcessor {
 
     @Override
     public boolean keyDown(int i) {
-        if (i == Input.Keys.F5) { // toggle music
+        if (Keybind.getKeybind("Toggle Music").keys.contains(i)) {
             if (Main.menuMusic.getVolume() == 0) Main.menuMusic.setVolume(0.3f);
             else Main.menuMusic.setVolume(0);
         }
 
-        if (i == Input.Keys.F8) { // enable/disable collider rendering
+        if (Keybind.getKeybind("Toggle DebugDrawer").keys.contains(i)) {
             Config.doRenderColliders = !Config.doRenderColliders;
             return true;
         }
 
-        if (i == Input.Keys.F9) { // enable/disable debug menu
+        if (Keybind.getKeybind("Toggle Debug Info").keys.contains(i)) {
             Config.debugMenu = !Config.debugMenu;
             return true;
         }
 
-        if (i == Input.Keys.F10) { // toggle gravity
+        if (Keybind.getKeybind("Toggle Gravity").keys.contains(i)) {
             float gravity = Main.dynamicsWorld.getGravity().y;
             Main.dynamicsWorld.setGravity(new Vector3(0, gravity == 0 ? -10 : 0, 0));
         }
 
-        if(i == Input.Keys.F3) {
+        if(Keybind.getKeybind("Toggle Room Rendering").keys.contains(i)) {
             if(Main.gameState != Main.GameState.IN_GAME) return false;
             Main.mapMan.getCurrentLevel().getRooms().forEach(room -> room.isRenderable = !room.isRenderable);
             return true;
         }
 
-        if (i == Input.Keys.P) player.collider.translate(Vector3.Y.cpy().scl(20)); // move player up
+        if (Keybind.getKeybind("Move Player Up").keys.contains(i)) player.collider.translate(Vector3.Y.cpy().scl(20));
 
-        if (i == Input.Keys.NUMPAD_ADD) { // heal the player
+        if (Keybind.getKeybind("Heal").keys.contains(i)) { // heal the player
             player.damage(-1, null);
             return true;
         }
 
-        if (i == Input.Keys.NUMPAD_SUBTRACT) { // damage the player
+        if (Keybind.getKeybind("Damage").keys.contains(i)) { // damage the player
             player.damage(1, null);
             return true;
         }
 
-        if (i == Input.Keys.ESCAPE) { // pause the game
+        if (Keybind.getKeybind("Pause").keys.contains(i)) { // pause the game
             if (!(Main.gameState == Main.GameState.IN_GAME || Main.gameState == Main.GameState.PAUSED_MENU)) return true;
             if (Main.gameState == Main.GameState.PAUSED_MENU) Main.gameState = Main.GameState.IN_GAME;
             else Main.setGameState(Main.GameState.PAUSED_MENU);
@@ -68,8 +67,8 @@ public class GlobalInput implements InputProcessor {
         }
 
         if (Main.mapMan.visualise) {
-            if (i == Input.Keys.COMMA) Main.mapMan.visualiser.step(-1);
-            if (i == Input.Keys.PERIOD) Main.mapMan.visualiser.step(1);
+            if (Keybind.getKeybind("Step Visualiser Forward").keys.contains(i)) Main.mapMan.visualiser.step(-1);
+            if (Keybind.getKeybind("Step Visualiser Backward").keys.contains(i)) Main.mapMan.visualiser.step(1);
         }
 
         return false;

@@ -1,13 +1,12 @@
 package com.ducksteam.needleseye.stages;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.Align;
-import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Keybind;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.*;
@@ -73,12 +72,12 @@ public class InstructionsStage extends StageTemplate {
 		addActor(backButton);
 
 		keysText.setLength(0); // clear the string builder
-		keysText.append(Input.Keys.toString(Config.keys.get("forward"))).append(", ");
-		keysText.append(Input.Keys.toString(Config.keys.get("left"))).append(", ");
-		keysText.append(Input.Keys.toString(Config.keys.get("back"))).append(", and ");
-		keysText.append(Input.Keys.toString(Config.keys.get("right")));
+		keysText.append(Keybind.getKeybind("Forward").keys.getFirst()).append(", ");
+		keysText.append(Keybind.getKeybind("Backward").keys.getFirst()).append(", ");
+		keysText.append(Keybind.getKeybind("Left").keys.getFirst()).append(", and ");
+		keysText.append(Keybind.getKeybind("Right").keys.getFirst());
 
-		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Input.Keys.toString(Config.keys.get("jump"))+" to jump and hold "+Input.Keys.toString(Config.keys.get("run")) + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click or left click while holding "+Input.Keys.toString(Config.keys.get("ability")) + " to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
+		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Keybind.getKeybind("Jump").keys.getFirst()+" to jump and hold "+Keybind.getKeybind("Run").keys.getFirst() + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click or left click while holding "+Keybind.getKeybind("Switch Ability Mode").keys.getFirst() + " to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
 
 		instructions.setWrap(true);
 

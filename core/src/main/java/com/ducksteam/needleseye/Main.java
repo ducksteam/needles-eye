@@ -171,8 +171,10 @@ public class Main extends Game {
      * The font for titles, 8% of the height of the window
      */
 	public static BitmapFont titleFont; // font for titles
-    /** The font for ImageTextButtons, 5.5% the height of the window */
+    /** The font for buttons, 5.5% the height of the window */
     public static BitmapFont buttonFont;
+    /** smaller font */
+    public static BitmapFont smallFont;
     /**
      * The virtual text layout, used for measuring and centering text
      */
@@ -706,6 +708,9 @@ public class Main extends Game {
         parameter.size = (int) (0.056 * Gdx.graphics.getHeight());
         if (parameter.size < 4) parameter.size = 4;
         buttonFont = neGenerator.generateFont(parameter);
+        parameter.size = (int) (0.03 * Gdx.graphics.getHeight());
+        if (parameter.size < 2) parameter.size = 2;
+        smallFont = neGenerator.generateFont(parameter);
         parameter.size = (int) (0.02 * Gdx.graphics.getHeight());
         if (parameter.size < 2) parameter.size = 2;
         debugFont = jbmGenerator.generateFont(parameter);
@@ -1280,7 +1285,7 @@ public class Main extends Game {
 	 * */
 	private void drawAdvanceText() {
 		batch2d.begin();
-		uiFont.draw(batch2d, "Press " + Input.Keys.toString(Config.keys.get("advance")) + " to advance to the next level", 100, 100);
+		uiFont.draw(batch2d, "Press " + Keybind.getKeybind("Advance").keys.getFirst() + " to advance to the next level", 100, 100);
 		batch2d.end();
 	}
 
