@@ -140,7 +140,7 @@ public class Main extends Game {
     /**
      * The music for the menu
      */
-    static Music menuMusic;
+    public static Music menuMusic;
     /**
      * The sounds for the game
      */
@@ -437,7 +437,7 @@ public class Main extends Game {
 		if (gameState == GameState.PAUSED_MENU) Gdx.input.setCursorCatched(false);
 		//Switches music
 		if(menuMusic!=null) {
-			if ((gameState == GameState.MAIN_MENU || gameState == GameState.THREAD_SELECT || gameState == GameState.LOADING || gameState == GameState.IN_GAME|| gameState == GameState.DEAD_MENU)) menuMusic.play();
+			if (gameState != GameState.PAUSED_MENU) menuMusic.play();
 			else menuMusic.pause();
 		}
 		//Checks against previous state

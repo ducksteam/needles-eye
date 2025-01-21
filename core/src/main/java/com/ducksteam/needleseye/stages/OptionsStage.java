@@ -312,6 +312,7 @@ public class OptionsStage extends StageTemplate {
             public void changed(ChangeEvent event, Actor actor) {
                 musicVolumeValueLabel.setText((int) musicVolumeSlider.getValue() + "%");
                 Config.musicVolume = (int) musicVolumeSlider.getValue();
+                Main.menuMusic.setVolume((float) Config.musicVolume /100);
             }
         });
 
