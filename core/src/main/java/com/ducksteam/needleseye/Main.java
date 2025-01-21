@@ -1323,7 +1323,11 @@ public class Main extends Game {
 	public void resize(int width, int height) {
 		// update cameras
 		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
-		viewport.update(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
+        viewport.update(width, height, true);
+        camera.update();
+
+        fbo.dispose();
+        fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 
 		// update fonts
 		buildFonts();
