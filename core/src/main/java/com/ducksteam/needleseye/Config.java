@@ -158,6 +158,8 @@ public class Config {
         sfxVolume = prefs.getInteger("SFXVolume", 50);
         audioOutputDevice = prefs.getString("AudioDevice", AudioDevice.availableDevices().getFirst());
 
+        Keybind.clear();
+
         new Keybind(Keybind.KeybindType.MOVEMENT, "Forward", Input.Keys.W);
         new Keybind(Keybind.KeybindType.MOVEMENT, "Backward", Input.Keys.S);
         new Keybind(Keybind.KeybindType.MOVEMENT, "Left", Input.Keys.A);

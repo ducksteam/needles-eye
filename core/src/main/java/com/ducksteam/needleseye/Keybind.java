@@ -1,6 +1,5 @@
 package com.ducksteam.needleseye;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ public class Keybind {
     public final KeybindType type;
 
     /** All keybinds registered */
-    private static final ArrayList<Keybind> keybinds = new ArrayList<Keybind>();
+    private static final ArrayList<Keybind> keybinds = new ArrayList<>();
 
     /**
      * Creates a keybind using varargs for the keycodes
@@ -82,7 +81,7 @@ public class Keybind {
      * The name of the preference key is determined by the <code>KeybindType</code> and the <code>readableName</code>
      * so a keybind with category <code>ABILITY</code> and name <code>Advance Level</code> will have a base prefix of
      * <code>Ability_AdvanceLevel</code>. Because multiple keys can be used for each input, the first keybind has <code>_0</code> appended. This continues for each subsequent bind. There is also a <code>_Size</code> entry to describe how many keybinds have been saved in the past.
-     * @return
+     * @return a list of keycodes for the current keybind stored in prefs
      */
     private ArrayList<Integer> tryLoadFromPrefs(){
         int prevSize = Config.prefs.getInteger(getPrefsSizeName());
@@ -90,7 +89,6 @@ public class Keybind {
         ArrayList<Integer> keys = new ArrayList<>();
         for (int i = 0; i < prevSize; i++) {
             keys.add(Config.prefs.getInteger(getPrefsKey(i)));
-            Gdx.app.debug("Keybind", readableName + ": " + Input.Keys.toString(keys.get(i)));
         }
         return keys;
     }
@@ -179,6 +177,19 @@ public class Keybind {
     public static Keybind getKeybind(String key) {
         String formattedKey = String.join("", key.split(" "));
         return keybinds.stream().filter(kb -> kb.prefsName.equals(formattedKey)).findFirst().orElse(null);
+    }
+
+    /**
+     * Clear {@link Keybind#keybinds} & all {@link KeybindType#keybinds}
+     */
+    public static void clear() {
+        keybinds.clear();
+        Arrays.stream(KeybindType.values()).forEach(t -> t.keybinds.clear());
+    }
+
+    @Override
+    public String toString() {
+        return readableName + " " + type + " " + keys + " " + getReadableKeys();
     }
 }
 

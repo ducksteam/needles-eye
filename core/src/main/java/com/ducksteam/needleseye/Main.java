@@ -423,7 +423,7 @@ public class Main extends Game {
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, GameState.PAUSED_MENU.getStage()));
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
-		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.OPTIONS.getStage())); // todo: options has/will have an apply popup to confirm changes so remove menuEscape
+		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(GameState.OPTIONS.getStage(), globalInput)); // todo: options has/will have an apply popup to confirm changes so remove menuEscape
 	}
 
 	/**

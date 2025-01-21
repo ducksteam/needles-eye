@@ -27,6 +27,9 @@ public class OptionsStage extends StageTemplate {
         TextButton button;
     }
 
+    /** Used when adding new keybinds */
+    Keybind activeKeybind;
+
     Image background;
 
     /*
@@ -111,6 +114,7 @@ public class OptionsStage extends StageTemplate {
                 @Override
                 public void changed(ChangeEvent event, Actor actor) {
                     currentCategory = category;
+                    if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
                     rebuild();
                     for (OptionCategory c : OptionCategory.values()) {
                         c.button.setChecked(currentCategory == c);
@@ -122,6 +126,7 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 applyButton.setChecked(false);
+                if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
                 Config.flushPrefs();
                 applySeed();
             }
@@ -130,6 +135,8 @@ public class OptionsStage extends StageTemplate {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 Main.gameState = Main.GameState.MAIN_MENU;
+                if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
+                Config.init();
             }
         });
 
@@ -352,18 +359,36 @@ public class OptionsStage extends StageTemplate {
             if (keybindType == Keybind.KeybindType.DEBUG && !Keybind.KeybindType.showDebugKeybinds) continue;
             Label sectionTitle = new Label(keybindType.name(), labelStyle);
             sectionTitle.setFontScale(2);
-            controlsPane.add(sectionTitle).colspan(2).row();
+            controlsPane.add(sectionTitle).pad(Value.percentHeight(0.02f, background)).colspan(3).row();
             for (Keybind keybind : keybindType.keybinds) {
                 Label keybindName = new Label(keybind.readableName, labelStyle);
                 Table keybindContainer = new Table();
 
                 for (Integer key : keybind.keys) {
                     TextButton button = new TextButton(Input.Keys.toString(key), keybindButtonStyle);
+
+                    button.addListener(new ChangeListener() {
+                        @Override
+                        public void changed(ChangeEvent event, Actor actor) {
+                            keybind.keys.remove(key);
+                            rebuild();
+                        }
+                    });
+
                     keybindContainer.add(button).space(Value.percentWidth(0.02f, background));
                 }
 
+                Container<TextButton> plusButton = new Container<>(new TextButton("+", keybindButtonStyle));
+                plusButton.getActor().addListener(new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent changeEvent, Actor actor) {
+                        activeKeybind = keybind;
+                    }
+                });
+
                 controlsPane.add(keybindName).prefWidth(Value.percentWidth(0.5f, controlsPane)).expandX();
-                controlsPane.add(keybindContainer).prefSize(Value.percentHeight(0.85f, keybindName)).expandX().row();
+                controlsPane.add(keybindContainer).prefSize(Value.percentHeight(0.85f, keybindName)).expandX();
+                controlsPane.add(plusButton).maxSize(Value.percentHeight(0.7f, keybindContainer)).pad(Value.percentHeight(0.1f, keybindName)).row();
             }
         }
 
@@ -373,4 +398,14 @@ public class OptionsStage extends StageTemplate {
         OptionCategory.CONTROLS.pane.setScrollingDisabled(true, false);
     }
 
+    @Override
+    public boolean keyDown(int keyCode) {
+        if (activeKeybind != null && !activeKeybind.keys.contains(keyCode)) {
+            activeKeybind.keys.add(keyCode);
+            activeKeybind = null;
+            rebuild();
+            return true;
+        }
+        return false;
+    }
 }
