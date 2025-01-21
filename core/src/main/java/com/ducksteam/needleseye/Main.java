@@ -776,10 +776,10 @@ public class Main extends Game {
 				labels.add(roomName);
 
 				// get enemies registered to the room the player is standing in
-				StringBuilder enemiesSB = new StringBuilder();
-				for (EnemyEntity enemy : currentRooms[0].getEnemies().values()) enemiesSB.append(enemy).append(", \n");
-				Label enemies = new Label("Enemies: " + enemiesSB, debugStyle);
-				labels.add(enemies);
+				for (int i = 0; i < currentRooms[0].getEnemies().size(); i++) {
+                    Label enemy = new Label(((i == 0) ? "Enemies: " : "") + currentRooms[0].getEnemies().values().toArray(EnemyEntity[]::new)[i], debugStyle);
+                    labels.add(enemy);
+                }
 			}
 		}
 
