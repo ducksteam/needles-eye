@@ -542,7 +542,7 @@ public class MapManager {
      * @param <E> the type of the list
      * @return a random element from the list
      */
-    public static <E> E getRandomElement(ArrayList<E> list) {
+    protected static <E> E getRandomElement(ArrayList<E> list) {
         return list.get(random.nextInt(list.size()));
     }
 
@@ -553,7 +553,7 @@ public class MapManager {
      * @return a random element from the list
      * @param <E> the type of the list
      */
-    private static <E> E getRandomElement(ArrayList<E> list, Predicate<E> filter) {
+    protected static <E> E getRandomElement(ArrayList<E> list, Predicate<E> filter) {
         ArrayList<E> filtered = list.stream().filter(filter).collect(Collectors.toCollection(ArrayList::new));
         return getRandomElement(filtered);
     }
