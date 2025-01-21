@@ -148,13 +148,13 @@ public abstract class StageTemplate extends Stage {
     private void updateStyles() {
         buttonStyle = new TextButton.TextButtonStyle();
         buttonStyle.up = buttonUnpressed.getDrawable();
-        buttonStyle.down = buttonStyle.over = buttonStyle.checked = buttonUnpressed.getDrawable();
+        buttonStyle.down = buttonStyle.over = buttonStyle.checked = buttonPressed.getDrawable();
         buttonStyle.font = Main.buttonFont;
         buttonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
 
         keybindButtonStyle = new TextButton.TextButtonStyle();
         keybindButtonStyle.up = keybindBackgroundNinePatch;
-        keybindButtonStyle.down = buttonStyle.over = buttonStyle.checked = keybindOverNinePatch;
+        keybindButtonStyle.down = keybindButtonStyle.over = keybindButtonStyle.checked = keybindOverNinePatch;
         keybindButtonStyle.font = Main.smallFont;
         keybindButtonStyle.fontColor = new Color(0xeeeeeeff);
 
