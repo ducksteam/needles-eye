@@ -26,7 +26,7 @@ public class WormEnemy extends EnemyEntity{
     static final float MASS = 40f;
     static final float IDLE_SPEED = 20f;
     static final float CHASE_SPEED = 300f;
-    static final float CHASE_ANGLE_SPEED = 5f;
+    static final float CHASE_ANGLE_SPEED = 0.3f;
     static final Vector3 COLLIDER_SIZE = new Vector3(0.1f, 0.09f, 0.27f);
 
     /**

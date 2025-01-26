@@ -66,8 +66,9 @@ public class MeleeAI implements IHasAi {
         float currentAngle = getTarget().getRotation().getAngleAround(0, 1, 0);
 
         // rotate towards player
-        if(currentAngle > playerAngle) getTarget().collider.applyTorque(new Vector3(0, (currentAngle - playerAngle < 180) ? -chaseAngleSpeed : chaseAngleSpeed, 0));
-        else getTarget().collider.applyTorque(new Vector3(0, (playerAngle - currentAngle < 180) ? chaseAngleSpeed : -chaseAngleSpeed, 0));
+        if(currentAngle > playerAngle) getTarget().collider.applyTorque(new Vector3(0, (currentAngle - playerAngle < 180) ? -chaseAngleSpeed*(currentAngle-playerAngle) : chaseAngleSpeed*(360+playerAngle-currentAngle), 0));
+        else getTarget().collider.applyTorque(new Vector3(0, (playerAngle - currentAngle < 180) ? chaseAngleSpeed*(playerAngle-currentAngle) : -chaseAngleSpeed*(360+currentAngle-playerAngle), 0));
+        if(Math.signum(getTarget().collider.getTotalTorque().y) != Math.signum(getTarget().collider.getAngularVelocity().y)) getTarget().collider.setAngularVelocity(new Vector3(0, 0, 0)); // if rotating the wrong way, stop
 
         getTarget().collider.applyCentralForce(direction.nor().scl(chaseSpeed)); // move towards player
 		if (playerPos.dst(getTarget().collider.getCenterOfMassPosition()) < ATTACK_RANGE) attack(); // attack if within range
