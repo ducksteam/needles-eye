@@ -180,6 +180,14 @@ public class Keybind {
     }
 
     /**
+     * @param key the name of the key to check, this can be {@link Keybind#prefsName} or {@link Keybind#readableName}
+     * @return the name of the first key associated with the action
+     */
+    public static String getKeybindKeyString(String key) {
+        return Input.Keys.toString(getKeybind(key).keys.getFirst());
+    }
+
+    /**
      * Clear {@link Keybind#keybinds} & all {@link KeybindType#keybinds}
      */
     public static void clear() {

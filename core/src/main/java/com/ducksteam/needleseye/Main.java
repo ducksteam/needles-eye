@@ -1285,7 +1285,7 @@ public class Main extends Game {
 	 * */
 	private void drawAdvanceText() {
 		batch2d.begin();
-		uiFont.draw(batch2d, "Press " + Keybind.getKeybind("Advance").keys.getFirst() + " to advance to the next level", 100, 100);
+		uiFont.draw(batch2d, "Press " + Keybind.getKeybind("Advance Text").keys.getFirst() + " to advance to the next level", 100, 100);
 		batch2d.end();
 	}
 

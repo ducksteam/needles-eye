@@ -72,12 +72,12 @@ public class InstructionsStage extends StageTemplate {
 		addActor(backButton);
 
 		keysText.setLength(0); // clear the string builder
-		keysText.append(Keybind.getKeybind("Forward").keys.getFirst()).append(", ");
-		keysText.append(Keybind.getKeybind("Backward").keys.getFirst()).append(", ");
-		keysText.append(Keybind.getKeybind("Left").keys.getFirst()).append(", and ");
-		keysText.append(Keybind.getKeybind("Right").keys.getFirst());
+		keysText.append(Keybind.getKeybindKeyString("Forward")).append(", ");
+		keysText.append(Keybind.getKeybindKeyString("Backward")).append(", ");
+		keysText.append(Keybind.getKeybindKeyString("Left")).append(", and ");
+		keysText.append(Keybind.getKeybindKeyString("Right"));
 
-		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Keybind.getKeybind("Jump").keys.getFirst()+" to jump and hold "+Keybind.getKeybind("Run").keys.getFirst() + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click or left click while holding "+Keybind.getKeybind("Switch Ability Mode").keys.getFirst() + " to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
+		instructions.setText("Fight and navigate your way around the dungeon. Use "+keysText+" to move around. Press "+Keybind.getKeybindKeyString("Jump")+" to jump and hold "+Keybind.getKeybindKeyString("Run") + " to run. Gain upgrades in specific dungeon rooms, and use them to fight off enemies. Use left click to use your melee attack, and use right click or left click while holding "+Keybind.getKeybindKeyString("Switch Ability Mode") + " to use your core thread's secondary ability. In order to progress to the next floor, defeat all the enemies in each room.");
 
 		instructions.setWrap(true);
 
