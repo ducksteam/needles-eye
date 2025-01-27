@@ -141,6 +141,7 @@ public class Config {
     /** Use <code>Config.prefs.getString("VSync")</code> */
     private static boolean vSync;
     public static int brightness;
+    public static int sensitivity;
     public static int musicVolume;
     public static int sfxVolume;
     public static String audioOutputDevice;
@@ -154,6 +155,7 @@ public class Config {
         windowType = WindowType.valueOf(prefs.getString("WindowType", WindowType.defaultValue.toString()));
         vSync = prefs.getBoolean("VSync", true);
         brightness = prefs.getInteger("Brightness", 50);
+        sensitivity = prefs.getInteger("MouseSpeed", 100);
         musicVolume = prefs.getInteger("MusicVolume", 50);
         sfxVolume = prefs.getInteger("SFXVolume", 50);
         audioOutputDevice = prefs.getString("AudioDevice", AudioDevice.availableDevices().getFirst());
@@ -205,6 +207,7 @@ public class Config {
         Gdx.graphics.setVSync(vSync);
 
         prefs.putInteger("Brightness", brightness);
+        prefs.putInteger("MouseSpeed", sensitivity);
         prefs.putInteger("MusicVolume", musicVolume);
         prefs.putInteger("SFXVolume", sfxVolume);
         prefs.putString("AudioDevice", audioOutputDevice);

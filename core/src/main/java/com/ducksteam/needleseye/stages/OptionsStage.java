@@ -98,8 +98,8 @@ public class OptionsStage extends StageTemplate {
             }
         };
         dialog.text("You have unsaved changes that will be overridden.", labelStyle);
-        dialog.button("Apply", true, keybindButtonStyle);
-        dialog.button("Exit", false, keybindButtonStyle);
+        dialog.button("Apply", true, compactButtonStyle);
+        dialog.button("Exit", false, compactButtonStyle);
 
         dialog.getContentTable().pad(Value.percentWidth(0.005f, background));
         dialog.getButtonTable().getCells().forEach(cell -> cell.space(Value.percentWidth(0.01f, background)));
@@ -203,6 +203,10 @@ public class OptionsStage extends StageTemplate {
     Table generalPane;
     TextField seedInputField;
     Label seedLabel;
+    Slider sensitivitySlider;
+    Label sensitivityLabel;
+    Label sensitivityValueLabel;
+    Table sensitivitySliderTable;
 
     private void buildGeneralPane(){
         generalPane = new Table();
@@ -217,6 +221,26 @@ public class OptionsStage extends StageTemplate {
 
         generalPane.add(seedLabel).pad(Value.percentWidth(0.04f, generalPane)).left();
         generalPane.add(seedInputField).padRight(Value.percentWidth(0.04f, generalPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
+
+        sensitivitySlider = new Slider(1, 200, 1, false, sliderStyle);
+        sensitivityLabel = new Label("Mouse Sensitivity", labelStyle);
+        sensitivityValueLabel = new Label((int) sensitivitySlider.getValue() + "%", labelStyle);
+
+        sensitivitySlider.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                sensitivityValueLabel.setText((int) sensitivitySlider.getValue() + "%");
+                Config.sensitivity = (int) sensitivitySlider.getValue();
+            }
+        });
+
+        sensitivitySlider.setValue(Config.prefs.getInteger("MouseSpeed", 100));
+
+        generalPane.add(sensitivityLabel).pad(Value.percentWidth(0.04f, generalPane)).left();
+        sensitivitySliderTable = new Table();
+        sensitivitySliderTable.add(sensitivitySlider).padLeft(sliderStyle.background.getLeftWidth()).maxSize(Value.percentWidth(0.5f, generalPane), Value.percentHeight(0.7f, sensitivityLabel)).left().growX();
+        sensitivitySliderTable.add(sensitivityValueLabel).row();
+        generalPane.add(sensitivitySliderTable).padRight(Value.percentWidth(0.04f, generalPane)).prefWidth(Value.percentWidth(0.75f, generalPane)).left().row();
 
         OptionCategory.GENERAL.pane = new ScrollPane(generalPane, scrollStyle);
         OptionCategory.GENERAL.pane.setFlingTime(0);
@@ -310,7 +334,7 @@ public class OptionsStage extends StageTemplate {
 
         brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
         brightnessLabel = new Label("Brightness", labelStyle);
-        brightnessValueLabel = new Label((int)brightnessSlider.getValue() + "%", labelStyle);
+        brightnessValueLabel = new Label((int) brightnessSlider.getValue() + "%", labelStyle);
 
         brightnessSlider.addListener(new ChangeListener() {
             @Override
@@ -404,6 +428,8 @@ public class OptionsStage extends StageTemplate {
     private void buildControlsPane(){
         controlsPane = new Table();
 
+
+
         for (Keybind.KeybindType keybindType : Keybind.KeybindType.values()) {
             if (keybindType == Keybind.KeybindType.DEBUG && !Keybind.KeybindType.showDebugKeybinds) continue;
             Label sectionTitle = new Label(keybindType.name(), labelStyle);
@@ -414,7 +440,7 @@ public class OptionsStage extends StageTemplate {
                 Table keybindContainer = new Table();
 
                 for (Integer key : keybind.keys) {
-                    TextButton button = new TextButton(Input.Keys.toString(key), keybindButtonStyle);
+                    TextButton button = new TextButton(Input.Keys.toString(key), compactButtonStyle);
 
                     button.addListener(new ChangeListener() {
                         @Override
@@ -428,7 +454,7 @@ public class OptionsStage extends StageTemplate {
                     keybindContainer.add(button).space(Value.percentWidth(0.02f, background));
                 }
 
-                Container<TextButton> plusButton = new Container<>(new TextButton("+", keybindButtonStyle));
+                Container<TextButton> plusButton = new Container<>(new TextButton("+", compactButtonStyle));
                 plusButton.getActor().addListener(new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent changeEvent, Actor actor) {

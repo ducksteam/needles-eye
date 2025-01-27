@@ -43,7 +43,7 @@ public abstract class StageTemplate extends Stage {
     TextButton.TextButtonStyle buttonStyle;
     TextButton.TextButtonStyle dualButtonStyle;
     TextButton.TextButtonStyle roundedButtonStyle;
-    TextButton.TextButtonStyle keybindButtonStyle;
+    TextButton.TextButtonStyle compactButtonStyle;
 
     ScrollPane.ScrollPaneStyle scrollStyle;
     Window.WindowStyle windowStyle;
@@ -153,11 +153,11 @@ public abstract class StageTemplate extends Stage {
         buttonStyle.font = Main.buttonFont;
         buttonStyle.fontColor = new Color(0.5803922f, 0.5803922f, 0.5803922f, 1);
 
-        keybindButtonStyle = new TextButton.TextButtonStyle();
-        keybindButtonStyle.up = keybindBackgroundNinePatch;
-        keybindButtonStyle.down = keybindButtonStyle.over = keybindButtonStyle.checked = keybindOverNinePatch;
-        keybindButtonStyle.font = Main.smallFont;
-        keybindButtonStyle.fontColor = new Color(0xeeeeeeff);
+        compactButtonStyle = new TextButton.TextButtonStyle();
+        compactButtonStyle.up = keybindBackgroundNinePatch;
+        compactButtonStyle.down = compactButtonStyle.over = compactButtonStyle.checked = keybindOverNinePatch;
+        compactButtonStyle.font = Main.smallFont;
+        compactButtonStyle.fontColor = new Color(0xeeeeeeff);
 
         dualButtonStyle = new TextButton.TextButtonStyle();
         dualButtonStyle.up = dualButtonUnpressed.getDrawable();
@@ -174,7 +174,7 @@ public abstract class StageTemplate extends Stage {
         scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.background = backgroundNinePatch;
 
-        windowStyle = new Window.WindowStyle(Main.buttonFont, keybindButtonStyle.fontColor, backgroundDitheredNinePatch);
+        windowStyle = new Window.WindowStyle(Main.buttonFont, compactButtonStyle.fontColor, backgroundDitheredNinePatch);
         windowStyle.stageBackground = disabledBackgroundNinePatch;
 
         textFieldStyle = new TextField.TextFieldStyle(Main.smallFont, Main.smallFont.getColor(), null, null, backgroundNinePatch);

@@ -64,7 +64,7 @@ public class PlayerInput implements InputProcessor {
         }
 
         // advance to next level
-        if(Keybind.pressed("Advance", KEYS)){
+        if(Keybind.pressed("Advance Level", KEYS)){
             // if all enemies in current level are dead
             if (entities.values().stream().filter(e -> e instanceof EnemyEntity).map(e -> (EnemyEntity) e).collect(Collectors.toCollection(ArrayList::new)).isEmpty()) {
                 Main.advanceLevel();
@@ -81,8 +81,8 @@ public class PlayerInput implements InputProcessor {
      */
     private void rotateCamera() {
         // scale mouse values
-        float deltaX = Gdx.input.getDeltaX() * Config.ROTATION_SPEED;
-        float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED;
+        float deltaX = Gdx.input.getDeltaX() * Config.ROTATION_SPEED * Config.prefs.getInteger("MouseSpeed", 100) / 100;
+        float deltaY = Gdx.input.getDeltaY() * Config.ROTATION_SPEED * Config.prefs.getInteger("MouseSpeed", 100) / 100;
 
         // reset cursor position
         Gdx.input.setCursorPosition(Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2);
