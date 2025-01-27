@@ -55,6 +55,11 @@ public class OptionsStage extends StageTemplate {
 
     TextButton applyButton;
     TextButton exitButton;
+    Dialog dialog;
+
+    boolean changes = false;
+
+    ChangeListener popupDetector;
 
     /** Where the seed in general pane is stored before the apply button is pressed */
     String tempSeed;
@@ -74,6 +79,31 @@ public class OptionsStage extends StageTemplate {
         background = new Image(new Texture("ui/instructions/background.png"));
 
         categories = new Table();
+
+        dialog = new Dialog("", windowStyle) {
+            @Override
+            protected void result(Object object) {
+                if ((boolean) object) { // apply
+                    applyButton.setChecked(false);
+                    if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
+                    Config.flushPrefs();
+                    applySeed();
+                } else { // exit
+                    exitButton.setChecked(false);
+                    Main.gameState = Main.GameState.MAIN_MENU;
+                    if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
+                    Config.init();
+                }
+                changes = false;
+            }
+        };
+        dialog.text("You have unsaved changes that will be overridden.", labelStyle);
+        dialog.button("Apply", true, keybindButtonStyle);
+        dialog.button("Exit", false, keybindButtonStyle);
+
+        dialog.getContentTable().pad(Value.percentWidth(0.005f, background));
+        dialog.getButtonTable().getCells().forEach(cell -> cell.space(Value.percentWidth(0.01f, background)));
+        dialog.getButtonTable().padBottom(Value.percentWidth(0.005f, background));
 
         OptionCategory.GENERAL.button = new TextButton("General", buttonStyle);
         OptionCategory.VIDEO.button = new TextButton("Video", buttonStyle);
@@ -128,15 +158,21 @@ public class OptionsStage extends StageTemplate {
                 applyButton.setChecked(false);
                 if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
                 Config.flushPrefs();
+                changes = false;
                 applySeed();
             }
         });
         exitButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                Main.gameState = Main.GameState.MAIN_MENU;
-                if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
-                Config.init();
+                exitButton.setChecked(false);
+                if (changes) {
+                    dialog.show(actor.getStage());
+                } else {
+                    Main.gameState = Main.GameState.MAIN_MENU;
+                    if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
+                    Config.init();
+                }
             }
         });
 
@@ -176,6 +212,8 @@ public class OptionsStage extends StageTemplate {
         seedInputField.setTextFieldListener((textField, c) -> tempSeed = textField.getText());
 
         seedLabel = new Label("Seed", labelStyle);
+
+        addPopupDetector(seedInputField);
 
         generalPane.add(seedLabel).pad(Value.percentWidth(0.04f, generalPane)).left();
         generalPane.add(seedInputField).padRight(Value.percentWidth(0.04f, generalPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
@@ -290,6 +328,8 @@ public class OptionsStage extends StageTemplate {
         brightnessSliderTable.add(brightnessValueLabel).row();
         videoPane.add(brightnessSliderTable).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f, videoPane)).left().row();
 
+        addPopupDetector(resolutionDropdown, windowTypeDropdown, vSyncCheckbox, brightnessSlider);
+
         OptionCategory.VIDEO.pane = new ScrollPane(videoPane, scrollStyle);
         OptionCategory.VIDEO.pane.setFlingTime(0);
         OptionCategory.VIDEO.pane.setFlickScroll(false);
@@ -351,6 +391,8 @@ public class OptionsStage extends StageTemplate {
         audioPane.add(resolutionLabel).pad(Value.percentWidth(0.04f, audioPane)).left();
         audioPane.add(audioDeviceDropdown).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
+        addPopupDetector(audioDeviceDropdown);
+
         OptionCategory.AUDIO.pane = new ScrollPane(audioPane, scrollStyle);
         OptionCategory.AUDIO.pane.setFlingTime(0);
         OptionCategory.AUDIO.pane.setFlickScroll(false);
@@ -377,6 +419,7 @@ public class OptionsStage extends StageTemplate {
                     button.addListener(new ChangeListener() {
                         @Override
                         public void changed(ChangeEvent event, Actor actor) {
+                            changes = true;
                             keybind.keys.remove(key);
                             rebuild();
                         }
@@ -393,9 +436,9 @@ public class OptionsStage extends StageTemplate {
                     }
                 });
 
-                controlsPane.add(keybindName).prefWidth(Value.percentWidth(0.5f, controlsPane)).expandX();
+                controlsPane.add(keybindName).prefWidth(Value.percentWidth(0.35f, controlsPane)).expandX().padLeft(Value.percentWidth(0.03f, controlsPane)).left();
                 controlsPane.add(keybindContainer).prefSize(Value.percentHeight(0.85f, keybindName)).expandX();
-                controlsPane.add(plusButton).maxSize(Value.percentHeight(0.7f, keybindContainer)).pad(Value.percentHeight(0.1f, keybindName)).row();
+                controlsPane.add(plusButton).maxSize(Value.percentHeight(0.7f, keybindContainer)).pad(Value.percentHeight(0.1f, keybindName)).padRight(Value.percentWidth(0.01f, background)).row();
             }
         }
 
@@ -410,9 +453,24 @@ public class OptionsStage extends StageTemplate {
         if (activeKeybind != null && !activeKeybind.keys.contains(keyCode)) {
             activeKeybind.keys.add(keyCode);
             activeKeybind = null;
+            changes = true;
             rebuild();
             return true;
         }
         return false;
+    }
+
+    private void addPopupDetector(Actor ...actors) {
+        if (popupDetector == null) {
+            popupDetector = new ChangeListener() {
+                @Override
+                public void changed(ChangeEvent event, Actor actor) {
+                    changes = true;
+                }
+            };
+        }
+        for (Actor actor : actors) {
+            actor.addListener(popupDetector);
+        }
     }
 }

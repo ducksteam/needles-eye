@@ -46,6 +46,7 @@ public abstract class StageTemplate extends Stage {
     TextButton.TextButtonStyle keybindButtonStyle;
 
     ScrollPane.ScrollPaneStyle scrollStyle;
+    Window.WindowStyle windowStyle;
 
     TextField.TextFieldStyle textFieldStyle;
     SelectBox.SelectBoxStyle selectBoxStyle;
@@ -69,7 +70,7 @@ public abstract class StageTemplate extends Stage {
 	public StageTemplate() {
 		super(new ScreenViewport(), Main.batch2d);
 		build();
-        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
+//        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
 	}
 
 	/**
@@ -172,6 +173,9 @@ public abstract class StageTemplate extends Stage {
 
         scrollStyle = new ScrollPane.ScrollPaneStyle();
         scrollStyle.background = backgroundNinePatch;
+
+        windowStyle = new Window.WindowStyle(Main.buttonFont, keybindButtonStyle.fontColor, backgroundDitheredNinePatch);
+        windowStyle.stageBackground = disabledBackgroundNinePatch;
 
         textFieldStyle = new TextField.TextFieldStyle(Main.smallFont, Main.smallFont.getColor(), null, null, backgroundNinePatch);
 
