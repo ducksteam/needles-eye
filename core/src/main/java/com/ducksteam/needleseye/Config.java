@@ -269,10 +269,6 @@ public class Config {
             resolutions.add(new Resolution(1920, 1080)); // full hd
             resolutions.add(new Resolution(1600, 900)); // hd+
             resolutions.add(new Resolution(1280, 720)); // hd
-            resolutions.add(new Resolution(1024, 576)); // wsvga
-            resolutions.add(new Resolution(960, 540)); // qHD
-            resolutions.add(new Resolution(848, 480)); // FWVGA
-            resolutions.add(new Resolution(640, 360)); // nHD
         }
 
         public Resolution(int width, int height) {
@@ -304,16 +300,5 @@ public class Config {
             if (!(o instanceof Resolution)) return false;
             return ((Resolution) o).width == this.width && ((Resolution) o).height == this.height;
         }
-
-//        static {
-//            keys.put("forward", Input.Keys.W);
-//            keys.put("back", Input.Keys.S);
-//            keys.put("left", Input.Keys.A);
-//            keys.put("right", Input.Keys.D);
-//            keys.put("jump", Input.Keys.SPACE);
-//            keys.put("run", Input.Keys.SHIFT_LEFT);
-//            keys.put("advance", Input.Keys.R);
-//            keys.put("ability", Input.Keys.CONTROL_LEFT);
-//        }
     }
 }
