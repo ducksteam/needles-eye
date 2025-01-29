@@ -6,7 +6,9 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.NinePatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.NinePatchDrawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Scaling;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
@@ -39,6 +41,9 @@ public abstract class StageTemplate extends Stage {
     NinePatchDrawable checkboxOffNinePatch;
     NinePatchDrawable checkboxOnOverNinePatch;
     NinePatchDrawable checkboxOffOverNinePatch;
+
+    Drawable sliderKnob;
+    Drawable sliderKnobOver;
 
     TextButton.TextButtonStyle buttonStyle;
     TextButton.TextButtonStyle dualButtonStyle;
@@ -100,6 +105,9 @@ public abstract class StageTemplate extends Stage {
         checkboxOffNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_outoff.png"), 4,4,4,4));
         checkboxOnOverNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_inon.png"), 4,4,4,4));
         checkboxOffOverNinePatch = new NinePatchDrawable(new NinePatch(new Texture("ui/options/checkbox_inoff.png"), 4,4,4,4));
+
+        sliderKnob = new TextureRegionDrawable(new Texture("ui/options/slider_knob.png"));
+        sliderKnobOver = new TextureRegionDrawable(new Texture("ui/options/slider_knob_over.png"));
 
         buttonUnpressed.setScaling(Scaling.fit);
         buttonPressed.setScaling(Scaling.fit);
@@ -198,8 +206,16 @@ public abstract class StageTemplate extends Stage {
         checkboxStyle.over = checkboxOffOverNinePatch;
 
         sliderStyle = new Slider.SliderStyle();
-        sliderStyle.background = backgroundDitheredNinePatch;
-        sliderStyle.knob = backgroundNinePatch;
-        sliderStyle.knobOver = highlightBackgroundNinePatch;
+        sliderStyle.background = new NinePatchDrawable(backgroundDitheredNinePatch);
+        sliderStyle.knob = sliderKnob;
+        sliderStyle.knobOver = sliderKnobOver;
+
+        sliderKnob.setMinHeight(Gdx.graphics.getBackBufferHeight() * 0.02f);
+        sliderKnob.setMinWidth((Gdx.graphics.getBackBufferHeight() * 0.02f) * 7/12);
+        sliderKnobOver.setMinHeight(Gdx.graphics.getBackBufferHeight() * 0.02f);
+        sliderKnobOver.setMinWidth((Gdx.graphics.getBackBufferHeight() * 0.02f) * 7/12);
+        sliderStyle.background.setMinHeight(Gdx.graphics.getBackBufferHeight() * 0.01f);
+        sliderStyle.background.setLeftWidth(-1);
+        sliderStyle.background.setRightWidth(-1);
     }
 }

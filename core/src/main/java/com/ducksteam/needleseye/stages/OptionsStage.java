@@ -88,6 +88,8 @@ public class OptionsStage extends StageTemplate {
                     if (currentCategory != OptionCategory.CONTROLS) activeKeybind = null; // deactivate keyboard listening
                     Config.flushPrefs();
                     applySeed();
+                    Main.gameState = Main.GameState.MAIN_MENU;
+                    Config.init();
                 } else { // exit
                     exitButton.setChecked(false);
                     Main.gameState = Main.GameState.MAIN_MENU;
