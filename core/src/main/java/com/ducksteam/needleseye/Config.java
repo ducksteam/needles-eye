@@ -171,16 +171,16 @@ public class Config {
         new Keybind(Keybind.KeybindType.ABILITY, "Advance Level", Input.Keys.R);
         new Keybind(Keybind.KeybindType.ABILITY, "Switch Ability Mode", Input.Keys.CONTROL_LEFT);
         new Keybind(Keybind.KeybindType.OTHER, "Pause", Input.Keys.ESCAPE);
-        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Music", Input.Keys.F5);
-        new Keybind(Keybind.KeybindType.DEBUG, "Toggle DebugDrawer", Input.Keys.F8);
-        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Debug Info", Input.Keys.F9);
-        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Gravity", Input.Keys.F10);
-        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Room Rendering", Input.Keys.F3);
-        new Keybind(Keybind.KeybindType.DEBUG, "Move Player Up", Input.Keys.P);
-        new Keybind(Keybind.KeybindType.DEBUG, "Heal", Input.Keys.NUMPAD_ADD);
-        new Keybind(Keybind.KeybindType.DEBUG, "Damage", Input.Keys.NUMPAD_SUBTRACT);
-        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Forward", Input.Keys.PERIOD);
-        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Backward", Input.Keys.COMMA);
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Music");
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle DebugDrawer");
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Debug Info");
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Gravity");
+        new Keybind(Keybind.KeybindType.DEBUG, "Toggle Room Rendering");
+        new Keybind(Keybind.KeybindType.DEBUG, "Move Player Up");
+        new Keybind(Keybind.KeybindType.DEBUG, "Heal");
+        new Keybind(Keybind.KeybindType.DEBUG, "Damage");
+        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Forward");
+        new Keybind(Keybind.KeybindType.DEBUG, "Step Visualiser Backward");
 
         flushPrefs();
     }

@@ -49,6 +49,15 @@ public class Keybind {
     private static final ArrayList<Keybind> keybinds = new ArrayList<>();
 
     /**
+     * Creates a keybind with no default keys (must be set manually)
+     * @param type The category this input should be displayed under in the options menu
+     * @param readableName The name that will be shown in game in the options menu
+     */
+    public Keybind(KeybindType type, String readableName) {
+        this(type, readableName, new ArrayList<>());
+    }
+
+    /**
      * Creates a keybind using varargs for the keycodes
      * @param type The category this input should be displayed under in the options menu
      * @param readableName The name that will be shown in game in the options menu
