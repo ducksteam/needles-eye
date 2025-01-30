@@ -86,6 +86,6 @@ public class PauseStage extends StageTemplate {
 
 		buttons.add(resumeButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().padBottom(Value.percentHeight(220f/1080, background)).row();
 		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(250f/1080, background)).row();
-		root.add(buttons).pad(Value.percentWidth(100f/1920, background)).left();
+		root.add(buttons).expand().pad(Value.percentWidth(0.1f, background)).left();
 	}
 }
