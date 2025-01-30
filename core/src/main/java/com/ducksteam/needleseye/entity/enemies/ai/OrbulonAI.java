@@ -105,8 +105,9 @@ public class OrbulonAI implements IHasAi {
      */
 	public void windup() {
 		setWindup(true);
-		getTarget().blendAnimation("windup", 1, 0.2f);
-	}
+//		getTarget().blendAnimation("windup", 1, 0.2f); // see #34
+	    getTarget().setAnimation("windup", 1);
+    }
 
 	@Override
 	public void attack() {
