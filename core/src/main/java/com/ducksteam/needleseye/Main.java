@@ -4,7 +4,6 @@ import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.SoundLoader;
 import com.badlogic.gdx.assets.loaders.resolvers.InternalFileHandleResolver;
-import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.*;
@@ -55,6 +54,8 @@ import com.ducksteam.needleseye.player.Upgrade;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import com.ducksteam.needleseye.stages.*;
 import de.pottgames.tuningfork.Audio;
+import de.pottgames.tuningfork.AudioDevice;
+import de.pottgames.tuningfork.StreamedSoundSource;
 import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
@@ -137,10 +138,12 @@ public class Main extends Game {
 	public static BillboardParticleBatch paralyseBBParticleBatch; // the particle batch for billboards that use the paralyse_particle
 
     // audio utils
+    /** The main audio controller (from TuningFork)*/
+    public static Audio audio;
     /**
      * The music for the menu
      */
-    public static Music menuMusic;
+    public static StreamedSoundSource menuMusic;
     /**
      * The sounds for the game
      */
@@ -510,12 +513,23 @@ public class Main extends Game {
 	public void create () {
 		// remove splash screen
 		splashWorker.closeSplashScreen();
+        Gdx.app.setLogLevel(Application.LOG_DEBUG);
+
+        audio = Audio.init();
+
+        Gdx.app.debug("Audio", AudioDevice.availableDevices().toString());
 
         Config.init();
 
-        PlaythroughLoader.initialisePlaythroughLoader();
+        try {
+            menuMusic = new StreamedSoundSource(Gdx.files.internal("audio/music/throughtheeye.mp3"));
+            menuMusic.setLooping(true);
+            menuMusic.setVolume((float) Config.musicVolume / 100);
+        } catch (GdxRuntimeException e) {
+            Gdx.app.error("Main", "Failed to load music file",e);
+        }
 
-		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+        PlaythroughLoader.initialisePlaythroughLoader();
 
         Gdx.app.log("Main", "Starting game");
         Gdx.app.log("GL_VENDOR", Gdx.gl32.glGetString(GL32.GL_VENDOR));
@@ -544,16 +558,6 @@ public class Main extends Game {
 		spriteAddresses.add("ui/ingame/empty_heart.png");
 		spriteAddresses.add("ui/ingame/first_heart.png");
 		spriteAddresses.add("ui/ingame/damage.png");
-
-		// load music/sfx
-        Audio.init();
-		try {
-			menuMusic = Gdx.audio.newMusic(Gdx.files.internal("audio/music/throughtheeye.mp3"));
-			menuMusic.setLooping(true);
-			menuMusic.setVolume(Config.musicVolume);
-		} catch (GdxRuntimeException e) {
-			Gdx.app.error("Main", "Failed to load music file",e);
-		}
 
 		sounds = new HashMap<>();
 		sounds.put("audio/sfx/walking_2.mp3",null);
@@ -655,6 +659,8 @@ public class Main extends Game {
 
 		//Sets up game managers
 		assMan = new AssetManager();
+        audio.registerAssetManagerLoaders(assMan);
+
 		mapMan = new MapManager();
 
 		//Sets up animations
@@ -1364,6 +1370,7 @@ public class Main extends Game {
         if (dispatcher != null && !dispatcher.isDisposed()) dispatcher.dispose();
         if (debugDrawer != null && !debugDrawer.isDisposed()) debugDrawer.dispose();
 		if (entities != null) entities.values().forEach(Entity::destroy);
+        if (audio != null) audio.dispose();
     }
 
 	/**

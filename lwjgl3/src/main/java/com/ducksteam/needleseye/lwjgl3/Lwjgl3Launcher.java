@@ -50,6 +50,8 @@ public class Lwjgl3Launcher {
 
         configuration.useVsync(false); // disable vsync
 
+        configuration.disableAudio(true);
+
         configuration.setResizable(false); // disable user drag resizing
 
         configuration.setHdpiMode(HdpiMode.Pixels); // use actual pixels for resolution

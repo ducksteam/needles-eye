@@ -8,7 +8,6 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Graphics;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector3;
-import de.pottgames.tuningfork.AudioDevice;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -158,7 +157,19 @@ public class Config {
         sensitivity = prefs.getInteger("MouseSpeed", 100);
         musicVolume = prefs.getInteger("MusicVolume", 50);
         sfxVolume = prefs.getInteger("SFXVolume", 50);
-        audioOutputDevice = prefs.getString("AudioDevice", AudioDevice.availableDevices().getFirst());
+
+        audioOutputDevice = prefs.getString("AudioDevice", null);
+
+        if (audioOutputDevice.isBlank()) audioOutputDevice = null; // null sets to the default audio output, but it cannot be saved to prefs file so "" is used instead
+        boolean audioSwitchSuccess = Main.audio.getDevice().switchToDevice(audioOutputDevice);
+        if (!audioSwitchSuccess) {
+            // if there is a problem setting the saved audio device, reset to default. if the saved audio device is default, there is a problem
+            if (audioOutputDevice == null) Gdx.app.error("Config-Audio", "Failed to switch to default audio device");
+
+            Main.audio.getDevice().switchToDevice(null);
+            Gdx.app.error("Config-Audio", "Failed to switch to " + audioOutputDevice);
+            audioOutputDevice = null;
+        }
 
         Keybind.clear();
 
@@ -210,7 +221,8 @@ public class Config {
         prefs.putInteger("MouseSpeed", sensitivity);
         prefs.putInteger("MusicVolume", musicVolume);
         prefs.putInteger("SFXVolume", sfxVolume);
-        prefs.putString("AudioDevice", audioOutputDevice);
+        if (audioOutputDevice != null && !audioOutputDevice.isBlank()) prefs.putString("AudioDevice", audioOutputDevice);
+        else prefs.putString("AudioDevice", "");
 
         Keybind.flushAll();
 

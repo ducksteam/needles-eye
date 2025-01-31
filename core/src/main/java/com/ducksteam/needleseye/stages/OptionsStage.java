@@ -411,6 +411,14 @@ public class OptionsStage extends StageTemplate {
         SelectBox<String> audioDeviceDropdown = new SelectBox<>(selectBoxStyle);
         audioDeviceDropdown.setItems(AudioDevice.availableDevices().stream().map(s -> s.substring(15)).toArray(String[]::new));
         audioDeviceDropdown.setMaxListCount(3);
+        audioDeviceDropdown.setSelected(Config.audioOutputDevice.substring(15));
+
+        audioDeviceDropdown.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                Config.audioOutputDevice = AudioDevice.availableDevices().stream().filter(s -> s.substring(15).equals(audioDeviceDropdown.getSelected())).findFirst().orElse(null);
+            }
+        });
 
         Label resolutionLabel = new Label("Output Device", labelStyle);
 

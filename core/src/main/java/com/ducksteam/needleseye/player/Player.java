@@ -11,13 +11,13 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.map.UpgradeRegistry;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.map.UpgradeRegistry;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
@@ -153,6 +153,9 @@ public class Player extends Entity implements IHasHealth {
      */
     @Override
     public void update(float delta) {
+        // update audio listener position
+        Main.audio.getListener().setPosition(camera).setOrientation(camera);
+
         if (health == -1) health = maxHealth = baseUpgrade.MAX_HEALTH; // this will only be called on the first in-game frame
         if (maxHealth == -1) maxHealth = baseUpgrade.MAX_HEALTH;
         if (damageTimeout > 0) { // update damage timeout
