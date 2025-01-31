@@ -118,7 +118,7 @@ public class MapManager {
         Json json = new Json();
         Array<JsonValue> map;
         try {
-            map = json.fromJson(null, Gdx.files.internal("data/rooms.json"));
+            map = json.fromJson(null, Gdx.files.internal("data/rooms/rooms.json"));
             roomTemplates.addAll(RoomTemplate.loadRoomTemplates(map));
         } catch (Exception e) {
             Gdx.app.error("RoomTemplate", "Error loading room templates", e);
