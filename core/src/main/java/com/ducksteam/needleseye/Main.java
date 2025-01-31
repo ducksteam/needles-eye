@@ -80,278 +80,161 @@ import java.util.stream.Collectors;
 public class Main extends Game {
     // 3d rendering utils
 
-    /**
-     * The model batch for rendering 3d models
-     */
-    static ModelBatch batch; // used for rendering 3d models
-    /**
-     * The camera for the game
-     */
-	public static PerspectiveCamera camera; // the camera
-    /**
-     * The frame buffer used to transfer color and depth information to the shaders
-     */
+    /** The model batch for rendering 3d models */
+    static ModelBatch batch;
+    /** The camera for the game*/
+	public static PerspectiveCamera camera;
+    /** The frame buffer used to transfer color and depth information to the shaders*/
     FrameBuffer fbo;
-    /**
-     * The sprite batch used for rendering shaders
-     */
-    Batch shaderBatch;
-    /**
-     * The viewport for the game. FitViewport theoretically uses letterboxing, but I have not seen this
-     */
-	public static FitViewport viewport; // the viewport
+    /** The sprite batch used for rendering shaders*/
+    SpriteBatch shaderBatch;
+    /** The viewport for the game. FitViewport theoretically uses letterboxing, but I have not seen this*/
+	public static FitViewport viewport;
 
     // Shaders
-    /**
-     * The effect shader for the main game
-     */
-    ShaderProgram postProcessingShader; // the effect shader
-    /**
-     * The shader for the particle system
-     */
-    ShaderProgram particleShader; // the particle shader
-    /**
-     * The shader for the 2d sprites
-     */
-    ShaderProgram spriteBatchShader; // the sprite batch shader
+    /** The effect shader for the main game*/
+    ShaderProgram postProcessingShader;
+    /** The shader for the particle system*/
+    ShaderProgram particleShader;
+    /** The shader for the 2d sprites*/
+    ShaderProgram spriteBatchShader;
 
-    /**
-     * The light for the player's lantern
-     */
-	PointLight playerLantern; // the player's spotlight
-    /**
-     * The colour of the player's lantern
-     */
-	Color playerLanternColour; // the colour for the light
+    /** The light for the player's lantern*/
+	PointLight playerLantern;
+    /** The colour of the player's lantern*/
+	Color playerLanternColour;
 
-    /**
-     * The particle system for the game
-     */
-	public static ParticleSystem particleSystem; // the particle system
-    /**
-     * The particle batch for billboards that use the general_particle
-     */
-	public static BillboardParticleBatch generalBBParticleBatch; // the particle batch for billboards that use the general_particle
-    /**
-     * The particle batch for billboards that use the paralyse_particle
-     */
-	public static BillboardParticleBatch paralyseBBParticleBatch; // the particle batch for billboards that use the paralyse_particle
+    /** The particle system for the game*/
+	public static ParticleSystem particleSystem;
+    /** The particle batch for billboards that use the general_particle*/
+	public static BillboardParticleBatch generalBBParticleBatch;
+    /** The particle batch for billboards that use the paralyse_particle*/
+	public static BillboardParticleBatch paralyseBBParticleBatch;
 
     // audio utils
     /** The main audio controller (from TuningFork)*/
     public static Audio audio;
-    /**
-     * The music for the menu
-     */
+    /** The music for the menu*/
     public static StreamedSoundSource menuMusic;
-    /**
-     * The sounds for the game
-     */
+    /** The sounds for the game*/
 	public static HashMap<String, Sound> sounds;
 
-    /**
-     * The stage for the debug menu
-     */
+    /** The stage for the debug menu*/
 	Stage debug;
 
 	// other 2d rendering utils
-    /**
-     * The sprite batch for rendering 2d sprites, mostly UI
-     */
+    /** The sprite batch for rendering 2d sprites, mostly UI*/
 	public static SpriteBatch batch2d;
-    /**
-     * The 2d texture assets for the game, mapped to their addresses
-     */
-	HashMap<String,Texture> spriteAssets = new HashMap<>(); // textures mapped to their addresses
-    /**
-     * The font for the UI, 3% of the height of the window
-     */
-	public static BitmapFont uiFont; // font for text
+    /** The 2d texture assets for the game, mapped to their addresses*/
+	HashMap<String,Texture> spriteAssets = new HashMap<>();
+    /** The font for the UI, 3% of the height of the window*/
+	public static BitmapFont uiFont;
     /** The font for debug menu (JetBrains Mono) */
     public static BitmapFont debugFont;
     public static Label.LabelStyle debugStyle;
-    /**
-     * The font for titles, 8% of the height of the window
-     */
-	public static BitmapFont titleFont; // font for titles
+    /** The font for titles, 8% of the height of the window*/
+	public static BitmapFont titleFont;
     /** The font for buttons, 5.5% the height of the window */
     public static BitmapFont buttonFont;
     /** smaller font */
     public static BitmapFont smallFont;
-    /**
-     * The virtual text layout, used for measuring and centering text
-     */
-	public static GlyphLayout layout; // layout for text
+    /** The virtual text layout, used for measuring and centering text*/
+	public static GlyphLayout layout;
 
-    /**
-     * The asset manager for the game, for loading and storing assets
-     */
+    /** The asset manager for the game, for loading and storing assets*/
 	public static AssetManager assMan;
 
-    /**
-     * The map manager, responsible for loading room templates and generating levels
-     */
+    /** The map manager, responsible for loading room templates and generating levels*/
 	public static MapManager mapMan;
 
-    /**
-     * The scene manager, which renders glTF scenes and PBR materials.
-     * Theres a bit of a pattern here
-     */
+    /** The scene manager, which renders glTF scenes and PBR materials. Theres a bit of a pattern here*/
 	public static SceneManager sceneMan;
 
     /** Loaded playthrough save*/
     public static Playthrough currentSave;
 
-    /**
-     * A map of all entities currently in the game, where the key is {@link Entity}.id
-     */
+    /** A map of all entities currently in the game, where the key is {@link Entity#id}*/
 	public static ConcurrentHashMap<Integer, Entity> entities = new ConcurrentHashMap<>();
-    /**
-     * The file path of textures to be loaded into the asset manager
-     */
+    /** The file path of textures to be loaded into the asset manager*/
 	static ArrayList<String> spriteAddresses = new ArrayList<>();
 
 	// physics utils
-    /**
-     * The physics simulation of the world
-     */
-	public static btDynamicsWorld dynamicsWorld; // contains all physics object
-    /**
-     * The constraint solver working in the physics world
-     */
-	public static btConstraintSolver constraintSolver; // solves constraints
-    /**
-     * The broadphase AABB overlap detector
-     */
+    /** The physics simulation of the world*/
+	public static btDynamicsWorld dynamicsWorld;
+    /** The constraint solver working in the physics world*/
+	public static btConstraintSolver constraintSolver;
+    /** The broadphase AABB overlap detector*/
 	public static btBroadphaseInterface broadphase;
-    /**
-     * The collision configuration for the physics world
-     */
+    /** The collision configuration for the physics world*/
 	public static btCollisionConfiguration collisionConfig;
-    /**
-     * Dispatches collision calculations for overlapping pairs
-     */
+    /** Dispatches collision calculations for overlapping pairs*/
 	public static btDispatcher dispatcher;
-    /**
-     * Renders AABB and more complex shapes for debugging, currently broken :(
-     */
+    /** Renders AABB and more complex shapes for debugging, currently broken :(*/
 	public static NEDebugDrawer debugDrawer;
-    /**
-     * Custom collision event callback
-     */
+    /** Custom collision event callback*/
 	public static CollisionListener contactListener;
 
 	@Deprecated
 	static long time = 0; // ms since first render
 
-    /**
-     * The time `Main.getTime()` at the last render
-     */
+    /** The time `Main.getTime()` at the last render*/
 	static long timeAtLastRender;
-    /**
-     * The difference in time between the last render and the current render
-     * delta Time!
-     */
+    /** The difference in time between the last render and the current render delta Time!*/
 	float dT;
 
 	// input & player
-    /**
-     * The global input processor for the game
-     */
+    /** The global input processor for the game*/
 	GlobalInput globalInput = new GlobalInput();
-    /**
-     * The player entity
-     */
+    /** The player entity*/
 	public static Player player;
 
 	// ui animation resources
-    /**
-     * The active UI animation
-     */
+    /** The active UI animation*/
 	static Animation<TextureRegion> activeUIAnim;
-    /**
-     * The progress through the active UI animation
-     */
-	static float animTime; // the progress through the active UI animation
-    /**
-     * The progress through the attack animation
-     */
-	public static float attackAnimTime; // the progress through the attack animation
-    /**
-     * The progress through the crack animation
-     */
-	public static float crackAnimTime; // the progress through the ability animation
-    /**
-     * Logic to run before the animation is drawn each frame
-     */
-	static Runnable animPreDraw; // runs every frame when an animation is active
-    /**
-     * Logic to run once when the animation finishes
-     */
-	static Runnable animFinished; // runs once when the animation finishes
-    /**
-     * The state of the thread menu animation.
-     * Not used currently, but we should add this back it was cool
-     */
-	static int[] threadAnimState = {0, 0, 0}; // information about the thread menu animation
-    /**
-     * The thread menu animation
-     */
-	public static Animation<TextureRegion> transitionAnimation; // the main menu -> thread menu animation
+    /** The progress through the active UI animation*/
+	static float animTime;
+    /** The progress through the attack animation*/
+	public static float attackAnimTime;
+    /** The progress through the crack animation*/
+	public static float crackAnimTime;
+    /** Logic to run before the animation is drawn each frame*/
+	static Runnable animPreDraw;
+    /** Logic to run once when the animation finishes*/
+	static Runnable animFinished;
+    /** The state of the thread menu animation. Not used currently, but we should add this back it was cool */
+	static int[] threadAnimState = {0, 0, 0};
+    /** The thread menu animation*/
+	public static Animation<TextureRegion> transitionAnimation;
 
 	//Runtime info
-    /**
-     * The current game state
-     */
-	public static GameState gameState; // current game state
-    /**
-     * A string representation of the current game state, used as backup for switching
-     */
+    /** The current game state*/
+	public static GameState gameState;
+    /** A string representation of the current game state, used as backup for switching*/
 	private static String gameStateCheck;
 
 	//Runtime utils
-    /**
-     * Manages the duck splash screen on startup as app loads
-     */
-	private SplashWorker splashWorker; // splash screen
+    /** Manages the duck splash screen on startup as app loads*/
+	private SplashWorker splashWorker;
     /** Maximum resolution for initialised display mode */
     public static Config.Resolution maxResolution;
 
-	/**
-	 * The enum for managing the game state
-	 * */
+	/** The enum for managing the game state*/
 	public enum GameState{
-        /**
-         * The main menu
-         */
+        /** The main menu*/
 		MAIN_MENU(0),
-        /**
-         * Loading screen
-         */
+        /** Loading screen*/
 		LOADING(1),
-        /**
-         * The thread selection menu
-         */
+        /** The thread selection menu*/
 		THREAD_SELECT(2),
-        /**
-         * The in-game state
-         */
+        /** The in-game state*/
         IN_GAME(3),
-        /**
-         * The paused menu
-         */
+        /** The paused menu*/
         PAUSED_MENU(4),
-        /**
-         * The death menu
-         */
+        /** The death menu*/
         DEAD_MENU(5),
-        /**
-         * The instructions menu
-         */
+        /** The instructions menu*/
         INSTRUCTIONS(6),
-        /**
-         * The options menu
-         */
+        /** The options menu*/
         OPTIONS(7);
 
 		final int id;
@@ -426,7 +309,7 @@ public class Main extends Game {
 		GameState.PAUSED_MENU.setInputProcessor(new InputMultiplexer(globalInput, GameState.PAUSED_MENU.getStage()));
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
-		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(GameState.OPTIONS.getStage(), globalInput)); // todo: options has/will have an apply popup to confirm changes so remove menuEscape
+		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(GameState.OPTIONS.getStage(), globalInput));
 	}
 
 	/**
@@ -1051,7 +934,6 @@ public class Main extends Game {
      * @param shadeParticles whether to draw particles using the post-processing shader
      */
     private void renderObjects(boolean drawParticles, boolean shadeParticles){
-//        HdpiUtils.setMode(HdpiMode.Pixels);
 
         sceneMan.renderShadows();
 
@@ -1076,17 +958,6 @@ public class Main extends Game {
 
         if (shadeParticles) fbo.end();
 
-//        depthFbo.begin();
-//        Gdx.gl32.glEnable(GL32.GL_DEPTH_TEST);
-//        Gdx.gl32.glClearColor(0, 0, 0, 1);
-//        Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
-//        sceneMan.renderDepth();
-//        depthFbo.end();
-
-//        Gdx.gl32.glDisable(GL32.GL_DEPTH_TEST);
-
-//        HdpiUtils.setMode(HdpiMode.Logical);
-
         postProcessingShader.bind();
         setEffectShaderUniforms();
 
@@ -1098,8 +969,6 @@ public class Main extends Game {
         shaderBatch.draw(fbo.getColorBufferTexture(), 0, 0, 1, 1, 0, 0, 1, 1);
         shaderBatch.end();
         shaderBatch.setShader(null);
-
-//        Gdx.gl32.glActiveTexture(GL32.GL_TEXTURE0);
     }
 
 	/**
@@ -1158,6 +1027,7 @@ public class Main extends Game {
 		if (gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics for a transparent effect
 			renderObjects(true, true);
+            camera.update();
 		}
 
 		if (gameState != null && gameState.getStage() != null) {
