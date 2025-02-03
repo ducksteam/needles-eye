@@ -30,6 +30,8 @@ public class MapManager {
      * All room templates
      */
     public static ArrayList<RoomTemplate> roomTemplates;
+    /** All deco templates */
+    public static ArrayList<DecoTemplate> decoTemplates;
     /**
      * The levels from the current run
      */
@@ -112,19 +114,29 @@ public class MapManager {
      */
     public MapManager(boolean visualise) {
         roomTemplates = new ArrayList<>();
+        decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
         levelIndex = 1;
 
         Json json = new Json();
         Array<JsonValue> map;
+
+        try {
+            map = json.fromJson(null, Gdx.files.internal("data/decos/decos.json"));
+            decoTemplates.addAll(DecoTemplate.loadDecoTemplates(map));
+        } catch (Exception e) {
+            Gdx.app.error("DecoTemplate", "Error loading deco templates", e);
+        }
+        Gdx.app.debug("MapManager", "Loaded data for " + decoTemplates.size() + " deco templates");
+
         try {
             map = json.fromJson(null, Gdx.files.internal("data/rooms/rooms.json"));
             roomTemplates.addAll(RoomTemplate.loadRoomTemplates(map));
         } catch (Exception e) {
             Gdx.app.error("RoomTemplate", "Error loading room templates", e);
         }
-
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
+
         if (visualise) {
             Gdx.app.log("MapManager", "Visualising map generation");
             visualiser = new MapGenerationVisualiser();
