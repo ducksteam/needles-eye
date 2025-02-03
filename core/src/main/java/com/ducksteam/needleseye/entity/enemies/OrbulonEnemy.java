@@ -64,7 +64,6 @@ public class OrbulonEnemy extends EnemyEntity {
 		// create rigid body
 		collider = new btRigidBody(MASS, motionState, collisionShape, inertia);
 		collider.obtain();
-		collider.setCollisionFlags(collider.getCollisionFlags());
 		collider.setActivationState(Collision.DISABLE_DEACTIVATION); // entity should not be deactivated
 		collider.setUserValue(this.id); // set entity id
 		collider.setAngularFactor(Vector3.Y); // lock x/z rotation

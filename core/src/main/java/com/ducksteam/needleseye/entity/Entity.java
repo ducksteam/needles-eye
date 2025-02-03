@@ -131,7 +131,7 @@ public abstract class Entity implements AnimationListener {
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
-		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
 	}
 
 	/**
@@ -206,7 +206,6 @@ public abstract class Entity implements AnimationListener {
 			// Creates rigid body
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.obtain();
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
 			collider.setUserValue(this.id); // set user value to entity id
 			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
@@ -260,7 +259,6 @@ public abstract class Entity implements AnimationListener {
 			// Creates rigid body
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.obtain();
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
 			collider.setUserValue(this.id); // set user value to entity id
 			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
@@ -365,7 +363,7 @@ public abstract class Entity implements AnimationListener {
 	/**
 	 * Disposes all relevant data from the entity
 	 * */
-	public void destroy() {
+	public synchronized void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
         collisionShape.dispose();
         motionState.dispose();
