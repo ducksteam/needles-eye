@@ -8,10 +8,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Config;
-import com.ducksteam.needleseye.entity.EnemyRegistry;
-import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
-import com.ducksteam.needleseye.entity.RoomInstance;
-import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
 
@@ -148,7 +145,7 @@ public class MapManager {
      * Add enemies to the level
      * @param level the level to be populated
      */
-    public void populateLevel(Level level){
+    public void addEnemies(Level level){
         level.getRooms().forEach((RoomInstance room)->{
             for (RoomTemplate.EnemyTagPosition tagPosition : room.getRoom().getEnemyTagPositions()){
                 Class<? extends EnemyEntity> enemyClass = getSuitableEnemy(tagPosition.tag());
@@ -161,6 +158,24 @@ public class MapManager {
                 assert enemy != null;
                 enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
+            }
+        });
+    }
+
+    /** Add decos to a level
+     * @param level the level to add decos to
+     */
+    public void addDecos(Level level){
+        level.getRooms().forEach(room -> {
+            for (RoomTemplate.DecoTagPosition tagPosition : room.getRoom().getDecoTagPositions()){
+                if (tagPosition.chance() < random.nextFloat()) continue;
+                DecoTemplate template;
+                if (tagPosition.tagName()) template = getDecoWithName(tagPosition.tag());
+                else template = getSuitableDeco(tagPosition.tag());
+
+                if (template == null) { Gdx.app.error("MapManager", "No suitable deco found for tag: " + tagPosition.tag()); return; }
+
+                new DecoInstance(template, room, tagPosition.position(), new Quaternion());
             }
         });
     }
@@ -193,6 +208,28 @@ public class MapManager {
         ));
     }
 
+    /** Get suitable deco fulfilling tag requirements
+     * @param tagString the tag string as in the json file
+     * @return a suitable deco template
+     */
+    public DecoTemplate getSuitableDeco(String tagString) {
+        return decoTemplates.stream().filter(decoTemplate -> {
+            ArrayList<String> possibleTagCombos = Arrays.stream(tagString.split(",")).collect(Collectors.toCollection(ArrayList::new));
+
+            for(String possibleTagCombo : possibleTagCombos) {
+                boolean allTagsPresent = true;
+                for(String possibleTag : possibleTagCombo.split("&")) {
+                    if (decoTemplate.tags.stream().noneMatch(tag -> tag.isChildOf(DecoTag.fromString(possibleTag)))) allTagsPresent = false;
+                }
+                if (allTagsPresent) return true;
+            }
+            return false;
+        }).collect(Collectors.collectingAndThen(
+            Collectors.toList(),
+            list -> list.get(random.nextInt(list.size()))
+        ));
+    }
+
     /**
      * Generate a test level, with known parameters
      */
@@ -201,7 +238,8 @@ public class MapManager {
         level.addRoom(new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0), 0));
 
         addWalls(level);
-        populateLevel(level);
+        addEnemies(level);
+        addDecos(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -261,9 +299,10 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
-        // add walls and enemies
+        // generate extra entities
         addWalls(level);
-        populateLevel(level);
+        addEnemies(level);
+        addDecos(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index

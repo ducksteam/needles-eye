@@ -52,6 +52,10 @@ public abstract class Entity implements AnimationListener {
 	public static final int PICKUP_GROUP = 1 << 15;
     /** Collision flag for triggers */
     public static final int TRIGGER_GROUP = 1 << 16;
+    /** Collision flag for decos */
+    public static final int DECO_GROUP = 1 << 17;
+    /** Collision flag for attack */
+    public static final int ATTACK_GROUP = 1 << 18;
 	//Rendering and collision data
     /**
      * Whether the entity is renderable
