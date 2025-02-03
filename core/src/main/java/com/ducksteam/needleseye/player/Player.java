@@ -302,6 +302,10 @@ public class Player extends Entity implements IHasHealth {
                     enemyLogic.run(enemy);
                 }
             }
+            if (entity instanceof DecoInstance deco && deco.template.isDestructible() && !deco.shattered) {
+                tempVec = deco.getPosition().sub(player.getPosition());
+                if (tempVec.len() < ATTACK_RANGE) deco.shatter();
+            }
         }
     }
 

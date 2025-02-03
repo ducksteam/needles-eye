@@ -616,6 +616,14 @@ public class MapManager {
         return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().orElse(null);
     }
 
+    /** Get a deco template with a specific name
+     * @param name the name of the deco
+     * @return the deco template or null if not found
+     */
+    public static DecoTemplate getDecoWithName(String name){
+        return decoTemplates.stream().filter(deco -> deco.getName().equals(name)).findFirst().orElse(null);
+    }
+
     /**
      * Get the room space position of a world space position
      * @param pos the world space position

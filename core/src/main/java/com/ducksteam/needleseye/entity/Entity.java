@@ -87,7 +87,7 @@ public abstract class Entity implements AnimationListener {
     /**
      * The scene asset of the entity
      */
-	private Scene scene;
+	protected Scene scene;
 
     /** The centre of the bounding sphere*/
     private final Vector3 boundingSphereCentre = new Vector3();

@@ -745,6 +745,11 @@ public class Main extends Game {
 			if (room.getModelPath() == null) return;
 			assMan.load(room.getModelPath(), SceneAsset.class);
 		});
+        // Load decos
+        MapManager.decoTemplates.forEach((DecoTemplate deco) -> {
+            if (deco.getModelPath() == null) return;
+            assMan.load(deco.getModelPath(), SceneAsset.class);
+        });
 		//Walls
 		assMan.setLoader(SceneAsset.class, ".gltf", new GLTFAssetLoader());
 		assMan.load(WallObject.MODEL_ADDRESS, SceneAsset.class);
