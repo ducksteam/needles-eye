@@ -25,7 +25,7 @@ public class HallwayPlaceholderRoom extends RoomInstance {
      * The template for a hallway placeholder room.
      * Very generic
      */
-    public static final RoomTemplate HALLWAY_PLACEHOLDER_TEMPLATE = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, new Vector3(0, 0, 0), new ArrayList<>());
+    public static final RoomTemplate HALLWAY_PLACEHOLDER_TEMPLATE = new RoomTemplate(RoomTemplate.RoomType.HALLWAY_PLACEHOLDER, 0, 0, false, null, new Vector3(0, 0, 0), new ArrayList<>(), new ArrayList<>());
 
     /**
      * Create a new hallway placeholder room

@@ -1,0 +1,10 @@
+[
+  {
+    "name": "pot",
+    "modelPath": "models/decos/pot3.gltf",
+    "destructible": true,
+    "tags": [
+      "GROUND"
+    ]
+  }
+]

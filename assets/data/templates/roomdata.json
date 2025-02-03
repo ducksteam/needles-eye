@@ -46,11 +46,22 @@
         "items": {
           "type": "object",
           "required": [
-            "name",
-            "position"
+            "position",
+            "chance"
+          ],
+          "oneOf": [
+            {
+              "required": ["name"]
+            },
+            {
+              "required": ["tagString"]
+            }
           ],
           "properties": {
             "name": {
+              "type": "string"
+            },
+            "tagString": {
               "type": "string"
             },
             "position": {
@@ -59,6 +70,11 @@
                 "type": "number"
               },
               "default": [0, 0, 0]
+            },
+            "chance": {
+              "type": "number",
+              "maximum": 1,
+              "exclusiveMinimum": 0
             }
           }
         }
