@@ -132,6 +132,7 @@ public class Config {
     public static Lwjgl3Graphics desktopGraphics;
 
     public static Preferences prefs;
+    public static String savePath;
 
     /** Use <code>Config.prefs.getString("Resolution")</code> */
     private static Resolution resolution;
@@ -170,6 +171,8 @@ public class Config {
             Gdx.app.error("Config-Audio", "Failed to switch to " + audioOutputDevice);
             audioOutputDevice = null;
         }
+
+        savePath = prefs.getString("SavePath","saves/");
 
         Keybind.clear();
 
@@ -213,6 +216,8 @@ public class Config {
                 }
             }
         }
+
+        prefs.putString("SavePath", savePath);
 
         prefs.putBoolean("VSync", vSync);
         Gdx.graphics.setVSync(vSync);

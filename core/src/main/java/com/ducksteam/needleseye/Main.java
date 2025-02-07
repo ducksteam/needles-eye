@@ -364,6 +364,11 @@ public class Main extends Game {
         currentSave = save;
     }
 
+    public static void saveGame() {
+        if (currentSave == null) return;
+        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath);
+    }
+
     /**
      * Start game after save is selected
      * @return success of starting the game
