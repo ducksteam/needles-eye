@@ -98,6 +98,8 @@ public class Main extends Game {
     ShaderProgram particleShader;
     /** The shader for the 2d sprites*/
     ShaderProgram spriteBatchShader;
+    /** The shader for stencil animations (thread select) */
+    ShaderProgram stencilShader;
 
     /** The light for the player's lantern*/
 	PointLight playerLantern;
@@ -189,18 +191,12 @@ public class Main extends Game {
 	public static Player player;
 
 	// ui animation resources
-    /** The active UI animation*/
-	static Animation<TextureRegion> activeUIAnim;
     /** The progress through the active UI animation*/
 	static float animTime;
     /** The progress through the attack animation*/
 	public static float attackAnimTime;
     /** The progress through the crack animation*/
 	public static float crackAnimTime;
-    /** Logic to run before the animation is drawn each frame*/
-	static Runnable animPreDraw;
-    /** Logic to run once when the animation finishes*/
-	static Runnable animFinished;
     /** The state of the thread menu animation. Not used currently, but we should add this back it was cool */
 	static int[] threadAnimState = {0, 0, 0};
     /** The thread menu animation*/
@@ -235,7 +231,9 @@ public class Main extends Game {
         /** The instructions menu*/
         INSTRUCTIONS(6),
         /** The options menu*/
-        OPTIONS(7);
+        OPTIONS(7),
+        /** The transition animation between the main menu and thread select */
+        THREAD_TRANSITION(8);
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
@@ -333,27 +331,7 @@ public class Main extends Game {
 			Gdx.input.setCursorCatched(true);
 			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
 		}
-	}
-
-    /**
-     * Get active UI animation
-     * @return the active UI animation
-     */
-	public static Animation<TextureRegion> getActiveUIAnim() {
-		return activeUIAnim;
-	}
-
-    /**
-     * Set active UI animation
-     * @param anim the animation to set
-     * @param preDraw logic to run before the animation is drawn each frame
-     * @param finished logic to run once when the animation finishes
-     */
-	public static void setActiveUIAnim(Animation<TextureRegion> anim, Runnable preDraw, Runnable finished) {
-		activeUIAnim = anim;
-		animTime = 0;
-		animPreDraw = preDraw;
-		animFinished = finished;
+        if (gameState == GameState.THREAD_TRANSITION) animTime = 0;
 	}
 
     /**
@@ -469,6 +447,13 @@ public class Main extends Game {
             Gdx.app.error("Shaders", "Sprite batch shader failed to compile: " + spriteBatchShader.getLog());
         } else {
             Gdx.app.log("Shaders", "Sprite batch shader compiled: " + spriteBatchShader.getLog());
+        }
+
+        stencilShader = new ShaderProgram(Gdx.files.internal("shaders/sprite_batch.vert"), Gdx.files.internal("shaders/sprite_batch_discard_alpha.frag"));
+        if (!stencilShader.isCompiled()) {
+            Gdx.app.error("Shaders", "Stencil shader failed to compile: " + stencilShader.getLog());
+        } else {
+            Gdx.app.log("Shaders", "Stencil shader compiled: " + stencilShader.getLog());
         }
 
         postProcessingShader = new ShaderProgram(Gdx.files.internal("shaders/post_processing.vert"), Gdx.files.internal("shaders/post_processing.frag"));
@@ -999,6 +984,7 @@ public class Main extends Game {
 				gameStateCheck = gameState.toString();
 			}
 		}
+
 		if(gameState==GameState.LOADING){
 			float progress = assMan.getProgress();
 			renderLoadingFrame(progress);
@@ -1010,24 +996,43 @@ public class Main extends Game {
 			return;
 		}
 
-		// update UI animation
-		if(activeUIAnim != null){
-			if (animPreDraw != null) animPreDraw.run();
-			animTime += Gdx.graphics.getDeltaTime(); // update progress time
+        if (gameState == GameState.THREAD_TRANSITION) {
+            Gdx.gl32.glEnable(GL20.GL_DEPTH_TEST);
+            Gdx.gl32.glEnable(GL20.GL_STENCIL_TEST);
+            Gdx.gl32.glClear(GL20.GL_STENCIL_BUFFER_BIT);
+            Gdx.gl32.glStencilOp(GL20.GL_KEEP, GL20.GL_KEEP, GL20.GL_REPLACE);
+            Gdx.gl32.glStencilFunc(GL20.GL_NOTEQUAL, 0xFF, 0xFF);
 
-			// draw current frame
-			TextureRegion currentFrame = activeUIAnim.getKeyFrame(animTime);
-			batch2d.begin();
-			batch2d.draw(currentFrame, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-			batch2d.end();
+            // configure stencil settings
+            Gdx.gl32.glStencilFunc(GL20.GL_ALWAYS, 0xFF, 0xFF);
+            Gdx.gl32.glStencilMask(0xFF);
 
-			if(activeUIAnim.isAnimationFinished(animTime)){
-				activeUIAnim = null;
-				animTime = 0;
-				if (animFinished != null) animFinished.run();
-			}
-			return;
-		}
+            animTime += Gdx.graphics.getDeltaTime(); // update progress time
+
+            batch2d.setShader(stencilShader);
+            batch2d.begin();
+            batch2d.draw(transitionAnimation.getKeyFrame(animTime), 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+            batch2d.end();
+            batch2d.setShader(spriteBatchShader);
+
+            Gdx.gl32.glStencilFunc(GL20.GL_NOTEQUAL, 0xFF, 0xFF);
+            Gdx.gl32.glStencilMask(0x00);
+            Gdx.gl32.glDisable(GL20.GL_DEPTH_TEST);
+
+            GameState.MAIN_MENU.stage.draw();
+
+            Gdx.gl32.glStencilFunc(GL20.GL_EQUAL, 0xFF, 0xFF);
+            GameState.THREAD_SELECT.stage.draw();
+
+            Gdx.gl32.glStencilMask(0xFF);
+            Gdx.gl32.glStencilFunc(GL20.GL_ALWAYS, 0, 0xFF);
+            Gdx.gl32.glEnable(GL20.GL_DEPTH_TEST);
+
+            if (transitionAnimation.isAnimationFinished(animTime)) {
+                animTime = 0;
+                setGameState(GameState.THREAD_SELECT);
+            }
+        }
 
 		if (gameState == GameState.PAUSED_MENU) {
 			// render the world without stepping physics for a transparent effect

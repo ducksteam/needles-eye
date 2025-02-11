@@ -87,12 +87,8 @@ public class MainStage extends StageTemplate {
 		playButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (Main.getActiveUIAnim() == null){
-					Main.setActiveUIAnim(Main.transitionAnimation, MainStage.this::update, () -> {
-                        Main.setCurrentSave(new Playthrough("seed", "name"));
-                        setGameState(Main.GameState.THREAD_SELECT);
-                    });
-				}
+                Main.setCurrentSave(new Playthrough("seed", "name"));
+                setGameState(Main.GameState.THREAD_TRANSITION);
 				return true;
 			}
 		});
