@@ -136,7 +136,8 @@ public class Player extends Entity implements IHasHealth {
         dynamicsWorld.dispose();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
         dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
-
+        dynamicsWorld.setDebugDrawer(debugDrawer);
+        
         // build the player's model
         sceneModel = new Scene(new Model());
         setScene(sceneModel);
