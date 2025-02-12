@@ -35,15 +35,15 @@ public class DecoInstance extends Entity {
      * @param rotation the rotation of the object
      */
     public DecoInstance(DecoTemplate template, RoomInstance parentRoom, Vector3 position, Quaternion rotation) {
-        super(parentRoom.getPosition().cpy().add(position), rotation, 0, template.getScene(), btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | DECO_GROUP);
+        super(parentRoom.getPosition().cpy().add(position), rotation, 0, template.getScene(), btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
 
         this.template = template;
         this.parentRoom = parentRoom;
 
-        tryCreateWorldTrigger();
+        tryCreateShatterTrigger();
     }
 
-    private void tryCreateWorldTrigger() {
+    private void tryCreateShatterTrigger() {
         if (isRenderable && template.isDestructible()) {
             shatterTrigger = new WorldTrigger(collisionShape, transform, (Entity e) -> this.shatter(), ATTACK_GROUP, WorldTrigger.TriggerType.ONCE_ON_ENTER);
         }
@@ -86,13 +86,14 @@ public class DecoInstance extends Entity {
         btCollisionShape shape;
         DecoInstance parent;
 
-        private static final int SHATTER_OBJECT_MASS = 0;
+        private static final int SHATTER_OBJECT_MASS = 100;
 
         public ShatterNode(Node node, DecoInstance deco) {
             this.parent = deco;
 
             this.node = node;
-            shape = Bullet.obtainStaticNodeShape(node, true);
+            shape = Entity.obtainConvexHullShape(node.parts.get(0).meshPart.mesh, true);
+//            shape = Bullet.obtainStaticNodeShape(node, true);
 
             Vector3 inertia = new Vector3();
             shape.calculateLocalInertia(SHATTER_OBJECT_MASS, inertia);

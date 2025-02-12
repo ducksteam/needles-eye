@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationListener;
@@ -9,9 +10,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.Collision;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
@@ -227,6 +226,26 @@ public abstract class Entity implements AnimationListener {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
 	}
+
+    /**
+     * Create a convex hull shape (ideal for dynamic entities)
+     * @param mesh the mesh to create the shape of
+     * @param optimize whether to optimize the collision shape to more closely fit the object
+     * @return the new collision shape
+     */
+    public static btConvexHullShape obtainConvexHullShape(final Mesh mesh, boolean optimize) {
+        final btConvexHullShape shape = new btConvexHullShape(mesh.getVerticesBuffer(false), mesh.getNumVertices(),
+            mesh.getVertexSize());
+        if (!optimize) return shape;
+        // now optimize the shape
+        final btShapeHull hull = new btShapeHull(shape);
+        hull.buildHull(shape.getMargin());
+        final btConvexHullShape result = new btConvexHullShape(hull);
+        // delete the temporary shape
+        shape.dispose();
+        hull.dispose();
+        return result;
+    }
 
 	/**
 	 * Returns the scene asset of the entity
