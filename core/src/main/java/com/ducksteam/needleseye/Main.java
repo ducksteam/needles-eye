@@ -235,7 +235,9 @@ public class Main extends Game {
         /** The instructions menu*/
         INSTRUCTIONS(6),
         /** The options menu*/
-        OPTIONS(7);
+        OPTIONS(7),
+        /** Loading saves from file */
+        LOAD_SAVE(9);
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
@@ -288,6 +290,7 @@ public class Main extends Game {
 		GameState.DEAD_MENU.setStage(new DeathStage());
 		GameState.INSTRUCTIONS.setStage(new InstructionsStage());
         GameState.OPTIONS.setStage(new OptionsStage());
+        GameState.LOAD_SAVE.setStage(new LoadStage());
 
 		// An input processor for menus that can be exited, to be multiplexed with other
 		InputAdapter menuEscape = new InputAdapter(){
@@ -310,6 +313,7 @@ public class Main extends Game {
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
 		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(GameState.OPTIONS.getStage(), globalInput));
+        GameState.LOAD_SAVE.setInputProcessor(new InputMultiplexer(GameState.LOAD_SAVE.getStage(), globalInput));
 	}
 
 	/**
@@ -366,7 +370,7 @@ public class Main extends Game {
 
     public static void saveGame() {
         if (currentSave == null) return;
-        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath);
+        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath+currentSave.getSeed());
     }
 
     /**
