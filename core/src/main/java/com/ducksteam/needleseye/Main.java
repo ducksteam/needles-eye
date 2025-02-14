@@ -1071,7 +1071,7 @@ public class Main extends Game {
 					if (((RoomInstance) entity).getRoom().getType() == RoomTemplate.RoomType.HALLWAY_PLACEHOLDER) return;
 				}
 				if (entity instanceof IHasHealth) ((IHasHealth) entity).update(Gdx.graphics.getDeltaTime());
-				if (entity instanceof UpgradeEntity) entity.update(Gdx.graphics.getDeltaTime());
+				if (entity instanceof UpgradeEntity || entity instanceof DecoInstance) entity.update(Gdx.graphics.getDeltaTime());
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
@@ -1193,6 +1193,8 @@ public class Main extends Game {
         /*BoundingBox bounds = new BoundingBox();
         scene.modelInstance.calculateBoundingBox(bounds);
         return camera.frustum.boundsInFrustum(bounds);*/
+
+        if (entity instanceof DecoInstance deco && deco.shattered) return true; // fixme
 
         Vector3 position = new Vector3();
         scene.modelInstance.transform.getTranslation(position);

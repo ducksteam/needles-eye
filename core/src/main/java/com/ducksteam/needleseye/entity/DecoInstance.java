@@ -2,21 +2,26 @@ package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g3d.model.Node;
+import com.badlogic.gdx.graphics.g3d.model.NodePart;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
 import com.badlogic.gdx.physics.bullet.collision.Collision;
+import com.badlogic.gdx.physics.bullet.collision.btBoxShape;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.bullet.WorldTrigger;
 import com.ducksteam.needleseye.map.DecoTemplate;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
@@ -25,7 +30,7 @@ public class DecoInstance extends Entity {
     public RoomInstance parentRoom;
     public boolean shattered = false;
     private WorldTrigger shatterTrigger;
-    private final ArrayList<ShatterNode> shatterNodes = new ArrayList<>();
+    public final ArrayList<ShatterNode> shatterNodes = new ArrayList<>();
 
     /**
      * Creates a new deco
@@ -68,6 +73,7 @@ public class DecoInstance extends Entity {
     }
 
     public void shatter() {
+        if (shattered) return;
         Gdx.app.debug("DecoInstance", "Shattered deco " + id);
         shatterTrigger.destroy();
         shatterTrigger = null;
@@ -81,18 +87,26 @@ public class DecoInstance extends Entity {
     }
 
     public static class ShatterNode extends btMotionState {
-        Node node;
+        public Node node;
         btRigidBody collider;
         btCollisionShape shape;
         DecoInstance parent;
+        BoundingBox bb;
 
-        private static final int SHATTER_OBJECT_MASS = 100;
+        private static final int SHATTER_OBJECT_MASS = 5;
 
         public ShatterNode(Node node, DecoInstance deco) {
             this.parent = deco;
-
             this.node = node;
-            shape = Entity.obtainConvexHullShape(node.parts.get(0).meshPart.mesh, true);
+
+            bb = new BoundingBox();
+
+            for (NodePart part : node.parts) {
+                bb.ext(part.meshPart.mesh.calculateBoundingBox());
+            }
+
+            shape = new btBoxShape(bb.getDimensions(new Vector3()).cpy().scl(0.5f));
+//            shape = Entity.obtainConvexHullShape(node.parts.get(0).meshPart.mesh, true);
 //            shape = Bullet.obtainStaticNodeShape(node, true);
 
             Vector3 inertia = new Vector3();
@@ -100,15 +114,25 @@ public class DecoInstance extends Entity {
 
             collider = new btRigidBody(SHATTER_OBJECT_MASS, this, shape);
             collider.obtain();
-            collider.setActivationState(Collision.DISABLE_DEACTIVATION);
+            collider.setMotionState(this);
 
-            setWorldTransform(deco.transform.cpy().mul(node.globalTransform));
+            // the translation to the original deco is applied twice, this solves that
+            collider.setWorldTransform(new Matrix4().setToTranslation(bb.getCenter(new Vector3()).mul(deco.transform)));
+            node.globalTransform.set(new Matrix4().set(parent.transform.getRotation(new Quaternion())));
+            collider.setFriction(0.8f);
             dynamicsWorld.addRigidBody(collider);
+        }
+
+        private void update() {
+            Gdx.app.debug("DecoInstance", "collider: " + collider.getWorldTransform().getTranslation(new Vector3()) + " global: " + node.globalTransform.getTranslation(new Vector3()) + " local: " + node.localTransform.getTranslation(new Vector3()));
         }
 
         @Override
         public void setWorldTransform(Matrix4 worldTrans) {
-            node.globalTransform.set(worldTrans);
+            // the translation to the original deco is applied twice, this solves that
+            Vector3 translation = worldTrans.getTranslation(new Vector3()).sub(parent.transform.getTranslation(new Vector3()).add(bb.getCenter(new Vector3())));
+            Quaternion rotation = worldTrans.getRotation(new Quaternion());
+            node.globalTransform.set(new Matrix4().set(translation, rotation));
         }
 
         @Override
@@ -121,6 +145,9 @@ public class DecoInstance extends Entity {
     public void update(float delta) {
         if (!shattered) {
             motionState.setWorldTransform(transform);
+        } else {
+            shatterNodes.stream().sorted((n1, n2) -> (int) (n1.node.globalTransform.getTranslation(new Vector3()).sub(Main.player.getPosition()).len() - n2.node.globalTransform.getTranslation(new Vector3()).sub(Main.player.getPosition()).len())).collect(Collectors.toCollection(ArrayList::new)).getFirst().update();
+//            shatterNodes.forEach(node -> node.update(delta));
         }
     }
 
