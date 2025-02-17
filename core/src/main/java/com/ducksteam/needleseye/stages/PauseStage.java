@@ -8,7 +8,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
-import com.badlogic.gdx.utils.Align;
 import com.ducksteam.needleseye.Main;
 
 import static com.ducksteam.needleseye.Main.setGameState;
@@ -23,6 +22,7 @@ public class PauseStage extends StageTemplate {
 	Image background;
 
 	TextButton resumeButton;
+    TextButton saveButton;
 	TextButton exitButton;
 
 	Table buttons;
@@ -34,6 +34,7 @@ public class PauseStage extends StageTemplate {
 		background = new Image(new Texture("ui/pause/pausebackground.png"));
 
 		resumeButton = new TextButton("Play", buttonStyle);
+        saveButton = new TextButton("Save", buttonStyle);
 		exitButton = new TextButton("Quit", buttonStyle);
 
 		buttons = new Table();
@@ -69,6 +70,14 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
+        saveButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                Main.saveGame();
+                return true;
+            }
+        });
+
 		exitButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
@@ -78,14 +87,11 @@ public class PauseStage extends StageTemplate {
 			}
 		});
 
-        resumeButton.getCell(resumeButton.getLabel()).padLeft(Value.percentWidth(0.05f, resumeButton));
-        resumeButton.getLabel().setAlignment(Align.left);
+        alignButton(resumeButton, saveButton, exitButton);
 
-        exitButton.getCell(exitButton.getLabel()).padLeft(Value.percentWidth(0.05f, exitButton));
-        exitButton.getLabel().setAlignment(Align.left);
-
-		buttons.add(resumeButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().padBottom(Value.percentHeight(220f/1080, background)).row();
-		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(250f/1080, background)).row();
+        buttons.add(resumeButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
+        buttons.add(saveButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().row();
+        buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(350f/1080, background)).row();
 		root.add(buttons).expand().pad(Value.percentWidth(0.1f, background)).left();
 	}
 }
