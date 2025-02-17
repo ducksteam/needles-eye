@@ -500,7 +500,7 @@ public class Main extends Game {
 
 		debugDrawer = new NEDebugDrawer();
         debugDrawer.setSpriteBatch(batch2d);
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawWireframe);
         dynamicsWorld.setDebugDrawer(debugDrawer);
 
 		//Builds UI elements
@@ -628,7 +628,7 @@ public class Main extends Game {
 		Label gameState = new Label("Game state: " + gameStateCheck, debugStyle);
 		labels.add(gameState);
 
-		Label coords = new Label("Location: "+player.getPosition().toString(), debugStyle);
+		Label coords = new Label("Location: "+camera.position.toString(), debugStyle);
 		labels.add(coords);
 
 		Label rotation = new Label("Rotation: " + player.getRotation().toString(), debugStyle);
@@ -946,6 +946,8 @@ public class Main extends Game {
 
         sceneMan.renderShadows();
 
+        fbo = ensureFBO(fbo, true);
+
         fbo.begin();
         Gdx.gl32.glClearColor(0, 0, 0, 0);
         Gdx.gl32.glClear(GL32.GL_COLOR_BUFFER_BIT | GL32.GL_DEPTH_BUFFER_BIT);
@@ -1155,6 +1157,16 @@ public class Main extends Game {
 //        postProcessingShader.setUniformi("u_kernelSize", 7);
     }
 
+    private FrameBuffer ensureFBO(FrameBuffer fbo, boolean hasDepth) {
+        int w = Gdx.graphics.getBackBufferWidth();
+        int h = Gdx.graphics.getBackBufferHeight();
+        if(fbo == null || fbo.getWidth() != w || fbo.getHeight() != h){
+            if(fbo != null) fbo.dispose();
+            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, hasDepth);
+        }
+        return fbo;
+    }
+
     private void renderLoadingFrame(float progress) {
 		Texture loadingItem = new Texture("ui/main/loading-item.png");
 		batch2d.begin();
@@ -1210,9 +1222,6 @@ public class Main extends Game {
 		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
         viewport.update(width, height, true);
         camera.update();
-
-        fbo.dispose();
-        fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 
 		// update fonts
 		buildFonts();
