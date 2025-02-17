@@ -90,12 +90,7 @@ public class MapTest {
             "modelPath": "models/rooms/pillars.gltf",
             "width": 1,
             "height": 2,
-            "decos": [
-              {
-                "name": "pot",
-                "position": [0, 0, 0]
-              }
-            ],
+            "decos": [],
             "doors": {
               "0": true,
               "1": true,
@@ -135,12 +130,7 @@ public class MapTest {
             "modelPath": "models/rooms/rockroom.gltf",
             "width": 1,
             "height": 1,
-            "decos": [
-              {
-                "name": "pot",
-                "position": [0, 0, 0]
-              }
-            ],
+            "decos": [],
             "doors": {
               "0": true,
               "1": true,
@@ -171,15 +161,8 @@ public class MapTest {
             "decos": [
               {
                 "name": "pot",
-                "position": [0, 0, 0]
-              },
-              {
-                "name": "pot",
-                "position": [0.5, 0, 0]
-              },
-              {
-                "name": "pot",
-                "position": [0, 0.5, 0]
+                "position": [0, 0.05, 0],
+                "chance": 1
               }
             ],
             "doors": {
@@ -200,6 +183,7 @@ public class MapTest {
             ]
           }
         ]
+
         """;
 
     private void loadTemplates() {
@@ -218,7 +202,7 @@ public class MapTest {
     }
 
     @Test
-    public void testGetConnectingDoor() {
+    void testGetConnectingDoor() {
 //        RoomInstance rockroom = new RoomInstance(getRoomTemplateWithName("rockroom"), new Vector2(1, 1), 0);
 
         // normal connections
@@ -243,7 +227,7 @@ public class MapTest {
     }
 
     @Test
-    public void testGetDoorRoomSpacePos() {
+    void testGetDoorRoomSpacePos() {
         assertEquals(new Vector2(0.5f, 0), MapManager.getDoorRoomSpacePos(new Vector2(0, 0), 0, 0));
         assertEquals(new Vector2(0, 0.5f), MapManager.getDoorRoomSpacePos(new Vector2(0, 0), 1, 0));
         assertEquals(new Vector2(1, 0.5f), MapManager.getDoorRoomSpacePos(new Vector2(0, 0), 2, 0));
