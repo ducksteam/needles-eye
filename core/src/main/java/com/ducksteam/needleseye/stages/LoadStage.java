@@ -125,30 +125,37 @@ public class LoadStage extends StageTemplate {
 
         buttons.getCell(exitButton).bottom();
 
-        for (FileHandle file : Gdx.files.local(Config.savePath).list()) {
-            Button playthroughButton = new Button(compactButtonStyle);
+        if (Gdx.files.local(Config.savePath).list().length != 0) {
+            for (FileHandle file : Gdx.files.local(Config.savePath).list()) {
+                Button playthroughButton = new Button(compactButtonStyle);
 
-            Label nameLabel = new Label(file.name(), uiFontLabelStyle);
-            Label dateLabel = new Label(new Date(file.lastModified()).toString(), smallFontLabelStyle);
+                Label nameLabel = new Label(file.name(), uiFontLabelStyle);
+                Label dateLabel = new Label(new Date(file.lastModified()).toString(), smallFontLabelStyle);
 
-            playthroughButton.add(nameLabel).growX().left().pad(Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.01f, scrollPane), Value.zero).row();
-            playthroughButton.add(dateLabel).left().pad(Value.zero, Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.02f, scrollPane), Value.zero).row();
+                playthroughButton.add(nameLabel).growX().left().pad(Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.01f, scrollPane), Value.zero).row();
+                playthroughButton.add(dateLabel).left().pad(Value.zero, Value.percentWidth(0.02f, scrollPane), Value.percentWidth(0.02f, scrollPane), Value.zero).row();
 
-            saves.add(playthroughButton).pad(Value.percentWidth(0.005f, background)).growX().maxHeight(Value.percentHeight(0.33f, scrollPane)).row();
+                saves.add(playthroughButton).pad(Value.percentWidth(0.005f, background)).growX().maxHeight(Value.percentHeight(0.33f, scrollPane)).row();
 
-            playthroughButton.addListener(new InputListener(){
-                @Override
-                public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                    Main.setCurrentSave(PlaythroughLoader.loadPlaythrough(file.path()));
-                    //todo: move player into level
-                    return true;
-                }
-            });
+                playthroughButton.addListener(new InputListener() {
+                    @Override
+                    public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                        Main.setCurrentSave(PlaythroughLoader.loadPlaythrough(file.path()));
+                        //todo: move player into level
+                        Main.beginLoading();
+                        return true;
+                    }
+                });
+            }
+        } else {
+            Label emptyLabel = new Label("No saves found", uiFontLabelStyle);
+            saves.add(emptyLabel);
         }
 
         root.add(scrollPane).padLeft(Value.percentWidth(0.1f, background)).prefSize(Value.percentWidth(0.5f, background), Value.percentHeight(790f/1080, background)).maxHeight(Value.percentHeight(790f/1080, background)).left();
         scrollPane.setFlingTime(0);
         scrollPane.setFlickScroll(false);
         scrollPane.setScrollingDisabled(true, false);
+        setScrollFocus(scrollPane);
     }
 }
