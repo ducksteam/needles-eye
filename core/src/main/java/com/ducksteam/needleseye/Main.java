@@ -241,7 +241,7 @@ public class Main extends Game {
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
-		StageTemplate stage; // the stage for each game state
+		public StageTemplate stage; // the stage for each game state
 
 		/**
 		 * @param id assigns numeric id to state
@@ -370,7 +370,7 @@ public class Main extends Game {
 
     public static void saveGame() {
         if (currentSave == null) return;
-        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath+currentSave.getSeed());
+        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath+currentSave.getName());
     }
 
     /**
@@ -380,7 +380,7 @@ public class Main extends Game {
     public static boolean startGame() {
         if (currentSave == null) return false;
 
-        MapManager.setSeed(currentSave.getSeed());
+        Gdx.app.log("Main", "Starting game with " + currentSave.getSeed());
 
         //TODO: make MapManager.generateLevel() generate levels according to an id
         //This should probably have a catch block at some point
@@ -935,6 +935,7 @@ public class Main extends Game {
 
 		// generate new level
 		mapMan.generateLevel();
+        PlayerInput.KEYS.clear();
 	}
 
     /**

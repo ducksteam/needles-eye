@@ -14,6 +14,11 @@ import java.util.Date;
 
 import static com.ducksteam.needleseye.Main.setGameState;
 
+/**
+ * A class for the user to select a savegame.
+ * The aim is that the button UI looks identical to the main menu
+ * @author skysourced
+ */
 public class LoadStage extends StageTemplate {
 
     Image background;

@@ -1,24 +1,24 @@
 package com.ducksteam.needleseye.map;
 
-import com.ducksteam.needleseye.entity.Entity;
-import com.ducksteam.needleseye.player.Player;
-
-import java.util.concurrent.ConcurrentHashMap;
+import com.ducksteam.needleseye.Main;
 
 public class Playthrough {
 
-    private final String name;
+    private String name;
     private int currentLevelId;
-    private final String seed;
-    public ConcurrentHashMap<Integer, Entity> entities;
+    private Seed seed;
 
-    public Playthrough(String seed, String name) {
+    public Playthrough() {}
+
+    public Playthrough(Seed seed, String name) {
         this.seed = seed;
-        this.entities = new ConcurrentHashMap<>();
         this.currentLevelId = 0;
         this.name = name;
     }
 
+    public void update() {
+        currentLevelId = Main.mapMan.levelIndex;
+    }
 
     public String getName() {
         return name;
@@ -32,7 +32,7 @@ public class Playthrough {
         this.currentLevelId = currentLevelId;
     }
 
-    public String getSeed() {
+    public Seed getSeed() {
         return seed;
     }
 }

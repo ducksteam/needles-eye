@@ -74,6 +74,7 @@ public class PauseStage extends StageTemplate {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
                 Main.saveGame();
+                saveButton.setChecked(false);
                 return true;
             }
         });

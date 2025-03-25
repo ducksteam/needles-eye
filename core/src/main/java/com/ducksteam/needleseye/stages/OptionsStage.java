@@ -10,6 +10,7 @@ import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Keybind;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
+import com.ducksteam.needleseye.map.Seed;
 import de.pottgames.tuningfork.AudioDevice;
 
 /**
@@ -254,11 +255,7 @@ public class OptionsStage extends StageTemplate {
      * Determines type of the inputted seed value, and sends it to MapMan
      */
     private void applySeed(){
-        try {
-            MapManager.setSeed(Long.parseLong(tempSeed));
-        } catch (NumberFormatException e) {
-            MapManager.setSeed(tempSeed);
-        }
+        MapManager.setSeed(new Seed(tempSeed));
     }
 
     Table videoPane;
@@ -411,7 +408,7 @@ public class OptionsStage extends StageTemplate {
         SelectBox<String> audioDeviceDropdown = new SelectBox<>(selectBoxStyle);
         audioDeviceDropdown.setItems(AudioDevice.availableDevices().stream().map(s -> s.substring(15)).toArray(String[]::new));
         audioDeviceDropdown.setMaxListCount(3);
-        audioDeviceDropdown.setSelected(Config.audioOutputDevice.substring(15));
+        audioDeviceDropdown.setSelected(Config.audioOutputDevice == null ? AudioDevice.availableDevices().getFirst().substring(15) : (Config.audioOutputDevice.substring(15)));
 
         audioDeviceDropdown.addListener(new ChangeListener() {
             @Override
