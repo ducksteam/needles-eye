@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.ducksteam.needleseye.Keybind;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.ducksteam.needleseye.Main.layout;
 import static com.ducksteam.needleseye.Main.debugFont;
+import static com.ducksteam.needleseye.Main.layout;
 
 /**
  * Visualises the generation of a map.
@@ -177,7 +178,7 @@ public class MapGenerationVisualiser {
         // draw more text
         debugFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
         debugFont.draw(batch, "Currently executing: " + (nextInstruction == 0 ? " " : instructions.get(nextInstruction-1)), 10, Gdx.graphics.getHeight() - 35);
-        debugFont.draw(batch, "Use , and . to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
+        debugFont.draw(batch, "Use " + Keybind.getKeybindKeyString("StepVisualiserForward") + " and " + Keybind.getKeybindKeyString("StepVisualiserBackward") + " to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
         debugFont.draw(batch, "Seed: " + seed, 10, Gdx.graphics.getHeight() - 85);
 
         layout.setText(debugFont, recentMessage[0]);
