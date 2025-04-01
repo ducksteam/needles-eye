@@ -49,6 +49,7 @@ public class PlaythroughLoader {
         if (!canSave) {
             throw new RuntimeException("Cannot save playthroughs on this platform.");
         }
+
         String data;
         data = json.prettyPrint(playthrough);
         if (Gdx.files.local(path).exists()) path = path + getDateFormat().format(new Date());

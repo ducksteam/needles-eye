@@ -259,6 +259,17 @@ public class MapManager {
     }
 
     /**
+     * Synchronise the RNG to the state from a playthrough.
+     * This is achieved by generating the previous levels.
+     * @param playthrough playthrough to sync to
+     */
+    public void updateToPlaythroughState(Playthrough playthrough) {
+        while (levelIndex < playthrough.getCurrentLevelId()) {
+            generateLevel();
+        }
+    }
+
+    /**
      * Add walls to a level, based on template door enabling and physical proximity
      * @param level the level to add walls to
      */
@@ -511,6 +522,7 @@ public class MapManager {
         if (s == null) return;
         seed = s;
         random = new Random(seed.getSeed());
+        Main.currentSave = new Playthrough(s, "name");
     }
 
     public void resetSeed() {
