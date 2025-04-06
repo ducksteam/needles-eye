@@ -6,13 +6,14 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.ducksteam.needleseye.Keybind;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.ducksteam.needleseye.Main.layout;
 import static com.ducksteam.needleseye.Main.debugFont;
+import static com.ducksteam.needleseye.Main.layout;
 
 /**
  * Visualises the generation of a map.
@@ -26,8 +27,7 @@ public class MapGenerationVisualiser {
 
     ArrayList<String> instructions;
     int nextInstruction;
-    Object seed;
-    boolean seedIsLong;
+    Seed seed;
     Texture pixel;
 
     Color smallRoomColor = new Color(0x78b4ccff);
@@ -178,10 +178,8 @@ public class MapGenerationVisualiser {
         // draw more text
         debugFont.draw(batch, nextInstruction + "/" + instructions.size(), 10, Gdx.graphics.getHeight() - 10);
         debugFont.draw(batch, "Currently executing: " + (nextInstruction == 0 ? " " : instructions.get(nextInstruction-1)), 10, Gdx.graphics.getHeight() - 35);
-        debugFont.draw(batch, "Use , and . to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
+        debugFont.draw(batch, "Use " + Keybind.getKeybindKeyString("StepVisualiserForward") + " and " + Keybind.getKeybindKeyString("StepVisualiserBackward") + " to step through the instructions", 10, Gdx.graphics.getHeight() - 60);
         debugFont.draw(batch, "Seed: " + seed, 10, Gdx.graphics.getHeight() - 85);
-        if(!seedIsLong) debugFont.draw(batch, "("+seed.hashCode()+")", 10, Gdx.graphics.getHeight() - 110);
-        else debugFont.draw(batch, "Seed interpreted as long", 10, Gdx.graphics.getHeight() - 110);
 
         layout.setText(debugFont, recentMessage[0]);
         debugFont.draw(batch, recentMessage[0], (float) Gdx.graphics.getWidth() / 2 - layout.width / 2, Gdx.graphics.getHeight() - 70);
@@ -327,8 +325,7 @@ public class MapGenerationVisualiser {
         }
     }
 
-    public void informSeed(Object seed, boolean isLong) {
+    public void informSeed(Seed seed) {
         this.seed = seed;
-        this.seedIsLong = isLong;
     }
 }

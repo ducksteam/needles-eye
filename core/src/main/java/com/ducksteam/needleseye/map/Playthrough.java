@@ -1,24 +1,31 @@
 package com.ducksteam.needleseye.map;
 
-import com.ducksteam.needleseye.entity.Entity;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.player.Player;
+import com.ducksteam.needleseye.player.Upgrade;
 
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Playthrough {
 
-    private final String name;
+    private String name;
     private int currentLevelId;
-    private final String seed;
-    public ConcurrentHashMap<Integer, Entity> entities;
+    private Seed seed;
+    private PlaythroughPlayerData playerData;
 
-    public Playthrough(String seed, String name) {
+    public Playthrough() {}
+
+    public Playthrough(Seed seed, String name) {
         this.seed = seed;
-        this.entities = new ConcurrentHashMap<>();
         this.currentLevelId = 0;
         this.name = name;
     }
 
+    public void update() {
+        setCurrentLevelId(Main.mapMan.levelIndex);
+        setPlayer(Main.player);
+    }
 
     public String getName() {
         return name;
@@ -32,7 +39,25 @@ public class Playthrough {
         this.currentLevelId = currentLevelId;
     }
 
-    public String getSeed() {
+    public void setPlayer(Player player) {
+        playerData = new PlaythroughPlayerData(player);
+    }
+
+    public Seed getSeed() {
         return seed;
+    }
+
+    static class PlaythroughPlayerData {
+        ArrayList<String> upgrades;
+        int health;
+        int maxHealth;
+        Upgrade.BaseUpgrade baseUpgrade;
+
+        PlaythroughPlayerData(Player player) {
+            upgrades = player.upgrades.stream().map(Upgrade::getName).collect(Collectors.toCollection(ArrayList::new));
+            health = player.getHealth();
+            maxHealth = player.getMaxHealth();
+            baseUpgrade = player.baseUpgrade;
+        }
     }
 }

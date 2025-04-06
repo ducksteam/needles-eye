@@ -142,6 +142,10 @@ public class Main extends Game {
     public static BitmapFont smallFont;
     /** The virtual text layout, used for measuring and centering text*/
 	public static GlyphLayout layout;
+    /** The item that fills the loading bar. Needs to be stored here as it is used before assMan loads textures */
+    private Texture loadingItem;
+    /** The background for loading. Needs to be stored here as it is used before assMan loads textures */
+    private Texture loadingBg;
 
     /** The asset manager for the game, for loading and storing assets*/
 	public static AssetManager assMan;
@@ -183,6 +187,8 @@ public class Main extends Game {
 	static long timeAtLastRender;
     /** The difference in time between the last render and the current render delta Time!*/
 	float dT;
+    /** Time when loading started (for benchmarking) */
+    static long timeAtLoadingStart;
 
 	// input & player
     /** The global input processor for the game*/
@@ -233,11 +239,13 @@ public class Main extends Game {
         /** The options menu*/
         OPTIONS(7),
         /** The transition animation between the main menu and thread select */
-        THREAD_TRANSITION(8);
+        THREAD_TRANSITION(8),
+        /** Loading saves from file */
+        LOAD_SAVE(9);
 
 		final int id;
 		InputProcessor inputProcessor; // the input manager for each game state
-		StageTemplate stage; // the stage for each game state
+		public StageTemplate stage; // the stage for each game state
 
 		/**
 		 * @param id assigns numeric id to state
@@ -286,6 +294,7 @@ public class Main extends Game {
 		GameState.DEAD_MENU.setStage(new DeathStage());
 		GameState.INSTRUCTIONS.setStage(new InstructionsStage());
         GameState.OPTIONS.setStage(new OptionsStage());
+        GameState.LOAD_SAVE.setStage(new LoadStage());
 
 		// An input processor for menus that can be exited, to be multiplexed with other
 		InputAdapter menuEscape = new InputAdapter(){
@@ -308,6 +317,7 @@ public class Main extends Game {
 		GameState.DEAD_MENU.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.DEAD_MENU.getStage()));
 		GameState.INSTRUCTIONS.setInputProcessor(new InputMultiplexer(menuEscape, globalInput, GameState.INSTRUCTIONS.getStage()));
 		GameState.OPTIONS.setInputProcessor(new InputMultiplexer(GameState.OPTIONS.getStage(), globalInput));
+        GameState.LOAD_SAVE.setInputProcessor(new InputMultiplexer(GameState.LOAD_SAVE.getStage(), globalInput));
 	}
 
 	/**
@@ -332,6 +342,7 @@ public class Main extends Game {
 			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
 		}
         if (gameState == GameState.THREAD_TRANSITION) animTime = 0;
+        if (gameState == GameState.LOADING) timeAtLoadingStart = System.nanoTime();
 	}
 
     /**
@@ -342,6 +353,11 @@ public class Main extends Game {
         currentSave = save;
     }
 
+    public static void saveGame() {
+        if (currentSave == null) return;
+        PlaythroughLoader.savePlaythrough(currentSave, Config.savePath+currentSave.getName());
+    }
+
     /**
      * Start game after save is selected
      * @return success of starting the game
@@ -349,7 +365,7 @@ public class Main extends Game {
     public static boolean startGame() {
         if (currentSave == null) return false;
 
-        MapManager.setSeed(currentSave.getSeed());
+        Gdx.app.log("Main", "Starting game with " + currentSave.getSeed());
 
         //TODO: make MapManager.generateLevel() generate levels according to an id
         //This should probably have a catch block at some point
@@ -420,6 +436,9 @@ public class Main extends Game {
 		spriteAddresses.add("ui/ingame/first_heart.png");
 		spriteAddresses.add("ui/ingame/damage.png");
 
+        loadingBg = new Texture("ui/main/loading-bg.png");
+        loadingItem = new Texture("ui/main/loading-item.png");
+
 		sounds = new HashMap<>();
 		sounds.put("audio/sfx/walking_2.mp3",null);
 		sounds.put("audio/sfx/whip_crack_1.mp3",null);
@@ -476,7 +495,7 @@ public class Main extends Game {
 
 		debugDrawer = new NEDebugDrawer();
         debugDrawer.setSpriteBatch(batch2d);
-		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_MAX_DEBUG_DRAW_MODE);
+		debugDrawer.setDebugMode(btIDebugDraw.DebugDrawModes.DBG_DrawWireframe);
         dynamicsWorld.setDebugDrawer(debugDrawer);
 
 		//Builds UI elements
@@ -604,7 +623,7 @@ public class Main extends Game {
 		Label gameState = new Label("Game state: " + gameStateCheck, debugStyle);
 		labels.add(gameState);
 
-		Label coords = new Label("Location: "+player.getPosition().toString(), debugStyle);
+		Label coords = new Label("Location: "+camera.position.toString(), debugStyle);
 		labels.add(coords);
 
 		Label rotation = new Label("Rotation: " + player.getRotation().toString(), debugStyle);
@@ -916,6 +935,7 @@ public class Main extends Game {
 
 		// generate new level
 		mapMan.generateLevel();
+        PlayerInput.KEYS.clear();
 	}
 
     /**
@@ -926,6 +946,8 @@ public class Main extends Game {
     private void renderObjects(boolean drawParticles, boolean shadeParticles){
 
         sceneMan.renderShadows();
+
+        fbo = ensureFBO(fbo, true);
 
         fbo.begin();
         Gdx.gl32.glClearColor(0, 0, 0, 0);
@@ -990,8 +1012,10 @@ public class Main extends Game {
 			renderLoadingFrame(progress);
 			if(assMan.update()){
 				assMan.finishLoading();
+                Gdx.app.log("Loading time", "Loading took " + (System.nanoTime() - timeAtLoadingStart) + "ns from start");
 				postLevelLoad();
-				setGameState(GameState.IN_GAME);
+                Gdx.app.log("Loading time", "Post level load took " + (System.nanoTime() - timeAtLoadingStart) + "ns from start");
+                setGameState(GameState.IN_GAME);
 			}
 			return;
 		}
@@ -1156,10 +1180,19 @@ public class Main extends Game {
 //        postProcessingShader.setUniformi("u_kernelSize", 7);
     }
 
+    private FrameBuffer ensureFBO(FrameBuffer fbo, boolean hasDepth) {
+        int w = Gdx.graphics.getBackBufferWidth();
+        int h = Gdx.graphics.getBackBufferHeight();
+        if(fbo == null || fbo.getWidth() != w || fbo.getHeight() != h){
+            if(fbo != null) fbo.dispose();
+            fbo = new FrameBuffer(Pixmap.Format.RGBA8888, w, h, hasDepth);
+        }
+        return fbo;
+    }
+
     private void renderLoadingFrame(float progress) {
-		Texture loadingItem = new Texture("ui/main/loading-item.png");
 		batch2d.begin();
-		batch2d.draw(new Texture("ui/main/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch2d.draw(loadingBg,0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
 			batch2d.draw(loadingItem, (float) ((170 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
 		}
@@ -1213,9 +1246,6 @@ public class Main extends Game {
 		super.resize(Config.TARGET_WIDTH, Config.TARGET_HEIGHT);
         viewport.update(width, height, true);
         camera.update();
-
-        fbo.dispose();
-        fbo = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, true);
 
 		// update fonts
 		buildFonts();

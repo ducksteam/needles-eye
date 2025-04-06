@@ -10,6 +10,7 @@ import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Keybind;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
+import com.ducksteam.needleseye.map.Seed;
 import de.pottgames.tuningfork.AudioDevice;
 
 /**
@@ -99,7 +100,7 @@ public class OptionsStage extends StageTemplate {
                 changes = false;
             }
         };
-        dialog.text("You have unsaved changes that will be overridden.", labelStyle);
+        dialog.text("You have unsaved changes that will be overridden.", smallFontLabelStyle);
         dialog.button("Apply", true, compactButtonStyle);
         dialog.button("Exit", false, compactButtonStyle);
 
@@ -217,7 +218,7 @@ public class OptionsStage extends StageTemplate {
 
         seedInputField.setTextFieldListener((textField, c) -> tempSeed = textField.getText());
 
-        seedLabel = new Label("Seed", labelStyle);
+        seedLabel = new Label("Seed", smallFontLabelStyle);
 
         addPopupDetector(seedInputField);
 
@@ -225,8 +226,8 @@ public class OptionsStage extends StageTemplate {
         generalPane.add(seedInputField).padRight(Value.percentWidth(0.04f, generalPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
         sensitivitySlider = new Slider(1, 200, 1, false, sliderStyle);
-        sensitivityLabel = new Label("Mouse Sensitivity", labelStyle);
-        sensitivityValueLabel = new Label((int) sensitivitySlider.getValue() + "%", labelStyle);
+        sensitivityLabel = new Label("Mouse Sensitivity", smallFontLabelStyle);
+        sensitivityValueLabel = new Label((int) sensitivitySlider.getValue() + "%", smallFontLabelStyle);
 
         sensitivitySlider.addListener(new ChangeListener() {
             @Override
@@ -254,11 +255,7 @@ public class OptionsStage extends StageTemplate {
      * Determines type of the inputted seed value, and sends it to MapMan
      */
     private void applySeed(){
-        try {
-            MapManager.setSeed(Long.parseLong(tempSeed));
-        } catch (NumberFormatException e) {
-            MapManager.setSeed(tempSeed);
-        }
+        MapManager.setSeed(new Seed(tempSeed));
     }
 
     Table videoPane;
@@ -293,7 +290,7 @@ public class OptionsStage extends StageTemplate {
             }
         });
 
-        resolutionLabel = new Label("Resolution", labelStyle);
+        resolutionLabel = new Label("Resolution", smallFontLabelStyle);
 
         videoPane.add(resolutionLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
         videoPane.add(resolutionDropdown).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
@@ -314,13 +311,13 @@ public class OptionsStage extends StageTemplate {
 
         resolutionDropdown.setDisabled(windowTypeDropdown.getSelected().equals(Config.WindowType.FULLSCREEN.getUserString()));
 
-        windowTypeLabel = new Label("Window Type", labelStyle);
+        windowTypeLabel = new Label("Window Type", smallFontLabelStyle);
 
         videoPane.add(windowTypeLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
         videoPane.add(windowTypeDropdown).padRight(Value.percentWidth(0.04f, videoPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
 
         vSyncCheckbox = new ImageButton(checkboxStyle);
-        vSyncLabel = new Label("VSync", labelStyle);
+        vSyncLabel = new Label("VSync", smallFontLabelStyle);
 
         videoPane.add(vSyncLabel).pad(Value.percentWidth(0.04f, videoPane)).left();
         videoPane.add(vSyncCheckbox).padRight(Value.percentWidth(0.04f, videoPane)).left().prefSize(Value.percentHeight(0.8f, windowTypeDropdown)).row();
@@ -335,8 +332,8 @@ public class OptionsStage extends StageTemplate {
         });
 
         brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
-        brightnessLabel = new Label("Brightness", labelStyle);
-        brightnessValueLabel = new Label((int) brightnessSlider.getValue() + "%", labelStyle);
+        brightnessLabel = new Label("Brightness", smallFontLabelStyle);
+        brightnessValueLabel = new Label((int) brightnessSlider.getValue() + "%", smallFontLabelStyle);
 
         brightnessSlider.addListener(new ChangeListener() {
             @Override
@@ -370,8 +367,8 @@ public class OptionsStage extends StageTemplate {
         Slider musicVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
         musicVolumeSlider.setValue(Config.musicVolume);
 
-        Label musicVolumeLabel = new Label("Music Volume", labelStyle);
-        Label musicVolumeValueLabel = new Label((int)musicVolumeSlider.getValue() + "%", labelStyle);
+        Label musicVolumeLabel = new Label("Music Volume", smallFontLabelStyle);
+        Label musicVolumeValueLabel = new Label((int)musicVolumeSlider.getValue() + "%", smallFontLabelStyle);
 
         musicVolumeSlider.addListener(new ChangeListener() {
             @Override
@@ -391,8 +388,8 @@ public class OptionsStage extends StageTemplate {
         Slider sfxVolumeSlider = new Slider(0, 100, 1, false, sliderStyle);
         sfxVolumeSlider.setValue(Config.sfxVolume);
 
-        Label sfxVolumeLabel = new Label("SFX Volume", labelStyle);
-        Label sfxVolumeValueLabel = new Label((int)sfxVolumeSlider.getValue() + "%", labelStyle);
+        Label sfxVolumeLabel = new Label("SFX Volume", smallFontLabelStyle);
+        Label sfxVolumeValueLabel = new Label((int)sfxVolumeSlider.getValue() + "%", smallFontLabelStyle);
 
         sfxVolumeSlider.addListener(new ChangeListener() {
             @Override
@@ -411,7 +408,7 @@ public class OptionsStage extends StageTemplate {
         SelectBox<String> audioDeviceDropdown = new SelectBox<>(selectBoxStyle);
         audioDeviceDropdown.setItems(AudioDevice.availableDevices().stream().map(s -> s.substring(15)).toArray(String[]::new));
         audioDeviceDropdown.setMaxListCount(3);
-        audioDeviceDropdown.setSelected(Config.audioOutputDevice.substring(15));
+        audioDeviceDropdown.setSelected(Config.audioOutputDevice == null ? AudioDevice.availableDevices().getFirst().substring(15) : (Config.audioOutputDevice.substring(15)));
 
         audioDeviceDropdown.addListener(new ChangeListener() {
             @Override
@@ -420,7 +417,7 @@ public class OptionsStage extends StageTemplate {
             }
         });
 
-        Label resolutionLabel = new Label("Output Device", labelStyle);
+        Label resolutionLabel = new Label("Output Device", smallFontLabelStyle);
 
         audioPane.add(resolutionLabel).pad(Value.percentWidth(0.04f, audioPane)).left();
         audioPane.add(audioDeviceDropdown).padRight(Value.percentWidth(0.04f, audioPane)).prefWidth(Value.percentWidth(0.75f)).growX().row();
@@ -442,11 +439,11 @@ public class OptionsStage extends StageTemplate {
 
         for (Keybind.KeybindType keybindType : Keybind.KeybindType.values()) {
             if (keybindType == Keybind.KeybindType.DEBUG && !Keybind.KeybindType.showDebugKeybinds) continue;
-            Label sectionTitle = new Label(keybindType.name(), labelStyle);
+            Label sectionTitle = new Label(keybindType.name(), smallFontLabelStyle);
             sectionTitle.setFontScale(2);
             controlsPane.add(sectionTitle).pad(Value.percentHeight(0.02f, background)).colspan(3).row();
             for (Keybind keybind : keybindType.keybinds) {
-                Label keybindName = new Label(keybind.readableName, labelStyle);
+                Label keybindName = new Label(keybind.readableName, smallFontLabelStyle);
                 Table keybindContainer = new Table();
 
                 for (Integer key : keybind.keys) {
