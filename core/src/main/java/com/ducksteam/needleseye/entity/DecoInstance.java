@@ -14,14 +14,12 @@ import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
 import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.badlogic.gdx.physics.bullet.linearmath.btMotionState;
-import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.bullet.WorldTrigger;
 import com.ducksteam.needleseye.map.DecoTemplate;
 import net.mgsx.gltf.scene3d.scene.Scene;
 
 import java.util.ArrayList;
-import java.util.stream.Collectors;
 
 import static com.ducksteam.needleseye.Main.dynamicsWorld;
 
@@ -99,13 +97,13 @@ public class DecoInstance extends Entity {
             this.parent = deco;
             this.node = node;
 
-            bb = new BoundingBox();
-
             for (NodePart part : node.parts) {
-                bb.ext(part.meshPart.mesh.calculateBoundingBox());
+                part.meshPart.update();
+                if (bb != null) bb.ext(genBoundingBox(part.meshPart.center, part.meshPart.halfExtents));
+                else bb = genBoundingBox(part.meshPart.center, part.meshPart.halfExtents);
             }
 
-            shape = new btBoxShape(bb.getDimensions(new Vector3()).cpy().scl(0.5f));
+            shape = new btBoxShape(bb.getDimensions(new Vector3()).cpy().scl(0.5f).scl(0.8f, 0.6f, 0.8f));
 //            shape = Entity.obtainConvexHullShape(node.parts.get(0).meshPart.mesh, true);
 //            shape = Bullet.obtainStaticNodeShape(node, true);
 
@@ -121,6 +119,10 @@ public class DecoInstance extends Entity {
             node.globalTransform.set(new Matrix4().set(parent.transform.getRotation(new Quaternion())));
             collider.setFriction(0.8f);
             dynamicsWorld.addRigidBody(collider);
+        }
+
+        public static BoundingBox genBoundingBox(Vector3 centre, Vector3 halfExtents) {
+            return new BoundingBox(centre.cpy().sub(halfExtents), centre.cpy().add(halfExtents));
         }
 
         private void update() {
@@ -145,9 +147,6 @@ public class DecoInstance extends Entity {
     public void update(float delta) {
         if (!shattered) {
             motionState.setWorldTransform(transform);
-        } else {
-            shatterNodes.stream().sorted((n1, n2) -> (int) (n1.node.globalTransform.getTranslation(new Vector3()).sub(Main.player.getPosition()).len() - n2.node.globalTransform.getTranslation(new Vector3()).sub(Main.player.getPosition()).len())).collect(Collectors.toCollection(ArrayList::new)).getFirst().update();
-//            shatterNodes.forEach(node -> node.update(delta));
         }
     }
 
