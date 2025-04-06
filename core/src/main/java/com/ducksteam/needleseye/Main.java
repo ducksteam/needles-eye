@@ -140,6 +140,10 @@ public class Main extends Game {
     public static BitmapFont smallFont;
     /** The virtual text layout, used for measuring and centering text*/
 	public static GlyphLayout layout;
+    /** The item that fills the loading bar. Needs to be stored here as it is used before assMan loads textures */
+    private Texture loadingItem;
+    /** The background for loading. Needs to be stored here as it is used before assMan loads textures */
+    private Texture loadingBg;
 
     /** The asset manager for the game, for loading and storing assets*/
 	public static AssetManager assMan;
@@ -181,6 +185,8 @@ public class Main extends Game {
 	static long timeAtLastRender;
     /** The difference in time between the last render and the current render delta Time!*/
 	float dT;
+    /** Time when loading started (for benchmarking) */
+    static long timeAtLoadingStart;
 
 	// input & player
     /** The global input processor for the game*/
@@ -337,7 +343,8 @@ public class Main extends Game {
 			Gdx.input.setCursorCatched(true);
 			PlayerInput.KEYS.forEach((key, value) -> PlayerInput.KEYS.put(key, false));
 		}
-	}
+        if (gameState == GameState.LOADING) timeAtLoadingStart = System.nanoTime();
+    }
 
     /**
      * Get active UI animation
@@ -450,6 +457,9 @@ public class Main extends Game {
 		spriteAddresses.add("ui/ingame/empty_heart.png");
 		spriteAddresses.add("ui/ingame/first_heart.png");
 		spriteAddresses.add("ui/ingame/damage.png");
+
+        loadingBg = new Texture("ui/main/loading-bg.png");
+        loadingItem = new Texture("ui/main/loading-item.png");
 
 		sounds = new HashMap<>();
 		sounds.put("audio/sfx/walking_2.mp3",null);
@@ -1011,8 +1021,10 @@ public class Main extends Game {
 			renderLoadingFrame(progress);
 			if(assMan.update()){
 				assMan.finishLoading();
+                Gdx.app.log("Loading time", "Loading took " + (System.nanoTime() - timeAtLoadingStart) + "ns from start");
 				postLevelLoad();
-				setGameState(GameState.IN_GAME);
+                Gdx.app.log("Loading time", "Post level load took " + (System.nanoTime() - timeAtLoadingStart) + "ns from start");
+                setGameState(GameState.IN_GAME);
 			}
 			return;
 		}
@@ -1169,9 +1181,8 @@ public class Main extends Game {
     }
 
     private void renderLoadingFrame(float progress) {
-		Texture loadingItem = new Texture("ui/main/loading-item.png");
 		batch2d.begin();
-		batch2d.draw(new Texture("ui/main/loading-bg.png"),0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
+		batch2d.draw(loadingBg,0,0,Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		for (int i = 0; i < (int) (progress * 75); i++){ // add one loading bar texture for every 1/75th of the loading complete
 			batch2d.draw(loadingItem, (float) ((170 + (i * 4)) * Gdx.graphics.getWidth()) / 640, (float) (141 * Gdx.graphics.getHeight()) / 360, (float) (4 * Gdx.graphics.getWidth()) / 640, (float) (18 * Gdx.graphics.getHeight()) / 360);
 		}
