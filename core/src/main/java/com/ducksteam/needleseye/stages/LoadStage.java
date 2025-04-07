@@ -156,7 +156,8 @@ public class LoadStage extends StageTemplate {
                                 return true; // prevent from starting
                             }
                         } catch (RuntimeException e) {
-                            Gdx.app.error("Loading", "Failed to load playthrough");
+                            Gdx.app.error("Loading", "Failed to load playthrough", e);
+                            return true; // prevent from starting
                         }
                         Main.beginLoading();
                         return true;

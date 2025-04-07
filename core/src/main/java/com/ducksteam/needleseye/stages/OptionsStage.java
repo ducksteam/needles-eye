@@ -216,7 +216,9 @@ public class OptionsStage extends StageTemplate {
 
         seedInputField = new TextField("", textFieldStyle);
 
-        seedInputField.setTextFieldListener((textField, c) -> tempSeed = textField.getText());
+        seedInputField.setTextFieldListener((textField, c) -> {
+            if (!textField.getText().isBlank()) tempSeed = textField.getText();
+        });
 
         seedLabel = new Label("Seed", smallFontLabelStyle);
 

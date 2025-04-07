@@ -34,6 +34,10 @@ public class Seed {
                 this.type = SeedType.STRING;
                 this.seedString = seed;
             }
+        } else {
+            // TODO: Java 23 will mean this can be replaced with `this()`
+            this.seed = System.nanoTime();
+            this.type = SeedType.TIME;
         }
         Gdx.app.debug("Seed", this.toString());
     }
