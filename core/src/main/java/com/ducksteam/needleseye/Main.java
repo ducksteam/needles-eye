@@ -389,10 +389,12 @@ public class Main extends Game {
 
         Gdx.app.log("Main", "Starting game with " + currentSave.getSeed());
 
-        //TODO: make MapManager.generateLevel() generate levels according to an id
         //This should probably have a catch block at some point
-        do mapMan.generateLevel();
-        while (mapMan.levels.size()<currentSave.getCurrentLevelId());
+        if (currentSave.fromSave) {
+            mapMan.updateToPlaythroughState(currentSave);
+        } else {
+            mapMan.generateLevel(true);
+        }
         return true;
     }
 
@@ -746,7 +748,6 @@ public class Main extends Game {
 		UpgradeRegistry.iconsLoaded = true;
 
 		mapMan.levelIndex = 1;
-		//mapMan.generateLevel();
         startGame();
 		spawnEnemies();
 	}
@@ -944,7 +945,7 @@ public class Main extends Game {
 		particleSystem.removeAll();
 
 		// generate new level
-		mapMan.generateLevel();
+		mapMan.generateLevel(true);
         PlayerInput.KEYS.clear();
 	}
 

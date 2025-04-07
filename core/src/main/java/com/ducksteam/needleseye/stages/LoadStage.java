@@ -8,7 +8,9 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.map.Playthrough;
 import com.ducksteam.needleseye.map.PlaythroughLoader;
+import com.ducksteam.needleseye.map.Seed;
 
 import java.util.Date;
 
@@ -145,8 +147,17 @@ public class LoadStage extends StageTemplate {
                 playthroughButton.addListener(new InputListener() {
                     @Override
                     public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                        Main.setCurrentSave(PlaythroughLoader.loadPlaythrough(file.path()));
-                        //todo: move player into level
+                        try{
+                            Main.setCurrentSave(PlaythroughLoader.loadPlaythrough(file.path()));
+                            if (Playthrough.checkPlaythrough(Main.currentSave)) {
+                                Main.setCurrentSave(new Playthrough(new Seed(), "fallback"));
+                                Gdx.app.error("Loading", "Playthrough contains errors");
+                                // TODO: alert user
+                                return true; // prevent from starting
+                            }
+                        } catch (RuntimeException e) {
+                            Gdx.app.error("Loading", "Failed to load playthrough");
+                        }
                         Main.beginLoading();
                         return true;
                     }

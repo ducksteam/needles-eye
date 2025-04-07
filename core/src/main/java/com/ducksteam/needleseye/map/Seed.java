@@ -8,15 +8,15 @@ import com.badlogic.gdx.Gdx;
  */
 public class Seed {
     private long seed;
-    private String seedString;
+    String seedString;
 
-    private enum SeedType {
+    enum SeedType {
         LONG,
         STRING,
         TIME
     }
 
-    private SeedType type;
+    SeedType type;
 
     public Seed(long seed) {
         this.seed = seed;

@@ -15,10 +15,14 @@ import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
+import com.ducksteam.needleseye.player.Player;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.ducksteam.needleseye.Main.entities;
+import static com.ducksteam.needleseye.Main.player;
 
 
 /**
@@ -196,13 +200,15 @@ public class MapManager {
 
     /**
      * Create a new level with a random layout, the size of which is determined by the level index
+     * @param tellSave whether to update {@link Playthrough#currentLevelId}.
+     *                 This is used in updating the map state to the required state in savegame loading
      */
-    public void generateLevel() {
+    public void generateLevel(boolean tellSave) {
         if (random == null) {
             setSeed(new Seed());
         }
 
-        Main.currentSave.update();
+        if (tellSave) Main.currentSave.update();
 
         if (visualise) {
             visualiser.renderingComplete = false;
@@ -264,8 +270,19 @@ public class MapManager {
      * @param playthrough playthrough to sync to
      */
     public void updateToPlaythroughState(Playthrough playthrough) {
-        while (levelIndex < playthrough.getCurrentLevelId()) {
-            generateLevel();
+        setSeed(playthrough.getSeed());
+
+        if (playthrough.getCurrentLevelId() == 1) {
+            entities.clear();
+            player = new Player(Config.PLAYER_START_POSITION, playthrough.playerData);
+        }
+
+        while (levelIndex <= playthrough.getCurrentLevelId()) {
+            generateLevel(false);
+            if (levelIndex == playthrough.getCurrentLevelId()) { // before final level is generated
+                Main.entities.clear();
+                player = new Player(Config.PLAYER_START_POSITION, playthrough.playerData);
+            }
         }
     }
 

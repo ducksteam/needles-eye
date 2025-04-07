@@ -1,7 +1,6 @@
 package com.ducksteam.needleseye.map;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Files;
 import com.badlogic.gdx.utils.Json;
 
 import java.text.DateFormat;
@@ -12,19 +11,13 @@ public class PlaythroughLoader {
 
     static Json json;
     static String localRoot;
-    static Boolean canSave;
     static DateFormat dateFormat;
-
     /**
      * Prepares the PlaythroughLoader for use.
-     * {@link Lwjgl3Files#isLocalStorageAvailable()}
-     * @return True if the PlaythroughLoader is ready to use, false otherwise.
-     * */
-    public static boolean initialisePlaythroughLoader() {
+     */
+    public static void initialisePlaythroughLoader() {
         json = new Json();
         localRoot = Gdx.files.getLocalStoragePath();
-        canSave = Gdx.files.isLocalStorageAvailable();
-        return canSave;
     }
 
     /**
@@ -36,6 +29,7 @@ public class PlaythroughLoader {
         Playthrough playthrough;
         String data = Gdx.files.local(path).readString();
         playthrough = json.fromJson(Playthrough.class, data);
+        playthrough.fromSave = true;
         return playthrough;
     }
 
@@ -46,10 +40,6 @@ public class PlaythroughLoader {
      * @throws RuntimeException If the playthrough cannot be saved.
      * */
     public static void savePlaythrough(Playthrough playthrough, String path) throws RuntimeException {
-        if (!canSave) {
-            throw new RuntimeException("Cannot save playthroughs on this platform.");
-        }
-
         String data;
         data = json.prettyPrint(playthrough);
         if (Gdx.files.local(path).exists()) path = path + getDateFormat().format(new Date());
