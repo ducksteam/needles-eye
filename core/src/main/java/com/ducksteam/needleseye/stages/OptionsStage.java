@@ -12,6 +12,11 @@ import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
 import de.pottgames.tuningfork.AudioDevice;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * The stage for options.
  */
@@ -277,7 +282,7 @@ public class OptionsStage extends StageTemplate {
         videoPane = new Table();
 
         resolutionDropdown = new SelectBox<>(selectBoxStyle);
-        resolutionDropdown.setItems(Config.Resolution.getMatchingResolutions(Main.maxResolution).toArray(new Config.Resolution[0]));
+        resolutionDropdown.setItems(Config.Resolution.getMatchingResolutions(Main.maxResolution).stream().sorted((r1, r2) -> -1 * r1.compareTo(r2)).toArray(Config.Resolution[]::new));
         resolutionDropdown.setMaxListCount(4);
 
         if (Config.prefs.getString("WindowType").equalsIgnoreCase("fullscreen")){
@@ -309,6 +314,7 @@ public class OptionsStage extends StageTemplate {
             public void changed(ChangeEvent event, Actor actor) {
                 Config.setWindowType(Config.WindowType.valueOf(windowTypeDropdown.getSelected().toUpperCase()));
                 Config.setResolution(Config.getFullscreenResolution());
+                resolutionDropdown.setDisabled(windowTypeDropdown.getSelected().equals(Config.WindowType.FULLSCREEN.getUserString()));
             }
         });
 
@@ -333,6 +339,8 @@ public class OptionsStage extends StageTemplate {
                 Config.setvSync(vSyncCheckbox.isChecked());
             }
         });
+
+        vSyncCheckbox.setChecked(Config.prefs.getBoolean("VSync", false));
 
         brightnessSlider = new Slider(0, 100, 1, false, sliderStyle);
         brightnessLabel = new Label("Brightness", labelStyle);

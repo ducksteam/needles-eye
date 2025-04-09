@@ -1,4 +1,4 @@
-package com.ducksteam.needleseye.lwjgl3;
+package lwjgl3.src.main.java.com.ducksteam.needleseye.lwjgl3;
 
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
@@ -17,6 +17,7 @@ public class Lwjgl3Launcher {
     private static void createApplication() {
         Main main = new Main();
         Main.maxResolution = new Config.Resolution(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        Config.Resolution.addMatchingResolutions(Lwjgl3ApplicationConfiguration.getPrimaryMonitor());
         main.setSplashWorker(new LwjglSplashWorker());
         new Lwjgl3Application(main, getDefaultConfiguration());
     }

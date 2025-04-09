@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -266,13 +267,13 @@ public class Config {
         }
     }
 
-    public static class Resolution {
+    public static class Resolution implements Comparable<Resolution> {
         public int width;
         public int height;
 
         static final char SEPARATOR = 'x';
 
-        static ArrayList<Resolution> resolutions = new ArrayList<>();
+        public static TreeSet<Resolution> resolutions = new TreeSet<>();
 
         static {
             resolutions.add(new Resolution(3840, 2160)); // 4k
@@ -294,6 +295,10 @@ public class Config {
             this(displayMode.width, displayMode.height);
         }
 
+        public static void addMatchingResolutions(Graphics.Monitor monitor) {
+            Arrays.stream(Lwjgl3ApplicationConfiguration.getDisplayModes(monitor)).forEach((Graphics.DisplayMode m) -> resolutions.add(new Resolution(m)));
+        }
+
         public Resolution(String s) {
             this(Integer.parseInt((s.split(String.valueOf(SEPARATOR))[0])), Integer.parseInt(s.split(String.valueOf(SEPARATOR))[1]));
         }
@@ -305,6 +310,13 @@ public class Config {
         @Override
         public String toString() {
             return String.valueOf(width) + SEPARATOR + height;
+        }
+
+        @Override
+        public int compareTo(Resolution o) {
+            int thisPixels = this.width * this.height;
+            int otherPixels = o.width * o.height;
+            return thisPixels - otherPixels;
         }
 
         @Override
