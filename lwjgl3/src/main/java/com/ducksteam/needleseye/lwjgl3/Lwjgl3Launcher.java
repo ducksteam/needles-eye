@@ -1,4 +1,4 @@
-package lwjgl3.src.main.java.com.ducksteam.needleseye.lwjgl3;
+package com.ducksteam.needleseye.lwjgl3;
 
 import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl3.Lwjgl3Application;
