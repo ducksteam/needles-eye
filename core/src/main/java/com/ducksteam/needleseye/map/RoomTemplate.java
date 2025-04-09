@@ -24,6 +24,15 @@ public class RoomTemplate {
      */
     public record EnemyTagPosition(String tag, Vector3 position) {}
 
+    /**
+     * Represents the possibility of a placed deco in the room
+     * @param tag the string combination of tags that can possibly be placed there
+     * @param tagName whether to search specifically for a deco with tag as its name
+     * @param position the position of the deco in the room
+     * @param chance the probability (0-1, 1 is guaranteed) that the deco will be placed
+     */
+    public record DecoTagPosition(String tag, boolean tagName, Vector3 position, float chance) {}
+
     @Deprecated
     private Model model; // the model of the room
 
@@ -115,6 +124,7 @@ public class RoomTemplate {
     private HashMap<Integer, Boolean> doors; // the doors of the room and whether they are compatible with the model
     private Vector3 centreOffset; // the offset of the centre of the room
     private ArrayList<EnemyTagPosition> enemyTagPositions; // the positions of enemy tags in the room
+    private ArrayList<DecoTagPosition> decoTagPositions; // the positions of possible decos in the room
 
     /**
      * Create a pre-populated room template
@@ -126,7 +136,7 @@ public class RoomTemplate {
      * @param centreOffset the offset of the centre of the room
      * @param enemyTagPositions the positions of enemy tags in the room
      */
-    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, Vector3 centreOffset, ArrayList<EnemyTagPosition> enemyTagPositions) {
+    public RoomTemplate(RoomType roomType, int width, int height, boolean spawn, String modelPath, Vector3 centreOffset, ArrayList<EnemyTagPosition> enemyTagPositions, ArrayList<DecoTagPosition> decoTagPositions) {
         this.type = roomType;
         this.width = width;
         this.height = height;
@@ -134,6 +144,7 @@ public class RoomTemplate {
         this.modelPath = modelPath;
         this.centreOffset = centreOffset;
         this.enemyTagPositions = enemyTagPositions;
+        this.decoTagPositions = decoTagPositions;
     }
 
     /**
@@ -180,6 +191,27 @@ public class RoomTemplate {
                 {
                     for (JsonValue tagPosition : enemyTagPositions) {
                         add(new EnemyTagPosition(tagPosition.getString("tag"), MapManager.vector3FromArray(tagPosition.get("position").asDoubleArray())));
+                    }
+                }
+            });
+
+            JsonValue decoTagPositions = room.get("decos");
+            rt.setDecoTagPositions(new ArrayList<>() {
+                {
+                    for (JsonValue tagPosition : decoTagPositions) {
+                        if (tagPosition.has("name")){
+                            add(new DecoTagPosition(
+                                tagPosition.getString("name"),
+                                true,
+                                MapManager.vector3FromArray(tagPosition.get("position").asDoubleArray()),
+                                tagPosition.getFloat("chance")));
+                        } else if (tagPosition.has("tagString")) {
+                            add(new DecoTagPosition(
+                                tagPosition.getString("tagString"),
+                                false,
+                                MapManager.vector3FromArray(tagPosition.get("position").asDoubleArray()),
+                                tagPosition.getFloat("chance")));
+                        } else throw new RuntimeException("Invalid decoTagPosition");
                     }
                 }
             });
@@ -343,6 +375,14 @@ public class RoomTemplate {
      */
     public void setEnemyTagPositions(ArrayList<EnemyTagPosition> enemyTagPositions) {
         this.enemyTagPositions = enemyTagPositions;
+    }
+
+    public ArrayList<DecoTagPosition> getDecoTagPositions() {
+        return decoTagPositions;
+    }
+
+    public void setDecoTagPositions(ArrayList<DecoTagPosition> decoTagPositions) {
+        this.decoTagPositions = decoTagPositions;
     }
 
     /**

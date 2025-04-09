@@ -9,10 +9,7 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
-import com.ducksteam.needleseye.entity.EnemyRegistry;
-import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
-import com.ducksteam.needleseye.entity.RoomInstance;
-import com.ducksteam.needleseye.entity.WallObject;
+import com.ducksteam.needleseye.entity.*;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
 import com.ducksteam.needleseye.player.Player;
@@ -31,27 +28,19 @@ import static com.ducksteam.needleseye.Main.player;
  */
 public class MapManager {
 
-    /**
-     * All room templates
-     */
+    /** All room templates */
     public static ArrayList<RoomTemplate> roomTemplates;
-    /**
-     * The levels from the current run
-     */
+    /** All deco templates */
+    public static ArrayList<DecoTemplate> decoTemplates;
+    /** The levels from the current run */
     public final ArrayList<Level> levels;
 
-    /**
-     * The number of levels generated/the number to use for the next level to be generated
-     */
+    /** The number of levels generated/the number to use for the next level to be generated*/
     public int levelIndex;
 
-    /**
-     * The visualiser for map generation
-     */
+    /** The visualiser for map generation*/
     public MapGenerationVisualiser visualiser;
-    /**
-     * Whether to visualise the map generation
-     */
+    /**Whether to visualise the map generation*/
     public boolean visualise;
     /** The seeded random instance. <b>Only to be used for level generation to preserve seed uniformity</b> */
     protected static Random random;
@@ -115,19 +104,29 @@ public class MapManager {
      */
     public MapManager(boolean visualise) {
         roomTemplates = new ArrayList<>();
+        decoTemplates = new ArrayList<>();
         levels = new ArrayList<>();
         levelIndex = 1;
 
         Json json = new Json();
         Array<JsonValue> map;
+
+        try {
+            map = json.fromJson(null, Gdx.files.internal("data/decos/decos.json"));
+            decoTemplates.addAll(DecoTemplate.loadDecoTemplates(map));
+        } catch (Exception e) {
+            Gdx.app.error("DecoTemplate", "Error loading deco templates", e);
+        }
+        Gdx.app.debug("MapManager", "Loaded data for " + decoTemplates.size() + " deco templates");
+
         try {
             map = json.fromJson(null, Gdx.files.internal("data/rooms/rooms.json"));
             roomTemplates.addAll(RoomTemplate.loadRoomTemplates(map));
         } catch (Exception e) {
             Gdx.app.error("RoomTemplate", "Error loading room templates", e);
         }
-
         Gdx.app.debug("MapManager", "Loaded data for " + roomTemplates.size() + " room templates");
+
         if (visualise) {
             Gdx.app.log("MapManager", "Visualising map generation");
             visualiser = new MapGenerationVisualiser();
@@ -139,7 +138,7 @@ public class MapManager {
      * Add enemies to the level
      * @param level the level to be populated
      */
-    public void populateLevel(Level level){
+    public void addEnemies(Level level){
         level.getRooms().forEach((RoomInstance room)->{
             for (RoomTemplate.EnemyTagPosition tagPosition : room.getRoom().getEnemyTagPositions()){
                 Class<? extends EnemyEntity> enemyClass = getSuitableEnemy(tagPosition.tag());
@@ -152,6 +151,24 @@ public class MapManager {
                 assert enemy != null;
                 enemy.setAssignedRoom(room);
                 room.addEnemy(enemy);
+            }
+        });
+    }
+
+    /** Add decos to a level
+     * @param level the level to add decos to
+     */
+    public void addDecos(Level level){
+        level.getRooms().forEach(room -> {
+            for (RoomTemplate.DecoTagPosition tagPosition : room.getRoom().getDecoTagPositions()){
+                if (tagPosition.chance() < random.nextFloat()) continue;
+                DecoTemplate template;
+                if (tagPosition.tagName()) template = getDecoWithName(tagPosition.tag());
+                else template = getSuitableDeco(tagPosition.tag());
+
+                if (template == null) { Gdx.app.error("MapManager", "No suitable deco found for tag: " + tagPosition.tag()); return; }
+
+                new DecoInstance(template, room, tagPosition.position(), new Quaternion());
             }
         });
     }
@@ -184,6 +201,28 @@ public class MapManager {
         ));
     }
 
+    /** Get suitable deco fulfilling tag requirements
+     * @param tagString the tag string as in the json file
+     * @return a suitable deco template
+     */
+    public DecoTemplate getSuitableDeco(String tagString) {
+        return decoTemplates.stream().filter(decoTemplate -> {
+            ArrayList<String> possibleTagCombos = Arrays.stream(tagString.split(",")).collect(Collectors.toCollection(ArrayList::new));
+
+            for(String possibleTagCombo : possibleTagCombos) {
+                boolean allTagsPresent = true;
+                for(String possibleTag : possibleTagCombo.split("&")) {
+                    if (decoTemplate.tags.stream().noneMatch(tag -> tag.isChildOf(DecoTag.fromString(possibleTag)))) allTagsPresent = false;
+                }
+                if (allTagsPresent) return true;
+            }
+            return false;
+        }).collect(Collectors.collectingAndThen(
+            Collectors.toList(),
+            list -> list.get(random.nextInt(list.size()))
+        ));
+    }
+
     /**
      * Generate a test level, with known parameters
      */
@@ -192,7 +231,8 @@ public class MapManager {
         level.addRoom(new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0), 0));
 
         addWalls(level);
-        populateLevel(level);
+        addEnemies(level);
+        addDecos(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -256,9 +296,10 @@ public class MapManager {
         Gdx.app.debug("MapManager", "Generated level " + levelIndex + " with " + level.getRooms().size() + " rooms");
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
-        // add walls and enemies
+        // generate extra entities
         addWalls(level);
-        populateLevel(level);
+        addEnemies(level);
+        addDecos(level);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -616,6 +657,14 @@ public class MapManager {
      */
     public static RoomTemplate getRoomWithName(String name){
         return roomTemplates.stream().filter(room -> room.getName().equals(name)).findFirst().orElse(null);
+    }
+
+    /** Get a deco template with a specific name
+     * @param name the name of the deco
+     * @return the deco template or null if not found
+     */
+    public static DecoTemplate getDecoWithName(String name){
+        return decoTemplates.stream().filter(deco -> deco.getName().equals(name)).findFirst().orElse(null);
     }
 
     /**

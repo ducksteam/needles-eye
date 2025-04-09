@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.map.MapManager;
+import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.Playthrough;
 
 import static com.ducksteam.needleseye.Main.setGameState;
@@ -90,12 +91,8 @@ public class MainStage extends StageTemplate {
 		playButton.addListener(new InputListener(){
 			@Override
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-				if (Main.getActiveUIAnim() == null){
-					Main.setActiveUIAnim(Main.transitionAnimation, MainStage.this::update, () -> {
-                        Main.setCurrentSave(new Playthrough(MapManager.seed, "name"));
-                        setGameState(Main.GameState.THREAD_SELECT);
-                    });
-				}
+                Main.setCurrentSave(new Playthrough(MapManager.seed, "name"));
+                setGameState(Main.GameState.THREAD_TRANSITION);
 				return true;
 			}
 		});

@@ -57,7 +57,7 @@ public class Lwjgl3Launcher {
 
         configuration.setHdpiMode(HdpiMode.Pixels); // use actual pixels for resolution
 
-        configuration.setBackBufferConfig(8, 8, 8, 8, 16, 0, 4);
+        configuration.setBackBufferConfig(8, 8, 8, 8, 16, 8, 4);
 
         configuration.setWindowIcon("icon_128.png", "icon_64.png", "icon_32.png", "icon_16.png"); // application icon
 

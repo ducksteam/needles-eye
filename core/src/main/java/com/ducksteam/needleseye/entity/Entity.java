@@ -1,6 +1,7 @@
 package com.ducksteam.needleseye.entity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.g3d.ModelInstance;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController;
 import com.badlogic.gdx.graphics.g3d.utils.AnimationController.AnimationListener;
@@ -9,9 +10,7 @@ import com.badlogic.gdx.math.Quaternion;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.math.collision.BoundingBox;
 import com.badlogic.gdx.physics.bullet.Bullet;
-import com.badlogic.gdx.physics.bullet.collision.Collision;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionObject;
-import com.badlogic.gdx.physics.bullet.collision.btCollisionShape;
+import com.badlogic.gdx.physics.bullet.collision.*;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
@@ -52,6 +51,10 @@ public abstract class Entity implements AnimationListener {
 	public static final int PICKUP_GROUP = 1 << 15;
     /** Collision flag for triggers */
     public static final int TRIGGER_GROUP = 1 << 16;
+    /** Collision flag for decos */
+    public static final int DECO_GROUP = 1 << 17;
+    /** Collision flag for attack */
+    public static final int ATTACK_GROUP = 1 << 18;
 	//Rendering and collision data
     /**
      * Whether the entity is renderable
@@ -87,7 +90,7 @@ public abstract class Entity implements AnimationListener {
     /**
      * The scene asset of the entity
      */
-	private Scene scene;
+	protected Scene scene;
 
     /** The centre of the bounding sphere*/
     private final Vector3 boundingSphereCentre = new Vector3();
@@ -127,7 +130,7 @@ public abstract class Entity implements AnimationListener {
 	 */
 
 	public Entity(Vector3 position, Quaternion rotation, Scene scene) {
-		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT | GROUND_GROUP);
+		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
 	}
 
 	/**
@@ -202,7 +205,6 @@ public abstract class Entity implements AnimationListener {
 			// Creates rigid body
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.obtain();
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
 			collider.setUserValue(this.id); // set user value to entity id
 			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
@@ -224,6 +226,26 @@ public abstract class Entity implements AnimationListener {
 		motionState.getWorldTransform(modelInstance.transform);
 		return modelInstance;
 	}
+
+    /**
+     * Create a convex hull shape (ideal for dynamic entities)
+     * @param mesh the mesh to create the shape of
+     * @param optimize whether to optimize the collision shape to more closely fit the object
+     * @return the new collision shape
+     */
+    public static btConvexHullShape obtainConvexHullShape(final Mesh mesh, boolean optimize) {
+        final btConvexHullShape shape = new btConvexHullShape(mesh.getVerticesBuffer(false), mesh.getNumVertices(),
+            mesh.getVertexSize());
+        if (!optimize) return shape;
+        // now optimize the shape
+        final btShapeHull hull = new btShapeHull(shape);
+        hull.buildHull(shape.getMargin());
+        final btConvexHullShape result = new btConvexHullShape(hull);
+        // delete the temporary shape
+        shape.dispose();
+        hull.dispose();
+        return result;
+    }
 
 	/**
 	 * Returns the scene asset of the entity
@@ -256,7 +278,6 @@ public abstract class Entity implements AnimationListener {
 			// Creates rigid body
 			collider = new btRigidBody(mass, motionState, collisionShape, inertia);
 			collider.obtain();
-			collider.setCollisionFlags(collider.getCollisionFlags() | flags);
 			collider.setActivationState(Collision.DISABLE_DEACTIVATION); // disable entity deactivation
 			collider.setUserValue(this.id); // set user value to entity id
 			if (this instanceof RoomInstance) collider.setFriction(0.2f); // increase friction on room instances
@@ -361,7 +382,7 @@ public abstract class Entity implements AnimationListener {
 	/**
 	 * Disposes all relevant data from the entity
 	 * */
-	public void destroy() {
+	public synchronized void destroy() {
 		dynamicsWorld.removeRigidBody(collider);
         collisionShape.dispose();
         motionState.dispose();

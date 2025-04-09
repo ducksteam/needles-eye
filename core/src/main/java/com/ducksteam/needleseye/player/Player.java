@@ -11,6 +11,7 @@ import com.badlogic.gdx.physics.bullet.dynamics.btDiscreteDynamicsWorld;
 import com.badlogic.gdx.physics.bullet.dynamics.btRigidBody;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.entity.DecoInstance;
 import com.ducksteam.needleseye.entity.Entity;
 import com.ducksteam.needleseye.entity.IHasHealth;
 import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
@@ -312,6 +313,10 @@ public class Player extends Entity implements IHasHealth {
                 if (tempVec.len() < ATTACK_RANGE) { // if within attack radius, run logic
                     enemyLogic.run(enemy);
                 }
+            }
+            if (entity instanceof DecoInstance deco && deco.template.isDestructible() && !deco.shattered) {
+                tempVec = deco.getPosition().sub(player.getPosition());
+                if (tempVec.len() < ATTACK_RANGE) deco.shatter();
             }
         }
     }
