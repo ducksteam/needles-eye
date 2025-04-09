@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.Scaling;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.Playthrough;
 
 import static com.ducksteam.needleseye.Main.setGameState;
@@ -25,6 +26,7 @@ public class MainStage extends StageTemplate {
 	Image logo;
 
 	TextButton playButton;
+    TextButton loadButton;
 	TextButton instructionsButton;
 	TextButton optionsButton;
 	TextButton exitButton;
@@ -52,6 +54,7 @@ public class MainStage extends StageTemplate {
 
 		// Create the buttons
 		playButton = new TextButton("Play", buttonStyle);
+        loadButton = new TextButton("Load", buttonStyle);
 		instructionsButton = new TextButton("Instructions", buttonStyle);
         optionsButton = new TextButton("Options", buttonStyle);
 		exitButton = new TextButton("Exit", buttonStyle);
@@ -89,13 +92,21 @@ public class MainStage extends StageTemplate {
 			public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 				if (Main.getActiveUIAnim() == null){
 					Main.setActiveUIAnim(Main.transitionAnimation, MainStage.this::update, () -> {
-                        Main.setCurrentSave(new Playthrough("seed", "name"));
+                        Main.setCurrentSave(new Playthrough(MapManager.seed, "name"));
                         setGameState(Main.GameState.THREAD_SELECT);
                     });
 				}
 				return true;
 			}
 		});
+
+        loadButton.addListener(new InputListener(){
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                setGameState(Main.GameState.LOAD_SAVE);
+                return true;
+            }
+        });
 
 		instructionsButton.addListener(new InputListener(){
 			@Override
@@ -122,12 +133,13 @@ public class MainStage extends StageTemplate {
 		});
 
 		// scene2d magic
-        alignButton(playButton, instructionsButton, optionsButton, exitButton);
+        alignButton(playButton, loadButton, instructionsButton, optionsButton, exitButton);
 
 		buttons.add(playButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
+        buttons.add(loadButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
 		buttons.add(instructionsButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceBottom(Value.percentHeight(20f/1080, background)).row();
 		buttons.add(optionsButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().row();
-		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(250f/1080, background)).row();
+		buttons.add(exitButton).prefSize(Value.percentWidth(400f/1920, background), Value.percentHeight(90f/1080, background)).growX().spaceTop(Value.percentHeight(130f/1080, background)).row();
 		root.add(buttons).left().pad(Value.percentWidth(0.1f, background));
 		root.add(logo).expandX().pad(Value.percentWidth(0.05f, background)).fillY().fillX().padRight(100);
 

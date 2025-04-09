@@ -26,12 +26,14 @@ public class Upgrade {
      */
     public boolean isBaseUpgrade;
 
+    public static String FAKE_NAME = "Upgrade";
+
     /**
      * Create a new upgrade with dummy values
      * Only used for when searching fails
      */
     public Upgrade() {
-        this.name = "Upgrade";
+        this.name = FAKE_NAME;
         this.description = "This is an upgrade";
         this.modelAddress = null;
     }
@@ -70,7 +72,7 @@ public class Upgrade {
         // Register all base upgrades
         for(BaseUpgrade upgrade : BaseUpgrade.values()) {
             if(upgrade == BaseUpgrade.NONE) continue;
-            UpgradeRegistry.registerUpgrade(upgrade.NAME, upgrade.UPGRADE_CLASS);
+            UpgradeRegistry.registerUpgrade(upgrade.DISPLAY_NAME, upgrade.UPGRADE_CLASS);
             Gdx.app.debug("UpgradeRegistry", "Registered upgrade: " + upgrade.name()+ " with class: " + upgrade.UPGRADE_CLASS);
         }
         // Register other upgrades
@@ -182,7 +184,7 @@ public class Upgrade {
          * The display name of the upgrade.
          * Not actually shown to the player.
          */
-        public final String NAME;
+        public final String DISPLAY_NAME;
         /**
          * The class of the upgrade.
          * Technically makes this entire enum redundant, but oh well
@@ -206,7 +208,7 @@ public class Upgrade {
         final int BASE_DAMAGE;
 
         BaseUpgrade(String name, int maxHealth, Class<? extends Upgrade> upgradeClass, String swingAnimPath, String crackAnimPath, float crackAnimMult, int baseDamage) {
-            this.NAME = name;
+            this.DISPLAY_NAME = name;
             this.MAX_HEALTH = maxHealth;
             this.UPGRADE_CLASS = upgradeClass;
             if(swingAnimPath != null) this.SWING_ANIM = new Animation<>(
@@ -218,6 +220,24 @@ public class Upgrade {
                     TextureRegion.split(new Texture(Gdx.files.internal(crackAnimPath)), 640, 360)[0]);
             else this.CRACK_ANIM = null;
             this.BASE_DAMAGE = baseDamage;
+        }
+
+        /**
+         * Gets the BaseUpgrade from a string, including the formatted {@link #DISPLAY_NAME} string
+         * @param s the string to check
+         * @return the corresponding BaseUpgrade, or null if it could not be found
+         */
+        public static BaseUpgrade enhancedValueOf(String s) {
+            try {
+                return BaseUpgrade.valueOf(s);
+            } catch (IllegalArgumentException ignored) {}
+
+            for (BaseUpgrade upgrade : BaseUpgrade.values()) {
+                if (upgrade.DISPLAY_NAME.equals(s)) {
+                    return upgrade;
+                }
+            }
+            return null;
         }
     }
 }

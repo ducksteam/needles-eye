@@ -17,6 +17,7 @@ import com.ducksteam.needleseye.entity.bullet.EntityMotionState;
 import com.ducksteam.needleseye.entity.effect.DamageEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
+import com.ducksteam.needleseye.map.Playthrough;
 import com.ducksteam.needleseye.map.UpgradeRegistry;
 import com.ducksteam.needleseye.player.Upgrade.BaseUpgrade;
 import net.mgsx.gltf.scene3d.scene.Scene;
@@ -136,6 +137,7 @@ public class Player extends Entity implements IHasHealth {
         dynamicsWorld.dispose();
         dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, constraintSolver, collisionConfig);
         dynamicsWorld.setGravity(new Vector3(0, -14f, 0));
+        dynamicsWorld.setDebugDrawer(debugDrawer);
 
         // build the player's model
         sceneModel = new Scene(new Model());
@@ -145,6 +147,15 @@ public class Player extends Entity implements IHasHealth {
         this.upgrades = new ArrayList<>();
         health = -1;
         maxHealth = -1;
+    }
+
+    /** Creates a new player from a save game
+     * @param pos the position to spawn the player at
+     * @param ppd the player info to use to regenerate the player
+     */
+    public Player(Vector3 pos, Playthrough.PlaythroughPlayerData ppd) {
+        this(pos);
+        setFromPlaythroughData(ppd);
     }
 
     /**
@@ -451,7 +462,7 @@ public class Player extends Entity implements IHasHealth {
     public void setBaseUpgrade(BaseUpgrade baseUpgrade) {
         Gdx.app.log("Player", "Setting base upgrade to " + baseUpgrade.name());
         if(this.baseUpgrade != BaseUpgrade.NONE) { // removes any old base upgrade
-            this.upgrades.removeIf(upgrade -> upgrade.getName().equals(this.baseUpgrade.NAME));
+            this.upgrades.removeIf(upgrade -> upgrade.getName().equals(this.baseUpgrade.DISPLAY_NAME));
         }
         this.baseUpgrade = baseUpgrade;
         this.setMaxHealth(baseUpgrade.MAX_HEALTH, true); // set max health to that determined by the upgrade
@@ -522,5 +533,22 @@ public class Player extends Entity implements IHasHealth {
         }
         health = Integer.parseInt(parts[1]);
         maxHealth = Integer.parseInt(parts[2]);
+    }
+
+    /** Deserializes from {@link com.ducksteam.needleseye.map.Playthrough.PlaythroughPlayerData} */
+    private void setFromPlaythroughData(Playthrough.PlaythroughPlayerData ppd) {
+        upgrades.clear();
+        for (String us : ppd.upgrades) {
+            Upgrade instance = UpgradeRegistry.getUpgradeInstance(us);
+            if (instance.getName().equals(Upgrade.FAKE_NAME)) { // upgrade wasn't in UpgradeRegistry
+                Gdx.app.error("Save", "Could not find upgrade " + us);
+            } else {
+                upgrades.add(instance);
+                upgrades.getLast().onPickup();
+            }
+        }
+        baseUpgrade = ppd.baseUpgrade; // do not use setBaseUpgrade it messes with the health
+        health = ppd.health;
+        maxHealth = ppd.maxHealth;
     }
 }

@@ -133,6 +133,7 @@ public class Config {
     public static Lwjgl3Graphics desktopGraphics;
 
     public static Preferences prefs;
+    public static String savePath;
 
     /** Use <code>Config.prefs.getString("Resolution")</code> */
     private static Resolution resolution;
@@ -161,7 +162,7 @@ public class Config {
 
         audioOutputDevice = prefs.getString("AudioDevice", null);
 
-        if (audioOutputDevice.isBlank()) audioOutputDevice = null; // null sets to the default audio output, but it cannot be saved to prefs file so "" is used instead
+        if (audioOutputDevice != null && audioOutputDevice.isBlank()) audioOutputDevice = null; // null sets to the default audio output, but it cannot be saved to prefs file so "" is used instead
         boolean audioSwitchSuccess = Main.audio.getDevice().switchToDevice(audioOutputDevice);
         if (!audioSwitchSuccess) {
             // if there is a problem setting the saved audio device, reset to default. if the saved audio device is default, there is a problem
@@ -171,6 +172,8 @@ public class Config {
             Gdx.app.error("Config-Audio", "Failed to switch to " + audioOutputDevice);
             audioOutputDevice = null;
         }
+
+        savePath = prefs.getString("SavePath","saves/");
 
         Keybind.clear();
 
@@ -214,6 +217,8 @@ public class Config {
                 }
             }
         }
+
+        prefs.putString("SavePath", savePath);
 
         prefs.putBoolean("VSync", vSync);
         Gdx.graphics.setVSync(vSync);

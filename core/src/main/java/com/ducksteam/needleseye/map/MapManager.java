@@ -8,16 +8,21 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.ducksteam.needleseye.Config;
+import com.ducksteam.needleseye.Main;
 import com.ducksteam.needleseye.entity.EnemyRegistry;
 import com.ducksteam.needleseye.entity.HallwayPlaceholderRoom;
 import com.ducksteam.needleseye.entity.RoomInstance;
 import com.ducksteam.needleseye.entity.WallObject;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.enemies.EnemyTag;
+import com.ducksteam.needleseye.player.Player;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static com.ducksteam.needleseye.Main.entities;
+import static com.ducksteam.needleseye.Main.player;
 
 
 /**
@@ -50,10 +55,8 @@ public class MapManager {
     public boolean visualise;
     /** The seeded random instance. <b>Only to be used for level generation to preserve seed uniformity</b> */
     protected static Random random;
-    /** The seed as the user typed it in. */
-    private static String rawSeed;
-    /** The class of the seed */
-    private static Class<?> seedClass;
+    /** The seed */
+    public static Seed seed;
     /**
      * The translations for hallway models at different rotations
      */
@@ -197,17 +200,21 @@ public class MapManager {
 
     /**
      * Create a new level with a random layout, the size of which is determined by the level index
+     * @param tellSave whether to update {@link Playthrough#currentLevelId}.
+     *                 This is used in updating the map state to the required state in savegame loading
      */
-    public void generateLevel() {
+    public void generateLevel(boolean tellSave) {
         if (random == null) {
-            setSeed(System.nanoTime());
+            setSeed(new Seed());
         }
+
+        if (tellSave) Main.currentSave.update();
 
         if (visualise) {
             visualiser.renderingComplete = false;
             visualiser.instructions.clear();
             visualiser.nextInstruction = 0;
-            visualiser.informSeed(rawSeed, seedClass == long.class);
+            visualiser.informSeed(seed);
         }
 
         Level level = new Level(levelIndex); // create an empty level object
@@ -255,6 +262,28 @@ public class MapManager {
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
+    }
+
+    /**
+     * Synchronise the RNG to the state from a playthrough.
+     * This is achieved by generating the previous levels.
+     * @param playthrough playthrough to sync to
+     */
+    public void updateToPlaythroughState(Playthrough playthrough) {
+        setSeed(playthrough.getSeed());
+
+        if (playthrough.getCurrentLevelId() == 1) {
+            entities.clear();
+            player = new Player(Config.PLAYER_START_POSITION, playthrough.playerData);
+        }
+
+        while (levelIndex <= playthrough.getCurrentLevelId()) {
+            generateLevel(false);
+            if (levelIndex == playthrough.getCurrentLevelId()) { // before final level is generated
+                Main.entities.clear();
+                player = new Player(Config.PLAYER_START_POSITION, playthrough.playerData);
+            }
+        }
     }
 
     /**
@@ -503,34 +532,19 @@ public class MapManager {
     }
 
     /**
-     * Sets the seed to a string. Sets <code>rawSeed</code>, <code>seedClass</code>, and creates a seeded
-     * <code>random</code> to the hashed value of the string
-     * @param seed the string seed as entered by the user in the options menu
+     * Sets the seed.
+     * @param s the seed object to set
      */
-    public static void setSeed(String seed) {
-        if (seed == null || seed.isEmpty()) return;
-        rawSeed = seed;
-        seedClass = String.class;
-        random = new Random(seed.hashCode());
-        Gdx.app.log("Seeding", "Set seed to string \"" + seed + "\"");
-    }
-
-    /**
-     * Sets the seed to a long. Sets <code>rawSeed</code>, <code>seedClass</code>, and creates a seeded
-     * <code>random</code>
-     * @param seed the long as entered by the user in the options menu
-     */
-    public static void setSeed(long seed) {
-        rawSeed = String.valueOf(seed);
-        seedClass = long.class;
-        random = new Random(seed);
-        Gdx.app.log("Seeding", "Set seed to long " + seed);
+    public static void setSeed(Seed s) {
+        if (s == null) return;
+        seed = s;
+        random = new Random(seed.getSeed());
+        Main.currentSave = new Playthrough(s, "name");
     }
 
     public void resetSeed() {
         random = null;
-        seedClass = null;
-        rawSeed = null;
+        seed = null;
         Gdx.app.log("Seeding", "Reset seed");
     }
 

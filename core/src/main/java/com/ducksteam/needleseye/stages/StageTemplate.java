@@ -58,7 +58,8 @@ public abstract class StageTemplate extends Stage {
     ImageButton.ImageButtonStyle checkboxStyle;
     Slider.SliderStyle sliderStyle;
 
-    Label.LabelStyle labelStyle;
+    Label.LabelStyle smallFontLabelStyle;
+    Label.LabelStyle uiFontLabelStyle;
 
     /**
      * Whether the stage has been built initially, and has the textures loaded
@@ -75,7 +76,7 @@ public abstract class StageTemplate extends Stage {
 	public StageTemplate() {
 		super(new ScreenViewport(), Main.batch2d);
 		build();
-//        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
+        if (!System.getProperty("os.name").contains("Mac OS")) this.setDebugAll(true); // not available on OSX
 	}
 
 	/**
@@ -197,7 +198,9 @@ public abstract class StageTemplate extends Stage {
         selectBoxStyle.font = Main.smallFont;
         selectBoxStyle.scrollStyle.background = backgroundDitheredNinePatch;
 
-        labelStyle = new Label.LabelStyle(Main.smallFont, Color.WHITE);
+        smallFontLabelStyle = new Label.LabelStyle(Main.smallFont, Color.WHITE);
+        uiFontLabelStyle = new Label.LabelStyle(smallFontLabelStyle);
+        uiFontLabelStyle.font = Main.uiFont;
 
         checkboxStyle = new ImageButton.ImageButtonStyle();
         checkboxStyle.checked = checkboxOnNinePatch;
