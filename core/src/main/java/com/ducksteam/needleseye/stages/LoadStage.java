@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.ducksteam.needleseye.Config;
 import com.ducksteam.needleseye.Main;
+import com.ducksteam.needleseye.map.MapManager;
 import com.ducksteam.needleseye.map.Playthrough;
 import com.ducksteam.needleseye.map.PlaythroughLoader;
 import com.ducksteam.needleseye.map.Seed;
@@ -89,7 +90,8 @@ public class LoadStage extends StageTemplate {
         playButton.addListener(new InputListener(){
             @Override
             public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
-
+                Main.setCurrentSave(new Playthrough(MapManager.seed, "name"));
+                setGameState(Main.GameState.THREAD_TRANSITION);
                 return true;
             }
         });
