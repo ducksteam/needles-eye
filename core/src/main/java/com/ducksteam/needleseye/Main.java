@@ -859,11 +859,9 @@ public class Main extends Game {
 	 * Sets the game state to the dead menu
 	 * */
 	public static void onPlayerDeath() {
-		if (GameState.DEAD_MENU.getStage() != null) {
-			GameState.DEAD_MENU.getStage().rebuild();
-		}
+		if (GameState.DEAD_MENU.getStage() != null) GameState.DEAD_MENU.getStage().rebuild();
+        setGameState(GameState.DEAD_MENU);
 		resetGame();
-		setGameState(GameState.DEAD_MENU);
 		Gdx.graphics.setSystemCursor(Cursor.SystemCursor.Arrow);
 	}
 
