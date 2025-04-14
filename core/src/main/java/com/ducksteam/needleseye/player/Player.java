@@ -129,7 +129,7 @@ public class Player extends Entity implements IHasHealth {
      * @param pos the position to spawn the player at
      */
     public Player(Vector3 pos) {
-        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP);
+        super(pos, new Quaternion().setEulerAngles(0, 0, 0), Config.PLAYER_MASS, sceneModel, Entity.PLAYER_GROUP, false);
         baseUpgrade = BaseUpgrade.NONE;
 
         eulerRotation = new Vector3(0,0,1);

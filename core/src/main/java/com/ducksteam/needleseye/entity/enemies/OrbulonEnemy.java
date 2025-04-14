@@ -45,13 +45,13 @@ public class OrbulonEnemy extends EnemyEntity {
      * @param room the room the enemy is in
      */
 	public OrbulonEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-		super(position, rotation, MASS, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 15, room.getRoomSpacePos());
+		super(position, rotation, MASS, (EnemyRegistry.loaded) ? new Scene(((SceneAsset) Main.assMan.get(MODEL_ADDRESS)).scene):null, 15, room.getRoomSpacePos(), false);
 		// initialise ai
 		setAi(new OrbulonAI(this));
 
-		// destroy old bullet objects
-		collider.dispose();
-		collisionShape.dispose();
+//		// destroy old bullet objects
+//		collider.dispose();
+//		collisionShape.dispose();
 
 		// create new shape and motionstate
 		collisionShape = new btSphereShape(COLLIDER_SIZE);

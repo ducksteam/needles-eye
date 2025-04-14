@@ -133,6 +133,10 @@ public abstract class Entity implements AnimationListener {
 		this(position, rotation, 0f, scene, btCollisionObject.CollisionFlags.CF_STATIC_OBJECT);
 	}
 
+    public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
+        this(position, rotation, mass, scene, flags, true);
+    }
+
 	/**
 	 * Creates a dynamic entity
 	 *
@@ -142,8 +146,7 @@ public abstract class Entity implements AnimationListener {
 	 * @param scene the model instance of the entity
      * @param flags the collision flags of the entity to be passed to bullet
 	 */
-
-	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags) {
+	public Entity(Vector3 position, Quaternion rotation, float mass, Scene scene, int flags, boolean createRB) {
 		transform.idt().translate(position).rotate(rotation);
 
 		id = currentId++;
@@ -155,7 +158,7 @@ public abstract class Entity implements AnimationListener {
 		this.mass = mass;
 		this.flags = flags;
 
-		setScene(scene);
+		setScene(scene, createRB);
 
         if(this.scene==null) {
             boundingSphereCentre.setZero();
@@ -261,13 +264,22 @@ public abstract class Entity implements AnimationListener {
 		return scene;
 	}
 
+    /**
+     * Sets the scene asset of the entity
+     * @param scene the scene to set
+     */
+    public void setScene(Scene scene) {
+        setScene(scene, true);
+    }
+
 	/**
 	 * Sets the scene asset of the entity
 	 * @param scene the scene asset to set
+     * @param createRB whether to build the rigidbody
 	 * */
-	public void setScene(Scene scene) {
+	public void setScene(Scene scene, boolean createRB) {
 		this.scene = scene;
-		if (isRenderable) {
+		if (isRenderable && createRB) {
 			collisionShape = Bullet.obtainStaticNodeShape(scene.modelInstance.nodes); // set collision shape to model
 			motionState = new EntityMotionState(this, transform); // set motion state to entity
 

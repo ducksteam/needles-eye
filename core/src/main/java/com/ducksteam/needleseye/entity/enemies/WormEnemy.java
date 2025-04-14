@@ -47,13 +47,13 @@ public class WormEnemy extends EnemyEntity{
      * @param room the room the enemy is in
      */
     public WormEnemy(Vector3 position, Quaternion rotation, RoomInstance room) {
-        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene):null, 5, room.getRoomSpacePos());
+        super(position, rotation, 4000, (EnemyRegistry.loaded) ? new Scene(((SceneAsset)Main.assMan.get(MODEL_ADDRESS)).scene) : null, 5, room.getRoomSpacePos(), false);
         // initialise ai
         setAi(new MeleeAI(this, IDLE_SPEED, CHASE_SPEED, CHASE_ANGLE_SPEED));
 
-        // destroy old bullet objects
-        collider.dispose();
-        collisionShape.dispose();
+//        // destroy old bullet objects
+//        collider.dispose();
+//        collisionShape.dispose();
 
         // create new shape and motionstate
         collisionShape = new btBoxShape(COLLIDER_SIZE);

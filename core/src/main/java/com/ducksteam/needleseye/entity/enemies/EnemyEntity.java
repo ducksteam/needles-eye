@@ -33,19 +33,21 @@ public abstract class EnemyEntity extends Entity implements IHasHealth {
 
     /**
      * Constructor for Enemy
-     * @param position Vector3 position of the enemy
-     * @param rotation Quaternion rotation of the enemy
-     * @param mass float mass of the enemy
-     * @param scene ModelInstance of the enemy
-     * @param maxHealth int max health of the enemy
-     * @param assignedRoom Vector2 room space position of the enemy
+     * @param position position of the enemy
+     * @param rotation rotation of the enemy
+     * @param mass mass of the enemy
+     * @param scene model of the enemy
+     * @param maxHealth max health of the enemy
+     * @param assignedRoom room space position of the enemy
+     * @param createRB create the rigidbody using <code>obtainStaticNodeShape</code>
      * */
-    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, Scene scene, int maxHealth, Vector2 assignedRoom) {
-        super(position, rotation, mass, scene, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK);
+    public EnemyEntity(Vector3 position, Quaternion rotation, float mass, Scene scene, int maxHealth, Vector2 assignedRoom, boolean createRB) {
+        super(position, rotation, mass, scene, ENEMY_GROUP | btCollisionObject.CollisionFlags.CF_CUSTOM_MATERIAL_CALLBACK, createRB);
 
-        collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
-        collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
-
+        if (createRB) {
+            collider.setContactCallbackFlag(ENEMY_GROUP); // This is an enemy collider
+            collider.setContactCallbackFilter(PLAYER_GROUP | GROUND_GROUP | PROJECTILE_GROUP); // Special logic should be applied when colliding with player
+        }
 
         setMaxHealth(maxHealth, true); // Set the max health and heal the enemy
         this.assignedRoom = assignedRoom;

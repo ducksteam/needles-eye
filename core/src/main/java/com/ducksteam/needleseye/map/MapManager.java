@@ -138,7 +138,7 @@ public class MapManager {
      * Add enemies to the level
      * @param level the level to be populated
      */
-    public void addEnemies(Level level){
+    public void addEnemies(Level level, boolean backgroundLoad){
         level.getRooms().forEach((RoomInstance room)->{
             for (RoomTemplate.EnemyTagPosition tagPosition : room.getRoom().getEnemyTagPositions()){
                 Class<? extends EnemyEntity> enemyClass = getSuitableEnemy(tagPosition.tag());
@@ -146,11 +146,13 @@ public class MapManager {
                     Gdx.app.error("MapManager", "No suitable enemy found for tag: " + tagPosition.tag());
                     return;
                 }
-                Vector3 enemyPos = room.getPosition().cpy().add(tagPosition.position().cpy().rotate(Vector3.Y, room.getRot()));
-                EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
-                assert enemy != null;
-                enemy.setAssignedRoom(room);
-                room.addEnemy(enemy);
+                if (!backgroundLoad) {
+                    Vector3 enemyPos = room.getPosition().cpy().add(tagPosition.position().cpy().rotate(Vector3.Y, room.getRot()));
+                    EnemyEntity enemy = EnemyRegistry.getNewEnemyInstance(enemyClass, enemyPos, new Quaternion(), room);
+                    assert enemy != null;
+                    enemy.setAssignedRoom(room);
+                    room.addEnemy(enemy);
+                }
             }
         });
     }
@@ -158,7 +160,7 @@ public class MapManager {
     /** Add decos to a level
      * @param level the level to add decos to
      */
-    public void addDecos(Level level){
+    public void addDecos(Level level, boolean backgroundLoad){
         level.getRooms().forEach(room -> {
             for (RoomTemplate.DecoTagPosition tagPosition : room.getRoom().getDecoTagPositions()){
                 if (tagPosition.chance() < random.nextFloat()) continue;
@@ -168,7 +170,7 @@ public class MapManager {
 
                 if (template == null) { Gdx.app.error("MapManager", "No suitable deco found for tag: " + tagPosition.tag()); return; }
 
-                new DecoInstance(template, room, tagPosition.position(), new Quaternion());
+                if (!backgroundLoad) new DecoInstance(template, room, tagPosition.position(), new Quaternion());
             }
         });
     }
@@ -231,8 +233,8 @@ public class MapManager {
         level.addRoom(new RoomInstance(getRoomWithName("brokenceiling"), new Vector2(0, 0), 0));
 
         addWalls(level);
-        addEnemies(level);
-        addDecos(level);
+        addEnemies(level, false);
+        addDecos(level, false);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -240,15 +242,15 @@ public class MapManager {
 
     /**
      * Create a new level with a random layout, the size of which is determined by the level index
-     * @param tellSave whether to update {@link Playthrough#currentLevelId}.
+     * @param backgroundLoad if this level will not be played.
      *                 This is used in updating the map state to the required state in savegame loading
      */
-    public void generateLevel(boolean tellSave) {
+    public void generateLevel(boolean backgroundLoad) {
         if (random == null) {
             setSeed(new Seed());
         }
 
-        if (tellSave) Main.currentSave.update();
+        if (!backgroundLoad) Main.currentSave.update();
 
         if (visualise) {
             visualiser.renderingComplete = false;
@@ -271,11 +273,11 @@ public class MapManager {
         for (int i = 0; i < levelIndex * 5; i++){ // add a random number of rooms, increasing with each level
             RoomTemplate.RoomType nextType = RoomTemplate.RoomType.getRandomRoomType(); // get a random room type
             if (nextType == RoomTemplate.RoomType.BATTLE) { // limit the number of battle rooms
-                if (battleRoomCount < levelIndex) generateRoom(level, nextType);
+                if (battleRoomCount < levelIndex) generateRoom(level, nextType, backgroundLoad);
                 else if (visualise) visualiser.addInstruction("msg Skipping battle room");
                 battleRoomCount++;
             } else {
-                generateRoom(level, nextType);
+                generateRoom(level, nextType, backgroundLoad);
             }
         }
 
@@ -297,9 +299,9 @@ public class MapManager {
         Gdx.app.debug("Level "+levelIndex, level.toString());
 
         // generate extra entities
-        addWalls(level);
-        addEnemies(level);
-        addDecos(level);
+        if(!backgroundLoad) addWalls(level);
+        addEnemies(level, backgroundLoad);
+        addDecos(level, backgroundLoad);
 
         levels.add(level); // add the level to the list
         levelIndex++; // increment the level index
@@ -319,7 +321,7 @@ public class MapManager {
         }
 
         while (levelIndex <= playthrough.getCurrentLevelId()) {
-            generateLevel(false);
+            generateLevel(levelIndex + 1 <= playthrough.getCurrentLevelId()); // backgroundLoad should only be false on the last level to load
             if (levelIndex == playthrough.getCurrentLevelId()) { // before final level is generated
                 Main.entities.clear();
                 player = new Player(Config.PLAYER_START_POSITION, playthrough.playerData);

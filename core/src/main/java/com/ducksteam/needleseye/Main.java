@@ -371,7 +371,7 @@ public class Main extends Game {
         if (currentSave.fromSave) {
             mapMan.updateToPlaythroughState(currentSave);
         } else {
-            mapMan.generateLevel(true);
+            mapMan.generateLevel(false);
         }
         return true;
     }
@@ -935,7 +935,7 @@ public class Main extends Game {
 		particleSystem.removeAll();
 
 		// generate new level
-		mapMan.generateLevel(true);
+		mapMan.generateLevel(false);
         PlayerInput.KEYS.clear();
 	}
 

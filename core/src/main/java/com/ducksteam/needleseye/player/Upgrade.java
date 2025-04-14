@@ -178,7 +178,7 @@ public class Upgrade {
         /**
          * The player has not selected a base upgrade. The game will not progress past loading if this is 'selected'
          */
-        NONE(null, -1, null, null, null, 1, -1);
+        NONE("", -1, null, null, null, 1, -1);
 
         /**
          * The display name of the upgrade.
@@ -220,24 +220,6 @@ public class Upgrade {
                     TextureRegion.split(new Texture(Gdx.files.internal(crackAnimPath)), 640, 360)[0]);
             else this.CRACK_ANIM = null;
             this.BASE_DAMAGE = baseDamage;
-        }
-
-        /**
-         * Gets the BaseUpgrade from a string, including the formatted {@link #DISPLAY_NAME} string
-         * @param s the string to check
-         * @return the corresponding BaseUpgrade, or null if it could not be found
-         */
-        public static BaseUpgrade enhancedValueOf(String s) {
-            try {
-                return BaseUpgrade.valueOf(s);
-            } catch (IllegalArgumentException ignored) {}
-
-            for (BaseUpgrade upgrade : BaseUpgrade.values()) {
-                if (upgrade.DISPLAY_NAME.equals(s)) {
-                    return upgrade;
-                }
-            }
-            return null;
         }
     }
 }
