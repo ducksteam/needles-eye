@@ -75,6 +75,7 @@ public class MeleeAI implements IHasAi {
     @Override
     public void chase(float dT) {
         //getTarget().setAnimation("walk");
+        if(this.startPos != null) this.startPos = null; // to make idling work if it exists chase mode
         Vector3 direction = playerPos.cpy().sub(getTarget().collider.getCenterOfMassPosition());
         direction.y = 0;
         float playerAngle = calculatePlayerAngle(direction.cpy().nor().x, direction.cpy().nor().z);
