@@ -585,6 +585,7 @@ public class Main extends Game {
         depthConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr_depth.frag"));
 
         return new SceneManager(PBRShaderProvider.createDefault(pbrConfig), PBRShaderProvider.createDefaultDepth(depthConfig));
+//        return new SceneManager(ColorShaderProvider.createDefault(), DepthShaderProvider.createDefault());
     }
 
 	/**

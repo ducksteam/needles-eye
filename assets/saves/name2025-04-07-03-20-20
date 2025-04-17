@@ -1,0 +1,49 @@
+{
+name: name
+currentLevelId: 2
+seed: {
+	seed: 20416155407400
+}
+playerData: {
+	upgrades: [
+		Coal Thread
+		Soul Thread
+		Jolt Thread
+		Threaded Rod
+		Mercury
+		Gold
+		Lead
+		Mercury
+        Mercury
+        Mercury
+        		Gold
+        		Lead
+        		Mercury
+                Mercury
+                Mercury
+                		Gold
+                		Lead
+                		Mercury
+                        Mercury
+                        Mercury
+                        		Gold
+                        		Lead
+                        		Mercury
+                                Mercury
+                                Mercury
+                                		Gold
+                                		Lead
+                                		Mercury
+                                        Mercury
+
+                                        Mercury
+                                        		Gold
+                                        		Lead
+                                        		Mercury
+                                                Mercury
+                                                ]
+	health: 1984
+	maxHealth: 69420
+	baseUpgrade: JOLT_THREAD
+}
+}

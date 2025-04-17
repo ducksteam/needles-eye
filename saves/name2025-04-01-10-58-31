@@ -1,0 +1,22 @@
+{
+name: name
+currentLevelId: 5
+seed: {
+	seed: 6546574543132165
+	seedString:
+	type: LONG
+}
+playerData: {
+	upgrades: [
+		Coal Thread,
+		Gold,
+		Gold,
+		Gold,
+		Gold,
+		Gold
+	]
+	health: 50
+	maxHealth: 50
+	baseUpgrade: COAL_THREAD
+}
+}

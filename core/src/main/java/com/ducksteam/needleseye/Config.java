@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Vector3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.*;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -291,7 +291,7 @@ public class Config {
 
         public Resolution(int width, int height) {
             if (width <= 0 || height <= 0) throw new IllegalArgumentException("Resolution width and height must be positive");
-            if (width/16*9 != height) System.err.println("[Options] Resolution may not be correct aspect ratio: " + width + SEPARATOR + height); // this is called in Lwjgl3Launcher so we cannot use Gdx.app as it is not created at that point
+            if ((float) width/16.0*9.0 != height) System.err.println("[Options] Resolution may not be correct aspect ratio: " + width + SEPARATOR + height); // this is called in Lwjgl3Launcher so we cannot use Gdx.app as it is not created at that point
             this.width = width;
             this.height = height;
         }
