@@ -11,14 +11,17 @@ import com.ducksteam.needleseye.player.Player;
  * An AI algorithm for melee enemies that chases the player and attacks when in range
  */
 public class MeleeAI implements IHasAi {
-	Vector3 playerPos; // position of the player
-	static final float DETECTION_RANGE = 5; // range of detection
-	static final float ATTACK_RANGE = 0.7f; // range of attack
-	EnemyEntity target; // the enemy entity this AI is controlling
-	boolean chasing = false; // whether the enemy is chasing the player
-	float idleSpeed; // speed of the enemy when idling
-	float chaseSpeed; // speed of the enemy when chasing
+    Vector3 playerPos; // position of the player
+    static final float DETECTION_RANGE = 5; // range of detection
+    static final float ATTACK_RANGE = 0.7f; // range of attack
+    EnemyEntity target; // the enemy entity this AI is controlling
+    boolean chasing = false; // whether the enemy is chasing the player
+    float idleSpeed; // speed of the enemy when idling
+    float chaseSpeed; // speed of the enemy when chasing
     float chaseAngleSpeed; // speed of the enemy when rotating towards player
+    float idleAngleSpeed; // base speed of the enemy when rotating in idle mode
+    float currentIdleAngleSpeed; // current speed of the enemy when rotating in idle mode
+    Vector3 startPos; // starting position of enemy
 
     /**
      * Creates a new MeleeAI
@@ -26,42 +29,54 @@ public class MeleeAI implements IHasAi {
      * @param idleSpeed the speed of the enemy when idling
      * @param chaseSpeed the speed of the enemy when chasing
      */
-	public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed, float chaseAngleSpeed) {
-		setTarget(target);
-		this.idleSpeed = idleSpeed;
-		this.chaseSpeed = chaseSpeed;
+    public MeleeAI(EnemyEntity target, float idleSpeed, float chaseSpeed, float chaseAngleSpeed, float idleAngleSpeed) {
+        setTarget(target);
+        this.idleSpeed = idleSpeed;
+        this.chaseSpeed = chaseSpeed;
         this.chaseAngleSpeed = chaseAngleSpeed;
-	}
+        this.idleAngleSpeed = idleAngleSpeed;
+        this.currentIdleAngleSpeed = idleAngleSpeed;
+    }
 
-	@Override
-	public void update(float dT) {
-		if (getTarget() == null) return; // ensure target exists
-		playerPos = Main.player.getPosition(); // update player position
-		setChasing(playerPos.dst(getTarget().getPosition()) < DETECTION_RANGE); // update chasing status
-		if (isChasing()) chase(dT); // run corresponding method
-		else idle(dT);
+    @Override
+    public void update(float dT) {
+        if (getTarget() == null) return; // ensure target exists
+        if (startPos == null) this.startPos = getTarget().collider.getCenterOfMassPosition().cpy(); // set startPos to the starting position
 
-		Main.entities.forEach((Integer id, Entity entity) -> { // repel from other enemies
-			if (entity instanceof EnemyEntity || entity instanceof Player && id != getTarget().id) { // push moving entities away from each other
-				Vector3 repulsionForce = calculateRepulsionForce(getTarget(), entity, 1);
-				getTarget().collider.applyCentralForce(repulsionForce); // apply force
-			}
-		});
-	}
+        playerPos = Main.player.getPosition(); // update player position
+        setChasing(playerPos.dst(getTarget().getPosition()) < DETECTION_RANGE); // update chasing status
+        if (isChasing()) chase(dT); // run corresponding method
+        else idle(dT);
 
-	@Override
-	public void idle(float dT) {
-		//getTarget().setAnimation("idle");
-		Vector3 randomDirection = new Vector3().setToRandomDirection();
-		randomDirection.y = 0;
-		getTarget().collider.applyCentralForce(randomDirection.scl(idleSpeed)); // move in random direction
-	}
+        Main.entities.forEach((Integer id, Entity entity) -> { // repel from other enemies
+            if (entity instanceof EnemyEntity || entity instanceof Player && id != getTarget().id) { // push moving entities away from each other
+                Vector3 repulsionForce = calculateRepulsionForce(getTarget(), entity, 1);
+                getTarget().collider.applyCentralForce(repulsionForce); // apply force
+            }
+        });
+    }
 
-	@Override
-	public void chase(float dT) {
-		//getTarget().setAnimation("walk");
+    @Override
+    public void idle(float dT) {
+        //getTarget().setAnimation("idle");
+
+        // switch between rotating clockwise and anticlockwise
+        if(getTarget().collider.getAngularVelocity().y > idleAngleSpeed/3) currentIdleAngleSpeed = (float) -(idleAngleSpeed*(Math.random()+0.5));
+        else if(getTarget().collider.getAngularVelocity().y < -idleAngleSpeed/3) currentIdleAngleSpeed = (float) (idleAngleSpeed*(Math.random()+0.5));
+        getTarget().collider.applyTorque(new Vector3(0, currentIdleAngleSpeed, 0));
+
+        // move depending on similarity of current direction to the way back to where it started
+        Vector3 returningDirection = startPos.cpy().sub(getTarget().collider.getCenterOfMassPosition());
+        Vector3 currentDirection = getTarget().collider.getOrientation().transform(new Vector3(0, 0, -1));
+        float sameness = (4-Math.abs(currentDirection.scl(1).x-returningDirection.scl(1).x)-Math.abs(currentDirection.scl(1).z-returningDirection.scl(1).z))/4+0.5f;
+        getTarget().collider.applyCentralForce(currentDirection.scl(idleSpeed*sameness));
+    }
+
+    @Override
+    public void chase(float dT) {
+        //getTarget().setAnimation("walk");
         Vector3 direction = playerPos.cpy().sub(getTarget().collider.getCenterOfMassPosition());
-		direction.y = 0;
+        direction.y = 0;
         float playerAngle = calculatePlayerAngle(direction.cpy().nor().x, direction.cpy().nor().z);
         float currentAngle = getTarget().getRotation().getAngleAround(0, 1, 0);
 
@@ -71,64 +86,64 @@ public class MeleeAI implements IHasAi {
         if(Math.signum(getTarget().collider.getTotalTorque().y) != Math.signum(getTarget().collider.getAngularVelocity().y)) getTarget().collider.setAngularVelocity(new Vector3(0, 0, 0)); // if rotating the wrong way, stop
 
         getTarget().collider.applyCentralForce(direction.nor().scl(chaseSpeed)); // move towards player
-		if (playerPos.dst(getTarget().collider.getCenterOfMassPosition()) < ATTACK_RANGE) attack(); // attack if within range
-	}
+        if (playerPos.dst(getTarget().collider.getCenterOfMassPosition()) < ATTACK_RANGE) attack(); // attack if within range
+    }
 
-	@Override
-	public void attack() {
-		//getTarget().setAnimation("attack");
-		Main.player.damage(1, getTarget());
-	}
+    @Override
+    public void attack() {
+        //getTarget().setAnimation("attack");
+        Main.player.damage(1, getTarget());
+    }
 
-	@Override
-	public void setTarget(EnemyEntity target) {
-		this.target = target;
-	}
+    @Override
+    public void setTarget(EnemyEntity target) {
+        this.target = target;
+    }
 
-	@Override
-	public EnemyEntity getTarget() {
-		return target;
-	}
+    @Override
+    public EnemyEntity getTarget() {
+        return target;
+    }
 
-	@Override
-	public void setChasing(boolean chasing) {
-		this.chasing = chasing;
-	}
+    @Override
+    public void setChasing(boolean chasing) {
+        this.chasing = chasing;
+    }
 
-	@Override
-	public boolean isChasing() {
-		return chasing;
-	}
+    @Override
+    public boolean isChasing() {
+        return chasing;
+    }
 
-	@Override
-	public void setWindup(boolean windup) {
-		Gdx.app.debug("MeleeAI", "setWindup() called on MeleeAI");
-	}
+    @Override
+    public void setWindup(boolean windup) {
+        Gdx.app.debug("MeleeAI", "setWindup() called on MeleeAI");
+    }
 
-	@Override
-	public boolean isWindup() {
-		Gdx.app.debug("MeleeAI", "isWindup() called on MeleeAI");
-		return false;
-	}
+    @Override
+    public boolean isWindup() {
+        Gdx.app.debug("MeleeAI", "isWindup() called on MeleeAI");
+        return false;
+    }
 
-	@Override
-	public void setIdling(boolean idling) {
+    @Override
+    public void setIdling(boolean idling) {
 
-	}
+    }
 
-	@Override
-	public boolean isIdling() {
-		return false;
-	}
+    @Override
+    public boolean isIdling() {
+        return false;
+    }
 
-	private Vector3 calculateRepulsionForce(Entity entity1, Entity entity2, float repulsionStrength) {
-		Vector3 direction = entity1.collider.getCenterOfMassPosition().cpy().sub(entity2.collider.getCenterOfMassPosition());
-		direction.y = 0;
-		float distance = direction.len();
-		if (distance == 0) return new Vector3(0, 0, 0); // Avoid division by zero
-		float forceMagnitude = repulsionStrength / (distance * distance); // Inverse square law
-		return direction.nor().scl(forceMagnitude);
-	}
+    private Vector3 calculateRepulsionForce(Entity entity1, Entity entity2, float repulsionStrength) {
+        Vector3 direction = entity1.collider.getCenterOfMassPosition().cpy().sub(entity2.collider.getCenterOfMassPosition());
+        direction.y = 0;
+        float distance = direction.len();
+        if (distance == 0) return new Vector3(0, 0, 0); // Avoid division by zero
+        float forceMagnitude = repulsionStrength / (distance * distance); // Inverse square law
+        return direction.nor().scl(forceMagnitude);
+    }
 
     private float calculatePlayerAngle(float x, float y) {
         if(x>0 && y>0) { // 180 - 270 degrees
