@@ -18,7 +18,6 @@ import com.badlogic.gdx.graphics.g3d.particles.ParticleShader;
 import com.badlogic.gdx.graphics.g3d.particles.ParticleSystem;
 import com.badlogic.gdx.graphics.g3d.particles.batches.BillboardParticleBatch;
 import com.badlogic.gdx.graphics.g3d.particles.batches.ParticleBatch;
-import com.badlogic.gdx.graphics.g3d.shaders.DepthShader;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.math.Matrix4;
@@ -47,6 +46,8 @@ import com.ducksteam.needleseye.entity.effect.ParalysisEffectManager;
 import com.ducksteam.needleseye.entity.effect.SoulFireEffectManager;
 import com.ducksteam.needleseye.entity.enemies.EnemyEntity;
 import com.ducksteam.needleseye.entity.pickups.UpgradeEntity;
+import com.ducksteam.needleseye.graphics.ColorShaderProvider;
+import com.ducksteam.needleseye.graphics.DepthShaderProvider;
 import com.ducksteam.needleseye.map.*;
 import com.ducksteam.needleseye.player.Player;
 import com.ducksteam.needleseye.player.PlayerInput;
@@ -60,9 +61,6 @@ import net.mgsx.gltf.loaders.gltf.GLTFAssetLoader;
 import net.mgsx.gltf.scene3d.scene.Scene;
 import net.mgsx.gltf.scene3d.scene.SceneAsset;
 import net.mgsx.gltf.scene3d.scene.SceneManager;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderConfig;
-import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
-import net.mgsx.gltf.scene3d.utils.ShaderParser;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -509,7 +507,10 @@ public class Main extends Game {
 		playerLantern = new PointLight().set(playerLanternColour, player.getPosition(), 1);
 
 		batch = new ModelBatch();
-		sceneMan = createSceneManager();
+
+        sceneMan = new SceneManager(ColorShaderProvider.createDefault(), DepthShaderProvider.createDefault());
+//        sceneMan = new SceneManager(ColorShaderProvider.createPBR(), DepthShaderProvider.createDefault());
+
 		camera = new PerspectiveCamera();
 		viewport = new FitViewport(640, 360, camera);
 
@@ -564,31 +565,6 @@ public class Main extends Game {
     }
 
     /**
-     * Loads shaders and configures rendering settings before passing them into a new {@link SceneManager}
-     * @return a configured {@link SceneManager}
-     */
-    private SceneManager createSceneManager() {
-        PBRShaderConfig pbrConfig = PBRShaderProvider.createDefaultConfig();
-        pbrConfig.numBones = 32;
-        pbrConfig.numDirectionalLights = 1;
-        pbrConfig.numPointLights = 1;
-        pbrConfig.numSpotLights = 0;
-        pbrConfig.glslVersion = "#version 150\n#define GLSL3\n";
-
-        pbrConfig.vertexShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.vert"));
-        pbrConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr/pbr.frag"));
-
-        DepthShader.Config depthConfig = new DepthShader.Config();
-        depthConfig.numBones = pbrConfig.numBones;
-
-        depthConfig.vertexShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr_depth.vert"));
-        depthConfig.fragmentShader = ShaderParser.parse(Gdx.files.internal("shaders/pbr_depth.frag"));
-
-        return new SceneManager(PBRShaderProvider.createDefault(pbrConfig), PBRShaderProvider.createDefaultDepth(depthConfig));
-//        return new SceneManager(ColorShaderProvider.createDefault(), DepthShaderProvider.createDefault());
-    }
-
-	/**
 	 * Construct font assets
 	 * */
 	private void buildFonts() {
