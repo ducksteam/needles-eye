@@ -4,8 +4,8 @@
 //#define normalFlag
 //#define lightingFlag
 //#define ambientCubemapFlag
-//#define numDirectionalLights 1
-//#define numPointLights 1
+//#define numDirectionalLights 2
+//#define numPointLights 5
 //#define numSpotLights 0
 //#define texCoord0Flag
 //#define diffuseTextureFlag
@@ -25,8 +25,54 @@
 //#define textureFlag
 #line 1
 
-out vec4 out_FragColor;
 
+//////// compat.frag
+
+// Extensions required for WebGL and some Android versions
+
+#ifdef GLSL3
+#define textureCubeLodEXT textureLod
+#define texture2DLodEXT textureLod
+#else
+#ifdef USE_TEXTURE_LOD_EXT
+#extension GL_EXT_shader_texture_lod: enable
+#else
+// Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
+#define textureCubeLodEXT textureCubeLod
+#define texture2DLodEXT texture2DLod
+#endif
+#endif
+
+// required to have same precision in both shader for light structure
+#ifdef GL_ES
+#define LOWP lowp
+#define MED mediump
+#define HIGH highp
+precision highp float;
+#else
+#define MED
+#define LOWP
+#define HIGH
+#endif
+
+// translate GLSL 120 to 130
+#ifdef GLSL3
+#define varying in
+out vec4 out_FragColor;
+#define textureCube texture
+#define texture2D texture
+#else
+#define out_FragColor gl_FragColor
+#endif
+
+// force unlitFlag when there is no lighting
+#ifndef lightingFlag
+#ifndef unlitFlag
+#define unlitFlag
+#endif
+#endif
+
+//////// functions.glsl
 // Constants
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
@@ -37,39 +83,250 @@ const float c_MinRoughness = 0.04;
 // sRGB conversions
 vec4 SRGBtoLINEAR(vec4 srgbIn)
 {
+    #ifdef MANUAL_SRGB
+    #ifdef SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else //SRGB_FAST_APPROXIMATION
     vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
     vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif //SRGB_FAST_APPROXIMATION
     return vec4(linOut,srgbIn.w);;
+    #else //MANUAL_SRGB
+    return srgbIn;
+    #endif //MANUAL_SRGB
 }
 
 // sRGB conversions for transmission source
 vec4 tsSRGBtoLINEAR(vec4 srgbIn)
 {
+    #ifdef TS_MANUAL_SRGB
+    #ifdef TS_SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else
     vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
     vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
-    return vec4(linOut, srgbIn.w);
+    #endif
+    return vec4(linOut,srgbIn.w);;
+    #else
+    return srgbIn;
+    #endif
 }
 
 // sRGB conversions for mirror source
 vec4 msSRGBtoLINEAR(vec4 srgbIn)
 {
+    #ifdef MS_MANUAL_SRGB
+    #ifdef MS_SRGB_FAST_APPROXIMATION
+    vec3 linOut = pow(srgbIn.xyz,vec3(2.2));
+    #else
     vec3 bLess = step(vec3(0.04045),srgbIn.xyz);
     vec3 linOut = mix( srgbIn.xyz/vec3(12.92), pow((srgbIn.xyz+vec3(0.055))/vec3(1.055),vec3(2.4)), bLess );
+    #endif
     return vec4(linOut,srgbIn.w);;
+    #else
+    return srgbIn;
+    #endif
 }
+#ifdef iridescenceFlag
+
+//////// iridescence.glsl
+// FROM functions.glsl
+
+float sq(float t)
+{
+    return t * t;
+}
+
+vec2 sq(vec2 t)
+{
+    return t * t;
+}
+
+vec3 sq(vec3 t)
+{
+    return t * t;
+}
+
+vec4 sq(vec4 t)
+{
+    return t * t;
+}
+
+// FROM brdf.glsl
+
+vec3 F_Schlick(vec3 f0, vec3 f90, float VdotH)
+{
+    return f0 + (f90 - f0) * pow(clamp(1.0 - VdotH, 0.0, 1.0), 5.0);
+}
+
+float F_Schlick(float f0, float f90, float VdotH)
+{
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = x * x2 * x2;
+    return f0 + (f90 - f0) * x5;
+}
+
+float F_Schlick(float f0, float VdotH)
+{
+    float f90 = 1.0; //clamp(50.0 * f0, 0.0, 1.0);
+    return F_Schlick(f0, f90, VdotH);
+}
+
+vec3 F_Schlick(vec3 f0, float f90, float VdotH)
+{
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = x * x2 * x2;
+    return f0 + (f90 - f0) * x5;
+}
+
+vec3 F_Schlick(vec3 f0, float VdotH)
+{
+    float f90 = 1.0; //clamp(dot(f0, vec3(50.0 * 0.33)), 0.0, 1.0);
+    return F_Schlick(f0, f90, VdotH);
+}
+
+vec3 Schlick_to_F0(vec3 f, vec3 f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+float Schlick_to_F0(float f, float f90, float VdotH) {
+    float x = clamp(1.0 - VdotH, 0.0, 1.0);
+    float x2 = x * x;
+    float x5 = clamp(x * x2 * x2, 0.0, 0.9999);
+
+    return (f - f90 * x5) / (1.0 - x5);
+}
+
+vec3 Schlick_to_F0(vec3 f, float VdotH) {
+    return Schlick_to_F0(f, vec3(1.0), VdotH);
+}
+
+float Schlick_to_F0(float f, float VdotH) {
+    return Schlick_to_F0(f, 1.0, VdotH);
+}
+
+// FROM iridescence.glsl
+
+// XYZ to sRGB color space
+const mat3 XYZ_TO_REC709 = mat3(
+3.2404542, -0.9692660,  0.0556434,
+-1.5371385,  1.8760108, -0.2040259,
+-0.4985314,  0.0415560,  1.0572252
+);
+
+// Assume air interface for top
+// Note: We don't handle the case fresnel0 == 1
+vec3 Fresnel0ToIor(vec3 fresnel0) {
+    vec3 sqrtF0 = sqrt(fresnel0);
+    return (vec3(1.0) + sqrtF0) / (vec3(1.0) - sqrtF0);
+}
+
+// Conversion FO/IOR
+vec3 IorToFresnel0(vec3 transmittedIor, float incidentIor) {
+    return sq((transmittedIor - vec3(incidentIor)) / (transmittedIor + vec3(incidentIor)));
+}
+
+// ior is a value between 1.0 and 3.0. 1.0 is air interface
+float IorToFresnel0(float transmittedIor, float incidentIor) {
+    return sq((transmittedIor - incidentIor) / (transmittedIor + incidentIor));
+}
+
+// Fresnel equations for dielectric/dielectric interfaces.
+// Ref: https://belcour.github.io/blog/research/2017/05/01/brdf-thin-film.html
+// Evaluation XYZ sensitivity curves in Fourier space
+vec3 evalSensitivity(float OPD, vec3 shift) {
+    float phase = 2.0 * M_PI * OPD * 1.0e-9;
+    vec3 val = vec3(5.4856e-13, 4.4201e-13, 5.2481e-13);
+    vec3 pos = vec3(1.6810e+06, 1.7953e+06, 2.2084e+06);
+    vec3 var = vec3(4.3278e+09, 9.3046e+09, 6.6121e+09);
+
+    vec3 xyz = val * sqrt(2.0 * M_PI * var) * cos(pos * phase + shift) * exp(-sq(phase) * var);
+    xyz.x += 9.7470e-14 * sqrt(2.0 * M_PI * 4.5282e+09) * cos(2.2399e+06 * phase + shift[0]) * exp(-4.5282e+09 * sq(phase));
+    xyz /= 1.0685e-7;
+
+    vec3 srgb = XYZ_TO_REC709 * xyz;
+    return srgb;
+}
+
+vec3 evalIridescence(float outsideIOR, float eta2, float cosTheta1, float thinFilmThickness, vec3 baseF0) {
+    vec3 I;
+
+    // Force iridescenceIor -> outsideIOR when thinFilmThickness -> 0.0
+    float iridescenceIor = mix(outsideIOR, eta2, smoothstep(0.0, 0.03, thinFilmThickness));
+    // Evaluate the cosTheta on the base layer (Snell law)
+    float sinTheta2Sq = sq(outsideIOR / iridescenceIor) * (1.0 - sq(cosTheta1));
+
+    // Handle TIR:
+    float cosTheta2Sq = 1.0 - sinTheta2Sq;
+    if (cosTheta2Sq < 0.0) {
+        return vec3(1.0);
+    }
+
+    float cosTheta2 = sqrt(cosTheta2Sq);
+
+    // First interface
+    float R0 = IorToFresnel0(iridescenceIor, outsideIOR);
+    float R12 = F_Schlick(R0, cosTheta1);
+    float R21 = R12;
+    float T121 = 1.0 - R12;
+    float phi12 = 0.0;
+    if (iridescenceIor < outsideIOR) phi12 = M_PI;
+    float phi21 = M_PI - phi12;
+
+    // Second interface
+    vec3 baseIOR = Fresnel0ToIor(clamp(baseF0, 0.0, 0.9999)); // guard against 1.0
+    vec3 R1 = IorToFresnel0(baseIOR, iridescenceIor);
+    vec3 R23 = F_Schlick(R1, cosTheta2);
+    vec3 phi23 = vec3(0.0);
+    if (baseIOR[0] < iridescenceIor) phi23[0] = M_PI;
+    if (baseIOR[1] < iridescenceIor) phi23[1] = M_PI;
+    if (baseIOR[2] < iridescenceIor) phi23[2] = M_PI;
+
+    // Phase shift
+    float OPD = 2.0 * iridescenceIor * thinFilmThickness * cosTheta2;
+    vec3 phi = vec3(phi21) + phi23;
+
+    // Compound terms
+    vec3 R123 = clamp(R12 * R23, 1e-5, 0.9999);
+    vec3 r123 = sqrt(R123);
+    vec3 Rs = sq(T121) * R23 / (vec3(1.0) - R123);
+
+    // Reflectance term for m = 0 (DC term amplitude)
+    vec3 C0 = R12 + Rs;
+    I = C0;
+
+    // Reflectance term for m > 0 (pairs of diracs)
+    vec3 Cm = Rs - T121;
+    for (int m = 1; m <= 2; ++m)
+    {
+        Cm *= r123;
+        vec3 Sm = 2.0 * evalSensitivity(float(m) * OPD, float(m) * phi);
+        I += Cm * Sm;
+    }
+
+    // Since out of gamut colors might be produced, negative color values are clamped to 0.
+    return max(I, vec3(0.0));
+}
+#endif
 
 //////// material.glsl
 #ifdef normalFlag
 #ifdef tangentFlag
-in mat3 v_TBN;
+varying mat3 v_TBN;
 #else
-in vec3 v_normal;
+varying vec3 v_normal;
 #endif
 
 #endif //normalFlag
 
 #if defined(colorFlag)
-in vec4 v_color;
+varying vec4 v_color;
 #endif
 
 #ifdef blendedFlag
@@ -80,14 +337,15 @@ uniform float u_alphaTest;
 #endif //blendedFlag
 
 #ifdef textureFlag
-in vec2 v_texCoord0;
+varying MED vec2 v_texCoord0;
 #endif // textureFlag
 
 #ifdef textureCoord1Flag
-in vec2 v_texCoord1;
+varying MED vec2 v_texCoord1;
 #endif // textureCoord1Flag
 
 // texCoord unit mapping
+
 #ifndef v_diffuseUV
 #define v_diffuseUV v_texCoord0
 #endif
@@ -265,7 +523,7 @@ vec4 getBaseColor()
     #endif
 
     #ifdef diffuseTextureFlag
-    vec4 baseColor = SRGBtoLINEAR(texture(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
+    vec4 baseColor = SRGBtoLINEAR(texture2D(u_diffuseTexture, v_diffuseUV)) * baseColorFactor;
     #else
     vec4 baseColor = baseColorFactor;
     #endif
@@ -283,7 +541,7 @@ vec3 getNormal()
 {
     #ifdef tangentFlag
     #ifdef normalTextureFlag
-    vec3 n = texture(u_normalTexture, v_normalUV).rgb;
+    vec3 n = texture2D(u_normalTexture, v_normalUV).rgb;
     n = normalize(v_TBN * ((2.0 * n - 1.0) * vec3(u_NormalScale, u_NormalScale, 1.0)));
     #else
     vec3 n = normalize(v_TBN[2].xyz);
@@ -301,7 +559,7 @@ float getTransmissionFactor()
     #ifdef transmissionFlag
     float transmissionFactor = u_transmissionFactor;
     #ifdef transmissionTextureFlag
-    transmissionFactor *= texture(u_transmissionSampler, v_transmissionUV).r;
+    transmissionFactor *= texture2D(u_transmissionSampler, v_transmissionUV).r;
     #endif
     return transmissionFactor;
     #else
@@ -314,7 +572,7 @@ float getThickness()
     #ifdef volumeFlag
     float thickness = u_thicknessFactor;
     #ifdef thicknessTextureFlag
-    thickness *= texture(u_thicknessSampler, v_thicknessUV).g;
+    thickness *= texture2D(u_thicknessSampler, v_thicknessUV).g;
     #endif
     return thickness;
     #else
@@ -329,11 +587,11 @@ PBRSurfaceInfo getIridescenceInfo(PBRSurfaceInfo info){
     info.iridescenceThickness = u_iridescenceThicknessMax;
 
     #ifdef iridescenceTextureFlag
-    info.iridescenceFactor *= texture(u_iridescenceSampler, v_iridescenceUV).r;
+    info.iridescenceFactor *= texture2D(u_iridescenceSampler, v_iridescenceUV).r;
     #endif
 
     #ifdef iridescenceThicknessTextureFlag
-    float thicknessFactor = texture(u_iridescenceThicknessSampler, v_iridescenceThicknessUV).g;
+    float thicknessFactor = texture2D(u_iridescenceThicknessSampler, v_iridescenceThicknessUV).g;
     info.iridescenceThickness = mix(u_iridescenceThicknessMin, u_iridescenceThicknessMax, thicknessFactor);
     #endif
 
@@ -374,7 +632,7 @@ uniform vec4 u_cameraPosition;
 
 uniform mat4 u_worldTrans;
 
-in vec3 v_position;
+varying vec3 v_position;
 
 
 #ifdef transmissionSourceFlag
@@ -674,7 +932,7 @@ PBRLightContribs getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight l
 uniform float u_shadowBias;
 uniform sampler2D u_shadowTexture;
 uniform float u_shadowPCFOffset;
-in vec3 v_shadowMapUv;
+varying vec3 v_shadowMapUv;
 
 #ifdef numCSM
 
@@ -688,11 +946,11 @@ uniform sampler2D u_csmSamplers5;
 uniform sampler2D u_csmSamplers6;
 uniform sampler2D u_csmSamplers7;
 uniform vec2 u_csmPCFClip[numCSM];
-in vec3 v_csmUVs[numCSM];
+varying vec3 v_csmUVs[numCSM];
 
 float getCSMShadowness(sampler2D sampler, vec3 uv, vec2 offset){
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(uv.z, dot(texture(sampler, uv.xy + offset), bitShifts) + u_shadowBias); // (1.0/255.0)
+    return step(uv.z, dot(texture2D(sampler, uv.xy + offset), bitShifts) + u_shadowBias); // (1.0/255.0)
 }
 
 float getCSMShadow(sampler2D sampler, vec3 uv, float pcf){
@@ -748,7 +1006,7 @@ float getShadow()
 float getShadowness(vec2 offset)
 {
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
-    return step(v_shadowMapUv.z, dot(texture(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + u_shadowBias); // (1.0/255.0)
+    return step(v_shadowMapUv.z, dot(texture2D(u_shadowTexture, v_shadowMapUv.xy + offset), bitShifts) + u_shadowBias); // (1.0/255.0)
 }
 
 float getShadow()
@@ -804,7 +1062,7 @@ vec2 sampleBRDF(PBRSurfaceInfo pbrSurface)
 {
     #ifdef brdfLUTTexture
     vec2 brdfSamplePoint = clamp(vec2(pbrSurface.NdotV, 1.0 - pbrSurface.perceptualRoughness), vec2(0.0, 0.0), vec2(1.0, 1.0));
-    return texture(u_brdfLUT, brdfSamplePoint).xy;
+    return texture2D(u_brdfLUT, brdfSamplePoint).xy;
     #else // TODO not sure about how to compute it ...
     return vec2(pbrSurface.NdotV, pbrSurface.perceptualRoughness);
     #endif
@@ -817,9 +1075,9 @@ vec3 getTransmissionSample(vec2 fragCoord, float roughness)
 {
     #ifdef USE_TEX_LOD
     float framebufferLod = u_transmissionSourceMipmapScale * applyIorToRoughness(roughness);
-    vec3 transmittedLight = tsSRGBtoLINEAR(textureLod(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
+    vec3 transmittedLight = tsSRGBtoLINEAR(texture2DLodEXT(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
     #else
-    vec3 transmittedLight = tsSRGBtoLINEAR(texture(u_transmissionSourceSampler, fragCoord.xy)).rgb;
+    vec3 transmittedLight = tsSRGBtoLINEAR(texture2D(u_transmissionSourceSampler, fragCoord.xy)).rgb;
     #endif
     return transmittedLight;
 }
@@ -879,9 +1137,9 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v, v
     #endif
 
 
-    vec3 specularLight = SRGBtoLINEAR(textureLod(u_SpecularEnvSampler, specularDirection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
     #else
-    vec3 specularLight = SRGBtoLINEAR(texture(u_SpecularEnvSampler, specularDirection)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
     #endif
 
 
@@ -908,7 +1166,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     #else
     vec3 diffuseDirection = n;
     #endif
-    vec3 diffuseLight = SRGBtoLINEAR(texture(u_DiffuseEnvSampler, diffuseDirection)).rgb;
+    vec3 diffuseLight = SRGBtoLINEAR(textureCube(u_DiffuseEnvSampler, diffuseDirection)).rgb;
 
     #ifdef mirrorSpecularFlag
     float lod = (pbrSurface.perceptualRoughness * u_mirrorMipmapScale);
@@ -921,7 +1179,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     mirrorCoord += p / 2.0;
     mirrorCoord.x = 1.0 - mirrorCoord.x;
 
-    vec3 specularLight = msSRGBtoLINEAR(textureLod(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
+    vec3 specularLight = msSRGBtoLINEAR(texture2DLodEXT(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
 
     #else
 
@@ -933,9 +1191,9 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 
     #ifdef USE_TEX_LOD
     float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
-    vec3 specularLight = SRGBtoLINEAR(textureLod(u_SpecularEnvSampler, specularDirection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
     #else
-    vec3 specularLight = SRGBtoLINEAR(texture(u_SpecularEnvSampler, specularDirection)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
     #endif
 
     #endif
@@ -1019,7 +1277,7 @@ void main() {
     #ifdef metallicRoughnessTextureFlag
     // Roughness is stored in the 'g' channel, metallic is stored in the 'b' channel.
     // This layout intentionally reserves the 'r' channel for (optional) occlusion map data
-    vec4 mrSample = texture(u_MetallicRoughnessSampler, v_metallicRoughnessUV);
+    vec4 mrSample = texture2D(u_MetallicRoughnessSampler, v_metallicRoughnessUV);
     perceptualRoughness = mrSample.g * perceptualRoughness;
     metallic = mrSample.b * metallic;
     #endif
@@ -1041,7 +1299,7 @@ void main() {
     #ifdef specularFlag
     float specularFactor = u_specularFactor;
     #ifdef specularFactorTextureFlag
-    specularFactor *= texture(u_specularFactorSampler, v_specularFactorUV).a;
+    specularFactor *= texture2D(u_specularFactorSampler, v_specularFactorUV).a;
     #endif
     #ifdef specularColorFlag
     vec3 specularColorFactor = u_specularColorFactor;
@@ -1049,7 +1307,7 @@ void main() {
     vec3 specularColorFactor = vec3(1.0);
     #endif
     #ifdef specularTextureFlag
-    specularColorFactor *= SRGBtoLINEAR(texture(u_specularColorSampler, v_specularColorUV)).rgb;
+    specularColorFactor *= SRGBtoLINEAR(texture2D(u_specularColorSampler, v_specularColorUV)).rgb;
     #endif
     // Compute specular
     vec3 dielectricSpecularF0 = min(f0 * specularColorFactor, vec3(1.0));
@@ -1131,7 +1389,7 @@ void main() {
 
     // Apply ambient occlusion only to ambient light
     #ifdef occlusionTextureFlag
-    float ao = texture(u_OcclusionSampler, v_occlusionUV).r;
+    float ao = texture2D(u_OcclusionSampler, v_occlusionUV).r;
     f_diffuse = mix(f_diffuse, f_diffuse * ao, u_OcclusionStrength);
     f_specular = mix(f_specular, f_specular * ao, u_OcclusionStrength);
     #endif
@@ -1188,9 +1446,9 @@ void main() {
 
     // Add emissive
     #if defined(emissiveTextureFlag) && defined(emissiveColorFlag)
-    vec3 emissive = SRGBtoLINEAR(texture(u_emissiveTexture, v_emissiveUV)).rgb * u_emissiveColor.rgb;
+    vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb * u_emissiveColor.rgb;
     #elif defined(emissiveTextureFlag)
-    vec3 emissive = SRGBtoLINEAR(texture(u_emissiveTexture, v_emissiveUV)).rgb;
+    vec3 emissive = SRGBtoLINEAR(texture2D(u_emissiveTexture, v_emissiveUV)).rgb;
     #elif defined(emissiveColorFlag)
     vec3 emissive = u_emissiveColor.rgb;
     #endif

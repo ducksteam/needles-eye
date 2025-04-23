@@ -8,8 +8,11 @@ import net.mgsx.gltf.scene3d.shaders.PBRShaderProvider;
 
 public class ColorShaderProvider extends PBRShaderProvider {
     static PBRShaderConfig config;
+    static PBRShaderConfig pbrConfig;
     static String vertexShaderPath = "shaders/ne_color.vert";
     static String fragmentShaderPath = "shaders/ne_color.frag";
+    static String pbrVertexShaderPath = "shaders/pbr.vert";
+    static String pbrFragmentShaderPath = "shaders/pbr.frag";
 
     public ColorShaderProvider(PBRShaderConfig config) {
         super(config);
@@ -28,7 +31,18 @@ public class ColorShaderProvider extends PBRShaderProvider {
         return new ColorShaderProvider(config);
     }
 
-    // TODO: fix vertex attributes not being imported correctly, become as similar as possible to PBRShaderProvider
+    public static ColorShaderProvider createPBR(){
+        if (pbrConfig == null) {
+            pbrConfig = createDefaultConfig();
+            pbrConfig.numDirectionalLights = 1;
+            pbrConfig.numPointLights = 1;
+            pbrConfig.numSpotLights = 0;
+
+            pbrConfig.vertexShader = Gdx.files.internal(pbrVertexShaderPath).readString();
+            pbrConfig.fragmentShader = Gdx.files.internal(pbrFragmentShaderPath).readString();
+        }
+        return new ColorShaderProvider(pbrConfig);
+    }
 
     @Override
     public String createPrefixBase(Renderable renderable, PBRShaderConfig config) {
