@@ -32,54 +32,8 @@
 //#define textureCoord1Flag
 #line 1
 
-
-//////// compat.frag
-
-// Extensions required for WebGL and some Android versions
-
-#ifdef GLSL3
-#define textureCubeLodEXT textureLod
-#define texture2DLodEXT textureLod
-#else
-#ifdef USE_TEXTURE_LOD_EXT
-#extension GL_EXT_shader_texture_lod: enable
-#else
-// Note : "textureCubeLod" is used for compatibility but should be "textureLod" for GLSL #version 130 (OpenGL 3.0+)
-#define textureCubeLodEXT textureCubeLod
-#define texture2DLodEXT texture2DLod
-#endif
-#endif
-
-// required to have same precision in both shader for light structure
-#ifdef GL_ES
-#define LOWP lowp
-#define MED mediump
-#define HIGH highp
-precision highp float;
-#else
-#define MED
-#define LOWP
-#define HIGH
-#endif
-
-// translate GLSL 120 to 130
-#ifdef GLSL3
-#define varying in
 out vec4 out_FragColor;
-#define textureCube texture
-#define texture2D texture
-#else
-#define out_FragColor gl_FragColor
-#endif
 
-// force unlitFlag when there is no lighting
-#ifndef lightingFlag
-#ifndef unlitFlag
-#define unlitFlag
-#endif
-#endif
-
-//////// functions.glsl
 // Constants
 const float M_PI = 3.141592653589793;
 const float c_MinRoughness = 0.04;
@@ -325,15 +279,15 @@ vec3 evalIridescence(float outsideIOR, float eta2, float cosTheta1, float thinFi
 //////// material.glsl
 #ifdef normalFlag
 #ifdef tangentFlag
-varying mat3 v_TBN;
+in mat3 v_TBN;
 #else
-varying vec3 v_normal;
+in vec3 v_normal;
 #endif
 
 #endif //normalFlag
 
 #if defined(colorFlag)
-varying vec4 v_color;
+in vec4 v_color;
 #endif
 
 #ifdef blendedFlag
@@ -344,11 +298,11 @@ uniform float u_alphaTest;
 #endif //blendedFlag
 
 #ifdef textureFlag
-varying MED vec2 v_texCoord0;
+in vec2 v_texCoord0;
 #endif // textureFlag
 
 #ifdef textureCoord1Flag
-varying MED vec2 v_texCoord1;
+in vec2 v_texCoord1;
 #endif // textureCoord1Flag
 
 // texCoord unit mapping
@@ -639,7 +593,7 @@ uniform vec4 u_cameraPosition;
 
 uniform mat4 u_worldTrans;
 
-varying vec3 v_position;
+in vec3 v_position;
 
 
 #ifdef transmissionSourceFlag
@@ -939,7 +893,7 @@ PBRLightContribs getSpotLightContribution(PBRSurfaceInfo pbrSurface, SpotLight l
 uniform float u_shadowBias;
 uniform sampler2D u_shadowTexture;
 uniform float u_shadowPCFOffset;
-varying vec3 v_shadowMapUv;
+in vec3 v_shadowMapUv;
 
 #ifdef numCSM
 
@@ -953,7 +907,7 @@ uniform sampler2D u_csmSamplers5;
 uniform sampler2D u_csmSamplers6;
 uniform sampler2D u_csmSamplers7;
 uniform vec2 u_csmPCFClip[numCSM];
-varying vec3 v_csmUVs[numCSM];
+in vec3 v_csmUVs[numCSM];
 
 float getCSMShadowness(sampler2D sampler, vec3 uv, vec2 offset){
     const vec4 bitShifts = vec4(1.0, 1.0 / 255.0, 1.0 / 65025.0, 1.0 / 16581375.0);
@@ -1082,7 +1036,7 @@ vec3 getTransmissionSample(vec2 fragCoord, float roughness)
 {
     #ifdef USE_TEX_LOD
     float framebufferLod = u_transmissionSourceMipmapScale * applyIorToRoughness(roughness);
-    vec3 transmittedLight = tsSRGBtoLINEAR(texture2DLodEXT(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
+    vec3 transmittedLight = tsSRGBtoLINEAR(textureLod(u_transmissionSourceSampler, fragCoord.xy, framebufferLod)).rgb;
     #else
     vec3 transmittedLight = tsSRGBtoLINEAR(texture2D(u_transmissionSourceSampler, fragCoord.xy)).rgb;
     #endif
@@ -1144,7 +1098,7 @@ vec3 getIBLTransmissionContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 v, v
     #endif
 
 
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureLod(u_SpecularEnvSampler, specularDirection, lod)).rgb;
     #else
     vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
     #endif
@@ -1186,7 +1140,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     mirrorCoord += p / 2.0;
     mirrorCoord.x = 1.0 - mirrorCoord.x;
 
-    vec3 specularLight = msSRGBtoLINEAR(texture2DLodEXT(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
+    vec3 specularLight = msSRGBtoLINEAR(textureLod(u_mirrorSpecularSampler, mirrorCoord, lod)).rgb;
 
     #else
 
@@ -1198,7 +1152,7 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
 
     #ifdef USE_TEX_LOD
     float lod = (pbrSurface.perceptualRoughness * u_mipmapScale);
-    vec3 specularLight = SRGBtoLINEAR(textureCubeLodEXT(u_SpecularEnvSampler, specularDirection, lod)).rgb;
+    vec3 specularLight = SRGBtoLINEAR(textureLod(u_SpecularEnvSampler, specularDirection, lod)).rgb;
     #else
     vec3 specularLight = SRGBtoLINEAR(textureCube(u_SpecularEnvSampler, specularDirection)).rgb;
     #endif
@@ -1244,6 +1198,23 @@ PBRLightContribs getIBLContribution(PBRSurfaceInfo pbrSurface, vec3 n, vec3 refl
     return PBRLightContribs(diffuse, specular, transmission);
 }
 #endif
+
+/*void main() {
+    // diffuse
+    vec4 diffuseColor = getBaseColor();
+
+    // emissive
+    #ifdef emissiveTextureFlag
+    vec4 emissiveColor = texture(u_emissiveTexture, v_emissiveUV);
+    #elif defined(emissiveColorFlag)
+    vec4 emissiveColor = u_emissiveColor;
+    #else
+    vec4 emissiveColor = vec4(0.0f);
+    #endif
+
+    //
+
+}*/
 
 #ifdef unlitFlag
 
@@ -1469,7 +1440,7 @@ void main() {
     #ifdef GAMMA_CORRECTION
     out_FragColor = vec4(pow(color,vec3(1.0/GAMMA_CORRECTION)), baseColor.a);
     #else
-    out_FragColor = vec4(color, baseColor.a);
+    out_FragColor = vec4(color, /*baseColor.a*/1.0f);
     #endif
 
     #ifdef fogFlag
