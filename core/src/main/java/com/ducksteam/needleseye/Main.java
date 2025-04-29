@@ -1075,7 +1075,7 @@ public class Main extends Game {
 			});
 
 			entities.forEach((Integer id, Entity entity) -> {
-                entity.isInFrame = isInFrustum(entity, camera);
+                entity.isInFrame = entity.isInFrustum();
 
                 if (entity.isInFrame && entity.isRenderable && entity.getScene() != null && !sceneMan.getRenderableProviders().contains(entity.getScene(), true)){
 					sceneMan.addScene(entity.getScene());
@@ -1192,24 +1192,6 @@ public class Main extends Game {
 		return System.currentTimeMillis();
 //		return time; // this is so incredibly wrong it only counts the frames where render is called so if you're standing still without debug menu open it will run 10x slower than if you do have it open. debug menu essentially forces incredibly quick updates because it has the bullet vectors that are always changing slightly
 	}
-
-    /**
-     * Identifies if an object is in the camera frustum
-     */
-    private boolean isInFrustum(Entity entity, Camera camera) {
-        Scene scene = entity.getScene();
-        if (scene == null) return false;
-        /*BoundingBox bounds = new BoundingBox();
-        scene.modelInstance.calculateBoundingBox(bounds);
-        return camera.frustum.boundsInFrustum(bounds);*/
-
-        if (entity instanceof DecoInstance deco && deco.shattered) return true; // fixme
-
-        Vector3 position = new Vector3();
-        scene.modelInstance.transform.getTranslation(position);
-        position.add(entity.getBoundingSphereCentre());
-        return camera.frustum.sphereInFrustum(position, entity.getBoundingSphereRadius());
-    }
 
     /**
 	 * @param width The new width of the window

@@ -403,7 +403,25 @@ public abstract class Entity implements AnimationListener {
 		if (isRenderable && scene != null) sceneMan.removeScene(scene);
 	}
 
-	/**
+    /**
+     * Identifies if an object is in the camera frustum
+     */
+    public boolean isInFrustum() {
+        Scene scene = getScene();
+        if (scene == null) return false;
+        /*BoundingBox bounds = new BoundingBox();
+        scene.modelInstance.calculateBoundingBox(bounds);
+        return camera.frustum.boundsInFrustum(bounds);*/
+
+        if (this instanceof DecoInstance deco && deco.shattered) return true; // fixme
+
+        Vector3 position = new Vector3();
+        scene.modelInstance.transform.getTranslation(position);
+        position.add(getBoundingSphereCentre());
+        return Main.camera.frustum.sphereInFrustum(position, getBoundingSphereRadius());
+    }
+
+    /**
 	 * A runnable interface that can be passed an entity to run code on
 	 * */
 	@FunctionalInterface
